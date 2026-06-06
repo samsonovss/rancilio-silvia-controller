@@ -285,8 +285,8 @@ binary_sensor:
       number: ${water_level_pin}
       mode:
         input: true
-        pullup: false
-      inverted: false
+        pullup: true
+      inverted: true
     filters:
       - delayed_on: 500ms
       - delayed_off: 500ms

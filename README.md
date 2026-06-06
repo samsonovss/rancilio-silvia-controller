@@ -58,7 +58,7 @@ The software overtemperature limit and the SSR `slow_pwm` period are currently f
 
 ## Project status
 
-This project is under active development. The water-level input is assigned to GPIO18, but the sensor output type is still being identified. Determine whether it uses an NPN/open-collector, PNP, or push-pull output and verify its voltage before connecting it to the ESP32-S3.
+This project is under active development. The XKC-Y25-NPN water-level sensor uses an active-low open-collector output on GPIO18 with the ESP32-S3 internal 3.3 V pull-up enabled.
 
 ## Documentation
 
