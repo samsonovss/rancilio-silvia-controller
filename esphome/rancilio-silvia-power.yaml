@@ -1,0 +1,700 @@
+esphome:
+  name: rancilio-silvia-power
+  friendly_name: Rancilio Silvia Power
+  on_boot:
+    priority: 800
+    then:
+      - switch.turn_off: silvia_power_relay
+      - lambda: |-
+          id(auto_off_remaining_seconds) = 0;
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+
+logger:
+  level: INFO
+
+web_server:
+  port: 80
+
+api:
+  reboot_timeout: 0s
+
+ota:
+  platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  ap:
+    ssid: "Silvia Fallback"
+    password: !secret fallback_ap_password
+
+captive_portal:
+
+
+
+spi:
+  clk_pin: GPIO11
+  miso_pin: GPIO12
+  mosi_pin: GPIO13
+
+# -------------------------
+# GPIO настройки
+# -------------------------
+
+substitutions:
+  relay_pin: GPIO4
+  button_pin: GPIO5
+  led_pin: GPIO6
+  heater_ssr_pin: GPIO7
+  max31865_cs_pin: GPIO14
+  water_level_pin: GPIO18
+  overtemp_limit: "155.0"
+
+# -------------------------
+# Внутренние переменные
+# -------------------------
+
+globals:
+  - id: auto_off_remaining_seconds
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+  - id: pid_heat_output_value
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+    
+# -------------------------
+# Настраиваемые параметры в HA
+# -------------------------
+
+number:
+  - platform: template
+    name: "Silvia Auto Off Minutes"
+    id: silvia_auto_off_minutes
+    optimistic: true
+    restore_value: true
+    initial_value: 60
+    min_value: 0
+    max_value: 180
+    step: 5
+    unit_of_measurement: "min"
+    mode: slider
+    on_value:
+      then:
+        - if:
+            condition:
+              switch.is_on: silvia_power_relay
+            then:
+              - script.execute: auto_off_timer
+              - script.execute: status_led_update
+
+  - platform: template
+    name: "Silvia PID KP"
+    id: silvia_pid_kp
+    optimistic: true
+    restore_value: false
+    initial_value: 0.12492
+    min_value: 0.0
+    max_value: 50.0
+    step: 0.00001
+    mode: box
+    on_value:
+      then:
+        - script.execute: apply_pid_parameters
+
+  - platform: template
+    name: "Silvia PID KI"
+    id: silvia_pid_ki
+    optimistic: true
+    restore_value: false
+    initial_value: 0.00065
+    min_value: 0.0
+    max_value: 5.0
+    step: 0.00001
+    mode: box
+    on_value:
+      then:
+        - script.execute: apply_pid_parameters
+
+  - platform: template
+    name: "Silvia PID KD"
+    id: silvia_pid_kd
+    optimistic: true
+    restore_value: false
+    initial_value: 6.00246
+    min_value: 0.0
+    max_value: 100.0
+    step: 0.00001
+    mode: box
+    on_value:
+      then:
+        - script.execute: apply_pid_parameters
+
+  - platform: template
+    name: "Silvia Brew Target"
+    id: silvia_brew_target
+    optimistic: true
+    restore_value: true
+    initial_value: 93
+    min_value: 80
+    max_value: 105
+    step: 0.5
+    unit_of_measurement: "°C"
+    mode: box
+    on_value:
+      then:
+        - if:
+            condition:
+              lambda: 'return id(silvia_pid_mode).current_option() == "Brew";'
+            then:
+              - script.execute: apply_pid_mode
+
+  - platform: template
+    name: "Silvia Steam Target"
+    id: silvia_steam_target
+    optimistic: true
+    restore_value: true
+    initial_value: 140
+    min_value: 120
+    max_value: 150
+    step: 1
+    unit_of_measurement: "°C"
+    mode: box
+    on_value:
+      then:
+        - if:
+            condition:
+              lambda: 'return id(silvia_pid_mode).current_option() == "Steam";'
+            then:
+              - script.execute: apply_pid_mode
+          
+# -------------------------
+# Реле включения машины
+# -------------------------
+
+switch:
+  - platform: gpio
+    name: "Silvia Power Relay"
+    id: silvia_power_relay
+    restore_mode: ALWAYS_OFF
+    pin:
+      number: ${relay_pin}
+      inverted: true
+    on_turn_on:
+      - script.execute: auto_off_timer
+      - script.execute: status_led_update
+      - script.execute: apply_pid_mode
+    on_turn_off:
+      - climate.control:
+          id: silvia_brew_pid
+          mode: "OFF"
+      - output.set_level:
+          id: silvia_pid_heat_output
+          level: 0%
+      - script.stop: auto_off_timer
+      - script.stop: status_led_blink_slow
+      - script.stop: status_led_blink_fast
+      - light.turn_off: silvia_status_led_light
+      - lambda: |-
+          id(auto_off_remaining_seconds) = 0;
+
+# -------------------------
+# Родная кнопка Power
+# -------------------------
+
+binary_sensor:
+  - platform: gpio
+    name: "Silvia Power Button"
+    id: silvia_power_button
+    pin:
+      number: ${button_pin}
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    filters:
+      - delayed_on: 30ms
+      - delayed_off: 30ms
+    on_press:
+      - switch.toggle: silvia_power_relay
+
+  - platform: gpio
+    name: "Silvia Water Level"
+    id: silvia_water_level
+    pin:
+      number: ${water_level_pin}
+      mode:
+        input: true
+        pullup: false
+      inverted: false
+    filters:
+      - delayed_on: 500ms
+      - delayed_off: 500ms
+        
+# -------------------------
+# Автоотключение
+# 0 минут = автоотключение выключено
+# -------------------------
+
+script:
+  - id: auto_off_timer
+    mode: restart
+    then:
+      - lambda: |-
+          if (id(silvia_auto_off_minutes).state <= 0) {
+            id(auto_off_remaining_seconds) = 0;
+          } else {
+            id(auto_off_remaining_seconds) = (int)(id(silvia_auto_off_minutes).state * 60.0f);
+          }
+
+      - if:
+          condition:
+            lambda: 'return id(silvia_auto_off_minutes).state > 0;'
+          then:
+            - while:
+                condition:
+                  lambda: |-
+                    return id(silvia_power_relay).state &&
+                           id(auto_off_remaining_seconds) > 0 &&
+                           id(silvia_auto_off_minutes).state > 0;
+                then:
+                  - delay: 1s
+                  - lambda: |-
+                      id(auto_off_remaining_seconds)--;
+
+                  - if:
+                      condition:
+                        lambda: 'return id(auto_off_remaining_seconds) == 60;'
+                      then:
+                        - script.execute: status_led_update
+
+            - if:
+                condition:
+                  lambda: |-
+                    return id(silvia_power_relay).state &&
+                           id(auto_off_remaining_seconds) <= 0 &&
+                           id(silvia_auto_off_minutes).state > 0;
+                then:
+                  - switch.turn_off: silvia_power_relay
+
+  - id: status_led_update
+    mode: restart
+    then:
+      - script.stop: status_led_blink_slow
+      - script.stop: status_led_blink_fast
+
+      - if:
+          condition:
+            switch.is_off: silvia_power_relay
+          then:
+            - light.turn_off: silvia_status_led_light
+          else:
+            - if:
+                condition:
+                  lambda: 'return id(silvia_auto_off_minutes).state <= 0;'
+                then:
+                  - light.turn_on: silvia_status_led_light
+                else:
+                  - if:
+                      condition:
+                        lambda: 'return id(auto_off_remaining_seconds) > 0 && id(auto_off_remaining_seconds) <= 60;'
+                      then:
+                        - script.execute: status_led_blink_fast
+                      else:
+                        - script.execute: status_led_blink_slow
+
+  - id: status_led_blink_slow
+    mode: restart
+    then:
+      - while:
+          condition:
+            lambda: |-
+              return id(silvia_power_relay).state &&
+                     id(silvia_auto_off_minutes).state > 0 &&
+                     id(auto_off_remaining_seconds) > 60;
+          then:
+            - light.turn_on: silvia_status_led_light
+            - delay: 1s
+            - light.turn_off: silvia_status_led_light
+            - delay: 2s
+
+  - id: status_led_blink_fast
+    mode: restart
+    then:
+      - while:
+          condition:
+            lambda: |-
+              return id(silvia_power_relay).state &&
+                     id(silvia_auto_off_minutes).state > 0 &&
+                     id(auto_off_remaining_seconds) > 0 &&
+                     id(auto_off_remaining_seconds) <= 60;
+          then:
+            - light.turn_on: silvia_status_led_light
+            - delay: 300ms
+            - light.turn_off: silvia_status_led_light
+            - delay: 300ms
+
+  - id: apply_pid_parameters
+    mode: restart
+    then:
+      - climate.pid.set_control_parameters:
+          id: silvia_brew_pid
+          kp: !lambda 'return id(silvia_pid_kp).state;'
+          ki: !lambda 'return id(silvia_pid_ki).state;'
+          kd: !lambda 'return id(silvia_pid_kd).state;'
+
+  - id: apply_pid_mode
+    mode: restart
+    then:
+      - if:
+          condition:
+            lambda: 'return id(silvia_pid_mode).current_option() == "Brew";'
+          then:
+            - if:
+                condition:
+                  switch.is_on: silvia_power_relay
+                then:
+                  - climate.control:
+                      id: silvia_brew_pid
+                      mode: "HEAT"
+                      target_temperature: !lambda 'return id(silvia_brew_target).state;'
+                else:
+                  - climate.control:
+                      id: silvia_brew_pid
+                      mode: "OFF"
+                      target_temperature: !lambda 'return id(silvia_brew_target).state;'
+
+      - if:
+          condition:
+            lambda: 'return id(silvia_pid_mode).current_option() == "Steam";'
+          then:
+            - if:
+                condition:
+                  switch.is_on: silvia_power_relay
+                then:
+                  - climate.control:
+                      id: silvia_brew_pid
+                      mode: "HEAT"
+                      target_temperature: !lambda 'return id(silvia_steam_target).state;'
+                else:
+                  - climate.control:
+                      id: silvia_brew_pid
+                      mode: "OFF"
+                      target_temperature: !lambda 'return id(silvia_steam_target).state;'
+
+          
+# -------------------------
+# Кнопки в Home Assistant
+# -------------------------
+
+button:
+  - platform: restart
+    name: "Silvia ESP Restart"
+
+  - platform: template
+    name: "Silvia Reset Auto Off Timer"
+    on_press:
+      - if:
+          condition:
+            switch.is_on: silvia_power_relay
+          then:
+            - script.execute: auto_off_timer
+
+  - platform: template
+    name: "Silvia PID Autotune"
+    on_press:
+      - if:
+          condition:
+            switch.is_on: silvia_power_relay
+          then:
+            - logger.log: "Silvia PID autotune started"
+
+            # Сначала сбрасываем PID параметры в 0
+            - number.set:
+                id: silvia_pid_kp
+                value: 0.0
+            - number.set:
+                id: silvia_pid_ki
+                value: 0.0
+            - number.set:
+                id: silvia_pid_kd
+                value: 0.0
+
+            - climate.pid.set_control_parameters:
+                id: silvia_brew_pid
+                kp: 0.0
+                ki: 0.0
+                kd: 0.0
+
+            # Запускаем autotune
+            - climate.pid.autotune:
+                id: silvia_brew_pid
+                noiseband: 0.25
+                positive_output: 0.5
+                negative_output: 0.0
+          else:
+            - logger.log: "Silvia PID autotune blocked: machine power is OFF"
+
+
+
+# -------------------------
+# Статусы
+# -------------------------
+sensor:
+  
+  - platform: template
+    name: "Silvia PID Heat Output"
+    id: silvia_pid_heat_output_percent
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    update_interval: 1s
+    lambda: |-
+      return id(pid_heat_output_value) * 100.0f;
+
+  - platform: template
+    name: "Silvia Auto Off Remaining"
+    id: silvia_auto_off_remaining
+    unit_of_measurement: "min"
+    accuracy_decimals: 1
+    update_interval: 5s
+    lambda: |-
+      return id(auto_off_remaining_seconds) / 60.0f;
+
+  - platform: template
+    name: "Silvia Brew Target Sensor"
+    id: silvia_brew_target_sensor
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    update_interval: 10s
+    lambda: |-
+      return id(silvia_brew_target).state;
+
+  - platform: template
+    name: "Silvia Steam Target Sensor"
+    id: silvia_steam_target_sensor
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    update_interval: 10s
+    lambda: |-
+      return id(silvia_steam_target).state;
+
+  - platform: template
+    name: "Silvia Active Target"
+    id: silvia_active_target
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    update_interval: 5s
+    lambda: |-
+      if (id(silvia_pid_mode).current_option() == "Steam") {
+        return id(silvia_steam_target).state;
+      }
+      return id(silvia_brew_target).state;
+
+  - platform: max31865
+    name: "Silvia Boiler Temperature PT100"
+    id: silvia_boiler_temp_pt100
+    cs_pin: ${max31865_cs_pin}
+    reference_resistance: 430 Ω
+    rtd_nominal_resistance: 100 Ω
+    rtd_wires: 3
+    mains_filter: 50Hz
+    update_interval: 1s
+    accuracy_decimals: 1
+    on_value_range:
+      - above: ${overtemp_limit}
+        then:
+          - logger.log:
+              level: ERROR
+              format: "Silvia overtemperature: heater and machine power disabled"
+          - climate.control:
+              id: silvia_brew_pid
+              mode: "OFF"
+          - output.set_level:
+              id: silvia_pid_heat_output
+              level: 0%
+          - switch.turn_off: silvia_power_relay
+
+      
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "Silvia ESP IP"
+
+  - platform: template
+    name: "Silvia Power Status"
+    lambda: |-
+      if (id(silvia_power_relay).state) {
+        return {"ON"};
+      } else {
+        return {"OFF"};
+      }
+
+  - platform: template
+    name: "Silvia Auto Off Status"
+    update_interval: 5s
+    lambda: |-
+      if (!id(silvia_power_relay).state) {
+        return {"OFF"};
+      }
+      if (id(silvia_auto_off_minutes).state <= 0) {
+        return {"Auto-off disabled"};
+      }
+      return {"Auto-off active"};
+
+  - platform: template
+    name: "Silvia Water Status"
+    update_interval: 2s
+    lambda: |-
+      if (id(silvia_water_level).state) {
+        return {"Water OK"};
+      } else {
+        return {"Water LOW"};
+      }
+
+output:
+  - platform: gpio
+    id: silvia_status_led
+    pin:
+      number: ${led_pin}
+      inverted: false
+
+  # Реальный PWM-выход на SSR нагревателя
+  - platform: slow_pwm
+    id: silvia_heater_ssr_pwm
+    pin: ${heater_ssr_pin}
+    period: 10s
+
+  # PID пишет сюда.
+  # Сохраняем процент для HA и передаём его в SSR.
+  - platform: template
+    id: silvia_pid_heat_output
+    type: float
+    write_action:
+      - lambda: |-
+          float level = state;
+          const float temperature = id(silvia_boiler_temp_pt100).state;
+
+          // Never energize the heater with an invalid reading or above the safety limit.
+          if (!id(silvia_boiler_temp_pt100).has_state() ||
+              !std::isfinite(temperature) ||
+              temperature >= ${overtemp_limit}f) {
+            level = 0.0f;
+          }
+
+          // Убираем микромигание около 0% и 100%
+          if (level >= 0.995f) {
+            level = 1.0f;
+          } else if (level <= 0.005f) {
+            level = 0.0f;
+          }
+
+          id(pid_heat_output_value) = level;
+          id(silvia_heater_ssr_pwm).set_level(level);
+
+light:
+  - platform: binary
+    name: "Silvia Status LED"
+    id: silvia_status_led_light
+    output: silvia_status_led
+
+
+
+climate:
+  - platform: pid
+    name: "Silvia Brew PID"
+    id: silvia_brew_pid
+    sensor: silvia_boiler_temp_pt100
+    default_target_temperature: 93°C
+    heat_output: silvia_pid_heat_output
+
+    control_parameters:
+      kp: 0.12492
+      ki: 0.00065
+      kd: 6.00246
+
+    visual:
+      min_temperature: 80°C
+      max_temperature: 150°C
+      temperature_step: 0.5°C
+
+    on_control:
+      - if:
+          condition:
+            lambda: |-
+              if (!x.get_target_temperature().has_value()) return false;
+              float target = x.get_target_temperature().value();
+              return id(silvia_pid_mode).current_option() == "Brew" &&
+                     fabs(id(silvia_brew_target).state - target) > 0.05;
+          then:
+            - number.set:
+                id: silvia_brew_target
+                value: !lambda |-
+                  return x.get_target_temperature().value();
+
+      - if:
+          condition:
+            lambda: |-
+              if (!x.get_target_temperature().has_value()) return false;
+              float target = x.get_target_temperature().value();
+              return id(silvia_pid_mode).current_option() == "Steam" &&
+                     fabs(id(silvia_steam_target).state - target) > 0.05;
+          then:
+            - number.set:
+                id: silvia_steam_target
+                value: !lambda |-
+                  return x.get_target_temperature().value();
+
+      
+select:
+  - platform: template
+    name: "Silvia PID Mode"
+    id: silvia_pid_mode
+    optimistic: true
+    restore_value: true
+    options:
+      - "Brew"
+      - "Steam"
+    initial_option: "Brew"
+    set_action:
+      - if:
+          condition:
+            lambda: 'return x == "Brew";'
+          then:
+            - if:
+                condition:
+                  switch.is_on: silvia_power_relay
+                then:
+                  - climate.control:
+                      id: silvia_brew_pid
+                      mode: "HEAT"
+                      target_temperature: !lambda 'return id(silvia_brew_target).state;'
+                else:
+                  - climate.control:
+                      id: silvia_brew_pid
+                      mode: "OFF"
+                      target_temperature: !lambda 'return id(silvia_brew_target).state;'
+
+      - if:
+          condition:
+            lambda: 'return x == "Steam";'
+          then:
+            - if:
+                condition:
+                  switch.is_on: silvia_power_relay
+                then:
+                  - climate.control:
+                      id: silvia_brew_pid
+                      mode: "HEAT"
+                      target_temperature: !lambda 'return id(silvia_steam_target).state;'
+                else:
+                  - climate.control:
+                      id: silvia_brew_pid
+                      mode: "OFF"
+                      target_temperature: !lambda 'return id(silvia_steam_target).state;'
