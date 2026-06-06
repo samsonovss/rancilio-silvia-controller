@@ -19,6 +19,7 @@ The project controls machine power and boiler heating, measures boiler temperatu
 - adjustable target temperatures
 - configurable brew-temperature offset applied to PID control
 - PID parameter controls and autotune from Home Assistant
+- automatic saving of successful autotune coefficients
 - original power button support
 - automatic shutdown timer
 - status LED
@@ -55,7 +56,22 @@ The project controls machine power and boiler heating, measures boiler temperatu
 
 The brew temperature, steam temperature, and automatic shutdown time are adjustable from Home Assistant. Values stored in the YAML file are initial defaults, not fixed machine specifications.
 
-The software overtemperature limit and the SSR `slow_pwm` period are currently firmware settings. Change them in the ESPHome configuration and rebuild the firmware when required.
+### Brew temperature model
+
+`Silvia Brew Target` represents the desired estimated temperature at the coffee puck. In `Brew` mode, PID control uses:
+
+```text
+Estimated Brew Temperature = PT100 Boiler Temperature - Brew Temperature Offset
+Brew Boiler Target = Brew Target + Brew Temperature Offset
+```
+
+For example, a brew target of `93 °C` with a `10 °C` offset produces a boiler target of approximately `103 °C`.
+
+The PT100 entity always reports the unmodified temperature measured at the boiler. The offset is not applied in `Steam` mode, and the software overtemperature guard always uses the raw PT100 reading.
+
+The estimated brew temperature is a model, not a direct water measurement. Keep the offset at `0 °C` until it has been calibrated at the group under realistic flow conditions.
+
+The software overtemperature limit is a firmware setting. The heater SSR uses a one-second `slow_pwm` period; changing it may require PID retuning.
 
 ## Project status
 
