@@ -17,7 +17,7 @@ The project controls machine power and boiler heating, measures boiler temperatu
 - PID heater control through an SSR
 - `Brew` and `Steam` modes
 - adjustable target temperatures
-- optional estimated brew temperature with a configurable offset
+- configurable brew-temperature offset applied to PID control
 - PID parameter controls and autotune from Home Assistant
 - original power button support
 - automatic shutdown timer

@@ -201,6 +201,9 @@ number:
     step: 0.1
     unit_of_measurement: "°C"
     mode: box
+    on_value:
+      then:
+        - component.update: silvia_pid_control_temperature
 
   - platform: template
     name: "Silvia Brew Target"
@@ -496,7 +499,7 @@ button:
             - climate.pid.autotune:
                 id: silvia_brew_pid
                 noiseband: 0.25
-                positive_output: 0.5
+                positive_output: 0.3
                 negative_output: 0.0
           else:
             - logger.log: "Silvia PID autotune blocked: machine power is OFF"
@@ -583,7 +586,34 @@ sensor:
     accuracy_decimals: 1
     update_interval: 5s
     lambda: |-
-      return id(silvia_brew_target).state -
+      return id(silvia_brew_target).state;
+
+  - platform: template
+    name: "Silvia Brew Boiler Target"
+    id: silvia_brew_boiler_target
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: 5s
+    lambda: |-
+      return id(silvia_brew_target).state +
+             id(silvia_brew_temperature_offset).state;
+
+  # PID uses the estimated water temperature for brewing and the raw
+  # boiler temperature for steam. Hardware protection always uses PT100.
+  - platform: template
+    id: silvia_pid_control_temperature
+    internal: true
+    update_interval: 1s
+    lambda: |-
+      if (!id(silvia_boiler_temp_pt100).has_state()) {
+        return NAN;
+      }
+      if (id(silvia_pid_mode).current_option() == "Steam") {
+        return id(silvia_boiler_temp_pt100).state;
+      }
+      return id(silvia_boiler_temp_pt100).state -
              id(silvia_brew_temperature_offset).state;
 
   - platform: max31865
@@ -735,7 +765,7 @@ climate:
   - platform: pid
     name: "Silvia Brew PID"
     id: silvia_brew_pid
-    sensor: silvia_boiler_temp_pt100
+    sensor: silvia_pid_control_temperature
     default_target_temperature: 93°C
     heat_output: silvia_pid_heat_output
 
