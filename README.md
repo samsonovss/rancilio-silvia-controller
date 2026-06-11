@@ -2,6 +2,8 @@
 
 [Русская версия](README.ru.md)
 
+[Telegram discussion group](https://t.me/Rancilio_Silvia) (Russian and English)
+
 An ESP32-S3, ESPHome, and Home Assistant modernization project for the Rancilio Silvia espresso machine.
 
 The project controls machine power and boiler heating, measures boiler temperature with a PT100 and MAX31865, and provides separate PID modes for brewing and steaming.
