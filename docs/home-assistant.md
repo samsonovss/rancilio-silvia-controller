@@ -15,6 +15,7 @@
 - PID autotune;
 - статуса PID autotune с временем, температурой и мощностью;
 - таймера автоотключения по неактивности;
+- счётчика шотов до промывки группы и автоматической программы backflush;
 - физических кнопок `Brew Shot`, `Hot Water` и `Steam Mode`;
 - управления проливом, горячей водой, режимом пара, помпой и brew-клапаном;
 - уровня воды и текстового статуса.
@@ -40,6 +41,12 @@
 - `Silvia PID Heat Output`;
 - `Silvia PID Autotune Status`;
 - `Silvia Auto Off Remaining`;
+- `Silvia Backflush Status`;
+- `Silvia Backflush Shots`;
+- `Silvia Backflush Reminder Shots`;
+- `Silvia Start Backflush`;
+- `Silvia Stop Backflush`;
+- `Silvia Reset Backflush Shots`;
 - `Silvia Brew Shot`;
 - `Silvia Hot Water`;
 - `Silvia Steam Mode`;
@@ -79,6 +86,12 @@ Brew Boiler Target = Brew Target + Brew Temperature Offset
 `Silvia Steam Mode` переключает PID в режим `Steam`; при выключении возвращает `Brew`.
 
 `Silvia Brew Profile` управляет значениями `Silvia Preinfusion Pump Seconds`, `Silvia Preinfusion Pause Seconds` и `Silvia Brew Shot Seconds`. Если эти числа изменить вручную, профиль автоматически становится `Custom`.
+
+## Промывка группы
+
+`Silvia Backflush Shots` считает завершённые автоматические проливы после последней промывки. Порог напоминания задаёт `Silvia Backflush Reminder Shots`; начальное значение — `60` шотов. Значение `0` отключает напоминание. Когда счётчик достигает порога, `Silvia Backflush Status` показывает, что пора промыть группу. Это только напоминание, оно не блокирует приготовление кофе.
+
+`Silvia Start Backflush` запускает автоматическую последовательность промывки помпой и трёхходовым клапаном. `Silvia Stop Backflush` прерывает программу и выключает помпу с клапаном. После штатного завершения счётчик `Silvia Backflush Shots` сбрасывается. Если промывка была сделана вручную, используйте `Silvia Reset Backflush Shots`.
 
 ## Автоотключение
 

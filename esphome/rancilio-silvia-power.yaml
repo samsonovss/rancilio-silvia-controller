@@ -110,6 +110,21 @@ globals:
     restore_value: no
     initial_value: 'false'
 
+  - id: backflush_shots
+    type: int
+    restore_value: yes
+    initial_value: '0'
+
+  - id: lifetime_shots
+    type: int
+    restore_value: yes
+    initial_value: '0'
+
+  - id: backflush_running
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
 interval:
   - interval: 1s
     then:
@@ -327,6 +342,17 @@ number:
               lambda: 'return id(silvia_pid_mode).current_option() == "Steam";'
             then:
               - script.execute: apply_pid_mode
+
+  - platform: template
+    name: "Silvia Backflush Reminder Shots"
+    id: silvia_backflush_reminder_shots
+    optimistic: true
+    restore_value: true
+    initial_value: 60
+    min_value: 0
+    max_value: 150
+    step: 1
+    mode: box
           
 # -------------------------
 # Реле включения машины
@@ -354,6 +380,7 @@ switch:
       - switch.turn_off: silvia_pump_relay
       - switch.turn_off: silvia_brew_valve_relay
       - script.stop: brew_shot_timer
+      - script.stop: backflush_program
       - script.stop: auto_off_timer
       - script.stop: status_led_blink_slow
       - script.stop: status_led_blink_fast
@@ -362,6 +389,7 @@ switch:
           id(auto_off_remaining_seconds) = 0;
           id(brew_shot_running) = false;
           id(hot_water_running) = false;
+          id(backflush_running) = false;
 
   - platform: gpio
     name: "Silvia Pump Relay"
@@ -404,7 +432,7 @@ switch:
     turn_on_action:
       - if:
           condition:
-            switch.is_on: silvia_power_relay
+            lambda: 'return id(silvia_power_relay).state && !id(backflush_running);'
           then:
             - script.execute: auto_off_timer
             - script.execute: status_led_update
@@ -422,7 +450,7 @@ switch:
     turn_on_action:
       - if:
           condition:
-            switch.is_on: silvia_power_relay
+            lambda: 'return id(silvia_power_relay).state && !id(backflush_running);'
           then:
             - script.execute: auto_off_timer
             - script.execute: status_led_update
@@ -432,7 +460,7 @@ switch:
       - lambda: 'id(hot_water_running) = false;'
       - if:
           condition:
-            lambda: 'return !id(brew_shot_running);'
+            lambda: 'return !id(brew_shot_running) && !id(backflush_running);'
           then:
             - switch.turn_off: silvia_pump_relay
 
@@ -546,7 +574,7 @@ script:
     then:
       - if:
           condition:
-            switch.is_on: silvia_power_relay
+            lambda: 'return id(silvia_power_relay).state && !id(backflush_running);'
           then:
             - lambda: |-
                 id(brew_shot_running) = true;
@@ -571,9 +599,59 @@ script:
                 return (uint32_t)(id(silvia_brew_shot_seconds).state * 1000.0f);
             - switch.turn_off: silvia_pump_relay
             - switch.turn_off: silvia_brew_valve_relay
-            - lambda: 'id(brew_shot_running) = false;'
+            - lambda: |-
+                id(brew_shot_running) = false;
+                id(backflush_shots)++;
+                id(lifetime_shots)++;
+                id(silvia_backflush_shots_sensor).publish_state(id(backflush_shots));
+                id(silvia_lifetime_shots_sensor).publish_state(id(lifetime_shots));
+                id(silvia_backflush_status).update();
           else:
             - lambda: 'id(brew_shot_running) = false;'
+
+  - id: backflush_program
+    mode: single
+    then:
+      - if:
+          condition:
+            lambda: |-
+              return id(silvia_power_relay).state &&
+                     !id(brew_shot_running) &&
+                     !id(hot_water_running) &&
+                     !id(backflush_running);
+          then:
+            - script.execute: auto_off_timer
+            - script.execute: status_led_update
+            - lambda: 'id(backflush_running) = true;'
+            - switch.turn_off: silvia_pump_relay
+            - switch.turn_off: silvia_brew_valve_relay
+            - repeat:
+                count: 5
+                then:
+                  - switch.turn_on: silvia_brew_valve_relay
+                  - switch.turn_on: silvia_pump_relay
+                  - delay: 8s
+                  - switch.turn_off: silvia_pump_relay
+                  - switch.turn_off: silvia_brew_valve_relay
+                  - delay: 10s
+            - delay: 60s
+            - repeat:
+                count: 8
+                then:
+                  - switch.turn_on: silvia_brew_valve_relay
+                  - switch.turn_on: silvia_pump_relay
+                  - delay: 8s
+                  - switch.turn_off: silvia_pump_relay
+                  - switch.turn_off: silvia_brew_valve_relay
+                  - delay: 10s
+            - lambda: |-
+                id(backflush_shots) = 0;
+                id(backflush_running) = false;
+                id(silvia_backflush_shots_sensor).publish_state(id(backflush_shots));
+                id(silvia_backflush_status).update();
+            - script.execute: status_led_update
+          else:
+            - logger.log: "Silvia backflush blocked: machine is busy or power is OFF"
 
   - id: auto_off_timer
     mode: restart
@@ -771,6 +849,30 @@ button:
                 id(pid_autotune_status) = 3;
                 id(silvia_pid_autotune_status).publish_state("Blocked | machine power is OFF");
 
+  - platform: template
+    name: "Silvia Start Backflush"
+    on_press:
+      - script.execute: backflush_program
+
+  - platform: template
+    name: "Silvia Stop Backflush"
+    on_press:
+      - script.stop: backflush_program
+      - switch.turn_off: silvia_pump_relay
+      - switch.turn_off: silvia_brew_valve_relay
+      - lambda: |-
+          id(backflush_running) = false;
+          id(silvia_backflush_status).update();
+      - script.execute: status_led_update
+
+  - platform: template
+    name: "Silvia Reset Backflush Shots"
+    on_press:
+      - lambda: |-
+          id(backflush_shots) = 0;
+          id(silvia_backflush_shots_sensor).publish_state(id(backflush_shots));
+          id(silvia_backflush_status).update();
+
 # -------------------------
 # Статусы
 # -------------------------
@@ -793,6 +895,22 @@ sensor:
     update_interval: 5s
     lambda: |-
       return id(auto_off_remaining_seconds) / 60.0f;
+
+  - platform: template
+    name: "Silvia Backflush Shots"
+    id: silvia_backflush_shots_sensor
+    accuracy_decimals: 0
+    update_interval: 30s
+    lambda: |-
+      return id(backflush_shots);
+
+  - platform: template
+    name: "Silvia Lifetime Shots"
+    id: silvia_lifetime_shots_sensor
+    accuracy_decimals: 0
+    update_interval: 60s
+    lambda: |-
+      return id(lifetime_shots);
 
   - platform: template
     name: "Silvia Brew Target Sensor"
@@ -940,6 +1058,24 @@ text_sensor:
       } else {
         return {"Water LOW"};
       }
+
+  - platform: template
+    name: "Silvia Backflush Status"
+    id: silvia_backflush_status
+    update_interval: 10s
+    lambda: |-
+      if (id(backflush_running)) {
+        return {"Backflush running"};
+      }
+      const int shots = id(backflush_shots);
+      const int reminder = (int) id(silvia_backflush_reminder_shots).state;
+      if (reminder <= 0) {
+        return {"Reminder disabled"};
+      }
+      if (shots >= reminder) {
+        return {str_sprintf("Backflush due | %d/%d shots", shots, reminder)};
+      }
+      return {str_sprintf("OK | %d/%d shots", shots, reminder)};
 
   - platform: template
     name: "Silvia PID Autotune Status"

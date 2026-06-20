@@ -37,6 +37,7 @@ https://github.com/user-attachments/assets/92bf4580-1ab9-4535-a1f1-395bb5a3d315
 - timed brew shot control
 - brew profiles: `Classic`, `Soft Preinfusion`, `Long Preinfusion`, and `Custom`
 - configurable preinfusion pump time, preinfusion pause, and shot duration
+- shot-count based backflush reminder and automated backflush program
 - manual pump and brew-valve relay control
 - inactivity-based automatic shutdown timer
 - auto-off timer reset on brew shot, hot water, steam mode, and manual pump/valve activity
@@ -92,6 +93,14 @@ The `Silvia Brew Profile` select provides three presets and a custom mode:
 - `Custom`: selected automatically when the timing numbers are edited manually.
 
 `Silvia Hot Water` runs the pump without opening the brew valve. `Silvia Steam Mode` switches the PID target to the steam profile and returns to brew mode when turned off.
+
+### Backflush reminder and program
+
+`Silvia Backflush Shots` counts completed automatic brew shots since the last group backflush. `Silvia Lifetime Shots` keeps the total shot count and is not reset by cleaning.
+
+`Silvia Backflush Reminder Shots` sets the reminder threshold. The default is `60` shots and the value is adjustable from Home Assistant. Setting it to `0` disables the reminder. When the counter reaches the threshold, `Silvia Backflush Status` changes to a due state. The reminder is informational only; it does not block brewing.
+
+`Silvia Start Backflush` runs an automated pump and 3-way-valve cleaning sequence. `Silvia Stop Backflush` aborts the running sequence and turns off the pump and valve. `Silvia Reset Backflush Shots` manually clears the reminder counter. The backflush counter is reset automatically only after the program finishes.
 
 ### Automatic shutdown
 
