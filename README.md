@@ -1,10 +1,12 @@
-# Rancilio Silvia ESPHome Controller
+# Rancilio Silvia Controller
+
+ESPHome-based smart controller for Rancilio Silvia with PID temperature control, automated brew profiles, backflush workflow, and Home Assistant dashboard.
 
 [Русская версия](README.ru.md)
 
 [Telegram discussion group](https://t.me/Rancilio_Silvia) (Russian and English)
 
-Digital ESPHome controller for the Rancilio Silvia espresso machine, built on ESP32-S3 and integrated with Home Assistant.
+Digital controller for the Rancilio Silvia espresso machine, built on ESP32-S3, implemented with ESPHome, and integrated with Home Assistant.
 
 The project is more than an external PID retrofit. The goal is to move the machine control logic to a digital controller: high-voltage loads are switched by relays/SSR, while the original front-panel controls become low-voltage GPIO inputs. This makes the machine controllable from Home Assistant and leaves room for a touchscreen or another digital interface later.
 
