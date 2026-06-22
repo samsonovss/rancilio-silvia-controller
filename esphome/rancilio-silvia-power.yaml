@@ -1081,6 +1081,7 @@ sensor:
     name: "Silvia Coffee Grounds Used"
     id: silvia_coffee_grounds_used
     unit_of_measurement: "g"
+    state_class: total_increasing
     accuracy_decimals: 1
     update_interval: 60s
     lambda: |-

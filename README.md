@@ -94,7 +94,8 @@ Planned additions:
 - manual backflush stop and counter reset;
 - lifetime shot counter;
 - configurable dry coffee dose per shot;
-- estimated total dry coffee usage.
+- estimated total dry coffee usage;
+- monthly and yearly coffee usage tracking via Home Assistant utility meters.
 
 ## Repository Layout
 
@@ -177,6 +178,14 @@ Coffee Grounds Used = Silvia Lifetime Shots × Silvia Coffee Dose Grams
 ```
 
 This is an estimate of ground coffee consumption, not the beverage weight in the cup.
+
+Home Assistant can split this cumulative value into calendar periods with `utility_meter`:
+
+- `coffee_grounds_used_monthly` for the current month;
+- `coffee_grounds_used_yearly` for the current year;
+- `Silvia Coffee Grounds Used` remains the lifetime total.
+
+The coffee dashboard displays all three values as monthly, yearly, and total dry coffee usage.
 
 ### Backflush Program
 
