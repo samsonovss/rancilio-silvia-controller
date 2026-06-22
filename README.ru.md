@@ -15,7 +15,7 @@
 
 ![Панель Home Assistant](images/dashboard.gif)
 
-[Видео панели](images/dashboard.mp4)
+https://github.com/user-attachments/assets/92bf4580-1ab9-4535-a1f1-395bb5a3d315
 
 ## Текущий статус
 

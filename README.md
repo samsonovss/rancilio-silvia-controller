@@ -15,7 +15,7 @@ The project is more than an external PID retrofit. The goal is to move the machi
 
 ![Home Assistant dashboard](images/dashboard.gif)
 
-[Dashboard video](images/dashboard.mp4)
+https://github.com/user-attachments/assets/92bf4580-1ab9-4535-a1f1-395bb5a3d315
 
 ## Current Status
 
