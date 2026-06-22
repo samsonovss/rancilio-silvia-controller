@@ -15,6 +15,8 @@ The project is more than an external PID retrofit. The goal is to move the machi
 
 ![Home Assistant dashboard](images/dashboard.gif)
 
+[Dashboard video](images/dashboard.mp4)
+
 ## Current Status
 
 The controller is already running on a real Rancilio Silvia. The hardware is still a prototype based on an ESP32-S3 development board and point-to-point wiring.

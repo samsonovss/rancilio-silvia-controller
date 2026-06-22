@@ -15,6 +15,8 @@
 
 ![Панель Home Assistant](images/dashboard.gif)
 
+[Видео панели](images/dashboard.mp4)
+
 ## Текущий статус
 
 Контроллер уже работает на реальной Rancilio Silvia. Аппаратная часть пока собрана как прототип на ESP32-S3 dev board и точечном монтаже.
