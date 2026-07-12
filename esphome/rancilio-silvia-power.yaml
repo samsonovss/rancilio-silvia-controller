@@ -47,37 +47,47 @@ captive_portal:
 
 
 spi:
-  clk_pin: GPIO11
-  miso_pin: GPIO12
-  mosi_pin: GPIO13
+  clk_pin: GPIO18
+  miso_pin: GPIO16
+  mosi_pin: GPIO8
 
 # -------------------------
 # GPIO настройки
 # -------------------------
 
 substitutions:
-  relay_pin: GPIO4
-  button_pin: GPIO5
-  led_pin: GPIO6
-  heater_ssr_pin: GPIO7
-  brew_button_pin: GPIO8
-  hot_water_button_pin: GPIO9
-  steam_mode_button_pin: GPIO10
-  pump_relay_pin: GPIO16
-  brew_valve_relay_pin: GPIO15
-  max31865_cs_pin: GPIO14
-  water_level_pin: GPIO18
+  button_pin: GPIO4
+  led_pin: GPIO47
+  heater_ssr_pin: GPIO13
+  brew_button_pin: GPIO21
+  hot_water_button_pin: GPIO10
+  steam_mode_button_pin: GPIO9
+  pump_relay_pin: GPIO15
+  brew_valve_relay_pin: GPIO41
+  max31865_cs_pin: GPIO17
+  water_level_pin: GPIO5
+  pump_dimmer_gate_pin: GPIO6
+  pump_dimmer_zero_cross_pin: GPIO7
+  hx711_dout_pin: GPIO38
+  hx711_clk_pin: GPIO48
+  xdb401_sda_pin: GPIO11
+  xdb401_scl_pin: GPIO12
+  use_pump_dimmer: "false"
   overtemp_limit: "155.0"
-  # Future RobotDyn AC dimmer placeholder.
-  # Keep commented until the dimmer is wired and tested.
-  # pump_dimmer_gate_pin: GPIOXX
-  # pump_dimmer_zero_cross_pin: GPIOXX
+  # Future Nextion display placeholder. Keep commented until wired and tested.
+  # nextion_tx_pin: GPIO1
+  # nextion_rx_pin: GPIO2
 
 # -------------------------
 # Внутренние переменные
 # -------------------------
 
 globals:
+  - id: silvia_power_state
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
   - id: auto_off_remaining_seconds
     type: int
     restore_value: no
@@ -458,24 +468,30 @@ number:
 # -------------------------
 
 switch:
-  - platform: gpio
+  - platform: template
+    # Historical HA-facing name; there is no physical power relay in the 2-relay design.
     name: "Silvia Power Relay"
     id: silvia_power_relay
-    restore_mode: ALWAYS_OFF
-    pin:
-      number: ${relay_pin}
-      inverted: true
-    on_turn_on:
+    lambda: 'return id(silvia_power_state);'
+    turn_on_action:
+      - lambda: 'id(silvia_power_state) = true;'
+      - if:
+          condition:
+            lambda: 'return ${use_pump_dimmer};'
+          then:
+            - switch.turn_on: silvia_pump_relay
       - script.execute: auto_off_timer
       - script.execute: status_led_update
       - script.execute: apply_pid_mode
-    on_turn_off:
+    turn_off_action:
+      - lambda: 'id(silvia_power_state) = false;'
       - climate.control:
           id: silvia_brew_pid
           mode: "OFF"
       - output.set_level:
           id: silvia_pid_heat_output
           level: 0%
+      - script.execute: pump_output_off
       - switch.turn_off: silvia_pump_relay
       - switch.turn_off: silvia_brew_valve_relay
       - script.stop: brew_shot_timer
@@ -542,7 +558,7 @@ switch:
             - script.execute: brew_shot_timer
     turn_off_action:
       - script.stop: brew_shot_timer
-      - switch.turn_off: silvia_pump_relay
+      - script.execute: pump_output_off
       - switch.turn_off: silvia_brew_valve_relay
       - lambda: |-
           id(brew_shot_running) = false;
@@ -563,14 +579,14 @@ switch:
             - script.execute: auto_off_timer
             - script.execute: status_led_update
             - lambda: 'id(hot_water_running) = true;'
-            - switch.turn_on: silvia_pump_relay
+            - script.execute: pump_output_on
     turn_off_action:
       - lambda: 'id(hot_water_running) = false;'
       - if:
           condition:
             lambda: 'return !id(brew_shot_running) && !id(backflush_running);'
           then:
-            - switch.turn_off: silvia_pump_relay
+            - script.execute: pump_output_off
 
   - platform: template
     name: "Silvia Steam Mode"
@@ -677,6 +693,28 @@ binary_sensor:
 # -------------------------
 
 script:
+  - id: pump_output_on
+    mode: restart
+    then:
+      - if:
+          condition:
+            lambda: 'return ${use_pump_dimmer};'
+          then:
+            - logger.log: "Pump dimmer mode selected; AC dimmer output is not enabled in this build yet"
+          else:
+            - switch.turn_on: silvia_pump_relay
+
+  - id: pump_output_off
+    mode: restart
+    then:
+      - if:
+          condition:
+            lambda: 'return ${use_pump_dimmer};'
+          then:
+            - logger.log: "Pump dimmer mode selected; pump output off placeholder"
+          else:
+            - switch.turn_off: silvia_pump_relay
+
   - id: brew_shot_timer
     mode: restart
     then:
@@ -704,10 +742,10 @@ script:
                       id(silvia_brew_shot_remaining).publish_state(seconds);
                       id(silvia_brew_shot_status).publish_state(
                           str_sprintf("Предсмачивание: %d с", seconds));
-                  - switch.turn_on: silvia_pump_relay
+                  - script.execute: pump_output_on
                   - delay: !lambda |-
                       return (uint32_t)(id(silvia_preinfusion_pump_seconds).state * 1000.0f);
-                  - switch.turn_off: silvia_pump_relay
+                  - script.execute: pump_output_off
             - if:
                 condition:
                   lambda: 'return id(silvia_preinfusion_pause_seconds).state > 0.0f;'
@@ -730,10 +768,10 @@ script:
                 id(silvia_brew_shot_remaining).publish_state(seconds);
                 id(silvia_brew_shot_status).publish_state(
                     str_sprintf("Пролив: %d с", seconds));
-            - switch.turn_on: silvia_pump_relay
+            - script.execute: pump_output_on
             - delay: !lambda |-
                 return (uint32_t)(id(silvia_brew_shot_seconds).state * 1000.0f);
-            - switch.turn_off: silvia_pump_relay
+            - script.execute: pump_output_off
             - switch.turn_off: silvia_brew_valve_relay
             - lambda: |-
                 id(brew_shot_running) = false;
@@ -773,7 +811,7 @@ script:
                 id(backflush_cycle) = 0;
                 id(backflush_phase_end_ms) = 0;
                 id(silvia_backflush_status).update();
-            - switch.turn_off: silvia_pump_relay
+            - script.execute: pump_output_off
             - switch.turn_off: silvia_brew_valve_relay
             - repeat:
                 count: 8
@@ -782,9 +820,9 @@ script:
                       id(backflush_cycle)++;
                       id(silvia_backflush_status).update();
                   - switch.turn_on: silvia_brew_valve_relay
-                  - switch.turn_on: silvia_pump_relay
+                  - script.execute: pump_output_on
                   - delay: 5s
-                  - switch.turn_off: silvia_pump_relay
+                  - script.execute: pump_output_off
                   - switch.turn_off: silvia_brew_valve_relay
                   - delay: 10s
             - lambda: |-
@@ -801,7 +839,7 @@ script:
                 id(backflush_cycle) = 0;
                 id(backflush_phase_end_ms) = 0;
                 id(silvia_backflush_status).update();
-            - switch.turn_off: silvia_pump_relay
+            - script.execute: pump_output_off
             - switch.turn_off: silvia_brew_valve_relay
             - repeat:
                 count: 8
@@ -810,9 +848,9 @@ script:
                       id(backflush_cycle)++;
                       id(silvia_backflush_status).update();
                   - switch.turn_on: silvia_brew_valve_relay
-                  - switch.turn_on: silvia_pump_relay
+                  - script.execute: pump_output_on
                   - delay: 5s
-                  - switch.turn_off: silvia_pump_relay
+                  - script.execute: pump_output_off
                   - switch.turn_off: silvia_brew_valve_relay
                   - delay: 10s
             - lambda: |-
@@ -1032,7 +1070,7 @@ button:
     name: "Silvia Stop Backflush"
     on_press:
       - script.stop: backflush_program
-      - switch.turn_off: silvia_pump_relay
+      - script.execute: pump_output_off
       - switch.turn_off: silvia_brew_valve_relay
       - lambda: |-
           id(backflush_running) = false;
@@ -1373,8 +1411,10 @@ output:
           float level = state;
           const float temperature = id(silvia_boiler_temp_pt100).state;
 
-          // Never energize the heater with an invalid reading or above the safety limit.
-          if (!id(silvia_boiler_temp_pt100).has_state() ||
+          // Never energize the heater while logical power is off, with an invalid
+          // reading, or above the safety limit.
+          if (!id(silvia_power_relay).state ||
+              !id(silvia_boiler_temp_pt100).has_state() ||
               !std::isfinite(temperature) ||
               temperature >= ${overtemp_limit}f) {
             level = 0.0f;
