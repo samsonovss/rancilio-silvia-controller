@@ -182,7 +182,7 @@ Editing shot timing, custom phase power, or phase boost values automatically swi
 
 The dashboard can use this status as the primary live shot timer instead of inferring the phase from entity timestamps.
 
-Automatic shot profiles snapshot the selected recipe at shot start, expand it into explicit `ShotPhase` entries, update the calculated pump command every `200 ms`, and temporarily set `ac_cycle_skip` ramp to `0 ms`; the smoothstep curve lives in the shot profile itself. Home Assistant edits made during a shot apply to the next shot, not the running one. After the shot stops or is cancelled, the user `Silvia Pump Ramp Time` and manual boost setting are restored for manual pump use.
+Automatic shot profiles snapshot the selected recipe at shot start, including phase timings, pump powers, phase boost flags, and `Silvia Pump Start Boost Time`. The snapshot is expanded into explicit `ShotPhase` entries, updates the calculated pump command every `200 ms`, and temporarily sets `ac_cycle_skip` ramp to `0 ms`; the smoothstep curve lives in the shot profile itself. Home Assistant edits made during a shot apply to the next shot, not the running one. After the shot stops or is cancelled, the user `Silvia Pump Ramp Time` and manual boost setting are restored for manual pump use.
 
 The value is still a power command, not a pressure target: without a pressure sensor the controller cannot know or hold the actual brew pressure. The phase model already has `POWER`, `PRESSURE`, and `FLOW` control modes, but the current recipes intentionally emit only open-loop `POWER` phases until a pressure sensor exists.
 

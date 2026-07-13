@@ -207,6 +207,11 @@ globals:
     restore_value: no
     initial_value: 'false'
 
+  - id: active_pump_start_boost_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
   - id: silvia_preinfusion_boost_enabled
     type: bool
     restore_value: yes
@@ -1068,7 +1073,7 @@ script:
                       const auto &phase = silvia::active_shot_phases[id(active_shot_phase_index)];
                       id(silvia_pump_dimmer).set_start_boost_ms(
                           phase.start_boost
-                              ? (uint32_t) id(silvia_pump_start_boost_ms).state
+                              ? id(active_pump_start_boost_ms)
                               : 0);
                   - repeat:
                       count: !lambda |-
@@ -1123,6 +1128,7 @@ script:
                 id(active_end_brew_pump_power) = id(silvia_end_brew_pump_power).state;
                 id(active_preinfusion_boost_enabled) = id(silvia_preinfusion_boost_enabled);
                 id(active_main_brew_boost_enabled) = id(silvia_main_brew_boost_enabled);
+                id(active_pump_start_boost_ms) = (uint32_t) id(silvia_pump_start_boost_ms).state;
                 auto shot_profile = silvia::build_shot_profile(
                     profile,
                     id(active_preinfusion_pump_seconds),
