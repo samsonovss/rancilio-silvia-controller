@@ -4,17 +4,27 @@
 #include "esphome/core/component.h"
 #include "esphome/core/hal.h"
 #include <atomic>
+#include <driver/gptimer.h>
 
 namespace esphome::ac_cycle_skip {
+
+enum class ACCycleSkipGateTimerPhase : uint8_t {
+  IDLE = 0,
+  WAITING_GATE_ON,
+  WAITING_GATE_OFF,
+};
 
 struct ACCycleSkipDataStore {
   ISRInternalGPIOPin gate_pin;
   ISRInternalGPIOPin zero_cross_pin;
   uint8_t zero_cross_pin_number;
+  gptimer_handle_t gate_timer{nullptr};
 
   std::atomic<uint32_t> target_q16{0};
   std::atomic<uint32_t> requested_q16{0};
   std::atomic<uint32_t> boost_until_us{0};
+  std::atomic<uint32_t> pulse_generation{0};
+  std::atomic<uint32_t> scheduled_pulse_generation{0};
   uint32_t accumulator_q16{0};
   uint32_t crossed_zero_at{0};
   uint32_t half_cycle_time_us{10000};
@@ -32,6 +42,7 @@ struct ACCycleSkipDataStore {
   bool synchronized{false};
   bool second_half_cycle{false};
   bool cycle_on{false};
+  std::atomic<ACCycleSkipGateTimerPhase> gate_timer_phase{ACCycleSkipGateTimerPhase::IDLE};
 
   void gpio_intr();
   void force_off_();
@@ -39,6 +50,7 @@ struct ACCycleSkipDataStore {
   void reset_sync_(uint32_t now);
   uint32_t update_target_(uint32_t now);
   static void s_gpio_intr(ACCycleSkipDataStore *store);
+  static bool s_gate_timer_alarm(gptimer_handle_t timer, const gptimer_alarm_event_data_t *edata, void *user_ctx);
 };
 
 class ACCycleSkipOutput final : public output::FloatOutput, public Component {
