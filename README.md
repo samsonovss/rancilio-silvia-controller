@@ -169,9 +169,9 @@ Adjustable values include:
 - `Lever`: low-power preinfusion, a smooth rise to working power, then a gradual decline;
 - `Slayer Style`: longer low-power preinfusion, then a low-flow main curve;
 - `Bloom`: low-power wetting, a real pump-off soak pause, then a smooth main ramp;
-- `Custom`: constant user power from `Silvia Manual Pump Power` with user-editable phase times and powers.
+- `Custom`: user-editable phase times and a `Custom Start/Main/End Pump Power` curve.
 
-Editing shot timing, phase power, or phase boost values automatically switches the selector to `Custom`.
+Editing shot timing, custom phase power, or phase boost values automatically switches the selector to `Custom`. `Silvia Manual Pump Power` is separate and is used only for manual pump operation, hot water, and maintenance.
 
 `Silvia Brew Shot Status` reports the current automated shot phase and countdown. In the current configuration the published strings are localized:
 
@@ -182,9 +182,9 @@ Editing shot timing, phase power, or phase boost values automatically switches t
 
 The dashboard can use this status as the primary live shot timer instead of inferring the phase from entity timestamps.
 
-Automatic shot profiles update the calculated pump command every `200 ms` and temporarily set `ac_cycle_skip` ramp to `0 ms`; the smoothstep curve lives in the shot profile itself. After the shot stops or is cancelled, the user `Silvia Pump Ramp Time` and manual boost setting are restored for manual pump use.
+Automatic shot profiles snapshot the selected recipe at shot start, update the calculated pump command every `200 ms`, and temporarily set `ac_cycle_skip` ramp to `0 ms`; the smoothstep curve lives in the shot profile itself. Home Assistant edits made during a shot apply to the next shot, not the running one. After the shot stops or is cancelled, the user `Silvia Pump Ramp Time` and manual boost setting are restored for manual pump use.
 
-The value is still a power command, not a pressure target: without a pressure sensor the controller cannot know or hold the actual brew pressure. The profile architecture is prepared for a later `PRESSURE` mode, but the current implementation is open-loop `POWER` only.
+The value is still a power command, not a pressure target: without a pressure sensor the controller cannot know or hold the actual brew pressure. The current implementation is open-loop `POWER` only; a later pressure-sensor version should move the shot script to explicit `POWER`/`PRESSURE` phases.
 
 `Silvia Manual Pump Power` is adjustable from `0%` to `100%`. `Silvia Pump Start Boost` is the manual-mode boost switch. `Silvia Preinfusion Boost` and `Silvia Main Brew Boost` decide whether the configured `Silvia Pump Start Boost Time` is applied at the start of each automatic phase. `Silvia Pump Gate Delay` and `Silvia Pump Gate Pulse` tune the TRIAC trigger timing in microseconds.
 

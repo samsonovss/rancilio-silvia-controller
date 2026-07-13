@@ -37,10 +37,10 @@
 - `Silvia Brew Temperature Offset`;
 - `Silvia Brew Shot Seconds`;
 - `Silvia Preinfusion Pump Seconds`;
-- `Silvia Preinfusion Pump Power`;
+- `Silvia Custom Start Pump Power`;
 - `Silvia Preinfusion Pause Seconds`;
-- `Silvia Main Brew Pump Power`;
-- `Silvia End Brew Pump Power`;
+- `Silvia Custom Main Pump Power`;
+- `Silvia Custom End Pump Power`;
 - `Silvia Preinfusion Boost`;
 - `Silvia Main Brew Boost`;
 - `Silvia PID Heat Output`;
@@ -90,9 +90,9 @@ Brew Boiler Target = Brew Target + Brew Temperature Offset
 
 `Silvia Steam Mode` переключает PID в режим `Steam`; при выключении возвращает `Brew`.
 
-`Silvia Shot Profile` управляет всем рецептом пролива: временами фаз, мощностью предсмачивания, основной/конечной мощностью и boost-флагами фаз. Если эти числа или phase boost изменить вручную, профиль автоматически становится `Custom`.
+`Silvia Shot Profile` управляет всем рецептом пролива: временами фаз, custom-мощностью старта/основного пролива/финиша и boost-флагами фаз. Если эти числа или phase boost изменить вручную, профиль автоматически становится `Custom`. `Silvia Manual Pump Power` не меняет рецепт и используется только для ручной помпы, горячей воды и обслуживания.
 
-Автоматические профили временно используют `ac_cycle_skip` без дополнительного ramp, потому что плавность уже рассчитана внутри профиля. Ручной `Silvia Pump Ramp Time` применяется к обычному ручному включению помпы, горячей воде и backflush и восстанавливается после остановки автоматического шота.
+Автоматический шот делает snapshot параметров на старте: изменения в Home Assistant во время пролива применятся только к следующему шоту. Автоматические профили временно используют `ac_cycle_skip` без дополнительного ramp, потому что плавность уже рассчитана внутри профиля. Ручной `Silvia Pump Ramp Time` применяется к обычному ручному включению помпы, горячей воде и backflush и восстанавливается после остановки автоматического шота.
 
 ## Промывка группы
 
