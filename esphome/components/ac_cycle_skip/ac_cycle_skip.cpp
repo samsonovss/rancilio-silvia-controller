@@ -18,12 +18,14 @@ void IRAM_ATTR HOT ACCycleSkipDataStore::force_off_() {
     gptimer_set_alarm_action(this->gate_timer, nullptr);
   }
   this->gate_timer_phase.store(ACCycleSkipGateTimerPhase::IDLE, std::memory_order_relaxed);
-  this->gate_pin.digital_write(false);
+  if (this->gate_pin_ready) {
+    this->gate_pin.digital_write(false);
+  }
   this->cycle_on = false;
 }
 
 void IRAM_ATTR HOT ACCycleSkipDataStore::schedule_gate_pulse_() {
-  if (this->gate_timer == nullptr) {
+  if (!this->gate_pin_ready || this->gate_timer == nullptr) {
     this->force_off_();
     return;
   }
@@ -238,6 +240,7 @@ void ACCycleSkipOutput::setup() {
   this->gate_pin_->setup();
   this->gate_pin_->digital_write(false);
   this->store_.gate_pin = this->gate_pin_->to_isr();
+  this->store_.gate_pin_ready = true;
   this->store_.zero_cross_pin_number = this->zero_cross_pin_->get_pin();
 
   gptimer_config_t timer_config = {};

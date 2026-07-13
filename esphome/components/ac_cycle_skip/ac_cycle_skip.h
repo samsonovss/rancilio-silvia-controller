@@ -19,6 +19,7 @@ struct ACCycleSkipDataStore {
   ISRInternalGPIOPin zero_cross_pin;
   uint8_t zero_cross_pin_number;
   gptimer_handle_t gate_timer{nullptr};
+  bool gate_pin_ready{false};
 
   std::atomic<uint32_t> target_q16{0};
   std::atomic<uint32_t> requested_q16{0};
