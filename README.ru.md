@@ -186,7 +186,7 @@ https://github.com/user-attachments/assets/92bf4580-1ab9-4535-a1f1-395bb5a3d315
 
 Это всё ещё команда мощности, а не цель давления: без датчика давления контроллер не знает фактическое давление и не может удерживать его в замкнутом контуре. В фазовой модели уже есть режимы `POWER`, `PRESSURE` и `FLOW`, но текущие рецепты намеренно создают только open-loop `POWER`-фазы до появления датчика давления.
 
-`Silvia Manual Pump Power` регулируется от `0%` до `100%`. `Silvia Pump Start Boost` — ручной boost для обычного включения помпы. `Silvia Preinfusion Boost` и `Silvia Main Brew Boost` решают, применять ли `Silvia Pump Start Boost Time` в начале соответствующей автоматической фазы. `Silvia Pump Gate Delay` и `Silvia Pump Gate Pulse` настраивают момент и длительность импульса TRIAC в микросекундах.
+`Silvia Manual Pump Power` регулируется от `0%` до `100%`. `Silvia Pump Start Boost` — ручной boost для обычного включения помпы. `Silvia Preinfusion Boost` и `Silvia Main Brew Boost` решают, можно ли применить snapshot-значение `Silvia Pump Start Boost Time`, когда соответствующая автоматическая фаза начинается с остановленной помпы. Непрерывный переход, например из предсмачивания прямо в пролив, не создаёт второй принудительный пинок на `100%`. `Silvia Pump Gate Delay` и `Silvia Pump Gate Pulse` настраивают момент и длительность импульса TRIAC в микросекундах.
 
 ### AC Cycle Skip для помпы
 

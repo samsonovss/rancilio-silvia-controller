@@ -186,7 +186,7 @@ Automatic shot profiles snapshot the selected recipe at shot start, including ph
 
 The value is still a power command, not a pressure target: without a pressure sensor the controller cannot know or hold the actual brew pressure. The phase model already has `POWER`, `PRESSURE`, and `FLOW` control modes, but the current recipes intentionally emit only open-loop `POWER` phases until a pressure sensor exists.
 
-`Silvia Manual Pump Power` is adjustable from `0%` to `100%`. `Silvia Pump Start Boost` is the manual-mode boost switch. `Silvia Preinfusion Boost` and `Silvia Main Brew Boost` decide whether the configured `Silvia Pump Start Boost Time` is applied at the start of each automatic phase. `Silvia Pump Gate Delay` and `Silvia Pump Gate Pulse` tune the TRIAC trigger timing in microseconds.
+`Silvia Manual Pump Power` is adjustable from `0%` to `100%`. `Silvia Pump Start Boost` is the manual-mode boost switch. `Silvia Preinfusion Boost` and `Silvia Main Brew Boost` decide whether the snapshotted `Silvia Pump Start Boost Time` may be applied when that automatic phase starts from a stopped pump. Continuous transitions, such as preinfusion directly into brew, do not force a second 100% kick. `Silvia Pump Gate Delay` and `Silvia Pump Gate Pulse` tune the TRIAC trigger timing in microseconds.
 
 ### AC Cycle Skip Pump Output
 
