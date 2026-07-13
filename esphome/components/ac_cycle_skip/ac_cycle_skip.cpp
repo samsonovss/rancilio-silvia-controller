@@ -18,14 +18,14 @@ void IRAM_ATTR HOT ACCycleSkipDataStore::force_off_() {
     gptimer_set_alarm_action(this->gate_timer, nullptr);
   }
   this->gate_timer_phase.store(ACCycleSkipGateTimerPhase::IDLE, std::memory_order_relaxed);
-  if (this->gate_pin_ready) {
+  if (this->gate_pin_ready.load(std::memory_order_acquire)) {
     this->gate_pin.digital_write(false);
   }
   this->cycle_on = false;
 }
 
 void IRAM_ATTR HOT ACCycleSkipDataStore::schedule_gate_pulse_() {
-  if (!this->gate_pin_ready || this->gate_timer == nullptr) {
+  if (!this->gate_pin_ready.load(std::memory_order_acquire) || this->gate_timer == nullptr) {
     this->force_off_();
     return;
   }
@@ -199,7 +199,8 @@ bool IRAM_ATTR HOT ACCycleSkipDataStore::s_gate_timer_alarm(gptimer_handle_t tim
   if (store->gate_timer_phase.load(std::memory_order_relaxed) == ACCycleSkipGateTimerPhase::WAITING_GATE_ON) {
     const uint32_t scheduled_generation = store->scheduled_pulse_generation.load(std::memory_order_relaxed);
     const uint32_t current_generation = store->pulse_generation.load(std::memory_order_relaxed);
-    if (scheduled_generation == 0 || scheduled_generation != current_generation ||
+    if (!store->gate_pin_ready.load(std::memory_order_acquire) || scheduled_generation == 0 ||
+        scheduled_generation != current_generation ||
         store->requested_q16.load(std::memory_order_relaxed) == 0) {
       store->force_off_();
       return false;
@@ -240,7 +241,7 @@ void ACCycleSkipOutput::setup() {
   this->gate_pin_->setup();
   this->gate_pin_->digital_write(false);
   this->store_.gate_pin = this->gate_pin_->to_isr();
-  this->store_.gate_pin_ready = true;
+  this->store_.gate_pin_ready.store(true, std::memory_order_release);
   this->store_.zero_cross_pin_number = this->zero_cross_pin_->get_pin();
 
   gptimer_config_t timer_config = {};
