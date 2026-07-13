@@ -29,7 +29,7 @@
 - `Silvia Power Relay`;
 - `Silvia Brew PID`;
 - `Silvia PID Mode`;
-- `Silvia Brew Profile`;
+- `Silvia Shot Profile`;
 - `Silvia Boiler Temperature PT100`;
 - `Silvia Estimated Brew Temperature`;
 - `Silvia Estimated Brew Target`;
@@ -37,7 +37,12 @@
 - `Silvia Brew Temperature Offset`;
 - `Silvia Brew Shot Seconds`;
 - `Silvia Preinfusion Pump Seconds`;
+- `Silvia Preinfusion Pump Power`;
 - `Silvia Preinfusion Pause Seconds`;
+- `Silvia Main Brew Pump Power`;
+- `Silvia End Brew Pump Power`;
+- `Silvia Preinfusion Boost`;
+- `Silvia Main Brew Boost`;
 - `Silvia PID Heat Output`;
 - `Silvia PID Autotune Status`;
 - `Silvia Auto Off Remaining`;
@@ -79,13 +84,15 @@ Brew Boiler Target = Brew Target + Brew Temperature Offset
 
 ## Пролив, горячая вода и пар
 
-`Silvia Brew Shot` запускает автоматический пролив по текущим настройкам профиля. В начале открывается brew-клапан, затем выполняется предсмачивание, пауза и основной пролив. После завершения помпа и клапан выключаются.
+`Silvia Brew Shot` запускает автоматический пролив по текущему `Silvia Shot Profile`. В начале открывается brew-клапан, затем профиль выполняет свои фазы: предсмачивание, optional soak-паузу и основной пролив. После завершения помпа и клапан выключаются.
 
 `Silvia Hot Water` включает помпу без открытия brew-клапана. Это рассчитано на использование штатного парового крана/трубки для выдачи воды.
 
 `Silvia Steam Mode` переключает PID в режим `Steam`; при выключении возвращает `Brew`.
 
-`Silvia Brew Profile` управляет значениями `Silvia Preinfusion Pump Seconds`, `Silvia Preinfusion Pause Seconds` и `Silvia Brew Shot Seconds`. Если эти числа изменить вручную, профиль автоматически становится `Custom`.
+`Silvia Shot Profile` управляет всем рецептом пролива: временами фаз, мощностью предсмачивания, основной/конечной мощностью и boost-флагами фаз. Если эти числа или phase boost изменить вручную, профиль автоматически становится `Custom`.
+
+Автоматические профили временно используют `ac_cycle_skip` без дополнительного ramp, потому что плавность уже рассчитана внутри профиля. Ручной `Silvia Pump Ramp Time` применяется к обычному ручному включению помпы, горячей воде и backflush и восстанавливается после остановки автоматического шота.
 
 ## Промывка группы
 

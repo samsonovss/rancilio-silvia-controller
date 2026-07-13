@@ -140,7 +140,7 @@ globals:
     restore_value: no
     initial_value: '0'
 
-  - id: brew_profile_applying
+  - id: shot_profile_applying
     type: bool
     restore_value: no
     initial_value: 'false'
@@ -159,6 +159,16 @@ globals:
     type: uint32_t
     restore_value: no
     initial_value: '0'
+
+  - id: silvia_preinfusion_boost_enabled
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+
+  - id: silvia_main_brew_boost_enabled
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
 
   - id: hot_water_running
     type: bool
@@ -355,11 +365,12 @@ number:
       then:
         - if:
             condition:
-              lambda: 'return !id(brew_profile_applying) && id(silvia_brew_profile).current_option() != "Custom";'
+              lambda: 'return !id(shot_profile_applying) && id(silvia_shot_profile).current_option() != "Custom";'
             then:
               - select.set:
-                  id: silvia_brew_profile
+                  id: silvia_shot_profile
                   option: "Custom"
+        - component.update: silvia_shot_profile_preview
 
   - platform: template
     name: "Silvia Preinfusion Pump Seconds"
@@ -376,11 +387,12 @@ number:
       then:
         - if:
             condition:
-              lambda: 'return !id(brew_profile_applying) && id(silvia_brew_profile).current_option() != "Custom";'
+              lambda: 'return !id(shot_profile_applying) && id(silvia_shot_profile).current_option() != "Custom";'
             then:
               - select.set:
-                  id: silvia_brew_profile
+                  id: silvia_shot_profile
                   option: "Custom"
+        - component.update: silvia_shot_profile_preview
 
   - platform: template
     name: "Silvia Preinfusion Pause Seconds"
@@ -397,11 +409,78 @@ number:
       then:
         - if:
             condition:
-              lambda: 'return !id(brew_profile_applying) && id(silvia_brew_profile).current_option() != "Custom";'
+              lambda: 'return !id(shot_profile_applying) && id(silvia_shot_profile).current_option() != "Custom";'
             then:
               - select.set:
-                  id: silvia_brew_profile
+                  id: silvia_shot_profile
                   option: "Custom"
+        - component.update: silvia_shot_profile_preview
+
+  - platform: template
+    name: "Silvia Preinfusion Pump Power"
+    id: silvia_preinfusion_pump_power
+    optimistic: true
+    restore_value: true
+    initial_value: 35
+    min_value: 0
+    max_value: 100
+    step: 5
+    unit_of_measurement: "%"
+    mode: slider
+    on_value:
+      then:
+        - if:
+            condition:
+              lambda: 'return !id(shot_profile_applying) && id(silvia_shot_profile).current_option() != "Custom";'
+            then:
+              - select.set:
+                  id: silvia_shot_profile
+                  option: "Custom"
+        - component.update: silvia_shot_profile_preview
+
+  - platform: template
+    name: "Silvia Main Brew Pump Power"
+    id: silvia_main_brew_pump_power
+    optimistic: true
+    restore_value: true
+    initial_value: 100
+    min_value: 0
+    max_value: 100
+    step: 5
+    unit_of_measurement: "%"
+    mode: slider
+    on_value:
+      then:
+        - if:
+            condition:
+              lambda: 'return !id(shot_profile_applying) && id(silvia_shot_profile).current_option() != "Custom";'
+            then:
+              - select.set:
+                  id: silvia_shot_profile
+                  option: "Custom"
+        - component.update: silvia_shot_profile_preview
+
+  - platform: template
+    name: "Silvia End Brew Pump Power"
+    id: silvia_end_brew_pump_power
+    optimistic: true
+    restore_value: true
+    initial_value: 100
+    min_value: 0
+    max_value: 100
+    step: 5
+    unit_of_measurement: "%"
+    mode: slider
+    on_value:
+      then:
+        - if:
+            condition:
+              lambda: 'return !id(shot_profile_applying) && id(silvia_shot_profile).current_option() != "Custom";'
+            then:
+              - select.set:
+                  id: silvia_shot_profile
+                  option: "Custom"
+        - component.update: silvia_shot_profile_preview
 
   - platform: template
     name: "Silvia Manual Pump Power"
@@ -416,7 +495,14 @@ number:
     mode: slider
     on_value:
       then:
-        - component.update: silvia_pump_profile_preview
+        - if:
+            condition:
+              lambda: 'return !id(shot_profile_applying) && id(silvia_shot_profile).current_option() != "Custom";'
+            then:
+              - select.set:
+                  id: silvia_shot_profile
+                  option: "Custom"
+        - component.update: silvia_shot_profile_preview
 
   - platform: template
     name: "Silvia Pump Ramp Time"
@@ -432,7 +518,9 @@ number:
     on_value:
       then:
         - lambda: |-
-            id(silvia_pump_dimmer).set_ramp_ms((uint32_t) x);
+            if (!id(brew_shot_running)) {
+              id(silvia_pump_dimmer).set_ramp_ms((uint32_t) x);
+            }
 
   - platform: template
     name: "Silvia Pump Start Boost Time"
@@ -448,8 +536,10 @@ number:
     on_value:
       then:
         - lambda: |-
-            id(silvia_pump_dimmer).set_start_boost_ms(
-                id(silvia_pump_start_boost_enabled) ? (uint32_t) x : 0);
+            if (!id(brew_shot_running)) {
+              id(silvia_pump_dimmer).set_start_boost_ms(
+                  id(silvia_pump_start_boost_enabled) ? (uint32_t) x : 0);
+            }
 
   - platform: template
     name: "Silvia Pump Gate Delay"
@@ -576,6 +666,64 @@ switch:
           id(silvia_pump_dimmer).set_start_boost_ms(0);
 
   - platform: template
+    name: "Silvia Preinfusion Boost"
+    id: silvia_preinfusion_boost
+    lambda: 'return id(silvia_preinfusion_boost_enabled);'
+    turn_on_action:
+      - lambda: |-
+          id(silvia_preinfusion_boost_enabled) = true;
+          id(silvia_preinfusion_boost).publish_state(true);
+      - if:
+          condition:
+            lambda: 'return !id(shot_profile_applying) && id(silvia_shot_profile).current_option() != "Custom";'
+          then:
+            - select.set:
+                id: silvia_shot_profile
+                option: "Custom"
+      - component.update: silvia_shot_profile_preview
+    turn_off_action:
+      - lambda: |-
+          id(silvia_preinfusion_boost_enabled) = false;
+          id(silvia_preinfusion_boost).publish_state(false);
+      - if:
+          condition:
+            lambda: 'return !id(shot_profile_applying) && id(silvia_shot_profile).current_option() != "Custom";'
+          then:
+            - select.set:
+                id: silvia_shot_profile
+                option: "Custom"
+      - component.update: silvia_shot_profile_preview
+
+  - platform: template
+    name: "Silvia Main Brew Boost"
+    id: silvia_main_brew_boost
+    lambda: 'return id(silvia_main_brew_boost_enabled);'
+    turn_on_action:
+      - lambda: |-
+          id(silvia_main_brew_boost_enabled) = true;
+          id(silvia_main_brew_boost).publish_state(true);
+      - if:
+          condition:
+            lambda: 'return !id(shot_profile_applying) && id(silvia_shot_profile).current_option() != "Custom";'
+          then:
+            - select.set:
+                id: silvia_shot_profile
+                option: "Custom"
+      - component.update: silvia_shot_profile_preview
+    turn_off_action:
+      - lambda: |-
+          id(silvia_main_brew_boost_enabled) = false;
+          id(silvia_main_brew_boost).publish_state(false);
+      - if:
+          condition:
+            lambda: 'return !id(shot_profile_applying) && id(silvia_shot_profile).current_option() != "Custom";'
+          then:
+            - select.set:
+                id: silvia_shot_profile
+                option: "Custom"
+      - component.update: silvia_shot_profile_preview
+
+  - platform: template
     # Historical HA-facing name; there is no physical power relay in the 2-relay design.
     name: "Silvia Power Relay"
     id: silvia_power_relay
@@ -666,6 +814,7 @@ switch:
     turn_off_action:
       - script.stop: brew_shot_timer
       - script.execute: pump_output_off
+      - script.execute: restore_manual_pump_settings
       - switch.turn_off: silvia_brew_valve_relay
       - lambda: |-
           id(brew_shot_running) = false;
@@ -800,6 +949,20 @@ binary_sensor:
 # -------------------------
 
 script:
+  - id: restore_manual_pump_settings
+    mode: restart
+    then:
+      - if:
+          condition:
+            lambda: 'return ${use_pump_dimmer};'
+          then:
+            - lambda: |-
+                id(silvia_pump_dimmer).set_ramp_ms((uint32_t) id(silvia_pump_ramp_ms).state);
+                id(silvia_pump_dimmer).set_start_boost_ms(
+                    id(silvia_pump_start_boost_enabled)
+                        ? (uint32_t) id(silvia_pump_start_boost_ms).state
+                        : 0);
+
   - id: pump_output_on
     mode: restart
     then:
@@ -807,15 +970,11 @@ script:
           condition:
             lambda: 'return ${use_pump_dimmer};'
           then:
+            - script.execute: restore_manual_pump_settings
             - output.set_level:
                 id: silvia_pump_dimmer
                 level: !lambda |-
-                  const std::string profile = id(silvia_pump_profile).current_option();
                   float drive = id(silvia_manual_pump_power).state / 100.0f;
-                  if (profile == "Classic") drive = 1.00f;
-                  else if (profile == "Lever") drive = 0.65f;
-                  else if (profile == "Slayer Style") drive = 0.55f;
-                  else if (profile == "Bloom") drive = 0.45f;
                   if (drive < 0.0f) drive = 0.0f;
                   if (drive > 1.00f) drive = 1.00f;
                   id(pump_dimmer_output_value) = drive;
@@ -856,6 +1015,13 @@ script:
             - switch.turn_on: silvia_brew_valve_relay
             - if:
                 condition:
+                  lambda: 'return ${use_pump_dimmer};'
+                then:
+                  - lambda: |-
+                      id(silvia_pump_dimmer).set_ramp_ms(0);
+                      id(silvia_pump_dimmer).set_start_boost_ms(0);
+            - if:
+                condition:
                   lambda: 'return id(silvia_preinfusion_pump_seconds).state > 0.0f;'
                 then:
                   - lambda: |-
@@ -866,7 +1032,26 @@ script:
                       id(silvia_brew_shot_remaining).publish_state(seconds);
                       id(silvia_brew_shot_status).publish_state(
                           str_sprintf("Предсмачивание: %d с", seconds));
-                  - script.execute: pump_output_on
+                  - if:
+                      condition:
+                        lambda: 'return ${use_pump_dimmer};'
+                      then:
+                        - lambda: |-
+                            id(silvia_pump_dimmer).set_start_boost_ms(
+                                id(silvia_preinfusion_boost_enabled)
+                                    ? (uint32_t) id(silvia_pump_start_boost_ms).state
+                                    : 0);
+                        - output.set_level:
+                            id: silvia_pump_dimmer
+                            level: !lambda |-
+                              float drive = id(silvia_preinfusion_pump_power).state / 100.0f;
+                              if (drive < 0.0f) drive = 0.0f;
+                              if (drive > 1.0f) drive = 1.0f;
+                              id(pump_dimmer_output_value) = drive;
+                              return drive;
+                      else:
+                        - lambda: 'id(pump_dimmer_output_value) = 1.0f;'
+                        - switch.turn_on: silvia_pump_relay
                   - delay: !lambda |-
                       return (uint32_t)(id(silvia_preinfusion_pump_seconds).state * 1000.0f);
                   - script.execute: pump_output_off
@@ -896,64 +1081,71 @@ script:
                 condition:
                   lambda: 'return ${use_pump_dimmer};'
                 then:
+                  - lambda: |-
+                      id(silvia_pump_dimmer).set_start_boost_ms(
+                          id(silvia_main_brew_boost_enabled)
+                              ? (uint32_t) id(silvia_pump_start_boost_ms).state
+                              : 0);
                   - repeat:
                       count: !lambda |-
                         float profile_seconds = id(silvia_brew_shot_seconds).state;
-                        if (profile_seconds < 0.5f) profile_seconds = 0.5f;
-                        const int steps = (int) (profile_seconds * 2.0f + 0.999f);
+                        if (profile_seconds < 0.2f) profile_seconds = 0.2f;
+                        const int steps = (int) (profile_seconds * 5.0f + 0.999f);
                         return steps < 1 ? 1 : steps;
                       then:
                         - output.set_level:
                             id: silvia_pump_dimmer
                             level: !lambda |-
-                              const std::string profile = id(silvia_pump_profile).current_option();
+                              const std::string profile = id(silvia_shot_profile).current_option();
                               float profile_seconds = id(silvia_brew_shot_seconds).state;
-                              if (profile_seconds < 0.5f) profile_seconds = 0.5f;
-                              const int steps = (int) (profile_seconds * 2.0f + 0.999f);
+                              if (profile_seconds < 0.2f) profile_seconds = 0.2f;
+                              const int steps = (int) (profile_seconds * 5.0f + 0.999f);
                               const float denom = steps > 1 ? (float) (steps - 1) : 1.0f;
                               float t = (float) iteration / denom;
                               if (t < 0.0f) t = 0.0f;
                               if (t > 1.0f) t = 1.0f;
+                              auto smoothstep = [](float x) -> float {
+                                if (x < 0.0f) x = 0.0f;
+                                if (x > 1.0f) x = 1.0f;
+                                return x * x * (3.0f - 2.0f * x);
+                              };
+                              const float pre = id(silvia_preinfusion_pump_power).state / 100.0f;
+                              const float main = id(silvia_main_brew_pump_power).state / 100.0f;
+                              const float end = id(silvia_end_brew_pump_power).state / 100.0f;
                               float drive = id(silvia_manual_pump_power).state / 100.0f;
                               if (profile == "Classic") {
                                 drive = 1.00f;
                               } else if (profile == "Lever") {
-                                if (t < 0.60f) {
-                                  const float x = t / 0.60f;
-                                  const float s = x * x * (3.0f - 2.0f * x);
-                                  drive = 0.35f + (0.75f - 0.35f) * s;
+                                if (t < 0.25f) {
+                                  drive = pre + (main - pre) * smoothstep(t / 0.25f);
                                 } else {
-                                  const float x = (t - 0.60f) / 0.40f;
-                                  const float s = x * x * (3.0f - 2.0f * x);
-                                  drive = 0.75f + (0.45f - 0.75f) * s;
+                                  drive = main + (end - main) * smoothstep((t - 0.25f) / 0.75f);
                                 }
                               } else if (profile == "Slayer Style") {
                                 if (t < 0.35f) {
-                                  const float x = t / 0.35f;
-                                  const float s = x * x * (3.0f - 2.0f * x);
-                                  drive = 0.30f + (0.55f - 0.30f) * s;
+                                  drive = pre + (main - pre) * smoothstep(t / 0.35f);
                                 } else {
-                                  drive = 0.55f;
+                                  drive = main + (end - main) * smoothstep((t - 0.35f) / 0.65f);
                                 }
                               } else if (profile == "Bloom") {
-                                if (t < 0.30f) {
-                                  drive = 0.35f;
+                                if (t < 0.40f) {
+                                  drive = pre + (main - pre) * smoothstep(t / 0.40f);
                                 } else {
-                                  const float x = (t - 0.30f) / 0.70f;
-                                  const float s = x * x * (3.0f - 2.0f * x);
-                                  drive = 0.35f + (0.85f - 0.35f) * s;
+                                  drive = main + (end - main) * smoothstep((t - 0.40f) / 0.60f);
                                 }
                               }
                               if (drive < 0.0f) drive = 0.0f;
                               if (drive > 1.00f) drive = 1.00f;
                               id(pump_dimmer_output_value) = drive;
                               return drive;
-                        - delay: 500ms
+                        - delay: 200ms
                 else:
-                  - script.execute: pump_output_on
+                  - lambda: 'id(pump_dimmer_output_value) = 1.0f;'
+                  - switch.turn_on: silvia_pump_relay
                   - delay: !lambda |-
                       return (uint32_t)(id(silvia_brew_shot_seconds).state * 1000.0f);
             - script.execute: pump_output_off
+            - script.execute: restore_manual_pump_settings
             - switch.turn_off: silvia_brew_valve_relay
             - lambda: |-
                 id(brew_shot_running) = false;
@@ -1483,25 +1675,49 @@ text_sensor:
     update_interval: never
 
   - platform: template
-    name: "Silvia Pump Profile Preview"
-    id: silvia_pump_profile_preview
+    name: "Silvia Shot Profile Preview"
+    id: silvia_shot_profile_preview
     icon: "mdi:sine-wave"
     update_interval: 10s
     lambda: |-
-      const std::string profile = id(silvia_pump_profile).current_option();
+      const std::string profile = id(silvia_shot_profile).current_option();
       if (profile == "Classic") {
-        return {"Классика | диммер 100%"};
+        return {"Classic | без предсмачивания | 100%"};
       }
       if (profile == "Lever") {
-        return {"Lever | плавно 35% → 75% → 45%"};
+        return {str_sprintf(
+            "Lever | %.0fs %.0f%% | %.0fs: %.0f%% -> %.0f%%",
+            id(silvia_preinfusion_pump_seconds).state,
+            id(silvia_preinfusion_pump_power).state,
+            id(silvia_brew_shot_seconds).state,
+            id(silvia_main_brew_pump_power).state,
+            id(silvia_end_brew_pump_power).state)};
       }
       if (profile == "Slayer Style") {
-        return {"Slayer | плавно 30% → 55%, потом удержание"};
+        return {str_sprintf(
+            "Slayer | %.0fs %.0f%% | %.0fs: %.0f%% -> %.0f%%",
+            id(silvia_preinfusion_pump_seconds).state,
+            id(silvia_preinfusion_pump_power).state,
+            id(silvia_brew_shot_seconds).state,
+            id(silvia_main_brew_pump_power).state,
+            id(silvia_end_brew_pump_power).state)};
       }
       if (profile == "Bloom") {
-        return {"Bloom | 35%, затем плавно до 85%"};
+        return {str_sprintf(
+            "Bloom | %.0fs %.0f%% + %.0fs soak | %.0f%% -> %.0f%%",
+            id(silvia_preinfusion_pump_seconds).state,
+            id(silvia_preinfusion_pump_power).state,
+            id(silvia_preinfusion_pause_seconds).state,
+            id(silvia_main_brew_pump_power).state,
+            id(silvia_end_brew_pump_power).state)};
       }
-      return {str_sprintf("Manual | диммер %.0f%%", id(silvia_manual_pump_power).state)};
+      return {str_sprintf(
+          "Custom | %.0fs pre %.0f%% | %.0fs soak | %.0fs manual %.0f%%",
+          id(silvia_preinfusion_pump_seconds).state,
+          id(silvia_preinfusion_pump_power).state,
+          id(silvia_preinfusion_pause_seconds).state,
+          id(silvia_brew_shot_seconds).state,
+          id(silvia_manual_pump_power).state)};
 
   - platform: template
     name: "Silvia Water Status"
@@ -1698,68 +1914,8 @@ climate:
       
 select:
   - platform: template
-    name: "Silvia Brew Profile"
-    id: silvia_brew_profile
-    optimistic: true
-    restore_value: true
-    options:
-      - "Classic"
-      - "Soft Preinfusion"
-      - "Long Preinfusion"
-      - "Custom"
-    initial_option: "Classic"
-    set_action:
-      - if:
-          condition:
-            lambda: 'return x == "Classic";'
-          then:
-            - lambda: 'id(brew_profile_applying) = true;'
-            - number.set:
-                id: silvia_preinfusion_pump_seconds
-                value: 0
-            - number.set:
-                id: silvia_preinfusion_pause_seconds
-                value: 0
-            - number.set:
-                id: silvia_brew_shot_seconds
-                value: 25
-            - lambda: 'id(brew_profile_applying) = false;'
-
-      - if:
-          condition:
-            lambda: 'return x == "Soft Preinfusion";'
-          then:
-            - lambda: 'id(brew_profile_applying) = true;'
-            - number.set:
-                id: silvia_preinfusion_pump_seconds
-                value: 2
-            - number.set:
-                id: silvia_preinfusion_pause_seconds
-                value: 5
-            - number.set:
-                id: silvia_brew_shot_seconds
-                value: 25
-            - lambda: 'id(brew_profile_applying) = false;'
-
-      - if:
-          condition:
-            lambda: 'return x == "Long Preinfusion";'
-          then:
-            - lambda: 'id(brew_profile_applying) = true;'
-            - number.set:
-                id: silvia_preinfusion_pump_seconds
-                value: 3
-            - number.set:
-                id: silvia_preinfusion_pause_seconds
-                value: 10
-            - number.set:
-                id: silvia_brew_shot_seconds
-                value: 28
-            - lambda: 'id(brew_profile_applying) = false;'
-
-  - platform: template
-    name: "Silvia Pump Profile"
-    id: silvia_pump_profile
+    name: "Silvia Shot Profile"
+    id: silvia_shot_profile
     optimistic: true
     restore_value: true
     options:
@@ -1767,10 +1923,108 @@ select:
       - "Lever"
       - "Slayer Style"
       - "Bloom"
-      - "Manual"
+      - "Custom"
     initial_option: "Classic"
     set_action:
-      - component.update: silvia_pump_profile_preview
+      - lambda: 'id(shot_profile_applying) = true;'
+      - if:
+          condition:
+            lambda: 'return x == "Classic";'
+          then:
+            - number.set:
+                id: silvia_preinfusion_pump_seconds
+                value: 0
+            - number.set:
+                id: silvia_preinfusion_pause_seconds
+                value: 0
+            - number.set:
+                id: silvia_brew_shot_seconds
+                value: 25
+            - number.set:
+                id: silvia_preinfusion_pump_power
+                value: 35
+            - number.set:
+                id: silvia_main_brew_pump_power
+                value: 100
+            - number.set:
+                id: silvia_end_brew_pump_power
+                value: 100
+            - switch.turn_off: silvia_preinfusion_boost
+            - switch.turn_off: silvia_main_brew_boost
+      - if:
+          condition:
+            lambda: 'return x == "Lever";'
+          then:
+            - number.set:
+                id: silvia_preinfusion_pump_seconds
+                value: 4
+            - number.set:
+                id: silvia_preinfusion_pause_seconds
+                value: 0
+            - number.set:
+                id: silvia_brew_shot_seconds
+                value: 25
+            - number.set:
+                id: silvia_preinfusion_pump_power
+                value: 30
+            - number.set:
+                id: silvia_main_brew_pump_power
+                value: 75
+            - number.set:
+                id: silvia_end_brew_pump_power
+                value: 45
+            - switch.turn_off: silvia_preinfusion_boost
+            - switch.turn_off: silvia_main_brew_boost
+      - if:
+          condition:
+            lambda: 'return x == "Slayer Style";'
+          then:
+            - number.set:
+                id: silvia_preinfusion_pump_seconds
+                value: 8
+            - number.set:
+                id: silvia_preinfusion_pause_seconds
+                value: 0
+            - number.set:
+                id: silvia_brew_shot_seconds
+                value: 25
+            - number.set:
+                id: silvia_preinfusion_pump_power
+                value: 30
+            - number.set:
+                id: silvia_main_brew_pump_power
+                value: 55
+            - number.set:
+                id: silvia_end_brew_pump_power
+                value: 50
+            - switch.turn_off: silvia_preinfusion_boost
+            - switch.turn_off: silvia_main_brew_boost
+      - if:
+          condition:
+            lambda: 'return x == "Bloom";'
+          then:
+            - number.set:
+                id: silvia_preinfusion_pump_seconds
+                value: 5
+            - number.set:
+                id: silvia_preinfusion_pause_seconds
+                value: 8
+            - number.set:
+                id: silvia_brew_shot_seconds
+                value: 25
+            - number.set:
+                id: silvia_preinfusion_pump_power
+                value: 35
+            - number.set:
+                id: silvia_main_brew_pump_power
+                value: 85
+            - number.set:
+                id: silvia_end_brew_pump_power
+                value: 80
+            - switch.turn_off: silvia_preinfusion_boost
+            - switch.turn_off: silvia_main_brew_boost
+      - lambda: 'id(shot_profile_applying) = false;'
+      - component.update: silvia_shot_profile_preview
 
   - platform: template
     name: "Silvia PID Mode"

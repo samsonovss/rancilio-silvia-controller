@@ -74,8 +74,8 @@ Planned additions:
 ### Brewing
 
 - automated timed brew shot;
-- brew profiles: `Classic`, `Soft Preinfusion`, `Long Preinfusion`, and `Custom`;
-- configurable preinfusion pump time, preinfusion pause, and main shot duration;
+- unified shot profiles: `Classic`, `Lever`, `Slayer Style`, `Bloom`, and `Custom`;
+- configurable preinfusion time/power, soak pause, main shot duration, and main pump curve;
 - live brew-shot phase status with countdown;
 - open-loop pump power profiles through the custom `ac_cycle_skip` output;
 - physical low-voltage brew shot input;
@@ -139,14 +139,15 @@ Adjustable values include:
 - steam target temperature;
 - brew-temperature offset;
 - PID coefficients;
-- brew profile;
+- shot profile;
 - preinfusion pump time;
+- preinfusion pump power;
 - preinfusion pause;
 - main shot duration;
-- pump profile;
+- main and ending brew pump power;
 - manual pump power;
 - pump transition ramp time;
-- optional pump start boost and boost duration;
+- manual pump start boost, phase boost switches, and boost duration;
 - backflush reminder threshold;
 - backflush rinse-preparation delay;
 - dry coffee dose per shot;
@@ -162,12 +163,15 @@ Adjustable values include:
 4. run the pump for the configured shot duration;
 5. stop the pump and close the brew valve.
 
-`Silvia Brew Profile` provides presets and a custom mode:
+`Silvia Shot Profile` is the single recipe selector for the whole shot. It controls preinfusion, soak pause, main shot time, and the open-loop pump curve:
 
-- `Classic`: no preinfusion, 25 s shot;
-- `Soft Preinfusion`: 2 s pump, 5 s pause, 25 s shot;
-- `Long Preinfusion`: 3 s pump, 10 s pause, 28 s shot;
-- `Custom`: selected automatically when timing values are edited manually.
+- `Classic`: no preinfusion or soak, normal `100%` pump command during the main shot;
+- `Lever`: low-power preinfusion, a smooth rise to working power, then a gradual decline;
+- `Slayer Style`: longer low-power preinfusion, then a low-flow main curve;
+- `Bloom`: low-power wetting, a real pump-off soak pause, then a smooth main ramp;
+- `Custom`: constant user power from `Silvia Manual Pump Power` with user-editable phase times and powers.
+
+Editing shot timing, phase power, or phase boost values automatically switches the selector to `Custom`.
 
 `Silvia Brew Shot Status` reports the current automated shot phase and countdown. In the current configuration the published strings are localized:
 
@@ -178,17 +182,11 @@ Adjustable values include:
 
 The dashboard can use this status as the primary live shot timer instead of inferring the phase from entity timestamps.
 
-`Silvia Pump Profile` selects the open-loop pump-power curve used by the custom `ac_cycle_skip` output. The value is still a power command, not a pressure target: without a pressure sensor the controller cannot know or hold the actual brew pressure.
+Automatic shot profiles update the calculated pump command every `200 ms` and temporarily set `ac_cycle_skip` ramp to `0 ms`; the smoothstep curve lives in the shot profile itself. After the shot stops or is cancelled, the user `Silvia Pump Ramp Time` and manual boost setting are restored for manual pump use.
 
-Current pump profiles:
+The value is still a power command, not a pressure target: without a pressure sensor the controller cannot know or hold the actual brew pressure. The profile architecture is prepared for a later `PRESSURE` mode, but the current implementation is open-loop `POWER` only.
 
-- `Classic`: normal 100% pump behavior;
-- `Lever`: smooth `35% -> 75% -> 45%` pump curve;
-- `Slayer Style`: smooth `30% -> 55%` low-flow start, then hold;
-- `Bloom`: `35%` wetting phase, then smooth ramp to `85%`;
-- `Manual`: fixed pump power from `Silvia Manual Pump Power`.
-
-`Silvia Manual Pump Power` is adjustable from `0%` to `100%`. `Silvia Pump Ramp Time` controls how quickly the component moves from one requested power level to another. `Silvia Pump Start Boost` can briefly send full power when starting from `0%`; it is disabled by default, and `Silvia Pump Start Boost Time` sets the boost duration when enabled. `Silvia Pump Gate Delay` and `Silvia Pump Gate Pulse` tune the TRIAC trigger timing in microseconds.
+`Silvia Manual Pump Power` is adjustable from `0%` to `100%`. `Silvia Pump Start Boost` is the manual-mode boost switch. `Silvia Preinfusion Boost` and `Silvia Main Brew Boost` decide whether the configured `Silvia Pump Start Boost Time` is applied at the start of each automatic phase. `Silvia Pump Gate Delay` and `Silvia Pump Gate Pulse` tune the TRIAC trigger timing in microseconds.
 
 ### AC Cycle Skip Pump Output
 
