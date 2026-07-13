@@ -29,14 +29,16 @@ Current implementation:
 - PID heater control through an SSR;
 - `Brew` and `Steam` operating modes;
 - automated brew shot with profiles and preinfusion;
+- experimental pump power control through a RobotDyn/Robotron AC dimmer using a custom full-cycle skip ESPHome output;
 - hot water and steam mode controls;
 - water-level sensor input;
 - automatic shutdown timer;
 - shot counter, backflush reminder, and automated backflush program;
 - configurable coffee dose and estimated dry coffee usage;
-- PID autotune and automatic storage of successful coefficients.
+- PID autotune and automatic storage of successful coefficients;
+- runtime pump controls for manual pump power, transition ramp time, and optional start boost.
 
-The next hardware steps are pressure sensing and pump control for pressure profiling. A digital I2C pressure sensor is planned, and a one-channel RobotDyn AC dimmer has been ordered for pump control experiments.
+The next hardware step is pressure sensing for closed-loop pressure profiling. Pump power control is currently an open-loop experiment: the configured percentage is sent to the pump dimmer, but there is no pressure feedback yet.
 
 ## Hardware Overview
 
@@ -47,13 +49,13 @@ Main parts used by the current prototype:
 - MAX31865 RTD amplifier;
 - SSR for the boiler heater;
 - relay outputs for machine power, pump, and brew valve;
+- RobotDyn/Robotron AC dimmer input for experimental pump control;
 - low-voltage inputs for the original power, brew shot, hot water, and steam mode controls;
 - XKC-Y25-NPN water-level sensor input.
 
 Planned additions:
 
 - digital I2C pressure sensor for brew pressure measurement and pressure profiling;
-- one-channel RobotDyn AC dimmer for pump power control;
 - dedicated PCB with pluggable connectors for sensors, relays, and peripheral devices.
 
 ## Features
@@ -75,7 +77,7 @@ Planned additions:
 - brew profiles: `Classic`, `Soft Preinfusion`, `Long Preinfusion`, and `Custom`;
 - configurable preinfusion pump time, preinfusion pause, and main shot duration;
 - live brew-shot phase status with countdown;
-- pump power profile placeholders for the planned RobotDyn AC dimmer;
+- open-loop pump power profiles through the custom `ac_cycle_skip` output;
 - physical low-voltage brew shot input;
 - manual pump and brew-valve relay controls.
 
@@ -107,6 +109,8 @@ Planned additions:
 ├── README.md
 ├── README.ru.md
 ├── esphome/
+│   ├── components/
+│   │   └── ac_cycle_skip/
 │   ├── rancilio-silvia-power.yaml
 │   └── secrets.example.yaml
 ├── docs/
@@ -119,7 +123,7 @@ Planned additions:
 ## Quick Start
 
 1. Install ESPHome or the ESPHome Device Builder add-on in Home Assistant.
-2. Copy `esphome/rancilio-silvia-power.yaml` into the ESPHome configuration directory.
+2. Copy `esphome/rancilio-silvia-power.yaml` and `esphome/components/ac_cycle_skip/` into the ESPHome configuration directory.
 3. Create `secrets.yaml` using `esphome/secrets.example.yaml`.
 4. Verify every GPIO assignment and the electrical design for your exact board and relay modules.
 5. Validate the configuration before compiling the firmware.
@@ -139,6 +143,10 @@ Adjustable values include:
 - preinfusion pump time;
 - preinfusion pause;
 - main shot duration;
+- pump profile;
+- manual pump power;
+- pump transition ramp time;
+- optional pump start boost and boost duration;
 - backflush reminder threshold;
 - backflush rinse-preparation delay;
 - dry coffee dose per shot;
@@ -170,18 +178,45 @@ Adjustable values include:
 
 The dashboard can use this status as the primary live shot timer instead of inferring the phase from entity timestamps.
 
-`Silvia Pump Profile` is a future-ready selector for pump-power profiling. It is safe in the current build: it only exposes the UI and profile preview, while the pump still runs through the existing relay output.
+`Silvia Pump Profile` selects the open-loop pump-power curve used by the custom `ac_cycle_skip` output. The value is still a power command, not a pressure target: without a pressure sensor the controller cannot know or hold the actual brew pressure.
 
-Prepared pump profiles:
+Current pump profiles:
 
 - `Classic`: normal 100% pump behavior;
-- `Lever`: planned ramp-up and ramp-down pump curve;
-- `Slayer Style`: planned soft low-flow start followed by the main shot;
-- `Bloom`: planned wetting phase, pause, then main shot;
-- `Turbo`: planned fast high-flow shot;
-- `Manual`: planned fixed pump power from `Silvia Manual Pump Power`.
+- `Lever`: smooth `35% -> 75% -> 45%` pump curve;
+- `Slayer Style`: smooth `30% -> 55%` low-flow start, then hold;
+- `Bloom`: `35%` wetting phase, then smooth ramp to `85%`;
+- `Manual`: fixed pump power from `Silvia Manual Pump Power`.
 
-The actual RobotDyn AC dimmer output is intentionally left as a commented placeholder until the dimmer is wired and tested.
+`Silvia Manual Pump Power` is adjustable from `0%` to `100%`. `Silvia Pump Ramp Time` controls how quickly the component moves from one requested power level to another. `Silvia Pump Start Boost` can briefly send full power when starting from `0%`; it is disabled by default, and `Silvia Pump Start Boost Time` sets the boost duration when enabled.
+
+### AC Cycle Skip Pump Output
+
+The pump dimmer uses a local ESPHome external component in `esphome/components/ac_cycle_skip/`. It is not a normal phase-angle dimmer. A phase-angle dimmer cuts every mains half-wave; at low settings the pump receives weak chopped sine fragments and may only buzz.
+
+Example at roughly `30%`:
+
+```text
+phase-angle dimmer:
+  every half-wave is chopped and weak
+  ~~~/    ~~~/    ~~~/    ~~~/
+
+ac_cycle_skip:
+  complete mains periods are passed or skipped
+  ON period -> skip -> skip -> ON period -> skip -> skip
+```
+
+The component keeps a fractional accumulator, so low percentages are spread across time instead of being sent as a single clump. When the target changes, the internal target moves toward the new value over `ramp_ms`.
+
+Example transition from `30%` to `80%` with `ramp_ms: 800`:
+
+```text
+requested: 30% ----------------------> 80%
+internal:  30% -> 38% -> 46% -> 54% -> 62% -> 70% -> 80%
+output:    sparse full cycles gradually become denser
+```
+
+The brew profile code updates the requested pump power during the shot, and `ac_cycle_skip` smooths the electrical output between those requested values. This reduces abrupt pump changes while still keeping the output synchronized to zero crossings.
 
 ### Coffee Usage
 
@@ -247,7 +282,6 @@ The estimated brew temperature is a model, not a direct water measurement. Keep 
 ## Roadmap
 
 - Add a digital I2C pressure sensor for brew pressure measurement.
-- Enable the prepared RobotDyn AC dimmer output and test pump-power profiles.
 - Use pressure feedback for closed-loop pressure profiling.
 - Update the Home Assistant dashboard with pressure graphs.
 - Design a dedicated PCB with proper connectors.

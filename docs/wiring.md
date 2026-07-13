@@ -4,8 +4,8 @@
 
 | Функция | GPIO | Примечание |
 |---|---:|---|
-| Диммер помпы, gate | GPIO6 | RobotDyn AC dimmer, заготовка |
-| Диммер помпы, zero-cross | GPIO7 | RobotDyn AC dimmer, заготовка |
+| Диммер помпы, gate | GPIO6 | RobotDyn/Robotron AC dimmer, `ac_cycle_skip` |
+| Диммер помпы, zero-cross | GPIO7 | RobotDyn/Robotron AC dimmer, `ac_cycle_skip` |
 | MAX31865 SDI/MOSI | GPIO8 | PT100, SPI |
 | SSR нагревателя | GPIO13 | `slow_pwm`, период 1 с |
 | Реле помпы / разрешение бойлера | GPIO15 | Роль зависит от `use_pump_dimmer` |
@@ -63,7 +63,9 @@ GPIO15 используется либо для помпы, либо как ра
 - `false`: GPIO15 работает как реле помпы. Логический `Silvia Power Relay` не имеет физического GPIO, а нагрев разрешается/запрещается через SSR.
 - `true`: GPIO15 не используется как реле помпы и становится разрешением бойлера. Помпа должна управляться диммером GPIO6/GPIO7.
 
-Диммер помпы добавлен как заготовка на GPIO6/GPIO7. Реальный AC dimmer output пока не включён в сборку: найденный пример компонента рассчитан на Arduino framework, а текущий конфиг использует `esp-idf`.
+При `use_pump_dimmer: "true"` помпа управляется через локальный ESPHome external component `ac_cycle_skip` на GPIO6/GPIO7. Это не phase-cut dimmer: компонент пропускает или блокирует полные периоды сети, синхронизируясь по zero-cross. В Home Assistant доступны `Silvia Manual Pump Power`, `Silvia Pump Ramp Time`, `Silvia Pump Start Boost` и `Silvia Pump Start Boost Time`.
+
+Без датчика давления это open-loop управление: процент мощности не является давлением в барах. Перед первыми тестами проверяйте работу на малых процентах без кофе и под постоянным наблюдением.
 
 `Silvia Power Relay` - историческое имя HA-entity. В двухрелейной схеме это логический switch без физического GPIO: он разрешает работу автоматики и нагрева через SSR, но не щёлкает отдельным реле питания.
 

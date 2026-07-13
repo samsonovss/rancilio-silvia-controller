@@ -13,6 +13,9 @@ esphome:
       then:
         - script.execute: apply_pid_parameters
         - lambda: |-
+            id(silvia_pump_dimmer).set_start_boost_ms(
+                id(silvia_pump_start_boost_enabled) ? (uint32_t) id(silvia_pump_start_boost_ms).state : 0);
+            id(silvia_pump_dimmer).set_ramp_ms((uint32_t) id(silvia_pump_ramp_ms).state);
             id(silvia_brew_shot_remaining).publish_state(0);
             id(silvia_brew_shot_status).publish_state("Ожидание");
             id(silvia_backflush_status).update();
@@ -44,6 +47,11 @@ wifi:
 
 captive_portal:
 
+external_components:
+  - source:
+      type: local
+      path: components
+
 
 
 spi:
@@ -72,7 +80,7 @@ substitutions:
   hx711_clk_pin: GPIO48
   xdb401_sda_pin: GPIO11
   xdb401_scl_pin: GPIO12
-  use_pump_dimmer: "false"
+  use_pump_dimmer: "true"
   overtemp_limit: "155.0"
   # Future Nextion display placeholder. Keep commented until wired and tested.
   # nextion_tx_pin: GPIO1
@@ -97,6 +105,16 @@ globals:
     type: float
     restore_value: no
     initial_value: '0.0'
+
+  - id: pump_dimmer_output_value
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+
+  - id: silvia_pump_start_boost_enabled
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
 
   - id: pid_autotune_running
     type: bool
@@ -251,7 +269,7 @@ number:
       then:
         - if:
             condition:
-              switch.is_on: silvia_power_relay
+              lambda: 'return id(silvia_power_state);'
             then:
               - script.execute: auto_off_timer
               - script.execute: status_led_update
@@ -382,7 +400,7 @@ number:
     optimistic: true
     restore_value: true
     initial_value: 100
-    min_value: 20
+    min_value: 0
     max_value: 100
     step: 5
     unit_of_measurement: "%"
@@ -390,6 +408,39 @@ number:
     on_value:
       then:
         - component.update: silvia_pump_profile_preview
+
+  - platform: template
+    name: "Silvia Pump Ramp Time"
+    id: silvia_pump_ramp_ms
+    optimistic: true
+    restore_value: true
+    initial_value: 800
+    min_value: 0
+    max_value: 3000
+    step: 50
+    unit_of_measurement: "ms"
+    mode: box
+    on_value:
+      then:
+        - lambda: |-
+            id(silvia_pump_dimmer).set_ramp_ms((uint32_t) x);
+
+  - platform: template
+    name: "Silvia Pump Start Boost Time"
+    id: silvia_pump_start_boost_ms
+    optimistic: true
+    restore_value: true
+    initial_value: 100
+    min_value: 0
+    max_value: 1000
+    step: 10
+    unit_of_measurement: "ms"
+    mode: box
+    on_value:
+      then:
+        - lambda: |-
+            id(silvia_pump_dimmer).set_start_boost_ms(
+                id(silvia_pump_start_boost_enabled) ? (uint32_t) x : 0);
 
   - platform: template
     name: "Silvia Brew Target"
@@ -469,22 +520,36 @@ number:
 
 switch:
   - platform: template
+    name: "Silvia Pump Start Boost"
+    id: silvia_pump_start_boost
+    lambda: 'return id(silvia_pump_start_boost_enabled);'
+    turn_on_action:
+      - lambda: |-
+          id(silvia_pump_start_boost_enabled) = true;
+          id(silvia_pump_start_boost).publish_state(true);
+          id(silvia_pump_dimmer).set_start_boost_ms((uint32_t) id(silvia_pump_start_boost_ms).state);
+    turn_off_action:
+      - lambda: |-
+          id(silvia_pump_start_boost_enabled) = false;
+          id(silvia_pump_start_boost).publish_state(false);
+          id(silvia_pump_dimmer).set_start_boost_ms(0);
+
+  - platform: template
     # Historical HA-facing name; there is no physical power relay in the 2-relay design.
     name: "Silvia Power Relay"
     id: silvia_power_relay
     lambda: 'return id(silvia_power_state);'
     turn_on_action:
-      - lambda: 'id(silvia_power_state) = true;'
-      - if:
-          condition:
-            lambda: 'return ${use_pump_dimmer};'
-          then:
-            - switch.turn_on: silvia_pump_relay
+      - lambda: |-
+          id(silvia_power_state) = true;
+          id(silvia_power_relay).publish_state(true);
       - script.execute: auto_off_timer
       - script.execute: status_led_update
       - script.execute: apply_pid_mode
     turn_off_action:
-      - lambda: 'id(silvia_power_state) = false;'
+      - lambda: |-
+          id(silvia_power_state) = false;
+          id(silvia_power_relay).publish_state(false);
       - climate.control:
           id: silvia_brew_pid
           mode: "OFF"
@@ -513,6 +578,7 @@ switch:
   - platform: gpio
     name: "Silvia Pump Relay"
     id: silvia_pump_relay
+    internal: true
     restore_mode: ALWAYS_OFF
     pin:
       number: ${pump_relay_pin}
@@ -520,7 +586,7 @@ switch:
     on_turn_on:
       - if:
           condition:
-            switch.is_off: silvia_power_relay
+            lambda: 'return !id(silvia_power_state);'
           then:
             - switch.turn_off: silvia_pump_relay
           else:
@@ -537,7 +603,7 @@ switch:
     on_turn_on:
       - if:
           condition:
-            switch.is_off: silvia_power_relay
+            lambda: 'return !id(silvia_power_state);'
           then:
             - switch.turn_off: silvia_brew_valve_relay
           else:
@@ -551,7 +617,7 @@ switch:
     turn_on_action:
       - if:
           condition:
-            lambda: 'return id(silvia_power_relay).state && !id(backflush_running);'
+            lambda: 'return id(silvia_power_state) && !id(backflush_running);'
           then:
             - script.execute: auto_off_timer
             - script.execute: status_led_update
@@ -574,7 +640,7 @@ switch:
     turn_on_action:
       - if:
           condition:
-            lambda: 'return id(silvia_power_relay).state && !id(backflush_running);'
+            lambda: 'return id(silvia_power_state) && !id(backflush_running);'
           then:
             - script.execute: auto_off_timer
             - script.execute: status_led_update
@@ -700,8 +766,21 @@ script:
           condition:
             lambda: 'return ${use_pump_dimmer};'
           then:
-            - logger.log: "Pump dimmer mode selected; AC dimmer output is not enabled in this build yet"
+            - output.set_level:
+                id: silvia_pump_dimmer
+                level: !lambda |-
+                  const std::string profile = id(silvia_pump_profile).current_option();
+                  float drive = id(silvia_manual_pump_power).state / 100.0f;
+                  if (profile == "Classic") drive = 1.00f;
+                  else if (profile == "Lever") drive = 0.65f;
+                  else if (profile == "Slayer Style") drive = 0.55f;
+                  else if (profile == "Bloom") drive = 0.45f;
+                  if (drive < 0.0f) drive = 0.0f;
+                  if (drive > 1.00f) drive = 1.00f;
+                  id(pump_dimmer_output_value) = drive;
+                  return drive;
           else:
+            - lambda: 'id(pump_dimmer_output_value) = 1.0f;'
             - switch.turn_on: silvia_pump_relay
 
   - id: pump_output_off
@@ -711,8 +790,12 @@ script:
           condition:
             lambda: 'return ${use_pump_dimmer};'
           then:
-            - logger.log: "Pump dimmer mode selected; pump output off placeholder"
+            - lambda: 'id(pump_dimmer_output_value) = 0.0f;'
+            - output.set_level:
+                id: silvia_pump_dimmer
+                level: 0%
           else:
+            - lambda: 'id(pump_dimmer_output_value) = 0.0f;'
             - switch.turn_off: silvia_pump_relay
 
   - id: brew_shot_timer
@@ -720,7 +803,7 @@ script:
     then:
       - if:
           condition:
-            lambda: 'return id(silvia_power_relay).state && !id(backflush_running);'
+            lambda: 'return id(silvia_power_state) && !id(backflush_running);'
           then:
             - lambda: |-
                 id(brew_shot_running) = true;
@@ -768,9 +851,67 @@ script:
                 id(silvia_brew_shot_remaining).publish_state(seconds);
                 id(silvia_brew_shot_status).publish_state(
                     str_sprintf("Пролив: %d с", seconds));
-            - script.execute: pump_output_on
-            - delay: !lambda |-
-                return (uint32_t)(id(silvia_brew_shot_seconds).state * 1000.0f);
+            - if:
+                condition:
+                  lambda: 'return ${use_pump_dimmer};'
+                then:
+                  - repeat:
+                      count: !lambda |-
+                        float profile_seconds = id(silvia_brew_shot_seconds).state;
+                        if (profile_seconds < 0.5f) profile_seconds = 0.5f;
+                        const int steps = (int) (profile_seconds * 2.0f + 0.999f);
+                        return steps < 1 ? 1 : steps;
+                      then:
+                        - output.set_level:
+                            id: silvia_pump_dimmer
+                            level: !lambda |-
+                              const std::string profile = id(silvia_pump_profile).current_option();
+                              float profile_seconds = id(silvia_brew_shot_seconds).state;
+                              if (profile_seconds < 0.5f) profile_seconds = 0.5f;
+                              const int steps = (int) (profile_seconds * 2.0f + 0.999f);
+                              const float denom = steps > 1 ? (float) (steps - 1) : 1.0f;
+                              float t = (float) iteration / denom;
+                              if (t < 0.0f) t = 0.0f;
+                              if (t > 1.0f) t = 1.0f;
+                              float drive = id(silvia_manual_pump_power).state / 100.0f;
+                              if (profile == "Classic") {
+                                drive = 1.00f;
+                              } else if (profile == "Lever") {
+                                if (t < 0.60f) {
+                                  const float x = t / 0.60f;
+                                  const float s = x * x * (3.0f - 2.0f * x);
+                                  drive = 0.35f + (0.75f - 0.35f) * s;
+                                } else {
+                                  const float x = (t - 0.60f) / 0.40f;
+                                  const float s = x * x * (3.0f - 2.0f * x);
+                                  drive = 0.75f + (0.45f - 0.75f) * s;
+                                }
+                              } else if (profile == "Slayer Style") {
+                                if (t < 0.35f) {
+                                  const float x = t / 0.35f;
+                                  const float s = x * x * (3.0f - 2.0f * x);
+                                  drive = 0.30f + (0.55f - 0.30f) * s;
+                                } else {
+                                  drive = 0.55f;
+                                }
+                              } else if (profile == "Bloom") {
+                                if (t < 0.30f) {
+                                  drive = 0.35f;
+                                } else {
+                                  const float x = (t - 0.30f) / 0.70f;
+                                  const float s = x * x * (3.0f - 2.0f * x);
+                                  drive = 0.35f + (0.85f - 0.35f) * s;
+                                }
+                              }
+                              if (drive < 0.0f) drive = 0.0f;
+                              if (drive > 1.00f) drive = 1.00f;
+                              id(pump_dimmer_output_value) = drive;
+                              return drive;
+                        - delay: 500ms
+                else:
+                  - script.execute: pump_output_on
+                  - delay: !lambda |-
+                      return (uint32_t)(id(silvia_brew_shot_seconds).state * 1000.0f);
             - script.execute: pump_output_off
             - switch.turn_off: silvia_brew_valve_relay
             - lambda: |-
@@ -798,7 +939,7 @@ script:
       - if:
           condition:
             lambda: |-
-              return id(silvia_power_relay).state &&
+              return id(silvia_power_state) &&
                      !id(brew_shot_running) &&
                      !id(hot_water_running) &&
                      !id(backflush_running);
@@ -883,7 +1024,7 @@ script:
             - while:
                 condition:
                   lambda: |-
-                    return id(silvia_power_relay).state &&
+                    return id(silvia_power_state) &&
                            id(auto_off_remaining_seconds) > 0 &&
                            id(silvia_auto_off_minutes).state > 0;
                 then:
@@ -900,7 +1041,7 @@ script:
             - if:
                 condition:
                   lambda: |-
-                    return id(silvia_power_relay).state &&
+                    return id(silvia_power_state) &&
                            id(auto_off_remaining_seconds) <= 0 &&
                            id(silvia_auto_off_minutes).state > 0;
                 then:
@@ -914,7 +1055,7 @@ script:
 
       - if:
           condition:
-            switch.is_off: silvia_power_relay
+            lambda: 'return !id(silvia_power_state);'
           then:
             - light.turn_off: silvia_status_led_light
           else:
@@ -938,7 +1079,7 @@ script:
       - while:
           condition:
             lambda: |-
-              return id(silvia_power_relay).state &&
+              return id(silvia_power_state) &&
                      id(silvia_auto_off_minutes).state > 0 &&
                      id(auto_off_remaining_seconds) > 60;
           then:
@@ -953,7 +1094,7 @@ script:
       - while:
           condition:
             lambda: |-
-              return id(silvia_power_relay).state &&
+              return id(silvia_power_state) &&
                      id(silvia_auto_off_minutes).state > 0 &&
                      id(auto_off_remaining_seconds) > 0 &&
                      id(auto_off_remaining_seconds) <= 60;
@@ -981,7 +1122,7 @@ script:
           then:
             - if:
                 condition:
-                  switch.is_on: silvia_power_relay
+                  lambda: 'return id(silvia_power_state);'
                 then:
                   - climate.control:
                       id: silvia_brew_pid
@@ -999,7 +1140,7 @@ script:
           then:
             - if:
                 condition:
-                  switch.is_on: silvia_power_relay
+                  lambda: 'return id(silvia_power_state);'
                 then:
                   - climate.control:
                       id: silvia_brew_pid
@@ -1025,7 +1166,7 @@ button:
     on_press:
       - if:
           condition:
-            switch.is_on: silvia_power_relay
+            lambda: 'return id(silvia_power_state);'
           then:
             - script.execute: auto_off_timer
 
@@ -1034,7 +1175,7 @@ button:
     on_press:
       - if:
           condition:
-            switch.is_on: silvia_power_relay
+            lambda: 'return id(silvia_power_state);'
           then:
             - logger.log: "Silvia PID autotune started"
             - lambda: |-
@@ -1101,6 +1242,15 @@ sensor:
     update_interval: 1s
     lambda: |-
       return id(pid_heat_output_value) * 100.0f;
+
+  - platform: template
+    name: "Silvia Pump Dimmer Output"
+    id: silvia_pump_dimmer_output_percent
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    update_interval: 1s
+    lambda: |-
+      return id(pump_dimmer_output_value) * 100.0f;
 
   - platform: template
     name: "Silvia Auto Off Remaining"
@@ -1263,7 +1413,7 @@ text_sensor:
   - platform: template
     name: "Silvia Power Status"
     lambda: |-
-      if (id(silvia_power_relay).state) {
+      if (id(silvia_power_state)) {
         return {"ON"};
       } else {
         return {"OFF"};
@@ -1273,7 +1423,7 @@ text_sensor:
     name: "Silvia Auto Off Status"
     update_interval: 5s
     lambda: |-
-      if (!id(silvia_power_relay).state) {
+      if (!id(silvia_power_state)) {
         return {"OFF"};
       }
       if (id(silvia_auto_off_minutes).state <= 0) {
@@ -1295,21 +1445,18 @@ text_sensor:
     lambda: |-
       const std::string profile = id(silvia_pump_profile).current_option();
       if (profile == "Classic") {
-        return {"Классика | помпа 100%"};
+        return {"Классика | диммер 100%"};
       }
       if (profile == "Lever") {
-        return {"Lever | плавный рост и спад мощности"};
+        return {"Lever | плавно 35% → 75% → 45%"};
       }
       if (profile == "Slayer Style") {
-        return {"Slayer | мягкое начало, затем основной пролив"};
+        return {"Slayer | плавно 30% → 55%, потом удержание"};
       }
       if (profile == "Bloom") {
-        return {"Bloom | смачивание, пауза, затем пролив"};
+        return {"Bloom | 35%, затем плавно до 85%"};
       }
-      if (profile == "Turbo") {
-        return {"Turbo | быстрый высокий поток"};
-      }
-      return {str_sprintf("Manual | %.0f%% мощности", id(silvia_manual_pump_power).state)};
+      return {str_sprintf("Manual | диммер %.0f%%", id(silvia_manual_pump_power).state)};
 
   - platform: template
     name: "Silvia Water Status"
@@ -1361,7 +1508,7 @@ text_sensor:
         const int minutes = id(pid_autotune_elapsed_seconds) / 60;
         const int seconds = id(pid_autotune_elapsed_seconds) % 60;
 
-        if (!id(silvia_power_relay).state) {
+        if (!id(silvia_power_state)) {
           return {str_sprintf("Running | heater disabled | %02d:%02d", minutes, seconds)};
         }
 
@@ -1401,6 +1548,22 @@ output:
     pin: ${heater_ssr_pin}
     period: 1s
 
+  # RobotDyn/Robotron AC dimmer in full-cycle skip mode for pump tests.
+  # Percent means the share of full mains periods passed to the pump.
+  - platform: ac_cycle_skip
+    id: silvia_pump_dimmer
+    gate_pin: ${pump_dimmer_gate_pin}
+    min_power: 0%
+    max_power: 100%
+    zero_means_zero: true
+    noise_filter_us: 5000
+    start_boost_ms: 0
+    ramp_ms: 800
+    zero_cross_pin:
+      number: ${pump_dimmer_zero_cross_pin}
+      mode:
+        input: true
+
   # PID пишет сюда.
   # Сохраняем процент для HA и передаём его в SSR.
   - platform: template
@@ -1413,7 +1576,7 @@ output:
 
           // Never energize the heater while logical power is off, with an invalid
           // reading, or above the safety limit.
-          if (!id(silvia_power_relay).state ||
+          if (!id(silvia_power_state) ||
               !id(silvia_boiler_temp_pt100).has_state() ||
               !std::isfinite(temperature) ||
               temperature >= ${overtemp_limit}f) {
@@ -1555,7 +1718,6 @@ select:
       - "Lever"
       - "Slayer Style"
       - "Bloom"
-      - "Turbo"
       - "Manual"
     initial_option: "Classic"
     set_action:
@@ -1577,7 +1739,7 @@ select:
           then:
             - if:
                 condition:
-                  switch.is_on: silvia_power_relay
+                  lambda: 'return id(silvia_power_state);'
                 then:
                   - climate.control:
                       id: silvia_brew_pid
@@ -1595,7 +1757,7 @@ select:
           then:
             - if:
                 condition:
-                  switch.is_on: silvia_power_relay
+                  lambda: 'return id(silvia_power_state);'
                 then:
                   - climate.control:
                       id: silvia_brew_pid
