@@ -32,7 +32,10 @@ esp32:
       CONFIG_GPTIMER_ISR_HANDLER_IN_IRAM: "y"
 
 logger:
-  level: INFO
+  level: DEBUG
+
+debug:
+  update_interval: 5s
 
 web_server:
   port: 80
@@ -1447,6 +1450,10 @@ text_sensor:
   - platform: wifi_info
     ip_address:
       name: "Silvia ESP IP"
+
+  - platform: debug
+    reset_reason:
+      name: "Silvia Reset Reason"
 
   - platform: template
     name: "Silvia Power Status"
