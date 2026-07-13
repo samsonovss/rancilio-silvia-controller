@@ -104,12 +104,13 @@ uint32_t IRAM_ATTR HOT ACCycleSkipDataStore::update_target_(uint32_t now) {
 }
 
 void IRAM_ATTR HOT ACCycleSkipDataStore::gpio_intr() {
-  if (this->gate_timer == nullptr) {
+  uint64_t raw_now = 0;
+  if (this->gate_timer == nullptr || gptimer_get_raw_count(this->gate_timer, &raw_now) != ESP_OK) {
     this->force_off_();
     return;
   }
 
-  const uint32_t now = micros();
+  const uint32_t now = static_cast<uint32_t>(raw_now);
   const uint32_t elapsed = now - this->crossed_zero_at;
 
   if (this->crossed_zero_at == 0) {
