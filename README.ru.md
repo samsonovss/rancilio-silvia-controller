@@ -222,6 +222,7 @@ Gate timing и safety-детали:
 
 - GPIO zero-cross ISR больше не ждёт `gate_pulse_us` через busy-wait;
 - импульс gate планируется через ESP-IDF GPTimer с частотой 1 MHz;
+- GPTimer ISR/cache safety включён через ESP-IDF sdkconfig options: `CONFIG_GPTIMER_ISR_CACHE_SAFE`, `CONFIG_GPTIMER_CTRL_FUNC_IN_IRAM` и `CONFIG_GPTIMER_ISR_HANDLER_IN_IRAM`;
 - `gate_delay_us` задаёт короткую паузу после zero-cross перед включением gate, а `gate_pulse_us` задаёт длительность импульса;
 - дефолтные значения: `gate_delay_us: 100` и `gate_pulse_us: 300`, а задержку нельзя поставить ниже `10 us`;
 - runtime-тайминги читаются атомарно, а generation guard не даёт старому timer callback поднять gate после команды OFF;

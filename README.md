@@ -222,6 +222,7 @@ Gate timing and safety details:
 
 - the GPIO zero-cross ISR no longer busy-waits for the gate pulse;
 - the TRIAC gate pulse is scheduled with an ESP-IDF GPTimer running at 1 MHz;
+- GPTimer ISR/cache safety is enabled through ESP-IDF sdkconfig options: `CONFIG_GPTIMER_ISR_CACHE_SAFE`, `CONFIG_GPTIMER_CTRL_FUNC_IN_IRAM`, and `CONFIG_GPTIMER_ISR_HANDLER_IN_IRAM`;
 - `gate_delay_us` waits briefly after zero-cross before triggering the gate, and `gate_pulse_us` controls how long the gate stays high;
 - the defaults are `gate_delay_us: 100` and `gate_pulse_us: 300`, and the delay cannot be set below `10 us`;
 - runtime timing values are read atomically, and a generation guard prevents a stale timer callback from raising the gate after an OFF command;

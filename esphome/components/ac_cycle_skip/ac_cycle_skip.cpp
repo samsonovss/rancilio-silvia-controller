@@ -104,7 +104,13 @@ uint32_t IRAM_ATTR HOT ACCycleSkipDataStore::update_target_(uint32_t now) {
 }
 
 void IRAM_ATTR HOT ACCycleSkipDataStore::gpio_intr() {
-  const uint32_t now = micros();
+  uint64_t raw_now = 0;
+  if (this->gate_timer == nullptr || gptimer_get_raw_count(this->gate_timer, &raw_now) != ESP_OK) {
+    this->force_off_();
+    return;
+  }
+
+  const uint32_t now = static_cast<uint32_t>(raw_now);
   const uint32_t elapsed = now - this->crossed_zero_at;
 
   if (this->crossed_zero_at == 0) {
@@ -315,8 +321,12 @@ void ACCycleSkipOutput::write_state(float state) {
   this->store_.requested_q16.store(requested, std::memory_order_relaxed);
   const uint32_t start_boost_ms = this->store_.start_boost_ms.load(std::memory_order_relaxed);
   if (starting && start_boost_ms > 0) {
+    uint64_t now = 0;
+    if (this->store_.gate_timer == nullptr || gptimer_get_raw_count(this->store_.gate_timer, &now) != ESP_OK)
+      now = micros();
     this->store_.target_q16.store(Q16_FULL, std::memory_order_relaxed);
-    this->store_.boost_until_us.store(micros() + start_boost_ms * 1000UL, std::memory_order_relaxed);
+    this->store_.boost_until_us.store(static_cast<uint32_t>(now) + start_boost_ms * 1000UL,
+                                      std::memory_order_relaxed);
   }
 }
 
