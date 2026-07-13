@@ -26,6 +26,10 @@ esp32:
   board: esp32-s3-devkitc-1
   framework:
     type: esp-idf
+    sdkconfig_options:
+      CONFIG_GPTIMER_ISR_CACHE_SAFE: "y"
+      CONFIG_GPTIMER_CTRL_FUNC_IN_IRAM: "y"
+      CONFIG_GPTIMER_ISR_HANDLER_IN_IRAM: "y"
 
 logger:
   level: DEBUG
