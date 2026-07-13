@@ -3,6 +3,7 @@
 #include "esphome/components/output/float_output.h"
 #include "esphome/core/component.h"
 #include "esphome/core/hal.h"
+#include <atomic>
 #include <driver/gptimer.h>
 
 namespace esphome::ac_cycle_skip {
@@ -19,19 +20,21 @@ struct ACCycleSkipDataStore {
   uint8_t zero_cross_pin_number;
   gptimer_handle_t gate_timer{nullptr};
 
-  volatile uint32_t target_q16{0};
-  volatile uint32_t requested_q16{0};
-  volatile uint32_t boost_until_us{0};
+  std::atomic<uint32_t> target_q16{0};
+  std::atomic<uint32_t> requested_q16{0};
+  std::atomic<uint32_t> boost_until_us{0};
+  std::atomic<uint32_t> pulse_generation{0};
+  std::atomic<uint32_t> scheduled_pulse_generation{0};
   uint32_t accumulator_q16{0};
   uint32_t crossed_zero_at{0};
   uint32_t half_cycle_time_us{10000};
   uint32_t noise_filter_us{5000};
   uint32_t min_zero_cross_interval_us{6000};
   uint32_t max_zero_cross_interval_us{13000};
-  uint32_t gate_delay_us{100};
-  uint32_t gate_pulse_us{300};
-  uint32_t start_boost_ms{0};
-  uint32_t ramp_ms{800};
+  std::atomic<uint32_t> gate_delay_us{100};
+  std::atomic<uint32_t> gate_pulse_us{300};
+  std::atomic<uint32_t> start_boost_ms{0};
+  std::atomic<uint32_t> ramp_ms{800};
   uint32_t rejected_crossings{0};
   uint32_t invalid_crossings{0};
   uint32_t resync_events{0};
@@ -39,7 +42,7 @@ struct ACCycleSkipDataStore {
   bool synchronized{false};
   bool second_half_cycle{false};
   bool cycle_on{false};
-  volatile ACCycleSkipGateTimerPhase gate_timer_phase{ACCycleSkipGateTimerPhase::IDLE};
+  std::atomic<ACCycleSkipGateTimerPhase> gate_timer_phase{ACCycleSkipGateTimerPhase::IDLE};
 
   void gpio_intr();
   void force_off_();
@@ -62,10 +65,16 @@ class ACCycleSkipOutput final : public output::FloatOutput, public Component {
   void set_noise_filter_us(uint32_t noise_filter_us) { store_.noise_filter_us = noise_filter_us; }
   void set_min_zero_cross_interval_us(uint32_t min_us) { store_.min_zero_cross_interval_us = min_us; }
   void set_max_zero_cross_interval_us(uint32_t max_us) { store_.max_zero_cross_interval_us = max_us; }
-  void set_gate_delay_us(uint32_t gate_delay_us) { store_.gate_delay_us = gate_delay_us; }
-  void set_gate_pulse_us(uint32_t gate_pulse_us) { store_.gate_pulse_us = gate_pulse_us; }
-  void set_start_boost_ms(uint32_t start_boost_ms) { store_.start_boost_ms = start_boost_ms; }
-  void set_ramp_ms(uint32_t ramp_ms) { store_.ramp_ms = ramp_ms; }
+  void set_gate_delay_us(uint32_t gate_delay_us) {
+    store_.gate_delay_us.store(gate_delay_us < 10 ? 10 : gate_delay_us, std::memory_order_relaxed);
+  }
+  void set_gate_pulse_us(uint32_t gate_pulse_us) {
+    store_.gate_pulse_us.store(gate_pulse_us, std::memory_order_relaxed);
+  }
+  void set_start_boost_ms(uint32_t start_boost_ms) {
+    store_.start_boost_ms.store(start_boost_ms, std::memory_order_relaxed);
+  }
+  void set_ramp_ms(uint32_t ramp_ms) { store_.ramp_ms.store(ramp_ms, std::memory_order_relaxed); }
 
  protected:
   void write_state(float state) override;

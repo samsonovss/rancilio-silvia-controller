@@ -223,7 +223,8 @@ Gate timing and safety details:
 - the GPIO zero-cross ISR no longer busy-waits for the gate pulse;
 - the TRIAC gate pulse is scheduled with an ESP-IDF GPTimer running at 1 MHz;
 - `gate_delay_us` waits briefly after zero-cross before triggering the gate, and `gate_pulse_us` controls how long the gate stays high;
-- the defaults are `gate_delay_us: 100` and `gate_pulse_us: 300`;
+- the defaults are `gate_delay_us: 100` and `gate_pulse_us: 300`, and the delay cannot be set below `10 us`;
+- runtime timing values are read atomically, and a generation guard prevents a stale timer callback from raising the gate after an OFF command;
 - `write_state(0)` and component shutdown force the gate pin low immediately;
 - zero-cross intervals outside the configured valid window force the output off and start resynchronization;
 - the component waits for consecutive valid zero-cross intervals before resuming output after a sync error.

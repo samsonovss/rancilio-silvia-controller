@@ -12,10 +12,12 @@ static constexpr uint32_t Q16_FULL = 65535;
 static ACCycleSkipDataStore *all_outputs[8];  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
 void IRAM_ATTR HOT ACCycleSkipDataStore::force_off_() {
+  this->pulse_generation.fetch_add(1, std::memory_order_relaxed);
+  this->scheduled_pulse_generation.store(0, std::memory_order_relaxed);
   if (this->gate_timer != nullptr) {
     gptimer_set_alarm_action(this->gate_timer, nullptr);
   }
-  this->gate_timer_phase = ACCycleSkipGateTimerPhase::IDLE;
+  this->gate_timer_phase.store(ACCycleSkipGateTimerPhase::IDLE, std::memory_order_relaxed);
   this->gate_pin.digital_write(false);
   this->cycle_on = false;
 }
@@ -33,10 +35,12 @@ void IRAM_ATTR HOT ACCycleSkipDataStore::schedule_gate_pulse_() {
   }
 
   this->gate_pin.digital_write(false);
-  this->gate_timer_phase = ACCycleSkipGateTimerPhase::WAITING_GATE_ON;
+  const uint32_t generation = this->pulse_generation.fetch_add(1, std::memory_order_relaxed) + 1;
+  this->scheduled_pulse_generation.store(generation, std::memory_order_relaxed);
+  this->gate_timer_phase.store(ACCycleSkipGateTimerPhase::WAITING_GATE_ON, std::memory_order_relaxed);
 
   gptimer_alarm_config_t alarm_config = {};
-  alarm_config.alarm_count = now + (this->gate_delay_us == 0 ? 1 : this->gate_delay_us);
+  alarm_config.alarm_count = now + this->gate_delay_us.load(std::memory_order_relaxed);
   alarm_config.flags.auto_reload_on_alarm = false;
   if (gptimer_set_alarm_action(this->gate_timer, &alarm_config) != ESP_OK) {
     this->force_off_();
@@ -53,31 +57,33 @@ void IRAM_ATTR HOT ACCycleSkipDataStore::reset_sync_(uint32_t now) {
 }
 
 uint32_t IRAM_ATTR HOT ACCycleSkipDataStore::update_target_(uint32_t now) {
-  const uint32_t requested = this->requested_q16;
+  const uint32_t requested = this->requested_q16.load(std::memory_order_relaxed);
 
   if (requested == 0) {
-    this->target_q16 = 0;
-    this->boost_until_us = 0;
+    this->target_q16.store(0, std::memory_order_relaxed);
+    this->boost_until_us.store(0, std::memory_order_relaxed);
     return 0;
   }
 
   if (requested >= Q16_FULL) {
-    this->target_q16 = Q16_FULL;
-    this->boost_until_us = 0;
+    this->target_q16.store(Q16_FULL, std::memory_order_relaxed);
+    this->boost_until_us.store(0, std::memory_order_relaxed);
     return Q16_FULL;
   }
 
-  if (this->boost_until_us != 0 && static_cast<int32_t>(this->boost_until_us - now) > 0) {
-    this->target_q16 = Q16_FULL;
+  const uint32_t boost_until = this->boost_until_us.load(std::memory_order_relaxed);
+  if (boost_until != 0 && static_cast<int32_t>(boost_until - now) > 0) {
+    this->target_q16.store(Q16_FULL, std::memory_order_relaxed);
     return Q16_FULL;
   }
-  this->boost_until_us = 0;
+  this->boost_until_us.store(0, std::memory_order_relaxed);
 
-  uint32_t target = this->target_q16;
-  if (this->ramp_ms == 0) {
+  uint32_t target = this->target_q16.load(std::memory_order_relaxed);
+  const uint32_t ramp_ms = this->ramp_ms.load(std::memory_order_relaxed);
+  if (ramp_ms == 0) {
     target = requested;
   } else if (target != requested) {
-    const uint32_t ramp_us = this->ramp_ms * 1000UL;
+    const uint32_t ramp_us = ramp_ms * 1000UL;
     uint32_t step = (uint64_t{Q16_FULL} * this->half_cycle_time_us) / ramp_us;
     if (step == 0)
       step = 1;
@@ -93,7 +99,7 @@ uint32_t IRAM_ATTR HOT ACCycleSkipDataStore::update_target_(uint32_t now) {
     }
   }
 
-  this->target_q16 = target;
+  this->target_q16.store(target, std::memory_order_relaxed);
   return target;
 }
 
@@ -182,12 +188,20 @@ bool IRAM_ATTR HOT ACCycleSkipDataStore::s_gate_timer_alarm(gptimer_handle_t tim
   if (store == nullptr)
     return false;
 
-  if (store->gate_timer_phase == ACCycleSkipGateTimerPhase::WAITING_GATE_ON) {
+  if (store->gate_timer_phase.load(std::memory_order_relaxed) == ACCycleSkipGateTimerPhase::WAITING_GATE_ON) {
+    const uint32_t scheduled_generation = store->scheduled_pulse_generation.load(std::memory_order_relaxed);
+    const uint32_t current_generation = store->pulse_generation.load(std::memory_order_relaxed);
+    if (scheduled_generation == 0 || scheduled_generation != current_generation ||
+        store->requested_q16.load(std::memory_order_relaxed) == 0) {
+      store->force_off_();
+      return false;
+    }
+
     store->gate_pin.digital_write(true);
-    store->gate_timer_phase = ACCycleSkipGateTimerPhase::WAITING_GATE_OFF;
+    store->gate_timer_phase.store(ACCycleSkipGateTimerPhase::WAITING_GATE_OFF, std::memory_order_relaxed);
 
     gptimer_alarm_config_t alarm_config = {};
-    alarm_config.alarm_count = edata->count_value + (store->gate_pulse_us == 0 ? 1 : store->gate_pulse_us);
+    alarm_config.alarm_count = edata->count_value + store->gate_pulse_us.load(std::memory_order_relaxed);
     alarm_config.flags.auto_reload_on_alarm = false;
     if (gptimer_set_alarm_action(timer, &alarm_config) != ESP_OK) {
       store->force_off_();
@@ -196,7 +210,8 @@ bool IRAM_ATTR HOT ACCycleSkipDataStore::s_gate_timer_alarm(gptimer_handle_t tim
   }
 
   store->gate_pin.digital_write(false);
-  store->gate_timer_phase = ACCycleSkipGateTimerPhase::IDLE;
+  store->gate_timer_phase.store(ACCycleSkipGateTimerPhase::IDLE, std::memory_order_relaxed);
+  store->scheduled_pulse_generation.store(0, std::memory_order_relaxed);
   gptimer_set_alarm_action(timer, nullptr);
   return false;
 }
@@ -257,6 +272,11 @@ void ACCycleSkipOutput::setup() {
     }
   }
 
+  if (this->store_.gate_timer == nullptr) {
+    this->mark_failed();
+    return;
+  }
+
   if (setup_zero_cross_pin) {
     this->zero_cross_pin_->setup();
     this->store_.zero_cross_pin = this->zero_cross_pin_->to_isr();
@@ -269,16 +289,16 @@ void ACCycleSkipOutput::on_shutdown() {
   this->store_.force_off_();
   if (this->gate_pin_ != nullptr)
     this->gate_pin_->digital_write(false);
-  this->store_.requested_q16 = 0;
-  this->store_.target_q16 = 0;
-  this->store_.boost_until_us = 0;
+  this->store_.requested_q16.store(0, std::memory_order_relaxed);
+  this->store_.target_q16.store(0, std::memory_order_relaxed);
+  this->store_.boost_until_us.store(0, std::memory_order_relaxed);
 }
 
 void ACCycleSkipOutput::write_state(float state) {
   if (state <= 0.0f || std::isnan(state)) {
-    this->store_.requested_q16 = 0;
-    this->store_.target_q16 = 0;
-    this->store_.boost_until_us = 0;
+    this->store_.requested_q16.store(0, std::memory_order_relaxed);
+    this->store_.target_q16.store(0, std::memory_order_relaxed);
+    this->store_.boost_until_us.store(0, std::memory_order_relaxed);
     this->store_.force_off_();
     return;
   }
@@ -290,11 +310,13 @@ void ACCycleSkipOutput::write_state(float state) {
     requested = static_cast<uint32_t>(state * Q16_FULL + 0.5f);
   }
 
-  const bool starting = this->store_.requested_q16 == 0 && requested > 0 && requested < Q16_FULL;
-  this->store_.requested_q16 = requested;
-  if (starting && this->store_.start_boost_ms > 0) {
-    this->store_.target_q16 = Q16_FULL;
-    this->store_.boost_until_us = micros() + this->store_.start_boost_ms * 1000UL;
+  const bool starting = this->store_.requested_q16.load(std::memory_order_relaxed) == 0 && requested > 0 &&
+                        requested < Q16_FULL;
+  this->store_.requested_q16.store(requested, std::memory_order_relaxed);
+  const uint32_t start_boost_ms = this->store_.start_boost_ms.load(std::memory_order_relaxed);
+  if (starting && start_boost_ms > 0) {
+    this->store_.target_q16.store(Q16_FULL, std::memory_order_relaxed);
+    this->store_.boost_until_us.store(micros() + start_boost_ms * 1000UL, std::memory_order_relaxed);
   }
 }
 
@@ -314,8 +336,10 @@ void ACCycleSkipOutput::dump_config() {
                 "  Invalid zero-cross intervals: %u\n"
                 "  Resync events: %u",
                 this->store_.noise_filter_us, this->store_.min_zero_cross_interval_us,
-                this->store_.max_zero_cross_interval_us, this->store_.gate_delay_us, this->store_.gate_pulse_us,
-                this->store_.start_boost_ms, this->store_.ramp_ms,
+                this->store_.max_zero_cross_interval_us, this->store_.gate_delay_us.load(std::memory_order_relaxed),
+                this->store_.gate_pulse_us.load(std::memory_order_relaxed),
+                this->store_.start_boost_ms.load(std::memory_order_relaxed),
+                this->store_.ramp_ms.load(std::memory_order_relaxed),
                 1e6f / this->store_.half_cycle_time_us / 2.0f, this->store_.rejected_crossings,
                 this->store_.invalid_crossings, this->store_.resync_events);
   LOG_FLOAT_OUTPUT(this);

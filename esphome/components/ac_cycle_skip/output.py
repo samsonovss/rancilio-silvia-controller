@@ -70,7 +70,7 @@ CONFIG_SCHEMA = cv.All(
                 min=9000, max=30000
             ),
             cv.Optional(CONF_GATE_DELAY_US, default=100): cv.int_range(
-                min=0, max=1000
+                min=10, max=1000
             ),
             cv.Optional(CONF_GATE_PULSE_US, default=300): cv.int_range(
                 min=50, max=1000
