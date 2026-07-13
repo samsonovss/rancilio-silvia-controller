@@ -1557,6 +1557,9 @@ output:
     max_power: 100%
     zero_means_zero: true
     noise_filter_us: 5000
+    min_zero_cross_interval_us: 6000
+    max_zero_cross_interval_us: 13000
+    gate_pulse_us: 200
     start_boost_ms: 0
     ramp_ms: 800
     zero_cross_pin:

@@ -21,6 +21,9 @@ CONF_GATE_PIN = "gate_pin"
 CONF_ZERO_CROSS_PIN = "zero_cross_pin"
 CONF_ZERO_CROSS_INTERRUPT_TYPE = "zero_cross_interrupt_type"
 CONF_NOISE_FILTER_US = "noise_filter_us"
+CONF_MIN_ZERO_CROSS_INTERVAL_US = "min_zero_cross_interval_us"
+CONF_MAX_ZERO_CROSS_INTERVAL_US = "max_zero_cross_interval_us"
+CONF_GATE_PULSE_US = "gate_pulse_us"
 CONF_START_BOOST_MS = "start_boost_ms"
 CONF_RAMP_MS = "ramp_ms"
 
@@ -34,6 +37,15 @@ CONFIG_SCHEMA = output.FLOAT_OUTPUT_SCHEMA.extend(
         ),
         cv.Optional(CONF_NOISE_FILTER_US, default=5000): cv.int_range(
             min=1000, max=9000
+        ),
+        cv.Optional(CONF_MIN_ZERO_CROSS_INTERVAL_US, default=6000): cv.int_range(
+            min=3000, max=12000
+        ),
+        cv.Optional(CONF_MAX_ZERO_CROSS_INTERVAL_US, default=13000): cv.int_range(
+            min=9000, max=30000
+        ),
+        cv.Optional(CONF_GATE_PULSE_US, default=200): cv.int_range(
+            min=50, max=1000
         ),
         cv.Optional(CONF_START_BOOST_MS, default=0): cv.int_range(
             min=0, max=1000
@@ -54,5 +66,8 @@ async def to_code(config):
     cg.add(var.set_zero_cross_pin(pin))
     cg.add(var.set_zero_cross_interrupt_type(config[CONF_ZERO_CROSS_INTERRUPT_TYPE]))
     cg.add(var.set_noise_filter_us(config[CONF_NOISE_FILTER_US]))
+    cg.add(var.set_min_zero_cross_interval_us(config[CONF_MIN_ZERO_CROSS_INTERVAL_US]))
+    cg.add(var.set_max_zero_cross_interval_us(config[CONF_MAX_ZERO_CROSS_INTERVAL_US]))
+    cg.add(var.set_gate_pulse_us(config[CONF_GATE_PULSE_US]))
     cg.add(var.set_start_boost_ms(config[CONF_START_BOOST_MS]))
     cg.add(var.set_ramp_ms(config[CONF_RAMP_MS]))

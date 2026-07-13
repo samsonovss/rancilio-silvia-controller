@@ -218,6 +218,13 @@ output:    sparse full cycles gradually become denser
 
 The brew profile code updates the requested pump power during the shot, and `ac_cycle_skip` smooths the electrical output between those requested values. This reduces abrupt pump changes while still keeping the output synchronized to zero crossings.
 
+Safety-related details:
+
+- the TRIAC gate is now driven with a short `gate_pulse_us` pulse after a valid zero-cross instead of being held high;
+- `write_state(0)` and component shutdown force the gate pin low immediately;
+- zero-cross intervals outside the configured valid window force the output off and start resynchronization;
+- the component waits for consecutive valid zero-cross intervals before resuming output after a sync error.
+
 ### Coffee Usage
 
 `Silvia Coffee Dose Grams` stores the configured dry coffee dose per shot. The default is `14 g`, and the value can be changed from Home Assistant.

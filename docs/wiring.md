@@ -63,7 +63,7 @@ GPIO15 используется либо для помпы, либо как ра
 - `false`: GPIO15 работает как реле помпы. Логический `Silvia Power Relay` не имеет физического GPIO, а нагрев разрешается/запрещается через SSR.
 - `true`: GPIO15 не используется как реле помпы и становится разрешением бойлера. Помпа должна управляться диммером GPIO6/GPIO7.
 
-При `use_pump_dimmer: "true"` помпа управляется через локальный ESPHome external component `ac_cycle_skip` на GPIO6/GPIO7. Это не phase-cut dimmer: компонент пропускает или блокирует полные периоды сети, синхронизируясь по zero-cross. В Home Assistant доступны `Silvia Manual Pump Power`, `Silvia Pump Ramp Time`, `Silvia Pump Start Boost` и `Silvia Pump Start Boost Time`.
+При `use_pump_dimmer: "true"` помпа управляется через локальный ESPHome external component `ac_cycle_skip` на GPIO6/GPIO7. Это не phase-cut dimmer: компонент пропускает или блокирует полные периоды сети, синхронизируясь по zero-cross. Gate TRIAC управляется коротким импульсом `gate_pulse_us`, а не постоянным HIGH. При ошибочном интервале zero-cross компонент выключает выход и заново синхронизируется. В Home Assistant доступны `Silvia Manual Pump Power`, `Silvia Pump Ramp Time`, `Silvia Pump Start Boost` и `Silvia Pump Start Boost Time`.
 
 Без датчика давления это open-loop управление: процент мощности не является давлением в барах. Перед первыми тестами проверяйте работу на малых процентах без кофе и под постоянным наблюдением.
 

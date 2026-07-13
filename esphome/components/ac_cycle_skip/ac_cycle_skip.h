@@ -18,13 +18,23 @@ struct ACCycleSkipDataStore {
   uint32_t crossed_zero_at{0};
   uint32_t half_cycle_time_us{10000};
   uint32_t noise_filter_us{5000};
+  uint32_t min_zero_cross_interval_us{6000};
+  uint32_t max_zero_cross_interval_us{13000};
+  uint32_t gate_pulse_us{200};
   uint32_t start_boost_ms{0};
   uint32_t ramp_ms{800};
   uint32_t rejected_crossings{0};
+  uint32_t invalid_crossings{0};
+  uint32_t resync_events{0};
+  uint8_t valid_sync_intervals{0};
+  bool synchronized{false};
   bool second_half_cycle{false};
   bool cycle_on{false};
 
   void gpio_intr();
+  void force_off_();
+  void pulse_gate_();
+  void reset_sync_(uint32_t now);
   uint32_t update_target_(uint32_t now);
   static void s_gpio_intr(ACCycleSkipDataStore *store);
 };
@@ -33,11 +43,15 @@ class ACCycleSkipOutput final : public output::FloatOutput, public Component {
  public:
   void setup() override;
   void dump_config() override;
+  void on_shutdown() override;
 
   void set_gate_pin(InternalGPIOPin *gate_pin) { gate_pin_ = gate_pin; }
   void set_zero_cross_pin(InternalGPIOPin *zero_cross_pin) { zero_cross_pin_ = zero_cross_pin; }
   void set_zero_cross_interrupt_type(gpio::InterruptType type) { zero_cross_interrupt_type_ = type; }
   void set_noise_filter_us(uint32_t noise_filter_us) { store_.noise_filter_us = noise_filter_us; }
+  void set_min_zero_cross_interval_us(uint32_t min_us) { store_.min_zero_cross_interval_us = min_us; }
+  void set_max_zero_cross_interval_us(uint32_t max_us) { store_.max_zero_cross_interval_us = max_us; }
+  void set_gate_pulse_us(uint32_t gate_pulse_us) { store_.gate_pulse_us = gate_pulse_us; }
   void set_start_boost_ms(uint32_t start_boost_ms) { store_.start_boost_ms = start_boost_ms; }
   void set_ramp_ms(uint32_t ramp_ms) { store_.ramp_ms = ramp_ms; }
 
