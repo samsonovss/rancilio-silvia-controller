@@ -36,6 +36,8 @@ struct ShotProfile {
   std::vector<ShotPhase> phases;
 };
 
+inline std::vector<ShotPhase> active_shot_phases;
+
 inline float clamp_percent(float value) {
   return std::max(0.0f, std::min(100.0f, value));
 }
