@@ -23,36 +23,66 @@ CONF_ZERO_CROSS_INTERRUPT_TYPE = "zero_cross_interrupt_type"
 CONF_NOISE_FILTER_US = "noise_filter_us"
 CONF_MIN_ZERO_CROSS_INTERVAL_US = "min_zero_cross_interval_us"
 CONF_MAX_ZERO_CROSS_INTERVAL_US = "max_zero_cross_interval_us"
+CONF_GATE_DELAY_US = "gate_delay_us"
 CONF_GATE_PULSE_US = "gate_pulse_us"
 CONF_START_BOOST_MS = "start_boost_ms"
 CONF_RAMP_MS = "ramp_ms"
 
-CONFIG_SCHEMA = output.FLOAT_OUTPUT_SCHEMA.extend(
-    {
-        cv.Required(CONF_ID): cv.declare_id(ACCycleSkipOutput),
-        cv.Required(CONF_GATE_PIN): pins.internal_gpio_output_pin_schema,
-        cv.Required(CONF_ZERO_CROSS_PIN): pins.internal_gpio_input_pin_schema,
-        cv.Optional(CONF_ZERO_CROSS_INTERRUPT_TYPE, default="FALLING"): cv.enum(
-            ZC_INTERRUPT_TYPES, upper=True, space="_"
-        ),
-        cv.Optional(CONF_NOISE_FILTER_US, default=5000): cv.int_range(
-            min=1000, max=9000
-        ),
-        cv.Optional(CONF_MIN_ZERO_CROSS_INTERVAL_US, default=6000): cv.int_range(
-            min=3000, max=12000
-        ),
-        cv.Optional(CONF_MAX_ZERO_CROSS_INTERVAL_US, default=13000): cv.int_range(
-            min=9000, max=30000
-        ),
-        cv.Optional(CONF_GATE_PULSE_US, default=200): cv.int_range(
-            min=50, max=1000
-        ),
-        cv.Optional(CONF_START_BOOST_MS, default=0): cv.int_range(
-            min=0, max=1000
-        ),
-        cv.Optional(CONF_RAMP_MS, default=800): cv.int_range(min=0, max=5000),
-    }
-).extend(cv.COMPONENT_SCHEMA)
+
+def validate_timing(config):
+    if not (
+        config[CONF_NOISE_FILTER_US]
+        < config[CONF_MIN_ZERO_CROSS_INTERVAL_US]
+        < config[CONF_MAX_ZERO_CROSS_INTERVAL_US]
+    ):
+        raise cv.Invalid(
+            "Expected noise_filter_us < min_zero_cross_interval_us < "
+            "max_zero_cross_interval_us"
+        )
+
+    if config[CONF_GATE_DELAY_US] + config[CONF_GATE_PULSE_US] >= config[
+        CONF_MIN_ZERO_CROSS_INTERVAL_US
+    ]:
+        raise cv.Invalid(
+            "Expected gate_delay_us + gate_pulse_us to be shorter than "
+            "min_zero_cross_interval_us"
+        )
+
+    return config
+
+
+CONFIG_SCHEMA = cv.All(
+    output.FLOAT_OUTPUT_SCHEMA.extend(
+        {
+            cv.Required(CONF_ID): cv.declare_id(ACCycleSkipOutput),
+            cv.Required(CONF_GATE_PIN): pins.internal_gpio_output_pin_schema,
+            cv.Required(CONF_ZERO_CROSS_PIN): pins.internal_gpio_input_pin_schema,
+            cv.Optional(CONF_ZERO_CROSS_INTERRUPT_TYPE, default="FALLING"): cv.enum(
+                ZC_INTERRUPT_TYPES, upper=True, space="_"
+            ),
+            cv.Optional(CONF_NOISE_FILTER_US, default=5000): cv.int_range(
+                min=1000, max=9000
+            ),
+            cv.Optional(CONF_MIN_ZERO_CROSS_INTERVAL_US, default=6000): cv.int_range(
+                min=3000, max=12000
+            ),
+            cv.Optional(CONF_MAX_ZERO_CROSS_INTERVAL_US, default=13000): cv.int_range(
+                min=9000, max=30000
+            ),
+            cv.Optional(CONF_GATE_DELAY_US, default=100): cv.int_range(
+                min=0, max=1000
+            ),
+            cv.Optional(CONF_GATE_PULSE_US, default=300): cv.int_range(
+                min=50, max=1000
+            ),
+            cv.Optional(CONF_START_BOOST_MS, default=0): cv.int_range(
+                min=0, max=1000
+            ),
+            cv.Optional(CONF_RAMP_MS, default=800): cv.int_range(min=0, max=5000),
+        }
+    ).extend(cv.COMPONENT_SCHEMA),
+    validate_timing,
+)
 
 
 async def to_code(config):
@@ -68,6 +98,7 @@ async def to_code(config):
     cg.add(var.set_noise_filter_us(config[CONF_NOISE_FILTER_US]))
     cg.add(var.set_min_zero_cross_interval_us(config[CONF_MIN_ZERO_CROSS_INTERVAL_US]))
     cg.add(var.set_max_zero_cross_interval_us(config[CONF_MAX_ZERO_CROSS_INTERVAL_US]))
+    cg.add(var.set_gate_delay_us(config[CONF_GATE_DELAY_US]))
     cg.add(var.set_gate_pulse_us(config[CONF_GATE_PULSE_US]))
     cg.add(var.set_start_boost_ms(config[CONF_START_BOOST_MS]))
     cg.add(var.set_ramp_ms(config[CONF_RAMP_MS]))

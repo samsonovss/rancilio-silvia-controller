@@ -3,7 +3,7 @@
 #include "esphome/core/log.h"
 #include <cmath>
 #include <cstdint>
-#include <esp_rom_sys.h>
+#include <esp_err.h>
 
 namespace esphome::ac_cycle_skip {
 
@@ -12,14 +12,35 @@ static constexpr uint32_t Q16_FULL = 65535;
 static ACCycleSkipDataStore *all_outputs[8];  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
 void IRAM_ATTR HOT ACCycleSkipDataStore::force_off_() {
+  if (this->gate_timer != nullptr) {
+    gptimer_set_alarm_action(this->gate_timer, nullptr);
+  }
+  this->gate_timer_phase = ACCycleSkipGateTimerPhase::IDLE;
   this->gate_pin.digital_write(false);
   this->cycle_on = false;
 }
 
-void IRAM_ATTR HOT ACCycleSkipDataStore::pulse_gate_() {
-  this->gate_pin.digital_write(true);
-  esp_rom_delay_us(this->gate_pulse_us);
+void IRAM_ATTR HOT ACCycleSkipDataStore::schedule_gate_pulse_() {
+  if (this->gate_timer == nullptr) {
+    this->force_off_();
+    return;
+  }
+
+  uint64_t now = 0;
+  if (gptimer_get_raw_count(this->gate_timer, &now) != ESP_OK) {
+    this->force_off_();
+    return;
+  }
+
   this->gate_pin.digital_write(false);
+  this->gate_timer_phase = ACCycleSkipGateTimerPhase::WAITING_GATE_ON;
+
+  gptimer_alarm_config_t alarm_config = {};
+  alarm_config.alarm_count = now + (this->gate_delay_us == 0 ? 1 : this->gate_delay_us);
+  alarm_config.flags.auto_reload_on_alarm = false;
+  if (gptimer_set_alarm_action(this->gate_timer, &alarm_config) != ESP_OK) {
+    this->force_off_();
+  }
 }
 
 void IRAM_ATTR HOT ACCycleSkipDataStore::reset_sync_(uint32_t now) {
@@ -120,7 +141,7 @@ void IRAM_ATTR HOT ACCycleSkipDataStore::gpio_intr() {
   }
 
   if (target >= Q16_FULL) {
-    this->pulse_gate_();
+    this->schedule_gate_pulse_();
     this->second_half_cycle = !this->second_half_cycle;
     this->cycle_on = true;
     return;
@@ -137,9 +158,9 @@ void IRAM_ATTR HOT ACCycleSkipDataStore::gpio_intr() {
   }
 
   if (this->cycle_on) {
-    this->pulse_gate_();
+    this->schedule_gate_pulse_();
   } else {
-    this->gate_pin.digital_write(false);
+    this->force_off_();
   }
   this->second_half_cycle = !this->second_half_cycle;
 }
@@ -152,6 +173,32 @@ void IRAM_ATTR HOT ACCycleSkipDataStore::s_gpio_intr(ACCycleSkipDataStore *store
       output->gpio_intr();
     }
   }
+}
+
+bool IRAM_ATTR HOT ACCycleSkipDataStore::s_gate_timer_alarm(gptimer_handle_t timer,
+                                                            const gptimer_alarm_event_data_t *edata,
+                                                            void *user_ctx) {
+  auto *store = static_cast<ACCycleSkipDataStore *>(user_ctx);
+  if (store == nullptr)
+    return false;
+
+  if (store->gate_timer_phase == ACCycleSkipGateTimerPhase::WAITING_GATE_ON) {
+    store->gate_pin.digital_write(true);
+    store->gate_timer_phase = ACCycleSkipGateTimerPhase::WAITING_GATE_OFF;
+
+    gptimer_alarm_config_t alarm_config = {};
+    alarm_config.alarm_count = edata->count_value + (store->gate_pulse_us == 0 ? 1 : store->gate_pulse_us);
+    alarm_config.flags.auto_reload_on_alarm = false;
+    if (gptimer_set_alarm_action(timer, &alarm_config) != ESP_OK) {
+      store->force_off_();
+    }
+    return false;
+  }
+
+  store->gate_pin.digital_write(false);
+  store->gate_timer_phase = ACCycleSkipGateTimerPhase::IDLE;
+  gptimer_set_alarm_action(timer, nullptr);
+  return false;
 }
 
 void ACCycleSkipOutput::setup() {
@@ -172,6 +219,44 @@ void ACCycleSkipOutput::setup() {
   this->store_.gate_pin = this->gate_pin_->to_isr();
   this->store_.zero_cross_pin_number = this->zero_cross_pin_->get_pin();
 
+  gptimer_config_t timer_config = {};
+  timer_config.clk_src = GPTIMER_CLK_SRC_DEFAULT;
+  timer_config.direction = GPTIMER_COUNT_UP;
+  timer_config.resolution_hz = 1000000;
+
+  esp_err_t err = gptimer_new_timer(&timer_config, &this->store_.gate_timer);
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to create gate pulse GPTimer: %s", esp_err_to_name(err));
+  } else {
+    gptimer_event_callbacks_t cbs = {};
+    cbs.on_alarm = &ACCycleSkipDataStore::s_gate_timer_alarm;
+    err = gptimer_register_event_callbacks(this->store_.gate_timer, &cbs, &this->store_);
+    if (err != ESP_OK) {
+      ESP_LOGE(TAG, "Failed to register gate pulse GPTimer callback: %s", esp_err_to_name(err));
+      gptimer_del_timer(this->store_.gate_timer);
+      this->store_.gate_timer = nullptr;
+    }
+  }
+
+  if (this->store_.gate_timer != nullptr) {
+    err = gptimer_enable(this->store_.gate_timer);
+    if (err != ESP_OK) {
+      ESP_LOGE(TAG, "Failed to enable gate pulse GPTimer: %s", esp_err_to_name(err));
+      gptimer_del_timer(this->store_.gate_timer);
+      this->store_.gate_timer = nullptr;
+    }
+  }
+
+  if (this->store_.gate_timer != nullptr) {
+    err = gptimer_start(this->store_.gate_timer);
+    if (err != ESP_OK) {
+      ESP_LOGE(TAG, "Failed to start gate pulse GPTimer: %s", esp_err_to_name(err));
+      gptimer_disable(this->store_.gate_timer);
+      gptimer_del_timer(this->store_.gate_timer);
+      this->store_.gate_timer = nullptr;
+    }
+  }
+
   if (setup_zero_cross_pin) {
     this->zero_cross_pin_->setup();
     this->store_.zero_cross_pin = this->zero_cross_pin_->to_isr();
@@ -181,6 +266,7 @@ void ACCycleSkipOutput::setup() {
 }
 
 void ACCycleSkipOutput::on_shutdown() {
+  this->store_.force_off_();
   if (this->gate_pin_ != nullptr)
     this->gate_pin_->digital_write(false);
   this->store_.requested_q16 = 0;
@@ -193,8 +279,7 @@ void ACCycleSkipOutput::write_state(float state) {
     this->store_.requested_q16 = 0;
     this->store_.target_q16 = 0;
     this->store_.boost_until_us = 0;
-    if (this->gate_pin_ != nullptr)
-      this->gate_pin_->digital_write(false);
+    this->store_.force_off_();
     return;
   }
 
@@ -220,6 +305,7 @@ void ACCycleSkipOutput::dump_config() {
   ESP_LOGCONFIG(TAG,
                 "  Noise filter: %uus\n"
                 "  Valid zero-cross interval: %u-%uus\n"
+                "  Gate delay: %uus\n"
                 "  Gate pulse: %uus\n"
                 "  Start boost: %ums\n"
                 "  Ramp time: %ums\n"
@@ -228,9 +314,10 @@ void ACCycleSkipOutput::dump_config() {
                 "  Invalid zero-cross intervals: %u\n"
                 "  Resync events: %u",
                 this->store_.noise_filter_us, this->store_.min_zero_cross_interval_us,
-                this->store_.max_zero_cross_interval_us, this->store_.gate_pulse_us,
-                this->store_.start_boost_ms, this->store_.ramp_ms, 1e6f / this->store_.half_cycle_time_us / 2.0f,
-                this->store_.rejected_crossings, this->store_.invalid_crossings, this->store_.resync_events);
+                this->store_.max_zero_cross_interval_us, this->store_.gate_delay_us, this->store_.gate_pulse_us,
+                this->store_.start_boost_ms, this->store_.ramp_ms,
+                1e6f / this->store_.half_cycle_time_us / 2.0f, this->store_.rejected_crossings,
+                this->store_.invalid_crossings, this->store_.resync_events);
   LOG_FLOAT_OUTPUT(this);
 }
 

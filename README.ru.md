@@ -188,7 +188,7 @@ https://github.com/user-attachments/assets/92bf4580-1ab9-4535-a1f1-395bb5a3d315
 - `Bloom`: фаза смачивания `35%`, затем плавный рост до `85%`;
 - `Manual`: фиксированная мощность из `Silvia Manual Pump Power`.
 
-`Silvia Manual Pump Power` регулируется от `0%` до `100%`. `Silvia Pump Ramp Time` задаёт, как быстро компонент переходит от одной мощности к другой. `Silvia Pump Start Boost` может кратко дать полный импульс при запуске с `0%`; по умолчанию пинок выключен, а `Silvia Pump Start Boost Time` задаёт длительность пинка при включённом switch.
+`Silvia Manual Pump Power` регулируется от `0%` до `100%`. `Silvia Pump Ramp Time` задаёт, как быстро компонент переходит от одной мощности к другой. `Silvia Pump Start Boost` может кратко дать полный импульс при запуске с `0%`; по умолчанию пинок выключен, а `Silvia Pump Start Boost Time` задаёт длительность пинка при включённом switch. `Silvia Pump Gate Delay` и `Silvia Pump Gate Pulse` настраивают момент и длительность импульса TRIAC в микросекундах.
 
 ### AC Cycle Skip для помпы
 
@@ -218,9 +218,12 @@ ac_cycle_skip:
 
 Код профиля пролива обновляет запрошенную мощность во время шота, а `ac_cycle_skip` сглаживает электрический выход между этими значениями. Так помпа меняется менее резко, но выход остаётся синхронизированным с zero-cross.
 
-Safety-детали:
+Gate timing и safety-детали:
 
-- gate TRIAC теперь получает короткий импульс `gate_pulse_us` после валидного zero-cross, а не удерживается HIGH;
+- GPIO zero-cross ISR больше не ждёт `gate_pulse_us` через busy-wait;
+- импульс gate планируется через ESP-IDF GPTimer с частотой 1 MHz;
+- `gate_delay_us` задаёт короткую паузу после zero-cross перед включением gate, а `gate_pulse_us` задаёт длительность импульса;
+- дефолтные значения: `gate_delay_us: 100` и `gate_pulse_us: 300`;
 - `write_state(0)` и shutdown компонента сразу переводят gate pin в LOW;
 - интервалы zero-cross вне допустимого окна принудительно выключают выход и запускают ресинхронизацию;
 - после ошибки синхронизации компонент ждёт несколько последовательных валидных zero-cross интервалов перед возобновлением выхода.

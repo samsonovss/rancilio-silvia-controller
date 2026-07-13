@@ -188,7 +188,7 @@ Current pump profiles:
 - `Bloom`: `35%` wetting phase, then smooth ramp to `85%`;
 - `Manual`: fixed pump power from `Silvia Manual Pump Power`.
 
-`Silvia Manual Pump Power` is adjustable from `0%` to `100%`. `Silvia Pump Ramp Time` controls how quickly the component moves from one requested power level to another. `Silvia Pump Start Boost` can briefly send full power when starting from `0%`; it is disabled by default, and `Silvia Pump Start Boost Time` sets the boost duration when enabled.
+`Silvia Manual Pump Power` is adjustable from `0%` to `100%`. `Silvia Pump Ramp Time` controls how quickly the component moves from one requested power level to another. `Silvia Pump Start Boost` can briefly send full power when starting from `0%`; it is disabled by default, and `Silvia Pump Start Boost Time` sets the boost duration when enabled. `Silvia Pump Gate Delay` and `Silvia Pump Gate Pulse` tune the TRIAC trigger timing in microseconds.
 
 ### AC Cycle Skip Pump Output
 
@@ -218,9 +218,12 @@ output:    sparse full cycles gradually become denser
 
 The brew profile code updates the requested pump power during the shot, and `ac_cycle_skip` smooths the electrical output between those requested values. This reduces abrupt pump changes while still keeping the output synchronized to zero crossings.
 
-Safety-related details:
+Gate timing and safety details:
 
-- the TRIAC gate is now driven with a short `gate_pulse_us` pulse after a valid zero-cross instead of being held high;
+- the GPIO zero-cross ISR no longer busy-waits for the gate pulse;
+- the TRIAC gate pulse is scheduled with an ESP-IDF GPTimer running at 1 MHz;
+- `gate_delay_us` waits briefly after zero-cross before triggering the gate, and `gate_pulse_us` controls how long the gate stays high;
+- the defaults are `gate_delay_us: 100` and `gate_pulse_us: 300`;
 - `write_state(0)` and component shutdown force the gate pin low immediately;
 - zero-cross intervals outside the configured valid window force the output off and start resynchronization;
 - the component waits for consecutive valid zero-cross intervals before resuming output after a sync error.

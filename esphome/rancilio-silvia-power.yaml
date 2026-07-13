@@ -16,6 +16,8 @@ esphome:
             id(silvia_pump_dimmer).set_start_boost_ms(
                 id(silvia_pump_start_boost_enabled) ? (uint32_t) id(silvia_pump_start_boost_ms).state : 0);
             id(silvia_pump_dimmer).set_ramp_ms((uint32_t) id(silvia_pump_ramp_ms).state);
+            id(silvia_pump_dimmer).set_gate_delay_us((uint32_t) id(silvia_pump_gate_delay_us).state);
+            id(silvia_pump_dimmer).set_gate_pulse_us((uint32_t) id(silvia_pump_gate_pulse_us).state);
             id(silvia_brew_shot_remaining).publish_state(0);
             id(silvia_brew_shot_status).publish_state("Ожидание");
             id(silvia_backflush_status).update();
@@ -441,6 +443,38 @@ number:
         - lambda: |-
             id(silvia_pump_dimmer).set_start_boost_ms(
                 id(silvia_pump_start_boost_enabled) ? (uint32_t) x : 0);
+
+  - platform: template
+    name: "Silvia Pump Gate Delay"
+    id: silvia_pump_gate_delay_us
+    optimistic: true
+    restore_value: true
+    initial_value: 100
+    min_value: 0
+    max_value: 1000
+    step: 10
+    unit_of_measurement: "us"
+    mode: box
+    on_value:
+      then:
+        - lambda: |-
+            id(silvia_pump_dimmer).set_gate_delay_us((uint32_t) x);
+
+  - platform: template
+    name: "Silvia Pump Gate Pulse"
+    id: silvia_pump_gate_pulse_us
+    optimistic: true
+    restore_value: true
+    initial_value: 300
+    min_value: 50
+    max_value: 1000
+    step: 10
+    unit_of_measurement: "us"
+    mode: box
+    on_value:
+      then:
+        - lambda: |-
+            id(silvia_pump_dimmer).set_gate_pulse_us((uint32_t) x);
 
   - platform: template
     name: "Silvia Brew Target"
@@ -1559,7 +1593,8 @@ output:
     noise_filter_us: 5000
     min_zero_cross_interval_us: 6000
     max_zero_cross_interval_us: 13000
-    gate_pulse_us: 200
+    gate_delay_us: 100
+    gate_pulse_us: 300
     start_boost_ms: 0
     ramp_ms: 800
     zero_cross_pin:
