@@ -145,6 +145,7 @@ Adjustable values include:
 - main shot duration;
 - main and ending brew pressure;
 - pressure controller `Kp` and `Ki`;
+- pressure-profile startup boost enable, power, and duration;
 - manual pump power;
 - pump transition ramp time;
 - manual pump start boost, phase boost switches, and boost duration;
@@ -184,11 +185,13 @@ The dashboard can use this status as the primary live shot timer instead of infe
 
 Automatic shot profiles snapshot the selected recipe at shot start, including phase timings, pressure targets, phase boost flags, and `Silvia Pump Start Boost Time`. The snapshot is expanded into explicit `ShotPhase` entries and updates the target and calculated pump command every `200 ms`. Home Assistant edits made during a shot apply to the next shot, not the running one. After the shot stops or is cancelled, the user `Silvia Pump Ramp Time` and manual boost setting are restored for manual pump use.
 
-For pressure phases, the controller calculates pump drive as target-based feed-forward plus PI correction. The integral is limited to `+-0.35` and reset at every phase boundary or invalid sensor reading. `Silvia Pressure Control Kp` and `Silvia Pressure Control Ki` are adjustable from Home Assistant. The target is published as `Silvia Target Brew Pressure`; the XDB401 reading is published as `Silvia Brew Pressure`. A stale or invalid pressure reading forces the automatic pump command to zero.
+For pressure phases, the controller calculates pump drive as target-based feed-forward plus PI correction. The integral is limited to `+-0.35`, reset at every phase boundary or invalid sensor reading, and uses conditional anti-windup: it cannot integrate farther into `0%` or `100%` output saturation, but it can unwind when the error changes direction. `Silvia Pressure Control Kp` and `Silvia Pressure Control Ki` are adjustable from Home Assistant. The target is published as `Silvia Target Brew Pressure`; the XDB401 reading is published as `Silvia Brew Pressure`. A stale or invalid pressure reading forces the automatic pump command to zero.
+
+Automatic pressure profiles have a separate `Silvia Pressure Profile Startup Boost`. Its power (`0-100%`) and duration (`0-500 ms`) default to `100%` for `100 ms`. The settings are snapshotted at shot start and the timed output override is consumed once by the first running `PRESSURE` phase. The valve, profile timer, and phase timer start normally; boost runs inside that existing time and therefore does not add a phase or extend the shot. The PI integral is frozen while the override is active, then the output returns immediately to the latest PI command.
 
 The current implementation opens the brew valve before the automatic profile starts. Valve-closed pre-charge and adaptive startup based on pressure rise are design options under evaluation; they are not enabled in the released control path.
 
-`Silvia Manual Pump Power` is adjustable from `0%` to `100%`. `Silvia Pump Start Boost` is the manual-mode boost switch. `Silvia Preinfusion Boost` and `Silvia Main Brew Boost` decide whether the snapshotted `Silvia Pump Start Boost Time` may be applied when that automatic phase starts from a stopped pump. Continuous transitions, such as preinfusion directly into brew, do not force a second 100% kick. `Silvia Pump Gate Delay` and `Silvia Pump Gate Pulse` tune the TRIAC trigger timing in microseconds.
+`Silvia Manual Pump Power` is adjustable from `0%` to `100%`. `Silvia Pump Start Boost` remains the manual-mode boost switch. The legacy `Silvia Preinfusion Boost` and `Silvia Main Brew Boost` apply only to open-loop `POWER` phases; `PRESSURE` phases use the separate pressure-profile startup boost, so the two mechanisms cannot overlap. `Silvia Pump Gate Delay` and `Silvia Pump Gate Pulse` tune the TRIAC trigger timing in microseconds.
 
 ### AC Cycle Skip Pump Output
 

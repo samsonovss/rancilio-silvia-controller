@@ -249,6 +249,31 @@ globals:
     restore_value: no
     initial_value: '0'
 
+  - id: silvia_pressure_profile_startup_boost_enabled
+    type: bool
+    restore_value: yes
+    initial_value: 'true'
+
+  - id: active_pressure_profile_startup_boost_enabled
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+  - id: active_pressure_profile_startup_boost_power
+    type: float
+    restore_value: no
+    initial_value: '100.0f'
+
+  - id: active_pressure_profile_startup_boost_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '100'
+
+  - id: pressure_profile_startup_boost_pending
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
   - id: silvia_preinfusion_boost_enabled
     type: bool
     restore_value: yes
@@ -609,6 +634,30 @@ number:
     mode: box
 
   - platform: template
+    name: "Silvia Pressure Profile Startup Boost Power"
+    id: silvia_pressure_profile_startup_boost_power
+    optimistic: true
+    restore_value: true
+    initial_value: 100
+    min_value: 0
+    max_value: 100
+    step: 5
+    unit_of_measurement: "%"
+    mode: slider
+
+  - platform: template
+    name: "Silvia Pressure Profile Startup Boost Time"
+    id: silvia_pressure_profile_startup_boost_ms
+    optimistic: true
+    restore_value: true
+    initial_value: 100
+    min_value: 0
+    max_value: 500
+    step: 10
+    unit_of_measurement: "ms"
+    mode: box
+
+  - platform: template
     name: "Silvia Pump Ramp Time"
     id: silvia_pump_ramp_ms
     optimistic: true
@@ -754,6 +803,19 @@ number:
 # -------------------------
 
 switch:
+  - platform: template
+    name: "Silvia Pressure Profile Startup Boost"
+    id: silvia_pressure_profile_startup_boost
+    lambda: 'return id(silvia_pressure_profile_startup_boost_enabled);'
+    turn_on_action:
+      - lambda: |-
+          id(silvia_pressure_profile_startup_boost_enabled) = true;
+          id(silvia_pressure_profile_startup_boost).publish_state(true);
+    turn_off_action:
+      - lambda: |-
+          id(silvia_pressure_profile_startup_boost_enabled) = false;
+          id(silvia_pressure_profile_startup_boost).publish_state(false);
+
   - platform: template
     name: "Silvia Pump Start Boost"
     id: silvia_pump_start_boost
@@ -1095,7 +1157,9 @@ script:
   - id: pump_output_off
     mode: restart
     then:
-      - lambda: 'id(active_target_brew_pressure) = 0.0f;'
+      - lambda: |-
+          id(active_target_brew_pressure) = 0.0f;
+          id(silvia_pump_dimmer).cancel_timed_override();
       - if:
           condition:
             lambda: 'return ${use_pump_dimmer};'
@@ -1138,9 +1202,16 @@ script:
                   - lambda: |-
                       const auto &phase = silvia::active_shot_phases[id(active_shot_phase_index)];
                       id(silvia_pump_dimmer).set_start_boost_ms(
-                          phase.start_boost
+                          phase.mode != silvia::ShotControlMode::PRESSURE && phase.start_boost
                               ? id(active_pump_start_boost_ms)
                               : 0);
+                      if (phase.mode == silvia::ShotControlMode::PRESSURE &&
+                          id(pressure_profile_startup_boost_pending)) {
+                        id(pressure_profile_startup_boost_pending) = false;
+                        id(silvia_pump_dimmer).arm_timed_override(
+                            id(active_pressure_profile_startup_boost_power) / 100.0f,
+                            id(active_pressure_profile_startup_boost_ms));
+                      }
                   - repeat:
                       count: !lambda |-
                         const auto &phase = silvia::active_shot_phases[id(active_shot_phase_index)];
@@ -1173,12 +1244,21 @@ script:
                                         const float error = target - pressure;
                                         const float kp = id(silvia_pressure_control_kp).state;
                                         const float ki = id(silvia_pressure_control_ki).state;
-                                        float integral = id(pressure_control_integral) +
-                                                         error * ki * 0.2f;
-                                        integral = std::max(-0.35f,
-                                                            std::min(0.35f, integral));
                                         const float feed_forward =
                                             target > 0.0f ? 0.18f + target * 0.075f : 0.0f;
+                                        float integral = id(pressure_control_integral);
+                                        if (!id(silvia_pump_dimmer).timed_override_engaged()) {
+                                          const float candidate_integral = std::max(
+                                              -0.35f,
+                                              std::min(0.35f, integral + error * ki * 0.2f));
+                                          const float candidate_output =
+                                              feed_forward + kp * error + candidate_integral;
+                                          const bool pushes_high = candidate_output > 1.0f && error > 0.0f;
+                                          const bool pushes_low = candidate_output < 0.0f && error < 0.0f;
+                                          if (!pushes_high && !pushes_low) {
+                                            integral = candidate_integral;
+                                          }
+                                        }
                                         drive = feed_forward + kp * error + integral;
                                         drive = std::max(0.0f, std::min(1.0f, drive));
                                         id(pressure_control_integral) = integral;
@@ -1237,6 +1317,15 @@ script:
                 id(active_preinfusion_boost_enabled) = id(silvia_preinfusion_boost_enabled);
                 id(active_main_brew_boost_enabled) = id(silvia_main_brew_boost_enabled);
                 id(active_pump_start_boost_ms) = (uint32_t) id(silvia_pump_start_boost_ms).state;
+                id(active_pressure_profile_startup_boost_enabled) =
+                    id(silvia_pressure_profile_startup_boost_enabled);
+                id(active_pressure_profile_startup_boost_power) =
+                    id(silvia_pressure_profile_startup_boost_power).state;
+                id(active_pressure_profile_startup_boost_ms) =
+                    (uint32_t) id(silvia_pressure_profile_startup_boost_ms).state;
+                id(pressure_profile_startup_boost_pending) =
+                    id(active_pressure_profile_startup_boost_enabled) &&
+                    id(active_pressure_profile_startup_boost_ms) > 0;
                 auto shot_profile = silvia::build_shot_profile(
                     profile,
                     id(active_preinfusion_pump_seconds),

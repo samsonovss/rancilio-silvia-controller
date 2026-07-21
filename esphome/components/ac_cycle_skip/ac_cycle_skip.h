@@ -24,6 +24,9 @@ struct ACCycleSkipDataStore {
   std::atomic<uint32_t> target_q16{0};
   std::atomic<uint32_t> requested_q16{0};
   std::atomic<uint32_t> boost_until_us{0};
+  std::atomic<uint32_t> timed_override_q16{0};
+  std::atomic<uint32_t> timed_override_duration_ms{0};
+  std::atomic<uint32_t> timed_override_until_us{0};
   std::atomic<uint32_t> pulse_generation{0};
   std::atomic<uint32_t> scheduled_pulse_generation{0};
   uint32_t accumulator_q16{0};
@@ -75,6 +78,9 @@ class ACCycleSkipOutput final : public output::FloatOutput, public Component {
   void set_start_boost_ms(uint32_t start_boost_ms) {
     store_.start_boost_ms.store(start_boost_ms, std::memory_order_relaxed);
   }
+  void arm_timed_override(float state, uint32_t duration_ms);
+  void cancel_timed_override();
+  bool timed_override_engaged();
   void set_ramp_ms(uint32_t ramp_ms) { store_.ramp_ms.store(ramp_ms, std::memory_order_relaxed); }
 
  protected:

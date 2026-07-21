@@ -1,6 +1,7 @@
 #include "ac_cycle_skip.h"
 #include "esphome/core/helpers.h"
 #include "esphome/core/log.h"
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <esp_err.h>
@@ -64,8 +65,18 @@ uint32_t IRAM_ATTR HOT ACCycleSkipDataStore::update_target_(uint32_t now) {
   if (requested == 0) {
     this->target_q16.store(0, std::memory_order_relaxed);
     this->boost_until_us.store(0, std::memory_order_relaxed);
+    this->timed_override_duration_ms.store(0, std::memory_order_relaxed);
+    this->timed_override_until_us.store(0, std::memory_order_relaxed);
     return 0;
   }
+
+  const uint32_t override_until = this->timed_override_until_us.load(std::memory_order_relaxed);
+  if (override_until != 0 && static_cast<int32_t>(override_until - now) > 0) {
+    const uint32_t override_target = this->timed_override_q16.load(std::memory_order_relaxed);
+    this->target_q16.store(override_target, std::memory_order_relaxed);
+    return override_target;
+  }
+  this->timed_override_until_us.store(0, std::memory_order_relaxed);
 
   if (requested >= Q16_FULL) {
     this->target_q16.store(Q16_FULL, std::memory_order_relaxed);
@@ -302,6 +313,8 @@ void ACCycleSkipOutput::on_shutdown() {
   this->store_.requested_q16.store(0, std::memory_order_relaxed);
   this->store_.target_q16.store(0, std::memory_order_relaxed);
   this->store_.boost_until_us.store(0, std::memory_order_relaxed);
+  this->store_.timed_override_duration_ms.store(0, std::memory_order_relaxed);
+  this->store_.timed_override_until_us.store(0, std::memory_order_relaxed);
 }
 
 void ACCycleSkipOutput::write_state(float state) {
@@ -309,6 +322,8 @@ void ACCycleSkipOutput::write_state(float state) {
     this->store_.requested_q16.store(0, std::memory_order_relaxed);
     this->store_.target_q16.store(0, std::memory_order_relaxed);
     this->store_.boost_until_us.store(0, std::memory_order_relaxed);
+    this->store_.timed_override_duration_ms.store(0, std::memory_order_relaxed);
+    this->store_.timed_override_until_us.store(0, std::memory_order_relaxed);
     this->store_.force_off_();
     return;
   }
@@ -323,6 +338,17 @@ void ACCycleSkipOutput::write_state(float state) {
   const bool starting = this->store_.requested_q16.load(std::memory_order_relaxed) == 0 && requested > 0 &&
                         requested < Q16_FULL;
   this->store_.requested_q16.store(requested, std::memory_order_relaxed);
+  const uint32_t override_duration_ms =
+      this->store_.timed_override_duration_ms.exchange(0, std::memory_order_relaxed);
+  if (override_duration_ms > 0) {
+    uint64_t now = 0;
+    if (this->store_.gate_timer == nullptr || gptimer_get_raw_count(this->store_.gate_timer, &now) != ESP_OK)
+      now = micros();
+    this->store_.target_q16.store(this->store_.timed_override_q16.load(std::memory_order_relaxed),
+                                  std::memory_order_relaxed);
+    this->store_.timed_override_until_us.store(
+        static_cast<uint32_t>(now) + override_duration_ms * 1000UL, std::memory_order_relaxed);
+  }
   const uint32_t start_boost_ms = this->store_.start_boost_ms.load(std::memory_order_relaxed);
   if (starting && start_boost_ms > 0) {
     uint64_t now = 0;
@@ -332,6 +358,34 @@ void ACCycleSkipOutput::write_state(float state) {
     this->store_.boost_until_us.store(static_cast<uint32_t>(now) + start_boost_ms * 1000UL,
                                       std::memory_order_relaxed);
   }
+}
+
+void ACCycleSkipOutput::arm_timed_override(float state, uint32_t duration_ms) {
+  if (std::isnan(state))
+    state = 0.0f;
+  state = std::max(0.0f, std::min(1.0f, state));
+  const uint32_t override_q16 =
+      state >= 1.0f ? Q16_FULL : static_cast<uint32_t>(state * Q16_FULL + 0.5f);
+  this->store_.timed_override_q16.store(override_q16, std::memory_order_relaxed);
+  this->store_.timed_override_until_us.store(0, std::memory_order_relaxed);
+  this->store_.timed_override_duration_ms.store(duration_ms, std::memory_order_relaxed);
+}
+
+void ACCycleSkipOutput::cancel_timed_override() {
+  this->store_.timed_override_duration_ms.store(0, std::memory_order_relaxed);
+  this->store_.timed_override_until_us.store(0, std::memory_order_relaxed);
+}
+
+bool ACCycleSkipOutput::timed_override_engaged() {
+  if (this->store_.timed_override_duration_ms.load(std::memory_order_relaxed) > 0)
+    return true;
+  const uint32_t override_until = this->store_.timed_override_until_us.load(std::memory_order_relaxed);
+  if (override_until == 0)
+    return false;
+  uint64_t now = 0;
+  if (this->store_.gate_timer == nullptr || gptimer_get_raw_count(this->store_.gate_timer, &now) != ESP_OK)
+    now = micros();
+  return static_cast<int32_t>(override_until - static_cast<uint32_t>(now)) > 0;
 }
 
 void ACCycleSkipOutput::dump_config() {
