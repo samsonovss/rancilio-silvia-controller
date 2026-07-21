@@ -146,6 +146,7 @@ Adjustable values include:
 - main and ending brew pressure;
 - pressure controller `Kp` and `Ki`;
 - pressure-profile startup boost enable, power, and duration;
+- pressure-profile startup settling duration;
 - manual pump power;
 - pump transition ramp time;
 - manual pump start boost, phase boost switches, and boost duration;
@@ -187,7 +188,9 @@ Automatic shot profiles snapshot the selected recipe at shot start, including ph
 
 For pressure phases, the controller calculates pump drive as target-based feed-forward plus PI correction. The integral is limited to `+-0.35`, reset at every phase boundary or invalid sensor reading, and uses conditional anti-windup: it cannot integrate farther into `0%` or `100%` output saturation, but it can unwind when the error changes direction. `Silvia Pressure Control Kp` and `Silvia Pressure Control Ki` are adjustable from Home Assistant. The target is published as `Silvia Target Brew Pressure`; the XDB401 reading is published as `Silvia Brew Pressure`. A stale or invalid pressure reading forces the automatic pump command to zero.
 
-Automatic pressure profiles have a separate `Silvia Pressure Profile Startup Boost`. Its power (`0-100%`) and duration (`0-500 ms`) default to `100%` for `100 ms`. The settings are snapshotted at shot start and the timed output override is consumed once by the first running `PRESSURE` phase. The valve, profile timer, and phase timer start normally; boost runs inside that existing time and therefore does not add a phase or extend the shot. The PI integral is frozen while the override is active, then the output returns immediately to the latest PI command.
+Automatic pressure profiles have a separate, default-off `Silvia Pressure Profile Startup Boost`. Its power (`0-100%`) and duration (`0-500 ms`) default to `100%` for `100 ms`. The settings are snapshotted at shot start and the timed output override is consumed once by the first running `PRESSURE` phase. The valve, profile timer, and phase timer start normally; boost runs inside that existing time and therefore does not add a phase or extend the shot. The PI integral is frozen while the override is active, then the output returns immediately to the latest pressure-control command.
+
+`Silvia Pressure Profile Startup Settling Time` defaults to `400 ms` and can be set from `0` (disabled) to `1000 ms`. The settling window starts immediately after the brew valve opens and is part of the normal profile time. During it, the controller ignores pressure error, holds the integral at zero, and drives the pump with feed-forward calculated from the current profile target. This lets trapped upstream pressure and the filtered pressure reading settle before PI feedback becomes active. If the optional timed boost is enabled, it temporarily overrides the settling feed-forward without extending the settling window.
 
 The current implementation opens the brew valve before the automatic profile starts. Valve-closed pre-charge and adaptive startup based on pressure rise are design options under evaluation; they are not enabled in the released control path.
 

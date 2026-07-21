@@ -252,7 +252,7 @@ globals:
   - id: silvia_pressure_profile_startup_boost_enabled
     type: bool
     restore_value: yes
-    initial_value: 'true'
+    initial_value: 'false'
 
   - id: active_pressure_profile_startup_boost_enabled
     type: bool
@@ -273,6 +273,16 @@ globals:
     type: bool
     restore_value: no
     initial_value: 'false'
+
+  - id: active_pressure_profile_startup_settling_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '400'
+
+  - id: pressure_profile_startup_settling_until_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
 
   - id: silvia_preinfusion_boost_enabled
     type: bool
@@ -654,6 +664,18 @@ number:
     min_value: 0
     max_value: 500
     step: 10
+    unit_of_measurement: "ms"
+    mode: box
+
+  - platform: template
+    name: "Silvia Pressure Profile Startup Settling Time"
+    id: silvia_pressure_profile_startup_settling_ms
+    optimistic: true
+    restore_value: true
+    initial_value: 400
+    min_value: 0
+    max_value: 1000
+    step: 100
     unit_of_measurement: "ms"
     mode: box
 
@@ -1159,6 +1181,7 @@ script:
     then:
       - lambda: |-
           id(active_target_brew_pressure) = 0.0f;
+          id(pressure_profile_startup_settling_until_ms) = 0;
           id(silvia_pump_dimmer).cancel_timed_override();
       - if:
           condition:
@@ -1241,27 +1264,38 @@ script:
                                           pressure <= 13.0f &&
                                           (now - id(pressure_sensor_last_update_ms)) <= 1000U;
                                       if (sensor_ok) {
-                                        const float error = target - pressure;
-                                        const float kp = id(silvia_pressure_control_kp).state;
-                                        const float ki = id(silvia_pressure_control_ki).state;
                                         const float feed_forward =
                                             target > 0.0f ? 0.18f + target * 0.075f : 0.0f;
-                                        float integral = id(pressure_control_integral);
-                                        if (!id(silvia_pump_dimmer).timed_override_engaged()) {
-                                          const float candidate_integral = std::max(
-                                              -0.35f,
-                                              std::min(0.35f, integral + error * ki * 0.2f));
-                                          const float candidate_output =
-                                              feed_forward + kp * error + candidate_integral;
-                                          const bool pushes_high = candidate_output > 1.0f && error > 0.0f;
-                                          const bool pushes_low = candidate_output < 0.0f && error < 0.0f;
-                                          if (!pushes_high && !pushes_low) {
-                                            integral = candidate_integral;
+                                        const bool settling =
+                                            id(active_pressure_profile_startup_settling_ms) > 0 &&
+                                            static_cast<int32_t>(
+                                                id(pressure_profile_startup_settling_until_ms) - now) > 0;
+                                        if (settling) {
+                                          id(pressure_control_integral) = 0.0f;
+                                          drive = feed_forward;
+                                        } else {
+                                          const float error = target - pressure;
+                                          const float kp = id(silvia_pressure_control_kp).state;
+                                          const float ki = id(silvia_pressure_control_ki).state;
+                                          float integral = id(pressure_control_integral);
+                                          if (!id(silvia_pump_dimmer).timed_override_engaged()) {
+                                            const float candidate_integral = std::max(
+                                                -0.35f,
+                                                std::min(0.35f, integral + error * ki * 0.2f));
+                                            const float candidate_output =
+                                                feed_forward + kp * error + candidate_integral;
+                                            const bool pushes_high =
+                                                candidate_output > 1.0f && error > 0.0f;
+                                            const bool pushes_low =
+                                                candidate_output < 0.0f && error < 0.0f;
+                                            if (!pushes_high && !pushes_low) {
+                                              integral = candidate_integral;
+                                            }
                                           }
+                                          drive = feed_forward + kp * error + integral;
+                                          drive = std::max(0.0f, std::min(1.0f, drive));
+                                          id(pressure_control_integral) = integral;
                                         }
-                                        drive = feed_forward + kp * error + integral;
-                                        drive = std::max(0.0f, std::min(1.0f, drive));
-                                        id(pressure_control_integral) = integral;
                                       } else {
                                         id(pressure_control_integral) = 0.0f;
                                         drive = 0.0f;
@@ -1323,6 +1357,8 @@ script:
                     id(silvia_pressure_profile_startup_boost_power).state;
                 id(active_pressure_profile_startup_boost_ms) =
                     (uint32_t) id(silvia_pressure_profile_startup_boost_ms).state;
+                id(active_pressure_profile_startup_settling_ms) =
+                    (uint32_t) id(silvia_pressure_profile_startup_settling_ms).state;
                 id(pressure_profile_startup_boost_pending) =
                     id(active_pressure_profile_startup_boost_enabled) &&
                     id(active_pressure_profile_startup_boost_ms) > 0;
@@ -1344,6 +1380,9 @@ script:
                 id(silvia_brew_shot_remaining).publish_state(0);
                 id(silvia_brew_shot_status).publish_state("Запуск");
             - switch.turn_on: silvia_brew_valve_relay
+            - lambda: |-
+                id(pressure_profile_startup_settling_until_ms) =
+                    millis() + id(active_pressure_profile_startup_settling_ms);
             - if:
                 condition:
                   lambda: 'return ${use_pump_dimmer};'
