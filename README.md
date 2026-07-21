@@ -29,16 +29,17 @@ Current implementation:
 - PID heater control through an SSR;
 - `Brew` and `Steam` operating modes;
 - automated brew shot with profiles and preinfusion;
-- experimental pump power control through a RobotDyn/Robotron AC dimmer using a custom full-cycle skip ESPHome output;
+- closed-loop brew-pressure profiling with a digital XDB401 I2C sensor;
+- pump control through a RobotDyn/Robotron AC dimmer using a custom full-cycle skip ESPHome output;
 - hot water and steam mode controls;
 - water-level sensor input;
 - automatic shutdown timer;
 - shot counter, backflush reminder, and automated backflush program;
 - configurable coffee dose and estimated dry coffee usage;
 - PID autotune and automatic storage of successful coefficients;
-- runtime pump controls for manual pump power, transition ramp time, and optional start boost.
+- runtime pressure-controller tuning (`Kp`/`Ki`), manual pump power, transition ramp time, and optional start boost.
 
-The next hardware step is pressure sensing for closed-loop pressure profiling. Pump power control is currently an open-loop experiment: the configured percentage is sent to the pump dimmer, but there is no pressure feedback yet.
+Automatic shot recipes now use pressure targets. The controller samples actual brew pressure, combines a target-based feed-forward term with a PI correction, and updates the pump command every `200 ms`. Manual pump operation remains an open-loop power command.
 
 ## Hardware Overview
 
@@ -50,13 +51,11 @@ Main parts used by the current prototype:
 - SSR for the boiler heater;
 - relay outputs for machine power, pump, and brew valve;
 - RobotDyn/Robotron AC dimmer input for experimental pump control;
+- XDB401 digital I2C pressure sensor (0-1.2 MPa range);
 - low-voltage inputs for the original power, brew shot, hot water, and steam mode controls;
 - XKC-Y25-NPN water-level sensor input.
 
-Planned additions:
-
-- digital I2C pressure sensor for brew pressure measurement and pressure profiling;
-- dedicated PCB with pluggable connectors for sensors, relays, and peripheral devices.
+Planned addition: a dedicated PCB with pluggable connectors for sensors, relays, and peripheral devices.
 
 ## Features
 
@@ -75,9 +74,9 @@ Planned additions:
 
 - automated timed brew shot;
 - unified shot profiles: `Classic`, `Lever`, `Slayer Style`, `Bloom`, and `Custom`;
-- configurable preinfusion time/power, soak pause, main shot duration, and main pump curve;
+- configurable preinfusion time/pressure, soak pause, main shot duration, and main pressure curve;
 - live brew-shot phase status with countdown;
-- open-loop pump power profiles through the custom `ac_cycle_skip` output;
+- closed-loop pressure profiles with target and measured-pressure sensors exposed to Home Assistant;
 - physical low-voltage brew shot input;
 - manual pump and brew-valve relay controls.
 
@@ -141,10 +140,11 @@ Adjustable values include:
 - PID coefficients;
 - shot profile;
 - preinfusion pump time;
-- preinfusion pump power;
+- preinfusion pressure;
 - preinfusion pause;
 - main shot duration;
-- main and ending brew pump power;
+- main and ending brew pressure;
+- pressure controller `Kp` and `Ki`;
 - manual pump power;
 - pump transition ramp time;
 - manual pump start boost, phase boost switches, and boost duration;
@@ -163,15 +163,15 @@ Adjustable values include:
 4. run the pump for the configured shot duration;
 5. stop the pump and close the brew valve.
 
-`Silvia Shot Profile` is the single recipe selector for the whole shot. It controls preinfusion, soak pause, main shot time, and the open-loop pump curve:
+`Silvia Shot Profile` is the single recipe selector for the whole shot. It controls preinfusion, soak pause, main shot time, and the closed-loop pressure curve:
 
-- `Classic`: no preinfusion or soak, normal `100%` pump command during the main shot;
-- `Lever`: low-power preinfusion, a smooth rise to working power, then a gradual decline;
-- `Slayer Style`: longer low-power preinfusion, then a low-flow main curve;
-- `Bloom`: low-power wetting, a real pump-off soak pause, then a smooth main ramp;
-- `Custom`: user-editable phase times and a `Custom Start/Main/End Pump Power` curve.
+- `Classic`: no preinfusion or soak, a flat working-pressure target;
+- `Lever`: low-pressure preinfusion, a smooth rise to working pressure, then a gradual decline;
+- `Slayer Style`: longer low-pressure preinfusion followed by a gentler main pressure curve;
+- `Bloom`: low-pressure wetting, a real pump-off soak pause, then a smooth main ramp;
+- `Custom`: user-editable phase times and a `Custom Start/Main/End Pressure` curve.
 
-Editing shot timing, custom phase power, or phase boost values automatically switches the selector to `Custom`. `Silvia Manual Pump Power` is separate and is used only for manual pump operation, hot water, and maintenance.
+Editing shot timing, custom phase pressure, or phase boost values automatically switches the selector to `Custom`. `Silvia Manual Pump Power` is separate and is used only for manual pump operation, hot water, and maintenance.
 
 `Silvia Brew Shot Status` reports the current automated shot phase and countdown. In the current configuration the published strings are localized:
 
@@ -182,9 +182,11 @@ Editing shot timing, custom phase power, or phase boost values automatically swi
 
 The dashboard can use this status as the primary live shot timer instead of inferring the phase from entity timestamps.
 
-Automatic shot profiles snapshot the selected recipe at shot start, including phase timings, pump powers, phase boost flags, and `Silvia Pump Start Boost Time`. The snapshot is expanded into explicit `ShotPhase` entries, updates the calculated pump command every `200 ms`, and temporarily sets `ac_cycle_skip` ramp to `0 ms`; the smoothstep curve lives in the shot profile itself. Home Assistant edits made during a shot apply to the next shot, not the running one. After the shot stops or is cancelled, the user `Silvia Pump Ramp Time` and manual boost setting are restored for manual pump use.
+Automatic shot profiles snapshot the selected recipe at shot start, including phase timings, pressure targets, phase boost flags, and `Silvia Pump Start Boost Time`. The snapshot is expanded into explicit `ShotPhase` entries and updates the target and calculated pump command every `200 ms`. Home Assistant edits made during a shot apply to the next shot, not the running one. After the shot stops or is cancelled, the user `Silvia Pump Ramp Time` and manual boost setting are restored for manual pump use.
 
-The value is still a power command, not a pressure target: without a pressure sensor the controller cannot know or hold the actual brew pressure. The phase model already has `POWER`, `PRESSURE`, and `FLOW` control modes, but the current recipes intentionally emit only open-loop `POWER` phases until a pressure sensor exists.
+For pressure phases, the controller calculates pump drive as target-based feed-forward plus PI correction. The integral is limited to `+-0.35` and reset at every phase boundary or invalid sensor reading. `Silvia Pressure Control Kp` and `Silvia Pressure Control Ki` are adjustable from Home Assistant. The target is published as `Silvia Target Brew Pressure`; the XDB401 reading is published as `Silvia Brew Pressure`. A stale or invalid pressure reading forces the automatic pump command to zero.
+
+The current implementation opens the brew valve before the automatic profile starts. Valve-closed pre-charge and adaptive startup based on pressure rise are design options under evaluation; they are not enabled in the released control path.
 
 `Silvia Manual Pump Power` is adjustable from `0%` to `100%`. `Silvia Pump Start Boost` is the manual-mode boost switch. `Silvia Preinfusion Boost` and `Silvia Main Brew Boost` decide whether the snapshotted `Silvia Pump Start Boost Time` may be applied when that automatic phase starts from a stopped pump. Continuous transitions, such as preinfusion directly into brew, do not force a second 100% kick. `Silvia Pump Gate Delay` and `Silvia Pump Gate Pulse` tune the TRIAC trigger timing in microseconds.
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -74,16 +75,39 @@ inline void add_power_phase(std::vector<ShotPhase> &phases, ShotPhaseKind kind,
   });
 }
 
+inline float clamp_pressure_bar(float value) {
+  return std::max(0.0f, std::min(12.0f, value));
+}
+
+inline void add_pressure_phase(std::vector<ShotPhase> &phases,
+                               ShotPhaseKind kind, uint32_t duration_ms,
+                               float start_bar, float end_bar,
+                               bool pump_enabled, bool valve_open,
+                               bool start_boost, const char *status) {
+  if (duration_ms == 0) return;
+  phases.push_back(ShotPhase{
+      ShotControlMode::PRESSURE,
+      kind,
+      duration_ms,
+      clamp_pressure_bar(start_bar),
+      clamp_pressure_bar(end_bar),
+      pump_enabled,
+      valve_open,
+      start_boost,
+      status,
+  });
+}
+
 inline void add_profile_brew_phases(std::vector<ShotPhase> &phases,
                                     const std::string &profile,
-                                    uint32_t brew_ms, float start_power,
-                                    float main_power, float end_power,
+                                    uint32_t brew_ms, float start_pressure,
+                                    float main_pressure, float end_pressure,
                                     bool main_boost) {
   if (brew_ms == 0) return;
 
   if (profile == "Classic") {
-    add_power_phase(phases, ShotPhaseKind::BREW, brew_ms, 100.0f, 100.0f, true,
-                    true, main_boost, "Пролив");
+    add_pressure_phase(phases, ShotPhaseKind::BREW, brew_ms, main_pressure,
+                       main_pressure, true, true, main_boost, "Пролив");
     return;
   }
 
@@ -96,33 +120,35 @@ inline void add_profile_brew_phases(std::vector<ShotPhase> &phases,
   ramp_ms = bounded_phase_ms(ramp_ms, brew_ms);
   const uint32_t finish_ms = brew_ms - ramp_ms;
 
-  add_power_phase(phases, ShotPhaseKind::BREW, ramp_ms, start_power, main_power,
-                  true, true, main_boost, "Пролив");
-  add_power_phase(phases, ShotPhaseKind::BREW, finish_ms, main_power, end_power,
-                  true, true, false, "Пролив");
+  add_pressure_phase(phases, ShotPhaseKind::BREW, ramp_ms, start_pressure,
+                     main_pressure, true, true, main_boost, "Пролив");
+  add_pressure_phase(phases, ShotPhaseKind::BREW, finish_ms, main_pressure,
+                     end_pressure, true, true, false, "Пролив");
 }
 
 inline ShotProfile build_shot_profile(const std::string &profile,
                                       float preinfusion_seconds,
                                       float pause_seconds,
                                       float brew_seconds,
-                                      float start_power,
-                                      float main_power,
-                                      float end_power,
+                                      float start_pressure,
+                                      float main_pressure,
+                                      float end_pressure,
                                       bool preinfusion_boost,
                                       bool main_boost) {
   ShotProfile shot;
   shot.name = profile;
 
-  add_power_phase(shot.phases, ShotPhaseKind::PREFUSION,
-                  seconds_to_ms(preinfusion_seconds), start_power, start_power,
-                  true, true, preinfusion_boost, "Предсмачивание");
+  add_pressure_phase(shot.phases, ShotPhaseKind::PREFUSION,
+                     seconds_to_ms(preinfusion_seconds), start_pressure,
+                     start_pressure, true, true, preinfusion_boost,
+                     "Предсмачивание");
 
   add_power_phase(shot.phases, ShotPhaseKind::SOAK, seconds_to_ms(pause_seconds),
                   0.0f, 0.0f, false, true, false, "Пауза");
 
   add_profile_brew_phases(shot.phases, profile, seconds_to_ms(brew_seconds),
-                          start_power, main_power, end_power, main_boost);
+                          start_pressure, main_pressure, end_pressure,
+                          main_boost);
 
   return shot;
 }
@@ -140,6 +166,14 @@ inline float phase_value(const ShotPhase &phase, uint32_t step,
   const float value = phase.start_value +
                       (phase.end_value - phase.start_value) * smoothstep(t);
   return clamp_percent(value) / 100.0f;
+}
+
+inline float phase_target(const ShotPhase &phase, uint32_t step,
+                          uint32_t total_steps) {
+  if (total_steps <= 1) return phase.end_value;
+  const float t = static_cast<float>(step) / static_cast<float>(total_steps - 1);
+  return phase.start_value +
+         (phase.end_value - phase.start_value) * smoothstep(t);
 }
 
 }  // namespace silvia

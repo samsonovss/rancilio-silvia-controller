@@ -6,6 +6,9 @@ esphome:
   on_boot:
     - priority: 800
       then:
+        - output.set_level:
+            id: silvia_pump_dimmer
+            level: 0%
         - switch.turn_off: silvia_pump_relay
         - switch.turn_off: silvia_brew_valve_relay
         - switch.turn_off: silvia_power_relay
@@ -23,6 +26,20 @@ esphome:
             id(silvia_brew_shot_remaining).publish_state(0);
             id(silvia_brew_shot_status).publish_state("Ожидание");
             id(silvia_backflush_status).update();
+  on_shutdown:
+    - priority: 700
+      then:
+        - lambda: |-
+            id(silvia_power_state) = false;
+            id(brew_shot_running) = false;
+            id(hot_water_running) = false;
+            id(backflush_running) = false;
+        - script.stop: run_active_shot_phase
+        - script.stop: brew_shot_timer
+        - script.stop: backflush_program
+        - script.execute: pump_output_off
+        - switch.turn_off: silvia_pump_relay
+        - switch.turn_off: silvia_brew_valve_relay
 
 esp32:
   board: esp32-s3-devkitc-1
@@ -34,7 +51,7 @@ esp32:
       CONFIG_GPTIMER_ISR_HANDLER_IN_IRAM: "y"
 
 logger:
-  level: DEBUG
+  level: INFO
 
 debug:
   update_interval: 5s
@@ -70,6 +87,11 @@ spi:
   miso_pin: GPIO16
   mosi_pin: GPIO8
 
+i2c:
+  sda: ${xdb401_sda_pin}
+  scl: ${xdb401_scl_pin}
+  scan: true
+
 # -------------------------
 # GPIO настройки
 # -------------------------
@@ -79,18 +101,18 @@ substitutions:
   led_pin: GPIO47
   heater_ssr_pin: GPIO13
   brew_button_pin: GPIO21
-  hot_water_button_pin: GPIO10
-  steam_mode_button_pin: GPIO9
+  hot_water_button_pin: GPIO9
+  steam_mode_button_pin: GPIO10
   pump_relay_pin: GPIO15
-  brew_valve_relay_pin: GPIO41
+  brew_valve_relay_pin: GPIO14
   max31865_cs_pin: GPIO17
   water_level_pin: GPIO5
   pump_dimmer_gate_pin: GPIO6
   pump_dimmer_zero_cross_pin: GPIO7
   hx711_dout_pin: GPIO38
   hx711_clk_pin: GPIO48
-  xdb401_sda_pin: GPIO11
-  xdb401_scl_pin: GPIO12
+  xdb401_sda_pin: GPIO12
+  xdb401_scl_pin: GPIO11
   use_pump_dimmer: "true"
   overtemp_limit: "155.0"
   # Future Nextion display placeholder. Keep commented until wired and tested.
@@ -121,6 +143,21 @@ globals:
     type: float
     restore_value: no
     initial_value: '0.0'
+
+  - id: pressure_control_integral
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+
+  - id: active_target_brew_pressure
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+
+  - id: pressure_sensor_last_update_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
 
   - id: silvia_pump_start_boost_enabled
     type: bool
@@ -469,15 +506,15 @@ number:
         - component.update: silvia_shot_profile_preview
 
   - platform: template
-    name: "Silvia Custom Start Pump Power"
+    name: "Silvia Custom Start Pressure"
     id: silvia_preinfusion_pump_power
     optimistic: true
     restore_value: true
-    initial_value: 35
+    initial_value: 3.0
     min_value: 0
-    max_value: 100
-    step: 5
-    unit_of_measurement: "%"
+    max_value: 12
+    step: 0.1
+    unit_of_measurement: "bar"
     mode: slider
     on_value:
       then:
@@ -491,15 +528,15 @@ number:
         - component.update: silvia_shot_profile_preview
 
   - platform: template
-    name: "Silvia Custom Main Pump Power"
+    name: "Silvia Custom Main Pressure"
     id: silvia_main_brew_pump_power
     optimistic: true
     restore_value: true
-    initial_value: 100
+    initial_value: 9.0
     min_value: 0
-    max_value: 100
-    step: 5
-    unit_of_measurement: "%"
+    max_value: 12
+    step: 0.1
+    unit_of_measurement: "bar"
     mode: slider
     on_value:
       then:
@@ -513,15 +550,15 @@ number:
         - component.update: silvia_shot_profile_preview
 
   - platform: template
-    name: "Silvia Custom End Pump Power"
+    name: "Silvia Custom End Pressure"
     id: silvia_end_brew_pump_power
     optimistic: true
     restore_value: true
-    initial_value: 100
+    initial_value: 9.0
     min_value: 0
-    max_value: 100
-    step: 5
-    unit_of_measurement: "%"
+    max_value: 12
+    step: 0.1
+    unit_of_measurement: "bar"
     mode: slider
     on_value:
       then:
@@ -548,6 +585,28 @@ number:
     on_value:
       then:
         - component.update: silvia_shot_profile_preview
+
+  - platform: template
+    name: "Silvia Pressure Control Kp"
+    id: silvia_pressure_control_kp
+    optimistic: true
+    restore_value: true
+    initial_value: 0.055
+    min_value: 0.0
+    max_value: 0.2
+    step: 0.001
+    mode: box
+
+  - platform: template
+    name: "Silvia Pressure Control Ki"
+    id: silvia_pressure_control_ki
+    optimistic: true
+    restore_value: true
+    initial_value: 0.025
+    min_value: 0.0
+    max_value: 0.1
+    step: 0.001
+    mode: box
 
   - platform: template
     name: "Silvia Pump Ramp Time"
@@ -783,7 +842,13 @@ switch:
     turn_off_action:
       - lambda: |-
           id(silvia_power_state) = false;
+          id(brew_shot_running) = false;
+          id(hot_water_running) = false;
+          id(backflush_running) = false;
           id(silvia_power_relay).publish_state(false);
+      - script.stop: run_active_shot_phase
+      - script.stop: brew_shot_timer
+      - script.stop: backflush_program
       - climate.control:
           id: silvia_brew_pid
           mode: "OFF"
@@ -793,8 +858,6 @@ switch:
       - script.execute: pump_output_off
       - switch.turn_off: silvia_pump_relay
       - switch.turn_off: silvia_brew_valve_relay
-      - script.stop: brew_shot_timer
-      - script.stop: backflush_program
       - script.stop: auto_off_timer
       - script.stop: status_led_blink_slow
       - script.stop: status_led_blink_fast
@@ -812,11 +875,10 @@ switch:
   - platform: gpio
     name: "Silvia Pump Relay"
     id: silvia_pump_relay
-    internal: true
     restore_mode: ALWAYS_OFF
     pin:
       number: ${pump_relay_pin}
-      inverted: true
+      inverted: false
     on_turn_on:
       - if:
           condition:
@@ -833,7 +895,7 @@ switch:
     restore_mode: ALWAYS_OFF
     pin:
       number: ${brew_valve_relay_pin}
-      inverted: true
+      inverted: false
     on_turn_on:
       - if:
           condition:
@@ -857,6 +919,8 @@ switch:
             - script.execute: status_led_update
             - script.execute: brew_shot_timer
     turn_off_action:
+      - lambda: 'id(brew_shot_running) = false;'
+      - script.stop: run_active_shot_phase
       - script.stop: brew_shot_timer
       - script.execute: pump_output_off
       - script.execute: restore_manual_pump_settings
@@ -1031,6 +1095,7 @@ script:
   - id: pump_output_off
     mode: restart
     then:
+      - lambda: 'id(active_target_brew_pressure) = 0.0f;'
       - if:
           condition:
             lambda: 'return ${use_pump_dimmer};'
@@ -1048,6 +1113,7 @@ script:
     then:
       - lambda: |-
           const auto &phase = silvia::active_shot_phases[id(active_shot_phase_index)];
+          id(pressure_control_integral) = 0.0f;
           if (phase.kind == silvia::ShotPhaseKind::PREFUSION) {
             id(brew_shot_phase) = 1;
           } else if (phase.kind == silvia::ShotPhaseKind::SOAK) {
@@ -1080,23 +1146,65 @@ script:
                         const auto &phase = silvia::active_shot_phases[id(active_shot_phase_index)];
                         return (int) silvia::phase_steps(phase);
                       then:
-                        - output.set_level:
-                            id: silvia_pump_dimmer
-                            level: !lambda |-
-                              const auto &phase = silvia::active_shot_phases[id(active_shot_phase_index)];
-                              const uint32_t steps = silvia::phase_steps(phase);
-                              float drive = 0.0f;
-                              if (phase.mode == silvia::ShotControlMode::POWER) {
-                                drive = silvia::phase_value(phase, iteration, steps);
-                              }
-                              id(pump_dimmer_output_value) = drive;
-                              return drive;
+                        - if:
+                            condition:
+                              lambda: 'return id(brew_shot_running) && id(silvia_power_state);'
+                            then:
+                              - output.set_level:
+                                  id: silvia_pump_dimmer
+                                  level: !lambda |-
+                                    const auto &phase = silvia::active_shot_phases[id(active_shot_phase_index)];
+                                    const uint32_t steps = silvia::phase_steps(phase);
+                                    float drive = 0.0f;
+                                    if (phase.mode == silvia::ShotControlMode::POWER) {
+                                      id(active_target_brew_pressure) = 0.0f;
+                                      drive = silvia::phase_value(phase, iteration, steps);
+                                    } else if (phase.mode == silvia::ShotControlMode::PRESSURE) {
+                                      const uint32_t now = millis();
+                                      const float pressure = id(silvia_brew_pressure).state;
+                                      const float target = silvia::phase_target(
+                                          phase, iteration, steps);
+                                      id(active_target_brew_pressure) = target;
+                                      const bool sensor_ok = id(silvia_brew_pressure).has_state() &&
+                                          std::isfinite(pressure) && pressure >= -0.5f &&
+                                          pressure <= 13.0f &&
+                                          (now - id(pressure_sensor_last_update_ms)) <= 1000U;
+                                      if (sensor_ok) {
+                                        const float error = target - pressure;
+                                        const float kp = id(silvia_pressure_control_kp).state;
+                                        const float ki = id(silvia_pressure_control_ki).state;
+                                        float integral = id(pressure_control_integral) +
+                                                         error * ki * 0.2f;
+                                        integral = std::max(-0.35f,
+                                                            std::min(0.35f, integral));
+                                        const float feed_forward =
+                                            target > 0.0f ? 0.18f + target * 0.075f : 0.0f;
+                                        drive = feed_forward + kp * error + integral;
+                                        drive = std::max(0.0f, std::min(1.0f, drive));
+                                        id(pressure_control_integral) = integral;
+                                      } else {
+                                        id(pressure_control_integral) = 0.0f;
+                                        drive = 0.0f;
+                                      }
+                                    }
+                                    id(pump_dimmer_output_value) = drive;
+                                    return drive;
+                            else:
+                              - script.execute: pump_output_off
+                              - script.stop: run_active_shot_phase
                         - delay: 200ms
                 else:
-                  - lambda: 'id(pump_dimmer_output_value) = 1.0f;'
-                  - switch.turn_on: silvia_pump_relay
-                  - delay: !lambda |-
-                      return silvia::active_shot_phases[id(active_shot_phase_index)].duration_ms;
+                  - if:
+                      condition:
+                        lambda: 'return id(brew_shot_running) && id(silvia_power_state);'
+                      then:
+                        - lambda: 'id(pump_dimmer_output_value) = 1.0f;'
+                        - switch.turn_on: silvia_pump_relay
+                        - delay: !lambda |-
+                            return silvia::active_shot_phases[id(active_shot_phase_index)].duration_ms;
+                      else:
+                        - script.execute: pump_output_off
+                        - script.stop: run_active_shot_phase
             - if:
                 condition:
                   lambda: |-
@@ -1484,7 +1592,29 @@ button:
 # Статусы
 # -------------------------
 sensor:
-  
+  - platform: xdb401
+    address: 0x7F
+    pressure_range_bar: 10
+    update_interval: 100ms
+    pressure:
+      name: "Silvia Brew Pressure"
+      id: silvia_brew_pressure
+      unit_of_measurement: "bar"
+      accuracy_decimals: 1
+      filters:
+        # XDB301/XDB401 0-1.2 MPa: Pa -> bar with 12 bar full scale.
+        - multiply: 0.000012
+        - exponential_moving_average:
+            alpha: 0.35
+            send_every: 1
+      on_value:
+        then:
+          - lambda: 'id(pressure_sensor_last_update_ms) = millis();'
+    temperature:
+      name: "Silvia Pressure Sensor Temperature"
+      id: silvia_pressure_sensor_temperature
+      accuracy_decimals: 1
+
   - platform: template
     name: "Silvia PID Heat Output"
     id: silvia_pid_heat_output_percent
@@ -1499,9 +1629,20 @@ sensor:
     id: silvia_pump_dimmer_output_percent
     unit_of_measurement: "%"
     accuracy_decimals: 1
-    update_interval: 1s
+    update_interval: 200ms
     lambda: |-
       return id(pump_dimmer_output_value) * 100.0f;
+
+  - platform: template
+    name: "Silvia Target Brew Pressure"
+    id: silvia_target_brew_pressure
+    unit_of_measurement: "bar"
+    device_class: pressure
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: 200ms
+    lambda: |-
+      return id(active_target_brew_pressure);
 
   - platform: template
     name: "Silvia Auto Off Remaining"
@@ -1700,11 +1841,11 @@ text_sensor:
     lambda: |-
       const std::string profile = id(silvia_shot_profile).current_option();
       if (profile == "Classic") {
-        return {"Classic | без предсмачивания | 100%"};
+        return {"Classic | без предсмачивания | 9.0 bar"};
       }
       if (profile == "Lever") {
         return {str_sprintf(
-            "Lever | %.0fs %.0f%% | %.0fs: %.0f%% -> %.0f%%",
+            "Lever | %.0fs %.1f bar | %.0fs: %.1f -> %.1f bar",
             id(silvia_preinfusion_pump_seconds).state,
             id(silvia_preinfusion_pump_power).state,
             id(silvia_brew_shot_seconds).state,
@@ -1713,7 +1854,7 @@ text_sensor:
       }
       if (profile == "Slayer Style") {
         return {str_sprintf(
-            "Slayer | %.0fs %.0f%% | %.0fs: %.0f%% -> %.0f%%",
+            "Slayer | %.0fs %.1f bar | %.0fs: %.1f -> %.1f bar",
             id(silvia_preinfusion_pump_seconds).state,
             id(silvia_preinfusion_pump_power).state,
             id(silvia_brew_shot_seconds).state,
@@ -1722,7 +1863,7 @@ text_sensor:
       }
       if (profile == "Bloom") {
         return {str_sprintf(
-            "Bloom | %.0fs %.0f%% + %.0fs soak | %.0f%% -> %.0f%%",
+            "Bloom | %.0fs %.1f bar + %.0fs soak | %.1f -> %.1f bar",
             id(silvia_preinfusion_pump_seconds).state,
             id(silvia_preinfusion_pump_power).state,
             id(silvia_preinfusion_pause_seconds).state,
@@ -1730,7 +1871,7 @@ text_sensor:
             id(silvia_end_brew_pump_power).state)};
       }
       return {str_sprintf(
-          "Custom | %.0fs %.0f%% | %.0fs soak | %.0fs: %.0f%% -> %.0f%%",
+          "Custom | %.0fs %.1f bar | %.0fs soak | %.0fs: %.1f -> %.1f bar",
           id(silvia_preinfusion_pump_seconds).state,
           id(silvia_preinfusion_pump_power).state,
           id(silvia_preinfusion_pause_seconds).state,
@@ -1961,13 +2102,13 @@ select:
                 value: 25
             - number.set:
                 id: silvia_preinfusion_pump_power
-                value: 35
+                value: 3.0
             - number.set:
                 id: silvia_main_brew_pump_power
-                value: 100
+                value: 9.0
             - number.set:
                 id: silvia_end_brew_pump_power
-                value: 100
+                value: 9.0
             - switch.turn_off: silvia_preinfusion_boost
             - switch.turn_off: silvia_main_brew_boost
       - if:
@@ -1985,13 +2126,13 @@ select:
                 value: 25
             - number.set:
                 id: silvia_preinfusion_pump_power
-                value: 30
+                value: 3.0
             - number.set:
                 id: silvia_main_brew_pump_power
-                value: 75
+                value: 9.0
             - number.set:
                 id: silvia_end_brew_pump_power
-                value: 45
+                value: 6.0
             - switch.turn_off: silvia_preinfusion_boost
             - switch.turn_off: silvia_main_brew_boost
       - if:
@@ -2009,13 +2150,13 @@ select:
                 value: 25
             - number.set:
                 id: silvia_preinfusion_pump_power
-                value: 30
+                value: 2.0
             - number.set:
                 id: silvia_main_brew_pump_power
-                value: 55
+                value: 9.0
             - number.set:
                 id: silvia_end_brew_pump_power
-                value: 50
+                value: 7.0
             - switch.turn_off: silvia_preinfusion_boost
             - switch.turn_off: silvia_main_brew_boost
       - if:
@@ -2033,13 +2174,13 @@ select:
                 value: 25
             - number.set:
                 id: silvia_preinfusion_pump_power
-                value: 35
+                value: 3.0
             - number.set:
                 id: silvia_main_brew_pump_power
-                value: 85
+                value: 9.0
             - number.set:
                 id: silvia_end_brew_pump_power
-                value: 80
+                value: 8.0
             - switch.turn_off: silvia_preinfusion_boost
             - switch.turn_off: silvia_main_brew_boost
       - lambda: 'id(shot_profile_applying) = false;'
