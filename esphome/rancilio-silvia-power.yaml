@@ -284,6 +284,41 @@ globals:
     restore_value: no
     initial_value: '0'
 
+  - id: pressure_profile_startup_active
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+  - id: pressure_profile_pressure_dropped
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+  - id: pressure_profile_drop_samples
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+  - id: pressure_profile_rise_samples
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+  - id: pressure_profile_startup_started_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: pressure_profile_handoff_started_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: pressure_profile_handoff_active
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
   - id: silvia_preinfusion_boost_enabled
     type: bool
     restore_value: yes
@@ -1182,6 +1217,11 @@ script:
       - lambda: |-
           id(active_target_brew_pressure) = 0.0f;
           id(pressure_profile_startup_settling_until_ms) = 0;
+          id(pressure_profile_startup_active) = false;
+          id(pressure_profile_pressure_dropped) = false;
+          id(pressure_profile_drop_samples) = 0;
+          id(pressure_profile_rise_samples) = 0;
+          id(pressure_profile_handoff_active) = false;
           id(silvia_pump_dimmer).cancel_timed_override();
       - if:
           condition:
@@ -1228,12 +1268,13 @@ script:
                           phase.mode != silvia::ShotControlMode::PRESSURE && phase.start_boost
                               ? id(active_pump_start_boost_ms)
                               : 0);
-                      if (phase.mode == silvia::ShotControlMode::PRESSURE &&
-                          id(pressure_profile_startup_boost_pending)) {
+                      // Pressure profiles now start at full pump output while the
+                      // open valve releases any static pressure trapped during
+                      // warm-up. PI takes over only after a confirmed pressure
+                      // drop and return, or after the two-second safety timeout.
+                      if (phase.mode == silvia::ShotControlMode::PRESSURE) {
                         id(pressure_profile_startup_boost_pending) = false;
-                        id(silvia_pump_dimmer).arm_timed_override(
-                            id(active_pressure_profile_startup_boost_power) / 100.0f,
-                            id(active_pressure_profile_startup_boost_ms));
+                        id(silvia_pump_dimmer).cancel_timed_override();
                       }
                   - repeat:
                       count: !lambda |-
@@ -1263,40 +1304,101 @@ script:
                                           std::isfinite(pressure) && pressure >= -0.5f &&
                                           pressure <= 13.0f &&
                                           (now - id(pressure_sensor_last_update_ms)) <= 1000U;
-                                      if (sensor_ok) {
-                                        const float feed_forward =
-                                            target > 0.0f ? 0.18f + target * 0.075f : 0.0f;
-                                        const bool settling =
-                                            id(active_pressure_profile_startup_settling_ms) > 0 &&
-                                            static_cast<int32_t>(
-                                                id(pressure_profile_startup_settling_until_ms) - now) > 0;
-                                        if (settling) {
+                                      bool start_pi = false;
+                                      if (id(pressure_profile_startup_active)) {
+                                        const bool timed_out =
+                                            (now - id(pressure_profile_startup_started_ms)) >= 2000U;
+                                        if (sensor_ok && !id(pressure_profile_pressure_dropped)) {
+                                          const float threshold = target - 0.5f;
+                                          if (pressure < threshold) {
+                                            id(pressure_profile_drop_samples)++;
+                                          } else {
+                                            id(pressure_profile_drop_samples) = 0;
+                                          }
+                                          if (id(pressure_profile_drop_samples) >= 2) {
+                                            id(pressure_profile_pressure_dropped) = true;
+                                            id(pressure_profile_rise_samples) = 0;
+                                          }
+                                        } else if (sensor_ok) {
+                                          const float threshold = target - 0.5f;
+                                          if (pressure >= threshold) {
+                                            id(pressure_profile_rise_samples)++;
+                                          } else {
+                                            id(pressure_profile_rise_samples) = 0;
+                                          }
+                                          start_pi = id(pressure_profile_rise_samples) >= 2;
+                                        }
+                                        start_pi = start_pi || timed_out;
+                                        if (!start_pi) {
                                           id(pressure_control_integral) = 0.0f;
-                                          drive = feed_forward;
+                                          drive = 1.0f;
                                         } else {
+                                          id(pressure_profile_startup_active) = false;
+                                          id(pressure_profile_handoff_active) = true;
+                                          id(pressure_profile_handoff_started_ms) = now;
+                                          if (sensor_ok) {
+                                            const float feed_forward =
+                                                target > 0.0f ? 0.18f + target * 0.075f : 0.0f;
+                                            const float error = target - pressure;
+                                            const float kp = id(silvia_pressure_control_kp).state;
+                                            id(pressure_control_integral) = std::max(
+                                                -0.35f,
+                                                std::min(0.35f, 1.0f - feed_forward - kp * error));
+                                          } else {
+                                            id(pressure_control_integral) = 0.0f;
+                                            id(pressure_profile_handoff_active) = false;
+                                          }
+                                        }
+                                      }
+                                      if (!id(pressure_profile_startup_active)) {
+                                        if (sensor_ok) {
+                                          const float feed_forward =
+                                              target > 0.0f ? 0.18f + target * 0.075f : 0.0f;
                                           const float error = target - pressure;
                                           const float kp = id(silvia_pressure_control_kp).state;
                                           const float ki = id(silvia_pressure_control_ki).state;
                                           float integral = id(pressure_control_integral);
-                                          if (!id(silvia_pump_dimmer).timed_override_engaged()) {
-                                            const float candidate_integral = std::max(
-                                                -0.35f,
-                                                std::min(0.35f, integral + error * ki * 0.2f));
-                                            const float candidate_output =
-                                                feed_forward + kp * error + candidate_integral;
-                                            const bool pushes_high =
-                                                candidate_output > 1.0f && error > 0.0f;
-                                            const bool pushes_low =
-                                                candidate_output < 0.0f && error < 0.0f;
-                                            if (!pushes_high && !pushes_low) {
-                                              integral = candidate_integral;
-                                            }
+                                          const float candidate_integral = std::max(
+                                              -0.35f,
+                                              std::min(0.35f, integral + error * ki * 0.2f));
+                                          const float candidate_output =
+                                              feed_forward + kp * error + candidate_integral;
+                                          const bool pushes_high =
+                                              candidate_output > 1.0f && error > 0.0f;
+                                          const bool pushes_low =
+                                              candidate_output < 0.0f && error < 0.0f;
+                                          if (!pushes_high && !pushes_low) {
+                                            integral = candidate_integral;
                                           }
-                                          drive = feed_forward + kp * error + integral;
-                                          drive = std::max(0.0f, std::min(1.0f, drive));
+                                          const float pi_drive = std::max(
+                                              0.0f,
+                                              std::min(1.0f, feed_forward + kp * error + integral));
                                           id(pressure_control_integral) = integral;
+                                          if (id(pressure_profile_handoff_active)) {
+                                            const uint32_t handoff_elapsed =
+                                                now - id(pressure_profile_handoff_started_ms);
+                                            const float blend = std::min(
+                                                1.0f, static_cast<float>(handoff_elapsed) / 600.0f);
+                                            drive = 1.0f + (pi_drive - 1.0f) * blend;
+                                            if (blend >= 1.0f) {
+                                              id(pressure_profile_handoff_active) = false;
+                                            }
+                                          } else {
+                                            drive = pi_drive;
+                                          }
+                                        } else if (id(pressure_profile_handoff_active)) {
+                                          // Never hold full pump output if pressure feedback
+                                          // becomes invalid during the handoff.
+                                          id(pressure_profile_handoff_active) = false;
+                                          id(pressure_control_integral) = 0.0f;
+                                          drive = 0.0f;
+                                        } else {
+                                          id(pressure_control_integral) = 0.0f;
+                                          drive = 0.0f;
                                         }
-                                      } else {
+                                      }
+                                      if (!sensor_ok && !id(pressure_profile_startup_active) &&
+                                          !id(pressure_profile_handoff_active)) {
                                         id(pressure_control_integral) = 0.0f;
                                         drive = 0.0f;
                                       }
@@ -1381,8 +1483,14 @@ script:
                 id(silvia_brew_shot_status).publish_state("Запуск");
             - switch.turn_on: silvia_brew_valve_relay
             - lambda: |-
-                id(pressure_profile_startup_settling_until_ms) =
-                    millis() + id(active_pressure_profile_startup_settling_ms);
+                id(pressure_control_integral) = 0.0f;
+                id(pressure_profile_startup_active) = true;
+                id(pressure_profile_pressure_dropped) = false;
+                id(pressure_profile_drop_samples) = 0;
+                id(pressure_profile_rise_samples) = 0;
+                id(pressure_profile_startup_started_ms) = millis();
+                id(pressure_profile_handoff_active) = false;
+                id(pressure_profile_startup_settling_until_ms) = 0;
             - if:
                 condition:
                   lambda: 'return ${use_pump_dimmer};'
