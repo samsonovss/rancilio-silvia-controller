@@ -37,6 +37,7 @@ esphome:
         - script.stop: run_active_shot_phase
         - script.stop: brew_shot_timer
         - script.stop: backflush_program
+        - script.stop: release_brew_pressure
         - script.execute: pump_output_off
         - switch.turn_off: silvia_pump_relay
         - switch.turn_off: silvia_brew_valve_relay
@@ -940,6 +941,7 @@ switch:
           id: silvia_pid_heat_output
           level: 0%
       - script.execute: pump_output_off
+      - script.stop: release_brew_pressure
       - switch.turn_off: silvia_pump_relay
       - switch.turn_off: silvia_brew_valve_relay
       - script.stop: auto_off_timer
@@ -979,7 +981,7 @@ switch:
     restore_mode: ALWAYS_OFF
     pin:
       number: ${brew_valve_relay_pin}
-      inverted: true
+      inverted: false
     on_turn_on:
       - if:
           condition:
@@ -1008,7 +1010,7 @@ switch:
       - script.stop: brew_shot_timer
       - script.execute: pump_output_off
       - script.execute: restore_manual_pump_settings
-      - switch.turn_off: silvia_brew_valve_relay
+      - script.execute: release_brew_pressure
       - lambda: |-
           id(brew_shot_running) = false;
           id(brew_shot_phase) = 0;
@@ -1194,6 +1196,21 @@ script:
           else:
             - lambda: 'id(pump_dimmer_output_value) = 0.0f;'
             - switch.turn_off: silvia_pump_relay
+
+  - id: release_brew_pressure
+    mode: restart
+    then:
+      # The tested relay transition OFF -> ON vents the trapped brew pressure.
+      # Return to OFF afterwards so the valve coil is not left energized.
+      - switch.turn_off: silvia_brew_valve_relay
+      - delay: 100ms
+      - if:
+          condition:
+            lambda: 'return id(silvia_power_state) && !id(backflush_running);'
+          then:
+            - switch.turn_on: silvia_brew_valve_relay
+            - delay: 1s
+      - switch.turn_off: silvia_brew_valve_relay
 
   - id: run_active_shot_phase
     mode: restart
@@ -1400,7 +1417,7 @@ script:
                   - script.wait: run_active_shot_phase
             - script.execute: pump_output_off
             - script.execute: restore_manual_pump_settings
-            - switch.turn_off: silvia_brew_valve_relay
+            - script.execute: release_brew_pressure
             - lambda: |-
                 id(brew_shot_running) = false;
                 id(brew_shot_phase) = 0;
