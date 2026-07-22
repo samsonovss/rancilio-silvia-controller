@@ -163,9 +163,7 @@ Adjustable values include:
 2. optionally run the pump for preinfusion;
 3. optionally pause after preinfusion;
 4. run the pump for the configured shot duration;
-5. stop the pump, cycle the brew-valve relay `OFF -> ON` for one second to
-   release trapped pressure, then return it to `OFF` so the coil is not left
-   energized.
+5. stop the pump and close the brew valve.
 
 `Silvia Shot Profile` is the single recipe selector for the whole shot. It controls preinfusion, soak pause, main shot time, and the closed-loop pressure curve:
 
