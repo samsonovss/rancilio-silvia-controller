@@ -979,7 +979,7 @@ switch:
     restore_mode: ALWAYS_OFF
     pin:
       number: ${brew_valve_relay_pin}
-      inverted: false
+      inverted: true
     on_turn_on:
       - if:
           condition:
