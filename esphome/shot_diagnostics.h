@@ -35,6 +35,8 @@ struct ShotSample {
   float predicted_pressure_bar;
   float time_to_target_s;
   float soft_start_limit_percent;
+  float desired_pressure_slope_bar_s;
+  float rise_rate_brake;
   float error_bar;
   bool sensor_ok;
   uint32_t sensor_age_ms;
@@ -127,6 +129,7 @@ inline std::string make_csv() {
   csv.reserve(256 + last_shot.size() * 180);
   csv += "elapsed_ms,phase,target_bar,pressure_bar,pressure_slope_bar_s,predicted_pressure_bar,";
   csv += "time_to_target_s,soft_start_limit_percent,";
+  csv += "desired_pressure_slope_bar_s,rise_rate_brake,";
   csv += "error_bar,sensor_ok,sensor_age_ms,brew_valve,";
   csv += "startup_state,transition_reason,drop_samples,rise_samples,pi_enabled,feed_forward,";
   csv += "p_term,i_term,pi_output,handoff_percent,final_output_percent,";
@@ -135,12 +138,14 @@ inline std::string make_csv() {
   for (const auto &sample : last_shot) {
     const int length = snprintf(
         line, sizeof(line),
-        "%lu,%u,%.4f,%.4f,%.4f,%.4f,%.4f,%.2f,%.4f,%u,%lu,%u,%s,%s,%d,%d,%u,"
+        "%lu,%u,%.4f,%.4f,%.4f,%.4f,%.4f,%.2f,%.4f,%.5f,%.4f,%u,%lu,%u,%s,%s,%d,%d,%u,"
         "%.5f,%.5f,%.5f,%.5f,%.2f,%.2f,%.2f\n",
         static_cast<unsigned long>(sample.elapsed_ms), sample.phase,
         sample.target_bar, sample.pressure_bar, sample.pressure_slope_bar_s,
         sample.predicted_pressure_bar, sample.time_to_target_s,
-        sample.soft_start_limit_percent, sample.error_bar,
+        sample.soft_start_limit_percent,
+        sample.desired_pressure_slope_bar_s, sample.rise_rate_brake,
+        sample.error_bar,
         sample.sensor_ok ? 1 : 0,
         static_cast<unsigned long>(sample.sensor_age_ms),
         sample.brew_valve ? 1 : 0, startup_state_name(sample.startup_state),

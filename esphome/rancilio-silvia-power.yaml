@@ -1480,6 +1480,8 @@ script:
                                     float diag_handoff_percent = 0.0f;
                                     float diag_time_to_target = -1.0f;
                                     float diag_soft_start_limit = 100.0f;
+                                    float diag_desired_pressure_slope = 0.0f;
+                                    float diag_rise_rate_brake = 0.0f;
                                     bool diag_sensor_ok = id(silvia_brew_pressure).has_state() &&
                                         std::isfinite(pressure) && pressure >= -0.5f &&
                                         pressure <= 13.0f && sensor_age <= 1000U;
@@ -1649,9 +1651,33 @@ script:
                                                     id(pressure_control_previous_predicted_error));
                                           const float integral_increment =
                                               ki * predicted_error * pressure_dt;
+                                          const float desired_pressure_slope =
+                                              std::max(
+                                                  0.0f,
+                                                  std::min(
+                                                      3.0f,
+                                                      diag_error / 0.55f));
+                                          float rise_rate_brake = 0.0f;
+                                          if (diag_error > 0.0f &&
+                                              diag_pressure_slope >
+                                                  desired_pressure_slope) {
+                                            const float update_scale =
+                                                std::max(
+                                                    0.5f,
+                                                    std::min(
+                                                        2.5f,
+                                                        pressure_dt / 0.2f));
+                                            rise_rate_brake = std::min(
+                                                0.08f * update_scale,
+                                                (diag_pressure_slope -
+                                                 desired_pressure_slope) *
+                                                    0.02f * update_scale);
+                                          }
                                           float candidate_drive =
                                               id(pressure_control_incremental_drive) +
-                                              proportional_increment + integral_increment;
+                                              proportional_increment +
+                                              integral_increment -
+                                              rise_rate_brake;
                                           candidate_drive = std::max(
                                               0.0f, std::min(1.0f, candidate_drive));
                                           candidate_drive =
@@ -1668,6 +1694,10 @@ script:
                                           diag_feed_forward = candidate_drive;
                                           diag_p_term = proportional_increment;
                                           diag_i_term = integral_increment;
+                                          diag_desired_pressure_slope =
+                                              desired_pressure_slope;
+                                          diag_rise_rate_brake =
+                                              rise_rate_brake;
                                           diag_pi_output = candidate_drive;
                                           diag_pi_enabled = true;
                                           diag_handoff_percent = 100.0f;
@@ -1719,6 +1749,8 @@ script:
                                         diag_predicted_pressure,
                                         diag_time_to_target,
                                         diag_soft_start_limit,
+                                        diag_desired_pressure_slope,
+                                        diag_rise_rate_brake,
                                         diag_error,
                                         diag_sensor_ok,
                                         sensor_age,
@@ -1780,6 +1812,7 @@ script:
                           now - silvia_diag::shot_started_ms,
                           static_cast<uint8_t>(id(brew_shot_phase)),
                           0.0f, pressure, 0.0f, pressure, -1.0f, 100.0f,
+                          0.0f, 0.0f,
                           -pressure,
                           sensor_ok, sensor_age,
                           id(silvia_brew_valve_relay).state,
