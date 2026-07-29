@@ -22,7 +22,7 @@ enum class StartupState : uint8_t {
 
 enum class TransitionReason : uint8_t {
   NONE,
-  PRESSURE_RETURN,
+  PRESSURE_RESPONSE,
   TIMEOUT_2S,
 };
 
@@ -31,6 +31,10 @@ struct ShotSample {
   uint8_t phase;
   float target_bar;
   float pressure_bar;
+  float pressure_slope_bar_s;
+  float predicted_pressure_bar;
+  float time_to_target_s;
+  float soft_start_limit_percent;
   float error_bar;
   bool sensor_ok;
   uint32_t sensor_age_ms;
@@ -46,6 +50,7 @@ struct ShotSample {
   float pi_output;
   float handoff_percent;
   float final_output_percent;
+  float temperature_feed_forward_percent;
 };
 
 inline std::vector<ShotSample> last_shot;
@@ -76,8 +81,8 @@ inline const char *startup_state_name(StartupState state) {
 
 inline const char *transition_reason_name(TransitionReason reason) {
   switch (reason) {
-    case TransitionReason::PRESSURE_RETURN:
-      return "pressure_return";
+    case TransitionReason::PRESSURE_RESPONSE:
+      return "pressure_response";
     case TransitionReason::TIMEOUT_2S:
       return "timeout_2s";
     case TransitionReason::NONE:
@@ -120,23 +125,29 @@ inline void clear() {
 inline std::string make_csv() {
   std::string csv;
   csv.reserve(256 + last_shot.size() * 180);
-  csv += "elapsed_ms,phase,target_bar,pressure_bar,error_bar,sensor_ok,sensor_age_ms,brew_valve,";
+  csv += "elapsed_ms,phase,target_bar,pressure_bar,pressure_slope_bar_s,predicted_pressure_bar,";
+  csv += "time_to_target_s,soft_start_limit_percent,";
+  csv += "error_bar,sensor_ok,sensor_age_ms,brew_valve,";
   csv += "startup_state,transition_reason,drop_samples,rise_samples,pi_enabled,feed_forward,";
-  csv += "p_term,i_term,pi_output,handoff_percent,final_output_percent\n";
+  csv += "p_term,i_term,pi_output,handoff_percent,final_output_percent,";
+  csv += "temperature_feed_forward_percent\n";
   char line[384];
   for (const auto &sample : last_shot) {
     const int length = snprintf(
         line, sizeof(line),
-        "%lu,%u,%.4f,%.4f,%.4f,%u,%lu,%u,%s,%s,%d,%d,%u,%.5f,%.5f,%.5f,%.5f,%.2f,%.2f\n",
+        "%lu,%u,%.4f,%.4f,%.4f,%.4f,%.4f,%.2f,%.4f,%u,%lu,%u,%s,%s,%d,%d,%u,"
+        "%.5f,%.5f,%.5f,%.5f,%.2f,%.2f,%.2f\n",
         static_cast<unsigned long>(sample.elapsed_ms), sample.phase,
-        sample.target_bar, sample.pressure_bar, sample.error_bar,
+        sample.target_bar, sample.pressure_bar, sample.pressure_slope_bar_s,
+        sample.predicted_pressure_bar, sample.time_to_target_s,
+        sample.soft_start_limit_percent, sample.error_bar,
         sample.sensor_ok ? 1 : 0,
         static_cast<unsigned long>(sample.sensor_age_ms),
         sample.brew_valve ? 1 : 0, startup_state_name(sample.startup_state),
         transition_reason_name(sample.transition_reason), sample.drop_samples,
         sample.rise_samples, sample.pi_enabled ? 1 : 0, sample.feed_forward,
         sample.p_term, sample.i_term, sample.pi_output, sample.handoff_percent,
-        sample.final_output_percent);
+        sample.final_output_percent, sample.temperature_feed_forward_percent);
     if (length > 0)
       csv.append(line, std::min<int>(length, sizeof(line) - 1));
   }

@@ -156,6 +156,61 @@ globals:
     restore_value: no
     initial_value: '0.0'
 
+  - id: pressure_control_adaptive_feed_forward
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+
+  - id: pressure_control_filtered_slope
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+
+  - id: pressure_control_last_pressure
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+
+  - id: pressure_control_last_update_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: pressure_control_incremental_drive
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+
+  - id: pressure_control_previous_predicted_error
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+
+  - id: pressure_control_incremental_initialized
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+  - id: active_soft_infusion_seconds
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+
+  - id: active_soft_infusion_start_power
+    type: float
+    restore_value: no
+    initial_value: '20.0'
+
+  - id: soft_infusion_started_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: brew_temperature_feed_forward_value
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+
   - id: active_target_brew_pressure
     type: float
     restore_value: no
@@ -744,6 +799,42 @@ number:
     max_value: 0.1
     step: 0.001
     mode: box
+
+  - platform: template
+    name: "Silvia Brew Temperature Feed Forward Max"
+    id: silvia_brew_temperature_feed_forward_max
+    optimistic: true
+    restore_value: true
+    initial_value: 60
+    min_value: 0
+    max_value: 100
+    step: 5
+    unit_of_measurement: "%"
+    mode: box
+
+  - platform: template
+    name: "Silvia Soft Infusion Time"
+    id: silvia_soft_infusion_seconds
+    optimistic: true
+    restore_value: true
+    initial_value: 3
+    min_value: 0
+    max_value: 5
+    step: 0.5
+    unit_of_measurement: "s"
+    mode: slider
+
+  - platform: template
+    name: "Silvia Soft Infusion Start Power"
+    id: silvia_soft_infusion_start_power
+    optimistic: true
+    restore_value: true
+    initial_value: 20
+    min_value: 5
+    max_value: 60
+    step: 5
+    unit_of_measurement: "%"
+    mode: slider
 
   - platform: template
     name: "Silvia Pressure Profile Startup Boost Power"
@@ -1353,10 +1444,9 @@ script:
                           phase.mode != silvia::ShotControlMode::PRESSURE && phase.start_boost
                               ? id(active_pump_start_boost_ms)
                               : 0);
-                      // Pressure profiles now start at full pump output while the
-                      // open valve releases any static pressure trapped during
-                      // warm-up. PI takes over only after a confirmed pressure
-                      // drop and return, or after the two-second safety timeout.
+                      // Pressure profiles use the global soft-start envelope.
+                      // Disable the legacy timed boost so it cannot bypass the
+                      // configured starting power.
                       if (phase.mode == silvia::ShotControlMode::PRESSURE) {
                         id(pressure_profile_startup_boost_pending) = false;
                         id(silvia_pump_dimmer).cancel_timed_override();
@@ -1381,11 +1471,15 @@ script:
                                     float drive = 0.0f;
                                     float diag_target = 0.0f;
                                     float diag_error = 0.0f;
+                                    float diag_pressure_slope = 0.0f;
+                                    float diag_predicted_pressure = pressure;
                                     float diag_feed_forward = 0.0f;
                                     float diag_p_term = 0.0f;
                                     float diag_i_term = 0.0f;
                                     float diag_pi_output = 0.0f;
                                     float diag_handoff_percent = 0.0f;
+                                    float diag_time_to_target = -1.0f;
+                                    float diag_soft_start_limit = 100.0f;
                                     bool diag_sensor_ok = id(silvia_brew_pressure).has_state() &&
                                         std::isfinite(pressure) && pressure >= -0.5f &&
                                         pressure <= 13.0f && sensor_age <= 1000U;
@@ -1402,6 +1496,81 @@ script:
                                       diag_error = target - pressure;
                                       id(active_target_brew_pressure) = target;
                                       const bool sensor_ok = diag_sensor_ok;
+                                      float pressure_dt = 0.2f;
+                                      if (sensor_ok) {
+                                        if (id(pressure_control_last_update_ms) != 0U) {
+                                          pressure_dt = std::max(
+                                              0.05f,
+                                              std::min(
+                                                  0.5f,
+                                                  static_cast<float>(
+                                                      now - id(pressure_control_last_update_ms)) /
+                                                      1000.0f));
+                                          const float raw_slope = std::max(
+                                              -6.0f,
+                                              std::min(
+                                                  6.0f,
+                                                  (pressure -
+                                                   id(pressure_control_last_pressure)) /
+                                                      pressure_dt));
+                                          id(pressure_control_filtered_slope) =
+                                              id(pressure_control_filtered_slope) * 0.65f +
+                                              raw_slope * 0.35f;
+                                        } else {
+                                          id(pressure_control_filtered_slope) = 0.0f;
+                                        }
+                                        id(pressure_control_last_pressure) = pressure;
+                                        id(pressure_control_last_update_ms) = now;
+                                        diag_pressure_slope =
+                                            id(pressure_control_filtered_slope);
+                                      }
+                                      const uint32_t soft_elapsed_ms =
+                                          now - id(soft_infusion_started_ms);
+                                      const float soft_duration_ms =
+                                          id(active_soft_infusion_seconds) * 1000.0f;
+                                      float soft_start_limit = 1.0f;
+                                      if (soft_duration_ms > 0.0f &&
+                                          soft_elapsed_ms < soft_duration_ms) {
+                                        const float progress = std::max(
+                                            0.0f,
+                                            std::min(
+                                                1.0f,
+                                                static_cast<float>(soft_elapsed_ms) /
+                                                    soft_duration_ms));
+                                        const float smooth =
+                                            progress * progress * (3.0f - 2.0f * progress);
+                                        const float start_power = std::max(
+                                            0.05f,
+                                            std::min(
+                                                0.60f,
+                                                id(active_soft_infusion_start_power) /
+                                                    100.0f));
+                                        soft_start_limit =
+                                            start_power + (1.0f - start_power) * smooth;
+                                      }
+                                      diag_soft_start_limit = soft_start_limit * 100.0f;
+                                      if (diag_pressure_slope > 0.15f &&
+                                          diag_error > 0.0f) {
+                                        diag_time_to_target =
+                                            diag_error / diag_pressure_slope;
+                                      }
+                                      float prediction_horizon = 0.35f;
+                                      if (diag_time_to_target >= 0.0f &&
+                                          diag_time_to_target < 0.8f) {
+                                        prediction_horizon = std::min(
+                                            0.65f,
+                                            0.35f +
+                                                (0.8f - diag_time_to_target) * 0.5f);
+                                      }
+                                      diag_predicted_pressure = std::max(
+                                          0.0f,
+                                          std::min(
+                                              13.0f,
+                                              pressure +
+                                                  diag_pressure_slope *
+                                                      prediction_horizon));
+                                      const float predicted_error =
+                                          target - diag_predicted_pressure;
                                       bool start_pi = false;
                                       if (id(pressure_profile_startup_active)) {
                                         const bool timed_out =
@@ -1418,96 +1587,113 @@ script:
                                             id(pressure_profile_rise_samples) = 0;
                                           }
                                         } else if (sensor_ok) {
-                                          const float threshold = target - 0.5f;
-                                          if (pressure >= threshold) {
+                                          const bool useful_rise =
+                                              pressure >= 0.2f &&
+                                              id(pressure_control_filtered_slope) >= 0.20f;
+                                          if (useful_rise) {
                                             id(pressure_profile_rise_samples)++;
                                           } else {
                                             id(pressure_profile_rise_samples) = 0;
                                           }
                                           start_pi = id(pressure_profile_rise_samples) >= 2;
                                         }
-                                        const bool pressure_return = start_pi;
-                                        start_pi = pressure_return || timed_out;
+                                        const bool pressure_response = start_pi;
+                                        start_pi = pressure_response || timed_out;
                                         if (!start_pi) {
                                           id(pressure_control_integral) = 0.0f;
-                                          drive = 1.0f;
+                                          drive = soft_start_limit;
                                         } else {
-                                          silvia_diag::last_transition_reason = pressure_return
-                                              ? silvia_diag::TransitionReason::PRESSURE_RETURN
+                                          silvia_diag::last_transition_reason = pressure_response
+                                              ? silvia_diag::TransitionReason::PRESSURE_RESPONSE
                                               : silvia_diag::TransitionReason::TIMEOUT_2S;
                                           id(pressure_profile_startup_active) = false;
-                                          id(pressure_profile_handoff_active) = true;
+                                          id(pressure_profile_handoff_active) = false;
                                           id(pressure_profile_handoff_started_ms) = now;
                                           if (sensor_ok) {
-                                            const float feed_forward =
-                                                target > 0.0f ? 0.18f + target * 0.075f : 0.0f;
-                                            const float error = target - pressure;
-                                            const float kp = id(silvia_pressure_control_kp).state;
-                                            id(pressure_control_integral) = std::max(
-                                                -0.35f,
-                                                std::min(0.35f, 1.0f - feed_forward - kp * error));
+                                            id(pressure_control_incremental_drive) =
+                                                soft_start_limit;
+                                            id(pressure_control_previous_predicted_error) =
+                                                predicted_error;
+                                            id(pressure_control_incremental_initialized) = true;
+                                            id(pressure_control_adaptive_feed_forward) =
+                                                soft_start_limit;
                                           } else {
                                             id(pressure_control_integral) = 0.0f;
+                                            id(pressure_control_adaptive_feed_forward) = 0.0f;
+                                            id(pressure_control_incremental_drive) = 0.0f;
+                                            id(pressure_control_incremental_initialized) = false;
                                             id(pressure_profile_handoff_active) = false;
                                           }
                                         }
                                       }
                                       if (!id(pressure_profile_startup_active)) {
                                         if (sensor_ok) {
-                                          const float feed_forward =
-                                              target > 0.0f ? 0.18f + target * 0.075f : 0.0f;
-                                          const float error = target - pressure;
                                           const float kp = id(silvia_pressure_control_kp).state;
                                           const float ki = id(silvia_pressure_control_ki).state;
-                                          float integral = id(pressure_control_integral);
-                                          const float candidate_integral = std::max(
-                                              -0.35f,
-                                              std::min(0.35f, integral + error * ki * 0.2f));
-                                          const float candidate_output =
-                                              feed_forward + kp * error + candidate_integral;
-                                          const bool pushes_high =
-                                              candidate_output > 1.0f && error > 0.0f;
-                                          const bool pushes_low =
-                                              candidate_output < 0.0f && error < 0.0f;
-                                          if (!pushes_high && !pushes_low) {
-                                            integral = candidate_integral;
+                                          if (!id(pressure_control_incremental_initialized)) {
+                                            const float fallback = std::max(
+                                                0.05f,
+                                                std::min(
+                                                    1.0f,
+                                                    target > 0.0f
+                                                        ? 0.18f + target * 0.075f
+                                                        : 0.0f));
+                                            id(pressure_control_incremental_drive) =
+                                                std::min(fallback, soft_start_limit);
+                                            id(pressure_control_previous_predicted_error) =
+                                                predicted_error;
+                                            id(pressure_control_incremental_initialized) = true;
                                           }
-                                          const float pi_drive = std::max(
-                                              0.0f,
-                                              std::min(1.0f, feed_forward + kp * error + integral));
-                                          diag_feed_forward = feed_forward;
-                                          diag_p_term = kp * error;
-                                          diag_i_term = integral;
-                                          diag_pi_output = pi_drive;
+                                          const float proportional_increment =
+                                              kp * (predicted_error -
+                                                    id(pressure_control_previous_predicted_error));
+                                          const float integral_increment =
+                                              ki * predicted_error * pressure_dt;
+                                          float candidate_drive =
+                                              id(pressure_control_incremental_drive) +
+                                              proportional_increment + integral_increment;
+                                          candidate_drive = std::max(
+                                              0.0f, std::min(1.0f, candidate_drive));
+                                          candidate_drive =
+                                              std::min(candidate_drive, soft_start_limit);
+                                          id(pressure_control_incremental_drive) =
+                                              candidate_drive;
+                                          id(pressure_control_previous_predicted_error) =
+                                              predicted_error;
+                                          id(pressure_control_adaptive_feed_forward) =
+                                              candidate_drive;
+                                          id(pressure_control_integral) =
+                                              integral_increment;
+                                          drive = candidate_drive;
+                                          diag_feed_forward = candidate_drive;
+                                          diag_p_term = proportional_increment;
+                                          diag_i_term = integral_increment;
+                                          diag_pi_output = candidate_drive;
                                           diag_pi_enabled = true;
-                                          id(pressure_control_integral) = integral;
-                                          if (id(pressure_profile_handoff_active)) {
-                                            const uint32_t handoff_elapsed =
-                                                now - id(pressure_profile_handoff_started_ms);
-                                            const float blend = std::min(
-                                                1.0f, static_cast<float>(handoff_elapsed) / 600.0f);
-                                            diag_handoff_percent = blend * 100.0f;
-                                            drive = 1.0f + (pi_drive - 1.0f) * blend;
-                                            if (blend >= 1.0f) {
-                                              id(pressure_profile_handoff_active) = false;
-                                            }
-                                          } else {
-                                            drive = pi_drive;
-                                          }
+                                          diag_handoff_percent = 100.0f;
                                         } else if (id(pressure_profile_handoff_active)) {
                                           // Never hold full pump output if pressure feedback
                                           // becomes invalid during the handoff.
                                           id(pressure_profile_handoff_active) = false;
                                           id(pressure_control_integral) = 0.0f;
+                                          id(pressure_control_adaptive_feed_forward) = 0.0f;
+                                          id(pressure_control_incremental_drive) = 0.0f;
+                                          id(pressure_control_incremental_initialized) = false;
                                           drive = 0.0f;
                                         } else {
                                           id(pressure_control_integral) = 0.0f;
+                                          id(pressure_control_adaptive_feed_forward) = 0.0f;
+                                          id(pressure_control_incremental_drive) = 0.0f;
+                                          id(pressure_control_incremental_initialized) = false;
                                           drive = 0.0f;
                                         }
                                       }
                                       if (!sensor_ok && !id(pressure_profile_startup_active) &&
                                           !id(pressure_profile_handoff_active)) {
                                         id(pressure_control_integral) = 0.0f;
+                                        id(pressure_control_adaptive_feed_forward) = 0.0f;
+                                        id(pressure_control_incremental_drive) = 0.0f;
+                                        id(pressure_control_incremental_initialized) = false;
                                         drive = 0.0f;
                                       }
                                       if (!sensor_ok && !id(pressure_profile_startup_active)) {
@@ -1529,6 +1715,10 @@ script:
                                         static_cast<uint8_t>(id(brew_shot_phase)),
                                         diag_target,
                                         pressure,
+                                        diag_pressure_slope,
+                                        diag_predicted_pressure,
+                                        diag_time_to_target,
+                                        diag_soft_start_limit,
                                         diag_error,
                                         diag_sensor_ok,
                                         sensor_age,
@@ -1543,7 +1733,8 @@ script:
                                         diag_i_term,
                                         diag_pi_output,
                                         diag_handoff_percent,
-                                        drive * 100.0f});
+                                        drive * 100.0f,
+                                        id(brew_temperature_feed_forward_value) * 100.0f});
                                     id(pump_dimmer_output_value) = drive;
                                     return drive;
                             else:
@@ -1588,11 +1779,14 @@ script:
                       silvia_diag::record(silvia_diag::ShotSample{
                           now - silvia_diag::shot_started_ms,
                           static_cast<uint8_t>(id(brew_shot_phase)),
-                          0.0f, pressure, -pressure, sensor_ok, sensor_age,
+                          0.0f, pressure, 0.0f, pressure, -1.0f, 100.0f,
+                          -pressure,
+                          sensor_ok, sensor_age,
                           id(silvia_brew_valve_relay).state,
                           silvia_diag::StartupState::PUMP_OFF,
                           silvia_diag::last_transition_reason,
-                          0, 0, false, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+                          0, 0, false, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                          id(brew_temperature_feed_forward_value) * 100.0f});
                   - delay: 200ms
 
   - id: brew_shot_timer
@@ -1621,6 +1815,10 @@ script:
                     (uint32_t) id(silvia_pressure_profile_startup_boost_ms).state;
                 id(active_pressure_profile_startup_settling_ms) =
                     (uint32_t) id(silvia_pressure_profile_startup_settling_ms).state;
+                id(active_soft_infusion_seconds) =
+                    id(silvia_soft_infusion_seconds).state;
+                id(active_soft_infusion_start_power) =
+                    id(silvia_soft_infusion_start_power).state;
                 id(pressure_profile_startup_boost_pending) =
                     id(active_pressure_profile_startup_boost_enabled) &&
                     id(active_pressure_profile_startup_boost_ms) > 0;
@@ -1645,6 +1843,15 @@ script:
             - switch.turn_on: silvia_brew_valve_relay
             - lambda: |-
                 id(pressure_control_integral) = 0.0f;
+                id(pressure_control_adaptive_feed_forward) = 0.0f;
+                id(pressure_control_filtered_slope) = 0.0f;
+                id(pressure_control_last_pressure) = 0.0f;
+                id(pressure_control_last_update_ms) = 0U;
+                id(pressure_control_incremental_drive) = 0.0f;
+                id(pressure_control_previous_predicted_error) = 0.0f;
+                id(pressure_control_incremental_initialized) = false;
+                id(soft_infusion_started_ms) = millis();
+                id(brew_temperature_feed_forward_value) = 0.0f;
                 id(pressure_profile_startup_active) = true;
                 id(pressure_profile_pressure_dropped) = false;
                 id(pressure_profile_drop_samples) = 0;
@@ -1673,6 +1880,10 @@ script:
             - lambda: |-
                 silvia_diag::finish_shot();
                 id(brew_shot_running) = false;
+                id(brew_temperature_feed_forward_value) = 0.0f;
+                id(pressure_control_incremental_drive) = 0.0f;
+                id(pressure_control_incremental_initialized) = false;
+                id(soft_infusion_started_ms) = 0U;
                 id(brew_shot_phase) = 0;
                 id(brew_shot_phase_end_ms) = 0;
                 id(silvia_brew_shot_remaining).publish_state(0);
@@ -2064,6 +2275,15 @@ sensor:
     lambda: |-
       return id(pid_heat_output_value) * 100.0f;
 
+  - platform: template
+    name: "Silvia Brew Temperature Feed Forward"
+    id: silvia_brew_temperature_feed_forward_percent
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    update_interval: 200ms
+    lambda: |-
+      return id(brew_temperature_feed_forward_value) * 100.0f;
+
   - platform: pid
     name: "Silvia PID Result"
     id: silvia_pid_result
@@ -2111,6 +2331,24 @@ sensor:
     update_interval: 200ms
     lambda: |-
       return id(active_target_brew_pressure);
+
+  - platform: template
+    name: "Silvia Adaptive Pressure Feed Forward"
+    id: silvia_adaptive_pressure_feed_forward_percent
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    update_interval: 200ms
+    lambda: |-
+      return id(pressure_control_adaptive_feed_forward) * 100.0f;
+
+  - platform: template
+    name: "Silvia Pressure Rise Rate"
+    id: silvia_pressure_rise_rate
+    unit_of_measurement: "bar/s"
+    accuracy_decimals: 2
+    update_interval: 200ms
+    lambda: |-
+      return id(pressure_control_filtered_slope);
 
   - platform: template
     name: "Silvia Auto Off Remaining"
@@ -2466,6 +2704,53 @@ output:
       - lambda: |-
           float level = state;
           const float temperature = id(silvia_boiler_temp_pt100).state;
+          float temperature_feed_forward = 0.0f;
+
+          // Estimate incoming cold-water load from pump command and pressure.
+          // Pump percentage alone is not a flow measurement: at higher pressure
+          // the same command moves less water. This proxy therefore tapers with
+          // pressure and automatically follows soft/ramped pressure profiles.
+          if (id(silvia_power_state) &&
+              id(brew_shot_running) &&
+              id(silvia_brew_valve_relay).state &&
+              id(pump_dimmer_output_value) > 0.01f &&
+              id(silvia_brew_temperature_feed_forward_max).has_state() &&
+              std::isfinite(id(silvia_brew_temperature_feed_forward_max).state)) {
+            float pressure = 0.0f;
+            if (id(silvia_brew_pressure).has_state() &&
+                std::isfinite(id(silvia_brew_pressure).state)) {
+              pressure = std::max(0.0f, id(silvia_brew_pressure).state);
+            }
+            const float pressure_flow_factor = std::max(
+                0.20f, std::min(1.0f, 1.0f - pressure / 12.0f));
+            const float flow_proxy = std::max(
+                0.0f,
+                std::min(
+                    1.0f,
+                    id(pump_dimmer_output_value) * pressure_flow_factor));
+            const float max_feed_forward = std::max(
+                0.0f,
+                std::min(
+                    1.0f,
+                    id(silvia_brew_temperature_feed_forward_max).state /
+                        100.0f));
+            temperature_feed_forward =
+                max_feed_forward * (0.25f + flow_proxy * 0.75f);
+
+            // Do not add more stored heat if the boiler is already above target.
+            const float boiler_target =
+                id(silvia_brew_pid).target_temperature +
+                id(silvia_brew_temperature_offset).state;
+            if (std::isfinite(boiler_target) && temperature > boiler_target) {
+              const float taper = std::max(
+                  0.0f,
+                  std::min(
+                      1.0f,
+                      1.0f - (temperature - boiler_target) / 0.5f));
+              temperature_feed_forward *= taper;
+            }
+            level = std::max(level, temperature_feed_forward);
+          }
 
           // Never energize the heater while logical power is off, with an invalid
           // reading, or above the safety limit.
@@ -2474,6 +2759,7 @@ output:
               !std::isfinite(temperature) ||
               temperature >= ${overtemp_limit}f) {
             level = 0.0f;
+            temperature_feed_forward = 0.0f;
           }
 
           // Убираем микромигание около 0% и 100%
@@ -2483,6 +2769,8 @@ output:
             level = 0.0f;
           }
 
+          id(brew_temperature_feed_forward_value) =
+              temperature_feed_forward;
           id(pid_heat_output_value) = level;
           id(silvia_heater_ssr_pwm).set_level(level);
 

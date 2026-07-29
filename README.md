@@ -1,360 +1,123 @@
 # Rancilio Silvia Controller
 
-ESPHome-based smart controller for Rancilio Silvia with PID temperature control, automated brew profiles, backflush workflow, and Home Assistant dashboard.
+Digital controller for the Rancilio Silvia, built with ESP32-S3 and ESPHome: stable temperature, closed-loop pressure control, brew profiles, and Home Assistant integration.
 
-[Русская версия](README.ru.md)
-
-[Telegram discussion group](https://t.me/Rancilio_Silvia) (Russian and English)
-
-Digital controller for the Rancilio Silvia espresso machine, built on ESP32-S3, implemented with ESPHome, and integrated with Home Assistant.
-
-The project is more than an external PID retrofit. The goal is to move the machine control logic to a digital controller: high-voltage loads are switched by relays/SSR, while the original front-panel controls become low-voltage GPIO inputs. This makes the machine controllable from Home Assistant and leaves room for a touchscreen or another digital interface later.
+[Русская версия](README.ru.md) · [Telegram project group](https://t.me/Rancilio_Silvia)
 
 > [!WARNING]
-> The espresso machine contains hazardous mains voltage and a hot pressurized boiler. ESPHome is not a replacement for the original thermostat, thermal fuse, protective earth, or any other hardware safety device. Never work on the machine while it is connected to mains power.
+> An espresso machine contains hazardous mains voltage, hot water, and a pressurized boiler. This controller does not replace the original thermostat, thermal fuse, protective earth, or any other hardware safety device. Never work on the machine while it is connected to mains power.
 
 ![Home Assistant dashboard](images/dashboard.gif)
 
 https://github.com/user-attachments/assets/92bf4580-1ab9-4535-a1f1-395bb5a3d315
 
-## Current Status
+## What It Is
 
-The controller is already running on a real Rancilio Silvia. The hardware is still a prototype based on an ESP32-S3 development board and point-to-point wiring.
+The project moves the main Rancilio Silvia controls to an ESP32-S3:
 
-Current implementation:
+- a PT100 measures boiler temperature;
+- an SSR controls the heater;
+- a pressure sensor measures actual brew pressure;
+- an AC dimmer controls vibration-pump power;
+- relays control machine power, the pump, and the brew valve;
+- original panel switches become safe low-voltage inputs;
+- Home Assistant exposes machine status and settings.
 
-- ESP32-S3 with ESP-IDF;
-- ESPHome and Home Assistant integration;
-- PT100 boiler temperature measurement through MAX31865;
-- PID heater control through an SSR;
-- `Brew` and `Steam` operating modes;
-- automated brew shot with profiles and preinfusion;
-- closed-loop brew-pressure profiling with a digital XDB401 I2C sensor;
-- pump control through a RobotDyn/Robotron AC dimmer using a custom full-cycle skip ESPHome output;
-- hot water and steam mode controls;
-- water-level sensor input;
-- automatic shutdown timer;
-- shot counter, backflush reminder, and automated backflush program;
-- configurable coffee dose and estimated dry coffee usage;
-- PID autotune and automatic storage of successful coefficients;
-- runtime pressure-controller tuning (`Kp`/`Ki`), manual pump power, transition ramp time, and optional start boost.
+The controller runs on a real Rancilio Silvia. The current hardware remains a prototype built around an ESP32-S3 development board.
 
-Automatic shot recipes now use pressure targets. The controller samples actual brew pressure, combines a target-based feed-forward term with a PI correction, and updates the pump command every `200 ms`. Manual pump operation remains an open-loop power command.
+## Key Features
 
-## Hardware Overview
+### Temperature Control Without Large Warm-up Overshoot
 
-Main parts used by the current prototype:
+PID controls the heater through an SSR and maintains separate brew and steam targets.
 
-- ESP32-S3 development board;
-- three-wire PT100 sensor;
-- MAX31865 RTD amplifier;
-- SSR for the boiler heater;
-- relay outputs for machine power, pump, and brew valve;
-- RobotDyn/Robotron AC dimmer input for experimental pump control;
-- XDB401 digital I2C pressure sensor (0-1.2 MPa range);
-- low-voltage inputs for the original power, brew shot, hot water, and steam mode controls;
-- XKC-Y25-NPN water-level sensor input.
+During a cold start, the integral term is restricted so it cannot accumulate excessive heater demand and push the boiler far beyond its target. Full precision control takes over near the setpoint.
 
-Planned addition: a dedicated PCB with pluggable connectors for sensors, relays, and peripheral devices.
+In a measured warm-up from `52.8 °C` to a `93 °C` target, the maximum temperature was `93.79 °C`. The previous conventional PID behavior reached `99.58 °C` under a comparable test.
 
-## Features
+During brewing, the heater receives a dynamic feed-forward contribution based on pump power, pressure, and temperature. It automatically changes with the estimated incoming cold-water flow.
 
-### Temperature And Heating
+### Adaptive Pressure Control
 
-- PID heater control through ESPHome `climate`;
-- two-zone warm-up that prevents integral accumulation far below the target;
-- averaged PID derivative to suppress PT100 measurement noise;
-- limited integral term and an adjustable target-approach range;
-- separate brew and steam targets;
-- adjustable brew-temperature offset used by PID control;
-- raw PT100 boiler temperature remains available separately;
-- PID `KP`, `KI`, and `KD` controls from Home Assistant;
-- PID autotune status and automatic saving of successful autotune coefficients;
-- configurable software overtemperature guard;
-- SSR lockout when the PT100 reading is invalid.
+Brew profiles define pressure targets rather than fixed pump power. Every `200 ms`, the controller considers:
 
-### Brewing
+- measured pressure;
+- pressure rise rate;
+- estimated time to target;
+- current pump power;
+- resistance of the current coffee puck.
 
-- automated timed brew shot;
-- unified shot profiles: `Classic`, `Lever`, `Slayer Style`, `Bloom`, and `Custom`;
-- configurable preinfusion time/pressure, soak pause, main shot duration, and main pressure curve;
-- live brew-shot phase status with countdown;
-- closed-loop pressure profiles with target and measured-pressure sensors exposed to Home Assistant;
-- physical low-voltage brew shot input;
-- manual pump and brew-valve relay controls.
+Incremental PI adjusts pump drive from its present value instead of continuously relying on a guessed pump-power formula. When pressure rises quickly, the controller predicts the approach to target and brakes the pump early to reduce startup overshoot.
 
-### Water, Steam, And Power
+If pressure feedback becomes stale or invalid, the automatic pump command is forced to zero.
 
-- machine power relay control;
-- hot water mode;
-- steam mode;
-- physical low-voltage inputs for hot water and steam mode;
+### Soft Pump Start
+
+Each shot can begin with configurable `Soft Infusion`:
+
+- default starting pump power is `20%`;
+- soft-ramp duration is adjustable from `0` to `5 seconds`;
+- `0 seconds` disables it;
+- the ramp is part of total shot time and does not extend the recipe.
+
+Allowed pump power rises smoothly, but the pump is not required to reach 100%. If pressure is already rising fast enough, adaptive control stops the ramp earlier.
+
+Soft Infusion is a common gentle-start envelope for every profile. Profile preinfusion remains a separate recipe stage that defines the actual wetting pressure and duration.
+
+## Brew Profiles
+
+- **Classic** — constant brew pressure.
+- **Lever** — gentle pressure rise followed by a gradual decline.
+- **Slayer Style** — long low-pressure preinfusion and a softer main extraction.
+- **Bloom** — wetting, a pump-off pause, then a controlled pressure rise.
+- **Custom** — user-defined phase times and start, main, and end pressures.
+
+Preinfusion, soak pause, and main brew duration are configurable. Shot timing, valve operation, and pump control are automatic.
+
+## Other Capabilities
+
+- brew, steam, and hot-water modes;
+- water-level monitoring;
 - inactivity-based automatic shutdown;
-- auto-off timer reset on brew shot, hot water, steam mode, pump, and brew-valve activity;
-- status LED;
-- water-level monitoring and text status.
+- original machine controls and Home Assistant operation;
+- PID autotune with successful coefficient storage;
+- software overtemperature protection and SSR lockout on invalid PT100 data;
+- shot counter and cleaning reminder;
+- automatic backflush program;
+- configured dose and estimated coffee-use tracking;
+- live diagnostic sensors and downloadable CSV for the latest shot.
 
-### Counters And Maintenance
+## Prototype Hardware
 
-- shot-count based backflush reminder;
-- one-button staged backflush program with detergent, rinse-prep delay, and clean-water rinse;
-- manual backflush stop and counter reset;
-- lifetime shot counter;
-- configurable dry coffee dose per shot;
-- estimated total dry coffee usage;
-- monthly and yearly coffee usage tracking via Home Assistant utility meters.
+- ESP32-S3;
+- three-wire PT100 and MAX31865;
+- heater SSR;
+- XDB401 digital I2C pressure sensor, `0–1.2 MPa`;
+- RobotDyn/Robotron AC dimmer;
+- machine-power, pump, and brew-valve relays;
+- XKC-Y25-NPN water-level sensor.
 
-## Repository Layout
+Pin assignments and wiring are documented in [docs/wiring.md](docs/wiring.md). Safety requirements are in [docs/safety.md](docs/safety.md).
 
-```text
-.
-├── README.md
-├── README.ru.md
-├── esphome/
-│   ├── components/
-│   │   └── ac_cycle_skip/
-│   ├── rancilio-silvia-power.yaml
-│   ├── shot_diagnostics.h
-│   ├── shot_profiles.h
-│   └── secrets.example.yaml
-├── docs/
-│   ├── home-assistant.md
-│   ├── safety.md
-│   └── wiring.md
-└── images/
-```
+## Installation
 
-## Quick Start
+1. Copy the contents of [`esphome/`](esphome/) into your ESPHome configuration.
+2. Create `secrets.yaml` from [`secrets.example.yaml`](esphome/secrets.example.yaml).
+3. Verify GPIO assignments, relay polarity, and wiring for your own build.
+4. Validate the ESPHome configuration before compiling firmware.
+5. Supervise the first heater, valve, and pump tests continuously.
 
-1. Install ESPHome or the ESPHome Device Builder add-on in Home Assistant.
-2. Copy `esphome/rancilio-silvia-power.yaml`, `esphome/shot_profiles.h`, `esphome/shot_diagnostics.h`, and `esphome/components/ac_cycle_skip/` into the ESPHome configuration directory.
-3. Create `secrets.yaml` using `esphome/secrets.example.yaml`.
-4. Verify every GPIO assignment and the electrical design for your exact board and relay modules.
-5. Validate the configuration before compiling the firmware.
-6. Keep the machine under constant supervision during the first heater, pump, and valve tests.
+Home Assistant setup is documented separately in [docs/home-assistant.md](docs/home-assistant.md).
 
-## Home Assistant Configuration
-
-Most user-facing values are exposed as Home Assistant entities. Values stored in YAML are initial defaults, not fixed machine specifications.
-
-Adjustable values include:
-
-- brew target temperature;
-- steam target temperature;
-- brew-temperature offset;
-- PID coefficients;
-- warm-up integral-release range;
-- shot profile;
-- preinfusion pump time;
-- preinfusion pressure;
-- preinfusion pause;
-- main shot duration;
-- main and ending brew pressure;
-- pressure controller `Kp` and `Ki`;
-- pressure-profile startup boost enable, power, and duration;
-- pressure-profile startup settling duration;
-- manual pump power;
-- pump transition ramp time;
-- manual pump start boost, phase boost switches, and boost duration;
-- backflush reminder threshold;
-- backflush rinse-preparation delay;
-- dry coffee dose per shot;
-- automatic shutdown time.
-
-### PID Warm-Up Without A Large Initial Overshoot
-
-A conventional PID uses the same control law near the working temperature and during a long cold-boiler warm-up. During that rise, the integral term can accumulate a large positive error. The controller may still request substantial heater power when the sensor reaches the target, while energy already stored in the heating element and boiler metal drives the temperature even higher.
-
-This controller uses two warm-up zones:
+## Project Layout
 
 ```text
-far below target → PID remains active, but its integral is held at zero
-inside approach range → full PID is released
-near target → full PID maintains temperature
+esphome/
+├── rancilio-silvia-power.yaml
+├── shot_profiles.h
+├── shot_diagnostics.h
+├── secrets.example.yaml
+└── components/ac_cycle_skip/
 ```
 
-The PID is not disabled during warm-up. Its proportional and derivative terms continue controlling the heater and reduce power before the target. Only the integral is frozen while measured temperature is more than `Silvia PID Warmup Range` below the target. The default range is `10 °C`. Once inside that range, the integral is released but limited to `0…20%`.
-
-Key differences from a basic PID configuration:
-
-- explicit protection against integral windup during a long warm-up;
-- a limited steady-state integral instead of an integral that can keep demanding high power;
-- derivative averaging across five PT100 samples;
-- no PID-output averaging, avoiding extra delay when heater power must fall;
-- an approach boundary adjustable from Home Assistant;
-- separate sensors for warm-up state and PID result/P/I/D diagnostics.
-
-Current tested initial parameters:
-
-```text
-Kp = 0.1001953
-Ki = 0.0009381579
-Kd = 2.675214
-Warmup Range = 10 °C
-Integral limit = 0…20%
-Derivative averaging = 5 samples
-```
-
-In a test on the actual Rancilio Silvia, starting at `52.8 °C` with a `93 °C` target, the maximum estimated brew temperature was `93.79 °C`, an overshoot of `+0.79 °C`. Before the warm-up protection, a comparable test peaked at `99.58 °C`, an overshoot of `+6.58 °C`.
-
-PID coefficients and the brew-temperature offset depend on sensor placement, the individual boiler, and the hardware build. Treat these values as a tested starting point for this prototype, not as a universal calibration for every Silvia.
-
-### Brew Shot And Profiles
-
-`Silvia Brew Shot` starts an automated shot sequence:
-
-1. open the brew valve;
-2. optionally run the pump for preinfusion;
-3. optionally pause after preinfusion;
-4. run the pump for the configured shot duration;
-5. stop the pump and close the brew valve.
-
-`Silvia Shot Profile` is the single recipe selector for the whole shot. It controls preinfusion, soak pause, main shot time, and the closed-loop pressure curve:
-
-- `Classic`: no preinfusion or soak, a flat working-pressure target;
-- `Lever`: low-pressure preinfusion, a smooth rise to working pressure, then a gradual decline;
-- `Slayer Style`: longer low-pressure preinfusion followed by a gentler main pressure curve;
-- `Bloom`: low-pressure wetting, a real pump-off soak pause, then a smooth main ramp;
-- `Custom`: user-editable phase times and a `Custom Start/Main/End Pressure` curve.
-
-Editing shot timing, custom phase pressure, or phase boost values automatically switches the selector to `Custom`. `Silvia Manual Pump Power` is separate and is used only for manual pump operation, hot water, and maintenance.
-
-`Silvia Brew Shot Status` reports the current automated shot phase and countdown. In the current configuration the published strings are localized:
-
-- `Предсмачивание`: remaining preinfusion pump time;
-- `Пауза`: remaining pause time after preinfusion;
-- `Пролив`: remaining main brew time;
-- `Ожидание`: no automated shot is running.
-
-The dashboard can use this status as the primary live shot timer instead of inferring the phase from entity timestamps.
-
-Automatic shot profiles snapshot the selected recipe at shot start, including phase timings, pressure targets, phase boost flags, and `Silvia Pump Start Boost Time`. The snapshot is expanded into explicit `ShotPhase` entries and updates the target and calculated pump command every `200 ms`. Home Assistant edits made during a shot apply to the next shot, not the running one. After the shot stops or is cancelled, the user `Silvia Pump Ramp Time` and manual boost setting are restored for manual pump use.
-
-For pressure phases, the controller calculates pump drive as target-based feed-forward plus PI correction. The integral is limited to `+-0.35`, reset at every phase boundary or invalid sensor reading, and uses conditional anti-windup: it cannot integrate farther into `0%` or `100%` output saturation, but it can unwind when the error changes direction. `Silvia Pressure Control Kp` and `Silvia Pressure Control Ki` are adjustable from Home Assistant. The target is published as `Silvia Target Brew Pressure`; the XDB401 reading is published as `Silvia Brew Pressure`. A stale or invalid pressure reading forces the automatic pump command to zero.
-
-Automatic pressure profiles have a separate, default-off `Silvia Pressure Profile Startup Boost`. Its power (`0-100%`) and duration (`0-500 ms`) default to `100%` for `100 ms`. The settings are snapshotted at shot start and the timed output override is consumed once by the first running `PRESSURE` phase. The valve, profile timer, and phase timer start normally; boost runs inside that existing time and therefore does not add a phase or extend the shot. The PI integral is frozen while the override is active, then the output returns immediately to the latest pressure-control command.
-
-`Silvia Pressure Profile Startup Settling Time` defaults to `400 ms` and can be set from `0` (disabled) to `1000 ms`. The settling window starts immediately after the brew valve opens and is part of the normal profile time. During it, the controller ignores pressure error, holds the integral at zero, and drives the pump with feed-forward calculated from the current profile target. This lets trapped upstream pressure and the filtered pressure reading settle before PI feedback becomes active. If the optional timed boost is enabled, it temporarily overrides the settling feed-forward without extending the settling window.
-
-The current implementation opens the brew valve before the automatic profile starts. Valve-closed pre-charge and adaptive startup based on pressure rise are design options under evaluation; they are not enabled in the released control path.
-
-`Silvia Manual Pump Power` is adjustable from `0%` to `100%`. `Silvia Pump Start Boost` remains the manual-mode boost switch. The legacy `Silvia Preinfusion Boost` and `Silvia Main Brew Boost` apply only to open-loop `POWER` phases; `PRESSURE` phases use the separate pressure-profile startup boost, so the two mechanisms cannot overlap. `Silvia Pump Gate Delay` and `Silvia Pump Gate Pulse` tune the TRIAC trigger timing in microseconds.
-
-### AC Cycle Skip Pump Output
-
-The pump dimmer uses a local ESPHome external component in `esphome/components/ac_cycle_skip/`. It is not a normal phase-angle dimmer. A phase-angle dimmer cuts every mains half-wave; at low settings the pump receives weak chopped sine fragments and may only buzz.
-
-Example at roughly `30%`:
-
-```text
-phase-angle dimmer:
-  every half-wave is chopped and weak
-  ~~~/    ~~~/    ~~~/    ~~~/
-
-ac_cycle_skip:
-  complete mains periods are passed or skipped
-  ON period -> skip -> skip -> ON period -> skip -> skip
-```
-
-The component keeps a fractional accumulator, so low percentages are spread across time instead of being sent as a single clump. When the target changes, the internal target moves toward the new value over `ramp_ms`.
-
-Example transition from `30%` to `80%` with `ramp_ms: 800`:
-
-```text
-requested: 30% ----------------------> 80%
-internal:  30% -> 38% -> 46% -> 54% -> 62% -> 70% -> 80%
-output:    sparse full cycles gradually become denser
-```
-
-The brew profile code updates the requested pump power during the shot, and `ac_cycle_skip` smooths the electrical output between those requested values. This reduces abrupt pump changes while still keeping the output synchronized to zero crossings.
-
-Gate timing and safety details:
-
-- the GPIO zero-cross ISR no longer busy-waits for the gate pulse;
-- the TRIAC gate pulse is scheduled with an ESP-IDF GPTimer running at 1 MHz;
-- GPTimer ISR/cache safety is enabled through ESP-IDF sdkconfig options: `CONFIG_GPTIMER_ISR_CACHE_SAFE`, `CONFIG_GPTIMER_CTRL_FUNC_IN_IRAM`, and `CONFIG_GPTIMER_ISR_HANDLER_IN_IRAM`;
-- `gate_delay_us` waits briefly after zero-cross before triggering the gate, and `gate_pulse_us` controls how long the gate stays high;
-- the defaults are `gate_delay_us: 100` and `gate_pulse_us: 300`, and the delay cannot be set below `10 us`;
-- runtime timing values are read atomically, and a generation guard prevents a stale timer callback from raising the gate after an OFF command;
-- `write_state(0)` and component shutdown force the gate pin low immediately;
-- zero-cross intervals outside the configured valid window force the output off and start resynchronization;
-- the component waits for consecutive valid zero-cross intervals before resuming output after a sync error.
-
-### Coffee Usage
-
-`Silvia Coffee Dose Grams` stores the configured dry coffee dose per shot. The default is `14 g`, and the value can be changed from Home Assistant.
-
-`Silvia Coffee Grounds Used` estimates total dry coffee usage:
-
-```text
-Coffee Grounds Used = Silvia Lifetime Shots × Silvia Coffee Dose Grams
-```
-
-This is an estimate of ground coffee consumption, not the beverage weight in the cup.
-
-Home Assistant can split this cumulative value into calendar periods with `utility_meter`:
-
-- `coffee_grounds_used_monthly` for the current month;
-- `coffee_grounds_used_yearly` for the current year;
-- `Silvia Coffee Grounds Used` remains the lifetime total.
-
-The coffee dashboard displays all three values as monthly, yearly, and total dry coffee usage.
-
-### Backflush Program
-
-`Silvia Backflush Shots` counts completed automated shots since the last group backflush. `Silvia Lifetime Shots` keeps the total shot count and is not reset by cleaning.
-
-`Silvia Backflush Reminder Shots` sets the reminder threshold. The default is `60` shots. Setting it to `0` disables the reminder. When the counter reaches the threshold, `Silvia Backflush Status` changes to a due state. The reminder is informational only and does not block brewing.
-
-`Silvia Start Backflush` runs a one-button staged cleaning sequence intended for a blind basket:
-
-1. Detergent stage: `8` cycles of `5 s` pump/valve on and `10 s` off.
-2. Rinse preparation delay: the machine stops and `Silvia Backflush Status` counts down `Prepare rinse | N s`. During this pause, remove the portafilter, rinse out the detergent, clean the blind basket, empty the drip tray if needed, and lock the clean blind basket back in.
-3. Clean-water rinse stage: `8` more cycles of `5 s` on and `10 s` off, with no detergent.
-
-`Silvia Backflush Rinse Delay Seconds` controls the pause between the detergent and rinse stages. The default is `120 s`, adjustable from Home Assistant.
-
-During the program, `Silvia Backflush Status` reports `Cleaning | N/8 cycles`, `Prepare rinse | N s`, and `Rinsing | N/8 cycles`. The backflush shot counter is reset only after the clean-water rinse stage completes.
-
-`Silvia Stop Backflush` aborts the running sequence and turns off the pump and valve. `Silvia Reset Backflush Shots` manually clears the reminder counter.
-
-Recommended workflow:
-
-1. Warm up the machine, insert the blind basket, add the backflush detergent, and press `Silvia Start Backflush`.
-2. Wait until the first stage finishes and the status changes to `Prepare rinse | N s`.
-3. During the countdown, remove the portafilter, discard/rinse out the detergent, rinse the portafilter and blind basket, and empty the drip tray if it is getting full.
-4. Reinstall the clean blind basket without detergent before the countdown reaches zero.
-5. Let the clean-water rinse stage finish. When it completes, the backflush reminder counter is reset.
-
-### Brew Temperature Model
-
-`Silvia Brew Target` represents the desired estimated temperature at the coffee puck. In `Brew` mode, PID control uses:
-
-```text
-Estimated Brew Temperature = PT100 Boiler Temperature - Brew Temperature Offset
-Brew Boiler Target = Brew Target + Brew Temperature Offset
-```
-
-For example, a brew target of `93 °C` with a `10 °C` offset produces a boiler target of approximately `103 °C`.
-
-The PT100 entity always reports the unmodified boiler temperature. The offset is not applied in `Steam` mode, and the software overtemperature guard always uses the raw PT100 reading.
-
-The estimated brew temperature is a model, not a direct water measurement. Keep the offset at `0 °C` until it has been calibrated at the group under realistic flow conditions.
-
-## Roadmap
-
-- Add a digital I2C pressure sensor for brew pressure measurement.
-- Use pressure feedback for closed-loop pressure profiling.
-- Update the Home Assistant dashboard with pressure graphs.
-- Design a dedicated PCB with proper connectors.
-- Expand wiring and Home Assistant documentation.
-
-## Documentation
-
-- [Wiring and GPIO](docs/wiring.md)
-- [Home Assistant](docs/home-assistant.md)
-- [Safety](docs/safety.md)
-
-## License
-
-No license has been granted yet. All rights are reserved by the author.
+The custom `ac_cycle_skip` component controls the vibration pump by passing or skipping complete mains cycles. This reduces electrical noise and avoids chopping every half-cycle.
