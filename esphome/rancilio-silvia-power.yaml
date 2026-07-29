@@ -3,6 +3,7 @@ esphome:
   friendly_name: Rancilio Silvia Power
   includes:
     - shot_profiles.h
+    - shot_diagnostics.h
   on_boot:
     - priority: 800
       then:
@@ -26,6 +27,7 @@ esphome:
             id(silvia_brew_shot_remaining).publish_state(0);
             id(silvia_brew_shot_status).publish_state("Ожидание");
             id(silvia_backflush_status).update();
+            silvia_diag::register_web_handler();
   on_shutdown:
     - priority: 700
       then:
@@ -138,6 +140,11 @@ globals:
     type: float
     restore_value: no
     initial_value: '0.0'
+
+  - id: temperature_pid_warmup_active
+    type: bool
+    restore_value: no
+    initial_value: 'false'
 
   - id: pump_dimmer_output_value
     type: float
@@ -426,6 +433,54 @@ interval:
           const int32_t remaining_ms = (int32_t) (id(backflush_phase_end_ms) - millis());
           id(backflush_cycle) = remaining_ms > 0 ? (remaining_ms + 999) / 1000 : 0;
           id(silvia_backflush_status).update();
+
+  # During a large temperature rise the steady-state integral term is not
+  # useful: it used to reach 100% and kept heating well past the setpoint.
+  # Keep PID proportional/derivative braking active, but freeze I at zero
+  # until the process enters the configurable approach range.
+  - interval: 1s
+    then:
+      - if:
+          condition:
+            lambda: |-
+              return id(temperature_pid_warmup_active) &&
+                     id(silvia_power_state) &&
+                     !id(pid_autotune_running);
+          then:
+            - climate.pid.reset_integral_term: silvia_brew_pid
+            - lambda: |-
+                if (!id(silvia_boiler_temp_pt100).has_state()) {
+                  return;
+                }
+
+                const bool steam =
+                    id(silvia_pid_mode).current_option() == "Steam";
+                const float measured = steam
+                    ? id(silvia_boiler_temp_pt100).state
+                    : id(silvia_boiler_temp_pt100).state -
+                          id(silvia_brew_temperature_offset).state;
+                const float target = steam
+                    ? id(silvia_steam_target).state
+                    : id(silvia_brew_target).state;
+                const float configured_range =
+                    id(silvia_pid_warmup_range).state;
+                const float approach_range =
+                    std::isfinite(configured_range)
+                        ? std::max(2.0f, configured_range)
+                        : 10.0f;
+
+                if (!std::isfinite(measured) ||
+                    !std::isfinite(target) ||
+                    measured >= target - approach_range) {
+                  id(temperature_pid_warmup_active) = false;
+                  ESP_LOGI(
+                      "silvia.pid",
+                      "Warm-up integral hold released at %.2f C "
+                      "(target %.2f C, range %.2f C)",
+                      measured,
+                      target,
+                      approach_range);
+                }
     
 # -------------------------
 # Настраиваемые параметры в HA
@@ -457,7 +512,7 @@ number:
     id: silvia_pid_kp
     optimistic: true
     restore_value: true
-    initial_value: 0.12492
+    initial_value: 0.1001953
     min_value: 0.0
     max_value: 50.0
     step: 0.00001
@@ -471,7 +526,7 @@ number:
     id: silvia_pid_ki
     optimistic: true
     restore_value: true
-    initial_value: 0.00065
+    initial_value: 0.0009381579
     min_value: 0.0
     max_value: 5.0
     step: 0.00001
@@ -485,7 +540,7 @@ number:
     id: silvia_pid_kd
     optimistic: true
     restore_value: true
-    initial_value: 6.00246
+    initial_value: 2.675214
     min_value: 0.0
     max_value: 100.0
     step: 0.00001
@@ -493,6 +548,18 @@ number:
     on_value:
       then:
         - script.execute: apply_pid_parameters
+
+  - platform: template
+    name: "Silvia PID Warmup Range"
+    id: silvia_pid_warmup_range
+    optimistic: true
+    restore_value: true
+    initial_value: 10
+    min_value: 2
+    max_value: 25
+    step: 0.5
+    unit_of_measurement: "°C"
+    mode: box
 
   - platform: template
     name: "Silvia Brew Temperature Offset"
@@ -861,6 +928,12 @@ number:
 
 switch:
   - platform: template
+    name: "Silvia Shot Diagnostics"
+    id: silvia_shot_diagnostics
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+
+  - platform: template
     name: "Silvia Pressure Profile Startup Boost"
     id: silvia_pressure_profile_startup_boost
     lambda: 'return id(silvia_pressure_profile_startup_boost_enabled);'
@@ -961,6 +1034,7 @@ switch:
     turn_off_action:
       - lambda: |-
           id(silvia_power_state) = false;
+          id(temperature_pid_warmup_active) = false;
           id(brew_shot_running) = false;
           id(hot_water_running) = false;
           id(backflush_running) = false;
@@ -1045,6 +1119,7 @@ switch:
       - script.execute: restore_manual_pump_settings
       - switch.turn_off: silvia_brew_valve_relay
       - lambda: |-
+          silvia_diag::finish_shot();
           id(brew_shot_running) = false;
           id(brew_shot_phase) = 0;
           id(brew_shot_phase_end_ms) = 0;
@@ -1092,6 +1167,16 @@ switch:
 # -------------------------
 
 binary_sensor:
+  - platform: template
+    name: "Silvia PID Warmup Active"
+    id: silvia_pid_warmup_active
+    lambda: 'return id(temperature_pid_warmup_active);'
+
+  - platform: template
+    name: "Silvia Shot Diagnostic CSV Ready"
+    id: silvia_shot_diagnostic_csv_ready
+    lambda: 'return silvia_diag::csv_ready;'
+
   - platform: gpio
     name: "Silvia Power Button"
     id: silvia_power_button
@@ -1290,20 +1375,33 @@ script:
                                   level: !lambda |-
                                     const auto &phase = silvia::active_shot_phases[id(active_shot_phase_index)];
                                     const uint32_t steps = silvia::phase_steps(phase);
+                                    const uint32_t now = millis();
+                                    const float pressure = id(silvia_brew_pressure).state;
+                                    const uint32_t sensor_age = now - id(pressure_sensor_last_update_ms);
                                     float drive = 0.0f;
+                                    float diag_target = 0.0f;
+                                    float diag_error = 0.0f;
+                                    float diag_feed_forward = 0.0f;
+                                    float diag_p_term = 0.0f;
+                                    float diag_i_term = 0.0f;
+                                    float diag_pi_output = 0.0f;
+                                    float diag_handoff_percent = 0.0f;
+                                    bool diag_sensor_ok = id(silvia_brew_pressure).has_state() &&
+                                        std::isfinite(pressure) && pressure >= -0.5f &&
+                                        pressure <= 13.0f && sensor_age <= 1000U;
+                                    bool diag_pi_enabled = false;
+                                    silvia_diag::StartupState diag_startup_state =
+                                        silvia_diag::StartupState::POWER;
                                     if (phase.mode == silvia::ShotControlMode::POWER) {
                                       id(active_target_brew_pressure) = 0.0f;
                                       drive = silvia::phase_value(phase, iteration, steps);
                                     } else if (phase.mode == silvia::ShotControlMode::PRESSURE) {
-                                      const uint32_t now = millis();
-                                      const float pressure = id(silvia_brew_pressure).state;
                                       const float target = silvia::phase_target(
                                           phase, iteration, steps);
+                                      diag_target = target;
+                                      diag_error = target - pressure;
                                       id(active_target_brew_pressure) = target;
-                                      const bool sensor_ok = id(silvia_brew_pressure).has_state() &&
-                                          std::isfinite(pressure) && pressure >= -0.5f &&
-                                          pressure <= 13.0f &&
-                                          (now - id(pressure_sensor_last_update_ms)) <= 1000U;
+                                      const bool sensor_ok = diag_sensor_ok;
                                       bool start_pi = false;
                                       if (id(pressure_profile_startup_active)) {
                                         const bool timed_out =
@@ -1328,11 +1426,15 @@ script:
                                           }
                                           start_pi = id(pressure_profile_rise_samples) >= 2;
                                         }
-                                        start_pi = start_pi || timed_out;
+                                        const bool pressure_return = start_pi;
+                                        start_pi = pressure_return || timed_out;
                                         if (!start_pi) {
                                           id(pressure_control_integral) = 0.0f;
                                           drive = 1.0f;
                                         } else {
+                                          silvia_diag::last_transition_reason = pressure_return
+                                              ? silvia_diag::TransitionReason::PRESSURE_RETURN
+                                              : silvia_diag::TransitionReason::TIMEOUT_2S;
                                           id(pressure_profile_startup_active) = false;
                                           id(pressure_profile_handoff_active) = true;
                                           id(pressure_profile_handoff_started_ms) = now;
@@ -1373,12 +1475,18 @@ script:
                                           const float pi_drive = std::max(
                                               0.0f,
                                               std::min(1.0f, feed_forward + kp * error + integral));
+                                          diag_feed_forward = feed_forward;
+                                          diag_p_term = kp * error;
+                                          diag_i_term = integral;
+                                          diag_pi_output = pi_drive;
+                                          diag_pi_enabled = true;
                                           id(pressure_control_integral) = integral;
                                           if (id(pressure_profile_handoff_active)) {
                                             const uint32_t handoff_elapsed =
                                                 now - id(pressure_profile_handoff_started_ms);
                                             const float blend = std::min(
                                                 1.0f, static_cast<float>(handoff_elapsed) / 600.0f);
+                                            diag_handoff_percent = blend * 100.0f;
                                             drive = 1.0f + (pi_drive - 1.0f) * blend;
                                             if (blend >= 1.0f) {
                                               id(pressure_profile_handoff_active) = false;
@@ -1402,7 +1510,40 @@ script:
                                         id(pressure_control_integral) = 0.0f;
                                         drive = 0.0f;
                                       }
+                                      if (!sensor_ok && !id(pressure_profile_startup_active)) {
+                                        diag_startup_state = silvia_diag::StartupState::SENSOR_FAIL;
+                                      } else if (id(pressure_profile_startup_active)) {
+                                        diag_startup_state = id(pressure_profile_pressure_dropped)
+                                            ? silvia_diag::StartupState::WAIT_RISE
+                                            : silvia_diag::StartupState::WAIT_DROP;
+                                      } else if (id(pressure_profile_handoff_active)) {
+                                        diag_startup_state = silvia_diag::StartupState::HANDOFF;
+                                      } else {
+                                        diag_startup_state = silvia_diag::StartupState::PI;
+                                        if (diag_pi_enabled)
+                                          diag_handoff_percent = 100.0f;
+                                      }
                                     }
+                                    silvia_diag::record(silvia_diag::ShotSample{
+                                        now - silvia_diag::shot_started_ms,
+                                        static_cast<uint8_t>(id(brew_shot_phase)),
+                                        diag_target,
+                                        pressure,
+                                        diag_error,
+                                        diag_sensor_ok,
+                                        sensor_age,
+                                        id(silvia_brew_valve_relay).state,
+                                        diag_startup_state,
+                                        silvia_diag::last_transition_reason,
+                                        static_cast<int16_t>(id(pressure_profile_drop_samples)),
+                                        static_cast<int16_t>(id(pressure_profile_rise_samples)),
+                                        diag_pi_enabled,
+                                        diag_feed_forward,
+                                        diag_p_term,
+                                        diag_i_term,
+                                        diag_pi_output,
+                                        diag_handoff_percent,
+                                        drive * 100.0f});
                                     id(pump_dimmer_output_value) = drive;
                                     return drive;
                             else:
@@ -1432,8 +1573,27 @@ script:
                   - script.execute: pump_output_off
           else:
             - script.execute: pump_output_off
-            - delay: !lambda |-
-                return silvia::active_shot_phases[id(active_shot_phase_index)].duration_ms;
+            - repeat:
+                count: !lambda |-
+                  return (int) silvia::phase_steps(
+                      silvia::active_shot_phases[id(active_shot_phase_index)]);
+                then:
+                  - lambda: |-
+                      const uint32_t now = millis();
+                      const float pressure = id(silvia_brew_pressure).state;
+                      const uint32_t sensor_age = now - id(pressure_sensor_last_update_ms);
+                      const bool sensor_ok = id(silvia_brew_pressure).has_state() &&
+                          std::isfinite(pressure) && pressure >= -0.5f &&
+                          pressure <= 13.0f && sensor_age <= 1000U;
+                      silvia_diag::record(silvia_diag::ShotSample{
+                          now - silvia_diag::shot_started_ms,
+                          static_cast<uint8_t>(id(brew_shot_phase)),
+                          0.0f, pressure, -pressure, sensor_ok, sensor_age,
+                          id(silvia_brew_valve_relay).state,
+                          silvia_diag::StartupState::PUMP_OFF,
+                          silvia_diag::last_transition_reason,
+                          0, 0, false, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+                  - delay: 200ms
 
   - id: brew_shot_timer
     mode: restart
@@ -1481,6 +1641,7 @@ script:
                 id(hot_water_running) = false;
                 id(silvia_brew_shot_remaining).publish_state(0);
                 id(silvia_brew_shot_status).publish_state("Запуск");
+                silvia_diag::begin_shot(id(silvia_shot_diagnostics).state, millis());
             - switch.turn_on: silvia_brew_valve_relay
             - lambda: |-
                 id(pressure_control_integral) = 0.0f;
@@ -1510,6 +1671,7 @@ script:
             - script.execute: restore_manual_pump_settings
             - switch.turn_off: silvia_brew_valve_relay
             - lambda: |-
+                silvia_diag::finish_shot();
                 id(brew_shot_running) = false;
                 id(brew_shot_phase) = 0;
                 id(brew_shot_phase_end_ms) = 0;
@@ -1711,6 +1873,43 @@ script:
   - id: apply_pid_mode
     mode: restart
     then:
+      - climate.pid.reset_integral_term: silvia_brew_pid
+      - lambda: |-
+          id(temperature_pid_warmup_active) = false;
+          if (!id(silvia_power_state) ||
+              !id(silvia_boiler_temp_pt100).has_state()) {
+            return;
+          }
+
+          const bool steam =
+              id(silvia_pid_mode).current_option() == "Steam";
+          const float measured = steam
+              ? id(silvia_boiler_temp_pt100).state
+              : id(silvia_boiler_temp_pt100).state -
+                    id(silvia_brew_temperature_offset).state;
+          const float target = steam
+              ? id(silvia_steam_target).state
+              : id(silvia_brew_target).state;
+          const float configured_range =
+              id(silvia_pid_warmup_range).state;
+          const float approach_range =
+              std::isfinite(configured_range)
+                  ? std::max(2.0f, configured_range)
+                  : 10.0f;
+
+          id(temperature_pid_warmup_active) =
+              std::isfinite(measured) &&
+              std::isfinite(target) &&
+              measured < target - approach_range;
+
+          ESP_LOGI(
+              "silvia.pid",
+              "PID mode applied: measured %.2f C, target %.2f C, "
+              "warm-up integral hold %s",
+              measured,
+              target,
+              id(temperature_pid_warmup_active) ? "ON" : "OFF");
+
       - if:
           condition:
             lambda: 'return id(silvia_pid_mode).current_option() == "Brew";'
@@ -1755,6 +1954,11 @@ script:
 button:
   - platform: restart
     name: "Silvia ESP Restart"
+
+  - platform: template
+    name: "Silvia Clear Shot Diagnostic CSV"
+    on_press:
+      - lambda: 'silvia_diag::clear();'
 
   - platform: template
     name: "Silvia Reset Auto Off Timer"
@@ -1859,6 +2063,34 @@ sensor:
     update_interval: 1s
     lambda: |-
       return id(pid_heat_output_value) * 100.0f;
+
+  - platform: pid
+    name: "Silvia PID Result"
+    id: silvia_pid_result
+    climate_id: silvia_brew_pid
+    type: RESULT
+    accuracy_decimals: 2
+
+  - platform: pid
+    name: "Silvia PID Proportional"
+    id: silvia_pid_proportional
+    climate_id: silvia_brew_pid
+    type: PROPORTIONAL
+    accuracy_decimals: 2
+
+  - platform: pid
+    name: "Silvia PID Integral"
+    id: silvia_pid_integral
+    climate_id: silvia_brew_pid
+    type: INTEGRAL
+    accuracy_decimals: 2
+
+  - platform: pid
+    name: "Silvia PID Derivative"
+    id: silvia_pid_derivative
+    climate_id: silvia_brew_pid
+    type: DERIVATIVE
+    accuracy_decimals: 2
 
   - platform: template
     name: "Silvia Pump Dimmer Output"
@@ -2271,9 +2503,14 @@ climate:
     heat_output: silvia_pid_heat_output
 
     control_parameters:
-      kp: 0.12492
-      ki: 0.00065
-      kd: 6.00246
+      kp: 0.1001953
+      ki: 0.0009381579
+      kd: 2.675214
+      min_integral: 0.0
+      max_integral: 0.20
+      starting_integral_term: 0.0
+      output_averaging_samples: 1
+      derivative_averaging_samples: 5
 
     visual:
       min_temperature: 80°C

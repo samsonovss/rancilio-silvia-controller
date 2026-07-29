@@ -62,6 +62,9 @@ Planned addition: a dedicated PCB with pluggable connectors for sensors, relays,
 ### Temperature And Heating
 
 - PID heater control through ESPHome `climate`;
+- two-zone warm-up that prevents integral accumulation far below the target;
+- averaged PID derivative to suppress PT100 measurement noise;
+- limited integral term and an adjustable target-approach range;
 - separate brew and steam targets;
 - adjustable brew-temperature offset used by PID control;
 - raw PT100 boiler temperature remains available separately;
@@ -111,6 +114,8 @@ Planned addition: a dedicated PCB with pluggable connectors for sensors, relays,
 │   ├── components/
 │   │   └── ac_cycle_skip/
 │   ├── rancilio-silvia-power.yaml
+│   ├── shot_diagnostics.h
+│   ├── shot_profiles.h
 │   └── secrets.example.yaml
 ├── docs/
 │   ├── home-assistant.md
@@ -122,7 +127,7 @@ Planned addition: a dedicated PCB with pluggable connectors for sensors, relays,
 ## Quick Start
 
 1. Install ESPHome or the ESPHome Device Builder add-on in Home Assistant.
-2. Copy `esphome/rancilio-silvia-power.yaml` and `esphome/components/ac_cycle_skip/` into the ESPHome configuration directory.
+2. Copy `esphome/rancilio-silvia-power.yaml`, `esphome/shot_profiles.h`, `esphome/shot_diagnostics.h`, and `esphome/components/ac_cycle_skip/` into the ESPHome configuration directory.
 3. Create `secrets.yaml` using `esphome/secrets.example.yaml`.
 4. Verify every GPIO assignment and the electrical design for your exact board and relay modules.
 5. Validate the configuration before compiling the firmware.
@@ -138,6 +143,7 @@ Adjustable values include:
 - steam target temperature;
 - brew-temperature offset;
 - PID coefficients;
+- warm-up integral-release range;
 - shot profile;
 - preinfusion pump time;
 - preinfusion pressure;
@@ -154,6 +160,44 @@ Adjustable values include:
 - backflush rinse-preparation delay;
 - dry coffee dose per shot;
 - automatic shutdown time.
+
+### PID Warm-Up Without A Large Initial Overshoot
+
+A conventional PID uses the same control law near the working temperature and during a long cold-boiler warm-up. During that rise, the integral term can accumulate a large positive error. The controller may still request substantial heater power when the sensor reaches the target, while energy already stored in the heating element and boiler metal drives the temperature even higher.
+
+This controller uses two warm-up zones:
+
+```text
+far below target → PID remains active, but its integral is held at zero
+inside approach range → full PID is released
+near target → full PID maintains temperature
+```
+
+The PID is not disabled during warm-up. Its proportional and derivative terms continue controlling the heater and reduce power before the target. Only the integral is frozen while measured temperature is more than `Silvia PID Warmup Range` below the target. The default range is `10 °C`. Once inside that range, the integral is released but limited to `0…20%`.
+
+Key differences from a basic PID configuration:
+
+- explicit protection against integral windup during a long warm-up;
+- a limited steady-state integral instead of an integral that can keep demanding high power;
+- derivative averaging across five PT100 samples;
+- no PID-output averaging, avoiding extra delay when heater power must fall;
+- an approach boundary adjustable from Home Assistant;
+- separate sensors for warm-up state and PID result/P/I/D diagnostics.
+
+Current tested initial parameters:
+
+```text
+Kp = 0.1001953
+Ki = 0.0009381579
+Kd = 2.675214
+Warmup Range = 10 °C
+Integral limit = 0…20%
+Derivative averaging = 5 samples
+```
+
+In a test on the actual Rancilio Silvia, starting at `52.8 °C` with a `93 °C` target, the maximum estimated brew temperature was `93.79 °C`, an overshoot of `+0.79 °C`. Before the warm-up protection, a comparable test peaked at `99.58 °C`, an overshoot of `+6.58 °C`.
+
+PID coefficients and the brew-temperature offset depend on sensor placement, the individual boiler, and the hardware build. Treat these values as a tested starting point for this prototype, not as a universal calibration for every Silvia.
 
 ### Brew Shot And Profiles
 
