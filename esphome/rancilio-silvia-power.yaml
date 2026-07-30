@@ -131,6 +131,26 @@ globals:
     restore_value: no
     initial_value: 'false'
 
+  - id: silvia_scale_tare_raw
+    type: float
+    restore_value: yes
+    initial_value: '0.0'
+
+  - id: silvia_scale_counts_per_gram
+    type: float
+    restore_value: yes
+    initial_value: '1.0'
+
+  - id: silvia_scale_tare_valid
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+
+  - id: silvia_scale_calibration_valid
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+
   - id: auto_off_remaining_seconds
     type: int
     restore_value: no
@@ -542,6 +562,18 @@ interval:
 # -------------------------
 
 number:
+  - platform: template
+    name: "Silvia Scale Calibration Weight"
+    id: silvia_scale_calibration_weight
+    optimistic: true
+    restore_value: true
+    initial_value: 200
+    min_value: 20
+    max_value: 2000
+    step: 1
+    unit_of_measurement: "g"
+    mode: box
+
   - platform: template
     name: "Silvia Auto Off Minutes"
     id: silvia_auto_off_minutes
@@ -2215,6 +2247,47 @@ button:
     name: "Silvia ESP Restart"
 
   - platform: template
+    name: "Silvia Scale Tare"
+    on_press:
+      - lambda: |-
+          const float raw = id(silvia_scale_raw).state;
+          if (!std::isfinite(raw)) {
+            ESP_LOGW("silvia.scale", "Tare rejected: HX711 reading is unavailable");
+            return;
+          }
+          id(silvia_scale_tare_raw) = raw;
+          id(silvia_scale_tare_valid) = true;
+          if (id(silvia_scale_calibration_valid)) {
+            id(silvia_weight).publish_state(0.0f);
+          }
+          ESP_LOGI("silvia.scale", "Tare saved");
+
+  - platform: template
+    name: "Silvia Scale Calibrate"
+    on_press:
+      - lambda: |-
+          const float raw = id(silvia_scale_raw).state;
+          const float known_weight = id(silvia_scale_calibration_weight).state;
+          if (!id(silvia_scale_tare_valid)) {
+            ESP_LOGW("silvia.scale", "Calibration rejected: tare the empty scale first");
+            return;
+          }
+          if (!std::isfinite(raw) || !std::isfinite(known_weight) ||
+              known_weight <= 0.0f) {
+            ESP_LOGW("silvia.scale", "Calibration rejected: invalid reading or weight");
+            return;
+          }
+          const float counts = raw - id(silvia_scale_tare_raw);
+          if (std::fabs(counts) < 100.0f) {
+            ESP_LOGW("silvia.scale", "Calibration rejected: load-cell signal is too small");
+            return;
+          }
+          id(silvia_scale_counts_per_gram) = counts / known_weight;
+          id(silvia_scale_calibration_valid) = true;
+          id(silvia_weight).publish_state(known_weight);
+          ESP_LOGI("silvia.scale", "Calibration saved for %.1f g", known_weight);
+
+  - platform: template
     name: "Silvia Clear Shot Diagnostic CSV"
     on_press:
       - lambda: 'silvia_diag::clear();'
@@ -2291,6 +2364,42 @@ button:
 # Статусы
 # -------------------------
 sensor:
+  - platform: hx711
+    name: "Silvia Scale Raw"
+    id: silvia_scale_raw
+    internal: true
+    dout_pin: ${hx711_dout_pin}
+    clk_pin: ${hx711_clk_pin}
+    gain: 128
+    update_interval: 100ms
+    accuracy_decimals: 0
+    filters:
+      - median:
+          window_size: 5
+          send_every: 1
+          send_first_at: 1
+    on_value:
+      then:
+        - lambda: |-
+            if (!id(silvia_scale_tare_valid) ||
+                !id(silvia_scale_calibration_valid) ||
+                !std::isfinite(x) ||
+                std::fabs(id(silvia_scale_counts_per_gram)) < 0.001f) {
+              return;
+            }
+            id(silvia_weight).publish_state(
+                (x - id(silvia_scale_tare_raw)) /
+                id(silvia_scale_counts_per_gram));
+
+  - platform: template
+    name: "Silvia Weight"
+    id: silvia_weight
+    unit_of_measurement: "g"
+    device_class: weight
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+
   - platform: xdb401
     address: 0x7F
     pressure_range_bar: 10
