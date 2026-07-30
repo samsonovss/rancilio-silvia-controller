@@ -1482,6 +1482,7 @@ script:
                                     float diag_soft_start_limit = 100.0f;
                                     float diag_desired_pressure_slope = 0.0f;
                                     float diag_rise_rate_brake = 0.0f;
+                                    float diag_pressure_recovery_boost = 0.0f;
                                     bool diag_sensor_ok = id(silvia_brew_pressure).has_state() &&
                                         std::isfinite(pressure) && pressure >= -0.5f &&
                                         pressure <= 13.0f && sensor_age <= 1000U;
@@ -1673,11 +1674,22 @@ script:
                                                  desired_pressure_slope) *
                                                     0.02f * update_scale);
                                           }
+                                          float pressure_recovery_boost = 0.0f;
+                                          if (rise_rate_brake <= 0.0f &&
+                                              predicted_error > 0.15f &&
+                                              diag_pressure_slope <=
+                                                  desired_pressure_slope) {
+                                            pressure_recovery_boost = std::min(
+                                                0.003f,
+                                                0.03f * (predicted_error - 0.15f) *
+                                                    pressure_dt);
+                                          }
                                           float candidate_drive =
                                               id(pressure_control_incremental_drive) +
                                               proportional_increment +
                                               integral_increment -
-                                              rise_rate_brake;
+                                              rise_rate_brake +
+                                              pressure_recovery_boost;
                                           candidate_drive = std::max(
                                               0.0f, std::min(1.0f, candidate_drive));
                                           candidate_drive =
@@ -1698,6 +1710,8 @@ script:
                                               desired_pressure_slope;
                                           diag_rise_rate_brake =
                                               rise_rate_brake;
+                                          diag_pressure_recovery_boost =
+                                              pressure_recovery_boost;
                                           diag_pi_output = candidate_drive;
                                           diag_pi_enabled = true;
                                           diag_handoff_percent = 100.0f;
@@ -1751,6 +1765,7 @@ script:
                                         diag_soft_start_limit,
                                         diag_desired_pressure_slope,
                                         diag_rise_rate_brake,
+                                        diag_pressure_recovery_boost,
                                         diag_error,
                                         diag_sensor_ok,
                                         sensor_age,
