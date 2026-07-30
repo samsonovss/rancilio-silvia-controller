@@ -241,6 +241,16 @@ globals:
     restore_value: no
     initial_value: '0'
 
+  - id: silvia_weight_stop_triggered
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+  - id: silvia_weight_stop_prediction_samples
+    type: int
+    restore_value: no
+    initial_value: '0'
+
   - id: auto_off_remaining_seconds
     type: int
     restore_value: no
@@ -661,6 +671,18 @@ number:
     min_value: 20
     max_value: 2000
     step: 1
+    unit_of_measurement: "g"
+    mode: box
+
+  - platform: template
+    name: "Silvia Brew Target Weight"
+    id: silvia_brew_target_weight
+    optimistic: true
+    restore_value: true
+    initial_value: 36
+    min_value: 5
+    max_value: 100
+    step: 0.5
     unit_of_measurement: "g"
     mode: box
 
@@ -1317,6 +1339,13 @@ switch:
     id: silvia_scale_auto_tare
     optimistic: true
     restore_mode: RESTORE_DEFAULT_ON
+    icon: "mdi:scale-balance"
+
+  - platform: template
+    name: "Silvia Stop Brew By Weight"
+    id: silvia_stop_brew_by_weight
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
     icon: "mdi:scale-balance"
 
   - platform: template
@@ -2104,6 +2133,8 @@ script:
                     id(active_main_brew_boost_enabled));
                 silvia::active_shot_phases = shot_profile.phases;
                 id(brew_shot_running) = true;
+                id(silvia_weight_stop_triggered) = false;
+                id(silvia_weight_stop_prediction_samples) = 0;
                 id(brew_shot_phase) = 0;
                 id(brew_shot_phase_end_ms) = millis();
                 id(hot_water_running) = false;
@@ -2170,6 +2201,42 @@ script:
                 id(brew_shot_phase_end_ms) = 0;
                 id(silvia_brew_shot_remaining).publish_state(0);
                 id(silvia_brew_shot_status).publish_state("Ожидание");
+
+  - id: stop_brew_shot_by_weight
+    mode: single
+    then:
+      - lambda: |-
+          const float weight = id(silvia_weight_fast).state;
+          const float flow = id(silvia_scale_flow_ema);
+          const float target = id(silvia_brew_target_weight).state;
+          ESP_LOGI(
+              "silvia.scale",
+              "Stopping shot by weight: %.2f g, flow %.2f g/s, target %.2f g",
+              weight,
+              flow,
+              target);
+          id(brew_shot_running) = false;
+      - script.stop: run_active_shot_phase
+      - script.stop: brew_shot_timer
+      - script.execute: pump_output_off
+      - script.execute: restore_manual_pump_settings
+      - switch.turn_off: silvia_brew_valve_relay
+      - lambda: |-
+          silvia_diag::finish_shot();
+          id(brew_shot_running) = false;
+          id(brew_temperature_feed_forward_value) = 0.0f;
+          id(pressure_control_incremental_drive) = 0.0f;
+          id(pressure_control_incremental_initialized) = false;
+          id(soft_infusion_started_ms) = 0U;
+          id(brew_shot_phase) = 0;
+          id(brew_shot_phase_end_ms) = 0;
+          id(silvia_brew_shot_remaining).publish_state(0);
+          id(silvia_brew_shot_status).publish_state("Ожидание");
+          id(backflush_shots)++;
+          id(lifetime_shots)++;
+          id(silvia_backflush_shots_sensor).publish_state(id(backflush_shots));
+          id(silvia_lifetime_shots_sensor).publish_state(id(lifetime_shots));
+          id(silvia_backflush_status).update();
 
   - id: backflush_program
     mode: single
@@ -2643,6 +2710,39 @@ sensor:
                 id(silvia_scale_flow_last_publish_ms) = now;
                 id(silvia_scale_flow).publish_state(
                     id(silvia_scale_flow_ema));
+              }
+            }
+
+            // Stop by beverage weight. The configured shot time remains the
+            // maximum duration. A hard weight limit always wins; predictive
+            // stopping requires two consecutive confirmations.
+            if (id(brew_shot_running) &&
+                id(silvia_stop_brew_by_weight).state &&
+                !id(silvia_weight_stop_triggered) &&
+                std::isfinite(id(silvia_brew_target_weight).state)) {
+              const float target =
+                  std::max(5.0f, id(silvia_brew_target_weight).state);
+              const float flow = id(silvia_scale_flow_ema);
+              const float predicted = weight + std::max(0.0f, flow) * 0.5f;
+              const bool hard_stop = weight >= target;
+              const bool prediction_valid =
+                  weight >= 2.0f &&
+                  flow >= 0.20f &&
+                  flow <= 8.0f &&
+                  predicted >= target;
+
+              if (prediction_valid) {
+                id(silvia_weight_stop_prediction_samples)++;
+              } else {
+                id(silvia_weight_stop_prediction_samples) = 0;
+              }
+
+              if (hard_stop ||
+                  id(silvia_weight_stop_prediction_samples) >= 2) {
+                id(silvia_weight_stop_triggered) = true;
+                id(silvia_brew_shot_status).publish_state(
+                    hard_stop ? "Целевой вес" : "Остановка по прогнозу");
+                id(stop_brew_shot_by_weight).execute();
               }
             }
 
