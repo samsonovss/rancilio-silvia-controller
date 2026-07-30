@@ -176,6 +176,71 @@ globals:
     restore_value: no
     initial_value: '0'
 
+  - id: silvia_scale_display_ema
+    type: float
+    restore_value: no
+    initial_value: 'NAN'
+
+  - id: silvia_scale_display_last
+    type: float
+    restore_value: no
+    initial_value: 'NAN'
+
+  - id: silvia_scale_display_last_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: silvia_scale_flow_w0
+    type: float
+    restore_value: no
+    initial_value: 'NAN'
+
+  - id: silvia_scale_flow_w1
+    type: float
+    restore_value: no
+    initial_value: 'NAN'
+
+  - id: silvia_scale_flow_w2
+    type: float
+    restore_value: no
+    initial_value: 'NAN'
+
+  - id: silvia_scale_flow_w3
+    type: float
+    restore_value: no
+    initial_value: 'NAN'
+
+  - id: silvia_scale_flow_t0
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: silvia_scale_flow_t1
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: silvia_scale_flow_t2
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: silvia_scale_flow_t3
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: silvia_scale_flow_ema
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+
+  - id: silvia_scale_flow_last_publish_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
   - id: auto_off_remaining_seconds
     type: int
     restore_value: no
@@ -1478,7 +1543,16 @@ script:
                                     id(silvia_scale_auto_tare_stable_samples);
                                 id(silvia_scale_tare_valid) = true;
                                 id(silvia_scale_auto_tare_success) = true;
+                                id(silvia_scale_display_ema) = 0.0f;
+                                id(silvia_scale_display_last) = 0.0f;
+                                id(silvia_scale_flow_w0) = NAN;
+                                id(silvia_scale_flow_w1) = NAN;
+                                id(silvia_scale_flow_w2) = NAN;
+                                id(silvia_scale_flow_w3) = NAN;
+                                id(silvia_scale_flow_ema) = 0.0f;
+                                id(silvia_weight_fast).publish_state(0.0f);
                                 id(silvia_weight).publish_state(0.0f);
+                                id(silvia_scale_flow).publish_state(0.0f);
                                 ESP_LOGI(
                                     "silvia.scale",
                                     "Automatic tare saved before shot");
@@ -2373,8 +2447,17 @@ button:
           }
           id(silvia_scale_tare_raw) = raw;
           id(silvia_scale_tare_valid) = true;
+          id(silvia_scale_display_ema) = 0.0f;
+          id(silvia_scale_display_last) = 0.0f;
+          id(silvia_scale_flow_w0) = NAN;
+          id(silvia_scale_flow_w1) = NAN;
+          id(silvia_scale_flow_w2) = NAN;
+          id(silvia_scale_flow_w3) = NAN;
+          id(silvia_scale_flow_ema) = 0.0f;
           if (id(silvia_scale_calibration_valid)) {
+            id(silvia_weight_fast).publish_state(0.0f);
             id(silvia_weight).publish_state(0.0f);
+            id(silvia_scale_flow).publish_state(0.0f);
           }
           ESP_LOGI("silvia.scale", "Tare saved");
 
@@ -2400,6 +2483,9 @@ button:
           }
           id(silvia_scale_counts_per_gram) = counts / known_weight;
           id(silvia_scale_calibration_valid) = true;
+          id(silvia_scale_display_ema) = known_weight;
+          id(silvia_scale_display_last) = known_weight;
+          id(silvia_weight_fast).publish_state(known_weight);
           id(silvia_weight).publish_state(known_weight);
           ESP_LOGI("silvia.scale", "Calibration saved for %.1f g", known_weight);
 
@@ -2491,7 +2577,7 @@ sensor:
     accuracy_decimals: 0
     filters:
       - median:
-          window_size: 5
+          window_size: 3
           send_every: 1
           send_first_at: 1
     on_value:
@@ -2503,9 +2589,72 @@ sensor:
                 std::fabs(id(silvia_scale_counts_per_gram)) < 0.001f) {
               return;
             }
-            id(silvia_weight).publish_state(
+            const float weight =
                 (x - id(silvia_scale_tare_raw)) /
-                id(silvia_scale_counts_per_gram));
+                id(silvia_scale_counts_per_gram);
+            const uint32_t now = millis();
+
+            // Fast 10 Hz signal for shot control. Only a 3-sample median is
+            // applied above to reject isolated ADC spikes.
+            id(silvia_weight_fast).publish_state(weight);
+
+            // Stable dashboard signal: EMA plus a 0.2 g display deadband,
+            // published at most about four times per second.
+            if (!std::isfinite(id(silvia_scale_display_ema))) {
+              id(silvia_scale_display_ema) = weight;
+            } else {
+              id(silvia_scale_display_ema) +=
+                  0.22f * (weight - id(silvia_scale_display_ema));
+            }
+            if ((uint32_t) (now - id(silvia_scale_display_last_ms)) >= 250U &&
+                (!std::isfinite(id(silvia_scale_display_last)) ||
+                 std::fabs(id(silvia_scale_display_ema) -
+                           id(silvia_scale_display_last)) >= 0.2f)) {
+              id(silvia_scale_display_last) = id(silvia_scale_display_ema);
+              id(silvia_scale_display_last_ms) = now;
+              id(silvia_weight).publish_state(id(silvia_scale_display_ema));
+            }
+
+            // Gaggiuino-style short history for beverage flow. Calculate the
+            // slope across four samples, then smooth the derivative.
+            id(silvia_scale_flow_w0) = id(silvia_scale_flow_w1);
+            id(silvia_scale_flow_w1) = id(silvia_scale_flow_w2);
+            id(silvia_scale_flow_w2) = id(silvia_scale_flow_w3);
+            id(silvia_scale_flow_w3) = weight;
+            id(silvia_scale_flow_t0) = id(silvia_scale_flow_t1);
+            id(silvia_scale_flow_t1) = id(silvia_scale_flow_t2);
+            id(silvia_scale_flow_t2) = id(silvia_scale_flow_t3);
+            id(silvia_scale_flow_t3) = now;
+            if (std::isfinite(id(silvia_scale_flow_w0)) &&
+                id(silvia_scale_flow_t3) > id(silvia_scale_flow_t0)) {
+              const float dt =
+                  (id(silvia_scale_flow_t3) -
+                   id(silvia_scale_flow_t0)) / 1000.0f;
+              float flow =
+                  (id(silvia_scale_flow_w3) -
+                   id(silvia_scale_flow_w0)) / dt;
+              if (std::fabs(flow) < 0.15f) {
+                flow = 0.0f;
+              }
+              id(silvia_scale_flow_ema) +=
+                  0.35f * (flow - id(silvia_scale_flow_ema));
+              if ((uint32_t) (now -
+                              id(silvia_scale_flow_last_publish_ms)) >= 200U) {
+                id(silvia_scale_flow_last_publish_ms) = now;
+                id(silvia_scale_flow).publish_state(
+                    id(silvia_scale_flow_ema));
+              }
+            }
+
+  - platform: template
+    name: "Silvia Weight Fast"
+    id: silvia_weight_fast
+    internal: true
+    unit_of_measurement: "g"
+    device_class: weight
+    state_class: measurement
+    accuracy_decimals: 2
+    update_interval: never
 
   - platform: template
     name: "Silvia Weight"
@@ -2514,6 +2663,15 @@ sensor:
     device_class: weight
     state_class: measurement
     accuracy_decimals: 1
+    update_interval: never
+
+  - platform: template
+    name: "Silvia Scale Flow"
+    id: silvia_scale_flow
+    unit_of_measurement: "g/s"
+    state_class: measurement
+    icon: "mdi:waves-arrow-right"
+    accuracy_decimals: 2
     update_interval: never
 
   - platform: xdb401
