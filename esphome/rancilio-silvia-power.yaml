@@ -151,6 +151,31 @@ globals:
     restore_value: yes
     initial_value: 'false'
 
+  - id: silvia_scale_auto_tare_success
+    type: bool
+    restore_value: no
+    initial_value: 'true'
+
+  - id: silvia_scale_auto_tare_stable_samples
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+  - id: silvia_scale_auto_tare_sum
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+
+  - id: silvia_scale_auto_tare_last_raw
+    type: float
+    restore_value: no
+    initial_value: 'NAN'
+
+  - id: silvia_scale_auto_tare_deadline_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
   - id: auto_off_remaining_seconds
     type: int
     restore_value: no
@@ -1223,6 +1248,13 @@ switch:
             - script.execute: status_led_update
 
   - platform: template
+    name: "Silvia Scale Auto Tare"
+    id: silvia_scale_auto_tare
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    icon: "mdi:scale-balance"
+
+  - platform: template
     name: "Silvia Brew Shot"
     id: silvia_brew_shot_control
     lambda: 'return id(brew_shot_running);'
@@ -1231,9 +1263,15 @@ switch:
           condition:
             lambda: 'return id(silvia_power_state) && !id(backflush_running);'
           then:
-            - script.execute: auto_off_timer
-            - script.execute: status_led_update
-            - script.execute: brew_shot_timer
+            - script.execute: scale_auto_tare_before_shot
+            - script.wait: scale_auto_tare_before_shot
+            - if:
+                condition:
+                  lambda: 'return id(silvia_scale_auto_tare_success);'
+                then:
+                  - script.execute: auto_off_timer
+                  - script.execute: status_led_update
+                  - script.execute: brew_shot_timer
     turn_off_action:
       - lambda: 'id(brew_shot_running) = false;'
       - script.stop: run_active_shot_phase
@@ -1385,6 +1423,84 @@ binary_sensor:
 # -------------------------
 
 script:
+  - id: scale_auto_tare_before_shot
+    mode: restart
+    then:
+      - lambda: |-
+          id(silvia_scale_auto_tare_success) = true;
+          id(silvia_scale_auto_tare_stable_samples) = 0;
+          id(silvia_scale_auto_tare_sum) = 0.0f;
+          id(silvia_scale_auto_tare_last_raw) = NAN;
+          id(silvia_scale_auto_tare_deadline_ms) = millis() + 2000U;
+      - if:
+          condition:
+            lambda: 'return id(silvia_scale_auto_tare).state;'
+          then:
+            - if:
+                condition:
+                  lambda: |-
+                    return id(silvia_scale_calibration_valid) &&
+                           std::isfinite(id(silvia_scale_counts_per_gram)) &&
+                           std::fabs(id(silvia_scale_counts_per_gram)) >= 0.001f;
+                then:
+                  - lambda: |-
+                      id(silvia_scale_auto_tare_success) = false;
+                      id(silvia_brew_shot_status).publish_state("Стабилизация весов");
+                  - while:
+                      condition:
+                        lambda: |-
+                          return !id(silvia_scale_auto_tare_success) &&
+                                 (int32_t) (id(silvia_scale_auto_tare_deadline_ms) -
+                                            millis()) > 0;
+                      then:
+                        - lambda: |-
+                            const float raw = id(silvia_scale_raw).state;
+                            const float max_step =
+                                std::max(1.0f,
+                                         std::fabs(id(silvia_scale_counts_per_gram)) *
+                                             0.3f);
+                            if (std::isfinite(raw)) {
+                              if (id(silvia_scale_auto_tare_stable_samples) == 0 ||
+                                  !std::isfinite(id(silvia_scale_auto_tare_last_raw)) ||
+                                  std::fabs(raw -
+                                            id(silvia_scale_auto_tare_last_raw)) <=
+                                      max_step) {
+                                id(silvia_scale_auto_tare_sum) += raw;
+                                id(silvia_scale_auto_tare_stable_samples)++;
+                              } else {
+                                id(silvia_scale_auto_tare_sum) = raw;
+                                id(silvia_scale_auto_tare_stable_samples) = 1;
+                              }
+                              id(silvia_scale_auto_tare_last_raw) = raw;
+                              if (id(silvia_scale_auto_tare_stable_samples) >= 5) {
+                                id(silvia_scale_tare_raw) =
+                                    id(silvia_scale_auto_tare_sum) /
+                                    id(silvia_scale_auto_tare_stable_samples);
+                                id(silvia_scale_tare_valid) = true;
+                                id(silvia_scale_auto_tare_success) = true;
+                                id(silvia_weight).publish_state(0.0f);
+                                ESP_LOGI(
+                                    "silvia.scale",
+                                    "Automatic tare saved before shot");
+                              }
+                            }
+                        - delay: 100ms
+                  - if:
+                      condition:
+                        lambda: 'return !id(silvia_scale_auto_tare_success);'
+                      then:
+                        - lambda: |-
+                            id(silvia_brew_shot_status)
+                                .publish_state("Весы нестабильны");
+                            ESP_LOGW(
+                                "silvia.scale",
+                                "Shot rejected: scale did not stabilize within 2 s");
+                else:
+                  - lambda: |-
+                      ESP_LOGW(
+                          "silvia.scale",
+                          "Automatic tare skipped: scale is not calibrated");
+
   - id: restore_manual_pump_settings
     mode: restart
     then:
