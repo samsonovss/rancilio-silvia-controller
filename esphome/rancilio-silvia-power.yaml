@@ -1490,8 +1490,8 @@ script:
                         lambda: 'return !id(silvia_scale_auto_tare_success);'
                       then:
                         - lambda: |-
-                            id(silvia_brew_shot_status)
-                                .publish_state("Весы нестабильны");
+                            id(silvia_brew_shot_status).publish_state(
+                                "Весы нестабильны");
                             ESP_LOGW(
                                 "silvia.scale",
                                 "Shot rejected: scale did not stabilize within 2 s");
