@@ -1827,7 +1827,7 @@ script:
                           now - silvia_diag::shot_started_ms,
                           static_cast<uint8_t>(id(brew_shot_phase)),
                           0.0f, pressure, 0.0f, pressure, -1.0f, 100.0f,
-                          0.0f, 0.0f,
+                          0.0f, 0.0f, 0.0f,
                           -pressure,
                           sensor_ok, sensor_age,
                           id(silvia_brew_valve_relay).state,
