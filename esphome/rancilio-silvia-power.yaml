@@ -4,6 +4,8 @@ esphome:
   includes:
     - shot_profiles.h
     - shot_diagnostics.h
+    - shot_archive.h
+    - coffee_dashboard.h
   on_boot:
     - priority: 800
       then:
@@ -18,6 +20,9 @@ esphome:
     - priority: -100
       then:
         - script.execute: apply_pid_parameters
+        - select.set:
+            id: silvia_shot_profile
+            option: "Classic"
         - lambda: |-
             id(silvia_pump_dimmer).set_start_boost_ms(
                 id(silvia_pump_start_boost_enabled) ? (uint32_t) id(silvia_pump_start_boost_ms).state : 0);
@@ -27,7 +32,10 @@ esphome:
             id(silvia_brew_shot_remaining).publish_state(0);
             id(silvia_brew_shot_status).publish_state("Ожидание");
             id(silvia_backflush_status).update();
+            silvia_archive::mount();
             silvia_diag::register_web_handler();
+            silvia_archive::register_web_handler();
+            silvia_web::register_web_handler();
   on_shutdown:
     - priority: 700
       then:
@@ -45,12 +53,28 @@ esphome:
 
 esp32:
   board: esp32-s3-devkitc-1
+  flash_size: 16MB
+  partitions:
+    - name: shots_archive
+      type: data
+      subtype: littlefs
+      size: 0x700000
   framework:
     type: esp-idf
+    advanced:
+      # The local shot archive scans LittleFS to build its history index.
+      # ESPHome disables directory VFS calls by default to save a little flash.
+      disable_vfs_support_dir: false
+    components:
+      - joltwallet/littlefs^1.22.3
     sdkconfig_options:
       CONFIG_GPTIMER_ISR_CACHE_SAFE: "y"
       CONFIG_GPTIMER_CTRL_FUNC_IN_IRAM: "y"
       CONFIG_GPTIMER_ISR_HANDLER_IN_IRAM: "y"
+
+psram:
+  mode: octal
+  speed: 80MHz
 
 logger:
   level: INFO
@@ -236,10 +260,30 @@ globals:
     restore_value: no
     initial_value: '0.0'
 
+  - id: silvia_scale_flow_display_ema
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+
   - id: silvia_scale_flow_last_publish_ms
     type: uint32_t
     restore_value: no
     initial_value: '0'
+
+  - id: silvia_scale_post_shot_tare_armed
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+  - id: silvia_scale_post_shot_tare_stable_since_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: silvia_scale_post_shot_tare_last_weight
+    type: float
+    restore_value: no
+    initial_value: 'NAN'
 
   - id: silvia_weight_stop_triggered
     type: bool
@@ -340,6 +384,41 @@ globals:
     type: uint32_t
     restore_value: no
     initial_value: '0'
+
+  - id: pt100_last_update_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: pt100_fault_count
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: pt100_fault_active
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+  - id: pt100_last_valid_temperature
+    type: float
+    restore_value: no
+    initial_value: 'NAN'
+
+  - id: scale_last_update_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: scale_fault_count
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: scale_fault_active
+    type: bool
+    restore_value: no
+    initial_value: 'false'
 
   - id: silvia_pump_start_boost_enabled
     type: bool
@@ -459,7 +538,7 @@ globals:
   - id: active_pressure_profile_startup_settling_ms
     type: uint32_t
     restore_value: no
-    initial_value: '400'
+    initial_value: '0'
 
   - id: pressure_profile_startup_settling_until_ms
     type: uint32_t
@@ -549,6 +628,13 @@ globals:
 interval:
   - interval: 1s
     then:
+      # Retry local persistence after the real-time shot path has completely
+      # stopped. This also recovers from a transient filesystem write failure.
+      - lambda: |-
+          if (silvia_diag::csv_ready && !silvia_diag::capture_active) {
+            silvia_archive::save_current_shot();
+          }
+
       - lambda: |-
           if (!id(pid_autotune_running)) {
             return;
@@ -691,7 +777,7 @@ number:
     id: silvia_auto_off_minutes
     optimistic: true
     restore_value: true
-    initial_value: 60
+    initial_value: 35
     min_value: 0
     max_value: 180
     step: 5
@@ -765,7 +851,7 @@ number:
     id: silvia_brew_temperature_offset
     optimistic: true
     restore_value: true
-    initial_value: 0
+    initial_value: 10
     min_value: -20
     max_value: 30
     step: 0.1
@@ -1009,7 +1095,7 @@ number:
     id: silvia_pressure_profile_startup_settling_ms
     optimistic: true
     restore_value: true
-    initial_value: 400
+    initial_value: 0
     min_value: 0
     max_value: 1000
     step: 100
@@ -1367,7 +1453,13 @@ switch:
                   - script.execute: status_led_update
                   - script.execute: brew_shot_timer
     turn_off_action:
-      - lambda: 'id(brew_shot_running) = false;'
+      - lambda: |-
+          if (id(brew_shot_running)) {
+            id(silvia_scale_post_shot_tare_armed) = true;
+            id(silvia_scale_post_shot_tare_stable_since_ms) = 0U;
+            id(silvia_scale_post_shot_tare_last_weight) = NAN;
+          }
+          id(brew_shot_running) = false;
       - script.stop: run_active_shot_phase
       - script.stop: brew_shot_timer
       - script.execute: pump_output_off
@@ -1375,6 +1467,7 @@ switch:
       - switch.turn_off: silvia_brew_valve_relay
       - lambda: |-
           silvia_diag::finish_shot();
+          silvia_archive::save_current_shot();
           id(brew_shot_running) = false;
           id(brew_shot_phase) = 0;
           id(brew_shot_phase_end_ms) = 0;
@@ -1579,6 +1672,7 @@ script:
                                 id(silvia_scale_flow_w2) = NAN;
                                 id(silvia_scale_flow_w3) = NAN;
                                 id(silvia_scale_flow_ema) = 0.0f;
+                                id(silvia_scale_flow_display_ema) = 0.0f;
                                 id(silvia_weight_fast).publish_state(0.0f);
                                 id(silvia_weight).publish_state(0.0f);
                                 id(silvia_scale_flow).publish_state(0.0f);
@@ -1808,13 +1902,18 @@ script:
                                         diag_time_to_target =
                                             diag_error / diag_pressure_slope;
                                       }
-                                      float prediction_horizon = 0.35f;
+                                      // The pump and puck keep building pressure after the
+                                      // electrical drive is reduced. Look farther ahead so
+                                      // fast-flowing pucks are braked before they cross the
+                                      // pressure target, instead of correcting the overshoot
+                                      // afterwards.
+                                      float prediction_horizon = 0.50f;
                                       if (diag_time_to_target >= 0.0f &&
-                                          diag_time_to_target < 0.8f) {
+                                          diag_time_to_target < 1.0f) {
                                         prediction_horizon = std::min(
-                                            0.65f,
-                                            0.35f +
-                                                (0.8f - diag_time_to_target) * 0.5f);
+                                            0.85f,
+                                            0.50f +
+                                                (1.0f - diag_time_to_target) * 0.5f);
                                       }
                                       diag_predicted_pressure = std::max(
                                           0.0f,
@@ -1909,10 +2008,21 @@ script:
                                                   std::min(
                                                       3.0f,
                                                       diag_error / 0.55f));
+                                          const float predicted_excess =
+                                              std::max(
+                                                  0.0f,
+                                                  diag_predicted_pressure -
+                                                      target);
                                           float rise_rate_brake = 0.0f;
-                                          if (diag_error > 0.0f &&
-                                              diag_pressure_slope >
-                                                  desired_pressure_slope) {
+                                          // Keep braking while hydraulic inertia is
+                                          // still raising pressure, even after the
+                                          // measured pressure has crossed the target.
+                                          // Otherwise the brake disappears exactly
+                                          // when a fast puck needs it most.
+                                          if (diag_pressure_slope >
+                                                  desired_pressure_slope &&
+                                              (diag_error > 0.0f ||
+                                               predicted_excess > 0.10f)) {
                                             const float update_scale =
                                                 std::max(
                                                     0.5f,
@@ -1920,10 +2030,12 @@ script:
                                                         2.5f,
                                                         pressure_dt / 0.2f));
                                             rise_rate_brake = std::min(
-                                                0.08f * update_scale,
+                                                0.12f * update_scale,
                                                 (diag_pressure_slope -
                                                  desired_pressure_slope) *
-                                                    0.02f * update_scale);
+                                                        0.02f * update_scale +
+                                                    predicted_excess * 0.03f *
+                                                        update_scale);
                                           }
                                           float pressure_recovery_boost = 0.0f;
                                           if (rise_rate_brake <= 0.0f &&
@@ -2032,7 +2144,18 @@ script:
                                         diag_pi_output,
                                         diag_handoff_percent,
                                         drive * 100.0f,
-                                        id(brew_temperature_feed_forward_value) * 100.0f});
+                                        id(brew_temperature_feed_forward_value) * 100.0f,
+                                        id(silvia_pressure_sensor_temperature).state,
+                                        id(silvia_boiler_temp_pt100).state,
+                                        id(silvia_weight).state,
+                                        id(silvia_scale_flow).state,
+                                        static_cast<uint32_t>(id(silvia_xdb401_start_errors).state),
+                                        static_cast<uint32_t>(id(silvia_xdb401_status_errors).state),
+                                        static_cast<uint32_t>(id(silvia_xdb401_measurement_timeouts).state),
+                                        static_cast<uint32_t>(id(silvia_xdb401_packet_errors).state),
+                                        static_cast<uint32_t>(id(silvia_xdb401_rejected_packets).state),
+                                        static_cast<uint32_t>(id(silvia_xdb401_total_errors).state),
+                                        static_cast<uint32_t>(id(silvia_xdb401_consecutive_errors).state)});
                                     id(pump_dimmer_output_value) = drive;
                                     return drive;
                             else:
@@ -2085,7 +2208,18 @@ script:
                           silvia_diag::StartupState::PUMP_OFF,
                           silvia_diag::last_transition_reason,
                           0, 0, false, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                          id(brew_temperature_feed_forward_value) * 100.0f});
+                          id(brew_temperature_feed_forward_value) * 100.0f,
+                          id(silvia_pressure_sensor_temperature).state,
+                          id(silvia_boiler_temp_pt100).state,
+                          id(silvia_weight).state,
+                          id(silvia_scale_flow).state,
+                          static_cast<uint32_t>(id(silvia_xdb401_start_errors).state),
+                          static_cast<uint32_t>(id(silvia_xdb401_status_errors).state),
+                          static_cast<uint32_t>(id(silvia_xdb401_measurement_timeouts).state),
+                          static_cast<uint32_t>(id(silvia_xdb401_packet_errors).state),
+                          static_cast<uint32_t>(id(silvia_xdb401_rejected_packets).state),
+                          static_cast<uint32_t>(id(silvia_xdb401_total_errors).state),
+                          static_cast<uint32_t>(id(silvia_xdb401_consecutive_errors).state)});
                   - delay: 200ms
 
   - id: brew_shot_timer
@@ -2133,6 +2267,9 @@ script:
                     id(active_main_brew_boost_enabled));
                 silvia::active_shot_phases = shot_profile.phases;
                 id(brew_shot_running) = true;
+                id(silvia_scale_post_shot_tare_armed) = false;
+                id(silvia_scale_post_shot_tare_stable_since_ms) = 0U;
+                id(silvia_scale_post_shot_tare_last_weight) = NAN;
                 id(silvia_weight_stop_triggered) = false;
                 id(silvia_weight_stop_prediction_samples) = 0;
                 id(brew_shot_phase) = 0;
@@ -2141,6 +2278,13 @@ script:
                 id(silvia_brew_shot_remaining).publish_state(0);
                 id(silvia_brew_shot_status).publish_state("Запуск");
                 silvia_diag::begin_shot(id(silvia_shot_diagnostics).state, millis());
+                silvia_archive::begin_metadata(
+                    id(silvia_shot_profile).current_option(),
+                    id(silvia_brew_target).state,
+                    id(silvia_coffee_dose_grams).state,
+                    id(silvia_brew_target_weight).state,
+                    id(active_preinfusion_pump_seconds),
+                    id(active_preinfusion_pause_seconds));
             - switch.turn_on: silvia_brew_valve_relay
             - lambda: |-
                 id(pressure_control_integral) = 0.0f;
@@ -2180,6 +2324,7 @@ script:
             - switch.turn_off: silvia_brew_valve_relay
             - lambda: |-
                 silvia_diag::finish_shot();
+                silvia_archive::save_current_shot();
                 id(brew_shot_running) = false;
                 id(brew_temperature_feed_forward_value) = 0.0f;
                 id(pressure_control_incremental_drive) = 0.0f;
@@ -2189,6 +2334,9 @@ script:
                 id(brew_shot_phase_end_ms) = 0;
                 id(silvia_brew_shot_remaining).publish_state(0);
                 id(silvia_brew_shot_status).publish_state("Ожидание");
+                id(silvia_scale_post_shot_tare_armed) = true;
+                id(silvia_scale_post_shot_tare_stable_since_ms) = 0U;
+                id(silvia_scale_post_shot_tare_last_weight) = NAN;
                 id(backflush_shots)++;
                 id(lifetime_shots)++;
                 id(silvia_backflush_shots_sensor).publish_state(id(backflush_shots));
@@ -2223,6 +2371,7 @@ script:
       - switch.turn_off: silvia_brew_valve_relay
       - lambda: |-
           silvia_diag::finish_shot();
+          silvia_archive::save_current_shot();
           id(brew_shot_running) = false;
           id(brew_temperature_feed_forward_value) = 0.0f;
           id(pressure_control_incremental_drive) = 0.0f;
@@ -2232,6 +2381,9 @@ script:
           id(brew_shot_phase_end_ms) = 0;
           id(silvia_brew_shot_remaining).publish_state(0);
           id(silvia_brew_shot_status).publish_state("Ожидание");
+          id(silvia_scale_post_shot_tare_armed) = true;
+          id(silvia_scale_post_shot_tare_stable_since_ms) = 0U;
+          id(silvia_scale_post_shot_tare_last_weight) = NAN;
           id(backflush_shots)++;
           id(lifetime_shots)++;
           id(silvia_backflush_shots_sensor).publish_state(id(backflush_shots));
@@ -2521,6 +2673,10 @@ button:
           id(silvia_scale_flow_w2) = NAN;
           id(silvia_scale_flow_w3) = NAN;
           id(silvia_scale_flow_ema) = 0.0f;
+          id(silvia_scale_flow_display_ema) = 0.0f;
+          id(silvia_scale_post_shot_tare_armed) = false;
+          id(silvia_scale_post_shot_tare_stable_since_ms) = 0U;
+          id(silvia_scale_post_shot_tare_last_weight) = NAN;
           if (id(silvia_scale_calibration_valid)) {
             id(silvia_weight_fast).publish_state(0.0f);
             id(silvia_weight).publish_state(0.0f);
@@ -2650,16 +2806,25 @@ sensor:
     on_value:
       then:
         - lambda: |-
+            const uint32_t now = millis();
+            if (!std::isfinite(x)) {
+              if (!id(scale_fault_active)) {
+                id(scale_fault_count)++;
+              }
+              id(scale_fault_active) = true;
+              return;
+            }
+            id(scale_last_update_ms) = now;
+            id(scale_fault_active) = false;
+
             if (!id(silvia_scale_tare_valid) ||
                 !id(silvia_scale_calibration_valid) ||
-                !std::isfinite(x) ||
                 std::fabs(id(silvia_scale_counts_per_gram)) < 0.001f) {
               return;
             }
             const float weight =
                 (x - id(silvia_scale_tare_raw)) /
                 id(silvia_scale_counts_per_gram);
-            const uint32_t now = millis();
 
             // Fast 10 Hz signal for shot control. Only a 3-sample median is
             // applied above to reject isolated ADC spikes.
@@ -2680,6 +2845,52 @@ sensor:
               id(silvia_scale_display_last) = id(silvia_scale_display_ema);
               id(silvia_scale_display_last_ms) = now;
               id(silvia_weight).publish_state(id(silvia_scale_display_ema));
+            }
+
+            // After a completed shot, recognize removal of the cup as a large
+            // stable negative load. Tare the remaining platform only after it
+            // has stayed still for two seconds; positive loads never trigger.
+            if (!id(brew_shot_running) &&
+                id(silvia_scale_post_shot_tare_armed)) {
+              if (weight < -100.0f) {
+                const float previous =
+                    id(silvia_scale_post_shot_tare_last_weight);
+                if (!std::isfinite(previous) ||
+                    std::fabs(weight - previous) > 1.0f) {
+                  id(silvia_scale_post_shot_tare_stable_since_ms) = now;
+                } else if (
+                    id(silvia_scale_post_shot_tare_stable_since_ms) != 0U &&
+                    (uint32_t) (now -
+                                id(silvia_scale_post_shot_tare_stable_since_ms)) >=
+                        2000U) {
+                  id(silvia_scale_tare_raw) = x;
+                  id(silvia_scale_tare_valid) = true;
+                  id(silvia_scale_display_ema) = 0.0f;
+                  id(silvia_scale_display_last) = 0.0f;
+                  id(silvia_scale_display_last_ms) = now;
+                  id(silvia_scale_flow_w0) = NAN;
+                  id(silvia_scale_flow_w1) = NAN;
+                  id(silvia_scale_flow_w2) = NAN;
+                  id(silvia_scale_flow_w3) = NAN;
+                  id(silvia_scale_flow_ema) = 0.0f;
+                  id(silvia_scale_flow_display_ema) = 0.0f;
+                  id(silvia_scale_flow_last_publish_ms) = now;
+                  id(silvia_scale_post_shot_tare_armed) = false;
+                  id(silvia_scale_post_shot_tare_stable_since_ms) = 0U;
+                  id(silvia_scale_post_shot_tare_last_weight) = NAN;
+                  id(silvia_weight_fast).publish_state(0.0f);
+                  id(silvia_weight).publish_state(0.0f);
+                  id(silvia_scale_flow).publish_state(0.0f);
+                  ESP_LOGI(
+                      "silvia.scale",
+                      "Automatic tare saved after cup removal");
+                  return;
+                }
+                id(silvia_scale_post_shot_tare_last_weight) = weight;
+              } else {
+                id(silvia_scale_post_shot_tare_stable_since_ms) = 0U;
+                id(silvia_scale_post_shot_tare_last_weight) = weight;
+              }
             }
 
             // Gaggiuino-style short history for beverage flow. Calculate the
@@ -2705,11 +2916,17 @@ sensor:
               }
               id(silvia_scale_flow_ema) +=
                   0.35f * (flow - id(silvia_scale_flow_ema));
+              // Keep the fast EMA above for predictive stop control. Apply a
+              // second, slower low-pass only to the Home Assistant graph so
+              // HX711 vibration does not make the displayed flow look jagged.
+              id(silvia_scale_flow_display_ema) +=
+                  0.12f * (id(silvia_scale_flow_ema) -
+                           id(silvia_scale_flow_display_ema));
               if ((uint32_t) (now -
                               id(silvia_scale_flow_last_publish_ms)) >= 200U) {
                 id(silvia_scale_flow_last_publish_ms) = now;
                 id(silvia_scale_flow).publish_state(
-                    id(silvia_scale_flow_ema));
+                    id(silvia_scale_flow_display_ema));
               }
             }
 
@@ -2774,10 +2991,48 @@ sensor:
     accuracy_decimals: 2
     update_interval: never
 
+  - platform: template
+    name: "Silvia Scale Data Age"
+    unit_of_measurement: "s"
+    entity_category: diagnostic
+    accuracy_decimals: 1
+    update_interval: 1s
+    lambda: |-
+      if (id(scale_last_update_ms) == 0U) return NAN;
+      return (millis() - id(scale_last_update_ms)) / 1000.0f;
+
+  - platform: template
+    name: "Silvia Scale Fault Count"
+    entity_category: diagnostic
+    accuracy_decimals: 0
+    update_interval: 2s
+    lambda: 'return id(scale_fault_count);'
+
+  - platform: template
+    name: "Silvia Scale Raw Diagnostic"
+    entity_category: diagnostic
+    accuracy_decimals: 0
+    update_interval: 1s
+    lambda: |-
+      if (!id(silvia_scale_raw).has_state()) return NAN;
+      return id(silvia_scale_raw).state;
+
+  - platform: template
+    name: "Silvia Pressure Data Age"
+    unit_of_measurement: "s"
+    entity_category: diagnostic
+    accuracy_decimals: 1
+    update_interval: 1s
+    lambda: |-
+      if (id(pressure_sensor_last_update_ms) == 0U) return NAN;
+      return (millis() - id(pressure_sensor_last_update_ms)) / 1000.0f;
+
   - platform: xdb401
     address: 0x7F
     pressure_range_bar: 10
-    update_interval: 100ms
+    # Local driver waits 100 ms for a coherent conversion, then starts the
+    # next conversion on a 200 ms cadence (5 pressure samples per second).
+    update_interval: 200ms
     pressure:
       name: "Silvia Brew Pressure"
       id: silvia_brew_pressure
@@ -2796,6 +3051,59 @@ sensor:
       name: "Silvia Pressure Sensor Temperature"
       id: silvia_pressure_sensor_temperature
       accuracy_decimals: 1
+    start_errors:
+      name: "Silvia XDB401 Start Errors"
+      id: silvia_xdb401_start_errors
+    status_errors:
+      name: "Silvia XDB401 Status Read Errors"
+      id: silvia_xdb401_status_errors
+    measurement_timeouts:
+      name: "Silvia XDB401 Measurement Timeouts"
+      id: silvia_xdb401_measurement_timeouts
+    packet_errors:
+      name: "Silvia XDB401 Packet Read Errors"
+      id: silvia_xdb401_packet_errors
+    rejected_packets:
+      name: "Silvia XDB401 Rejected Packets"
+      id: silvia_xdb401_rejected_packets
+    total_errors:
+      name: "Silvia XDB401 Total Errors"
+      id: silvia_xdb401_total_errors
+    consecutive_errors:
+      name: "Silvia XDB401 Consecutive Errors"
+      id: silvia_xdb401_consecutive_errors
+    last_error:
+      name: "Silvia XDB401 Last Error"
+
+  - platform: template
+    name: "Silvia Free PSRAM"
+    id: silvia_free_psram_kb
+    unit_of_measurement: "kB"
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: 5s
+    lambda: |-
+      return heap_caps_get_free_size(MALLOC_CAP_SPIRAM) / 1024.0f;
+
+  - platform: template
+    name: "Silvia Largest PSRAM Block"
+    id: silvia_largest_psram_block_kb
+    unit_of_measurement: "kB"
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: 5s
+    lambda: |-
+      return heap_caps_get_largest_free_block(MALLOC_CAP_SPIRAM) / 1024.0f;
+
+  - platform: template
+    name: "Silvia Free Internal Heap"
+    id: silvia_free_internal_heap_kb
+    unit_of_measurement: "kB"
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: 5s
+    lambda: |-
+      return heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT) / 1024.0f;
 
   - platform: template
     name: "Silvia PID Heat Output"
@@ -3017,6 +3325,31 @@ sensor:
     mains_filter: 50Hz
     update_interval: 1s
     accuracy_decimals: 1
+    on_value:
+      then:
+        - lambda: |-
+            const uint32_t now = millis();
+            if (!std::isfinite(x)) {
+              if (!id(pt100_fault_active)) {
+                id(pt100_fault_count)++;
+              }
+              id(pt100_fault_active) = true;
+              return;
+            }
+
+            const bool sudden_zero_drop =
+                (id(pt100_fault_active) && x < 5.0f) ||
+                (std::isfinite(id(pt100_last_valid_temperature)) &&
+                 id(pt100_last_valid_temperature) > 30.0f &&
+                 x < 5.0f);
+
+            if (sudden_zero_drop && !id(pt100_fault_active)) {
+              id(pt100_fault_count)++;
+            }
+
+            id(pt100_fault_active) = sudden_zero_drop;
+            id(pt100_last_update_ms) = now;
+            id(pt100_last_valid_temperature) = x;
     on_value_range:
       - above: ${overtemp_limit}
         then:
@@ -3032,6 +3365,23 @@ sensor:
           - switch.turn_off: silvia_pump_relay
           - switch.turn_off: silvia_brew_valve_relay
           - switch.turn_off: silvia_power_relay
+
+  - platform: template
+    name: "Silvia PT100 Data Age"
+    unit_of_measurement: "s"
+    entity_category: diagnostic
+    accuracy_decimals: 1
+    update_interval: 1s
+    lambda: |-
+      if (id(pt100_last_update_ms) == 0U) return NAN;
+      return (millis() - id(pt100_last_update_ms)) / 1000.0f;
+
+  - platform: template
+    name: "Silvia PT100 Fault Count"
+    entity_category: diagnostic
+    accuracy_decimals: 0
+    update_interval: 2s
+    lambda: 'return id(pt100_fault_count);'
 
       
 text_sensor:
@@ -3192,6 +3542,57 @@ text_sensor:
       }
 
       return {"Idle"};
+
+  # The local web_server rounds Number REST states to whole values, despite
+  # the native API retaining full precision. The dashboard reads this compact
+  # snapshot when opening PID settings and still writes through Number entities.
+  - platform: template
+    name: "Silvia PID Parameters Exact"
+    id: silvia_pid_parameters_exact
+    entity_category: diagnostic
+    disabled_by_default: true
+    update_interval: 2s
+    lambda: |-
+      return {str_sprintf(
+          "%.9g|%.9g|%.9g",
+          id(silvia_pid_kp).state,
+          id(silvia_pid_ki).state,
+          id(silvia_pid_kd).state)};
+
+  - platform: template
+    name: "Silvia PT100 Diagnostic Status"
+    entity_category: diagnostic
+    update_interval: 1s
+    lambda: |-
+      if (id(pt100_last_update_ms) == 0U) return {"NO_DATA"};
+      const uint32_t age = millis() - id(pt100_last_update_ms);
+      if (age > 3000U) {
+        if (!id(pt100_fault_active)) id(pt100_fault_count)++;
+        id(pt100_fault_active) = true;
+        return {"STALE"};
+      }
+      if (id(pt100_fault_active)) return {"SUDDEN_DROP"};
+      if (!id(silvia_boiler_temp_pt100).has_state() ||
+          !std::isfinite(id(silvia_boiler_temp_pt100).state)) return {"INVALID"};
+      return {"OK"};
+
+  - platform: template
+    name: "Silvia Scale Diagnostic Status"
+    entity_category: diagnostic
+    update_interval: 1s
+    lambda: |-
+      if (id(scale_last_update_ms) == 0U) return {"NO_DATA"};
+      const uint32_t age = millis() - id(scale_last_update_ms);
+      if (age > 1000U) {
+        if (!id(scale_fault_active)) id(scale_fault_count)++;
+        id(scale_fault_active) = true;
+        return {"STALE"};
+      }
+      if (id(scale_fault_active) || !id(silvia_scale_raw).has_state() ||
+          !std::isfinite(id(silvia_scale_raw).state)) return {"INVALID"};
+      if (!id(silvia_scale_tare_valid)) return {"NOT_TARED"};
+      if (!id(silvia_scale_calibration_valid)) return {"NOT_CALIBRATED"};
+      return {"OK"};
 
 output:
   - platform: gpio
@@ -3475,6 +3876,10 @@ select:
                 value: 8.0
             - switch.turn_off: silvia_preinfusion_boost
             - switch.turn_off: silvia_main_brew_boost
+      # number.set publishes its on_value actions asynchronously. Keep the
+      # guard active until those callbacks have completed, otherwise they
+      # immediately turn a freshly selected preset back into Custom.
+      - delay: 750ms
       - lambda: 'id(shot_profile_applying) = false;'
       - component.update: silvia_shot_profile_preview
 

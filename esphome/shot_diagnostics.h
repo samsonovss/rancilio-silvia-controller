@@ -1,14 +1,50 @@
 #pragma once
 
 #include <algorithm>
+#include <cstdlib>
 #include <cstdio>
 #include <cstdint>
+#include <limits>
 #include <string>
 #include <vector>
 
+#include "esp_heap_caps.h"
 #include "esphome/components/web_server_base/web_server_base.h"
 
 namespace silvia_diag {
+
+// Long-lived shot samples belong in external PSRAM. Critical control state,
+// interrupts and the pressure loop remain in fast internal SRAM. If PSRAM is
+// unexpectedly unavailable, fall back to the normal heap so brewing and CSV
+// diagnostics still work instead of crashing during allocation.
+template<typename T> class PsramAllocator {
+ public:
+  using value_type = T;
+
+  PsramAllocator() noexcept = default;
+  template<typename U> PsramAllocator(const PsramAllocator<U> &) noexcept {}
+
+  T *allocate(std::size_t count) {
+    if (count > std::numeric_limits<std::size_t>::max() / sizeof(T))
+      std::abort();
+    const std::size_t bytes = count * sizeof(T);
+    void *memory = heap_caps_malloc(bytes, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    if (memory == nullptr)
+      memory = heap_caps_malloc(bytes, MALLOC_CAP_8BIT);
+    if (memory == nullptr)
+      std::abort();
+    return static_cast<T *>(memory);
+  }
+
+  void deallocate(T *pointer, std::size_t) noexcept { heap_caps_free(pointer); }
+
+  template<typename U> struct rebind { using other = PsramAllocator<U>; };
+};
+
+template<typename T, typename U>
+bool operator==(const PsramAllocator<T> &, const PsramAllocator<U> &) { return true; }
+template<typename T, typename U>
+bool operator!=(const PsramAllocator<T> &, const PsramAllocator<U> &) { return false; }
 
 enum class StartupState : uint8_t {
   WAIT_DROP,
@@ -54,9 +90,20 @@ struct ShotSample {
   float handoff_percent;
   float final_output_percent;
   float temperature_feed_forward_percent;
+  float pressure_sensor_temperature_c;
+  float boiler_temperature_c;
+  float weight_g;
+  float flow_g_s;
+  uint32_t xdb_start_errors;
+  uint32_t xdb_status_errors;
+  uint32_t xdb_measurement_timeouts;
+  uint32_t xdb_packet_errors;
+  uint32_t xdb_rejected_packets;
+  uint32_t xdb_total_errors;
+  uint32_t xdb_consecutive_errors;
 };
 
-inline std::vector<ShotSample> last_shot;
+inline std::vector<ShotSample, PsramAllocator<ShotSample>> last_shot;
 inline bool capture_active = false;
 inline bool csv_ready = false;
 inline uint32_t shot_started_ms = 0;
@@ -127,20 +174,22 @@ inline void clear() {
 
 inline std::string make_csv() {
   std::string csv;
-  csv.reserve(256 + last_shot.size() * 180);
+  csv.reserve(512 + last_shot.size() * 260);
   csv += "elapsed_ms,phase,target_bar,pressure_bar,pressure_slope_bar_s,predicted_pressure_bar,";
   csv += "time_to_target_s,soft_start_limit_percent,";
   csv += "desired_pressure_slope_bar_s,rise_rate_brake,pressure_recovery_boost,";
   csv += "error_bar,sensor_ok,sensor_age_ms,brew_valve,";
   csv += "startup_state,transition_reason,drop_samples,rise_samples,pi_enabled,feed_forward,";
   csv += "p_term,i_term,pi_output,handoff_percent,final_output_percent,";
-  csv += "temperature_feed_forward_percent\n";
-  char line[384];
+  csv += "temperature_feed_forward_percent,pressure_sensor_temperature_c,boiler_temperature_c,";
+  csv += "weight_g,flow_g_s,xdb_start_errors,xdb_status_errors,xdb_measurement_timeouts,";
+  csv += "xdb_packet_errors,xdb_rejected_packets,xdb_total_errors,xdb_consecutive_errors\n";
+  char line[512];
   for (const auto &sample : last_shot) {
     const int length = snprintf(
         line, sizeof(line),
         "%lu,%u,%.4f,%.4f,%.4f,%.4f,%.4f,%.2f,%.4f,%.5f,%.5f,%.4f,%u,%lu,%u,%s,%s,%d,%d,%u,"
-        "%.5f,%.5f,%.5f,%.5f,%.2f,%.2f,%.2f\n",
+        "%.5f,%.5f,%.5f,%.5f,%.2f,%.2f,%.2f,%.2f,%.2f,%.3f,%.3f,%lu,%lu,%lu,%lu,%lu,%lu,%lu\n",
         static_cast<unsigned long>(sample.elapsed_ms), sample.phase,
         sample.target_bar, sample.pressure_bar, sample.pressure_slope_bar_s,
         sample.predicted_pressure_bar, sample.time_to_target_s,
@@ -154,7 +203,16 @@ inline std::string make_csv() {
         transition_reason_name(sample.transition_reason), sample.drop_samples,
         sample.rise_samples, sample.pi_enabled ? 1 : 0, sample.feed_forward,
         sample.p_term, sample.i_term, sample.pi_output, sample.handoff_percent,
-        sample.final_output_percent, sample.temperature_feed_forward_percent);
+        sample.final_output_percent, sample.temperature_feed_forward_percent,
+        sample.pressure_sensor_temperature_c, sample.boiler_temperature_c,
+        sample.weight_g, sample.flow_g_s,
+        static_cast<unsigned long>(sample.xdb_start_errors),
+        static_cast<unsigned long>(sample.xdb_status_errors),
+        static_cast<unsigned long>(sample.xdb_measurement_timeouts),
+        static_cast<unsigned long>(sample.xdb_packet_errors),
+        static_cast<unsigned long>(sample.xdb_rejected_packets),
+        static_cast<unsigned long>(sample.xdb_total_errors),
+        static_cast<unsigned long>(sample.xdb_consecutive_errors));
     if (length > 0)
       csv.append(line, std::min<int>(length, sizeof(line) - 1));
   }
