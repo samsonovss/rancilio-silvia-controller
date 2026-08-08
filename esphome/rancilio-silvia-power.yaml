@@ -82,6 +82,11 @@ logger:
 debug:
   update_interval: 5s
 
+time:
+  - platform: sntp
+    id: silvia_time
+    timezone: Asia/Yekaterinburg
+
 web_server:
   port: 80
 
@@ -2284,7 +2289,10 @@ script:
                     id(silvia_coffee_dose_grams).state,
                     id(silvia_brew_target_weight).state,
                     id(active_preinfusion_pump_seconds),
-                    id(active_preinfusion_pause_seconds));
+                    id(active_preinfusion_pause_seconds),
+                    id(silvia_time).now().is_valid()
+                        ? static_cast<uint32_t>(id(silvia_time).now().timestamp)
+                        : 0U);
             - switch.turn_on: silvia_brew_valve_relay
             - lambda: |-
                 id(pressure_control_integral) = 0.0f;

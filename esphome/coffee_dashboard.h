@@ -37,6 +37,19 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     .user-profile-actions button { width:34px; min-width:34px; }
     .user-profile-actions .user-profile-delete { color:#e98282; font-size:13px; }
     .user-profile-actions .user-profile-delete:hover:not(:disabled) { background:#3b2227; color:#ffaaaa; }
+    .home-archive-head-actions{display:flex;align-items:center;gap:6px}
+    .home-archive-head-actions button{min-width:38px;height:38px;padding:0;display:grid;place-items:center}
+    .home-archive-list{align-content:start;grid-auto-rows:max-content}
+    .archive-row-card{display:grid;grid-template-columns:minmax(0,1fr) 34px;align-items:stretch;min-height:76px;overflow:hidden;margin-bottom:5px;border:1px solid #303a46;border-radius:9px;background:#171c22}
+    .archive-row-card.active{border-color:#9b673e;background:#2d241c;box-shadow:inset 0 0 0 1px rgba(225,139,72,.08)}
+    .archive-row-open{min-width:0;display:grid;grid-template-columns:minmax(0,1fr);gap:0;padding:9px 10px;border:0;border-radius:0;background:transparent;color:#dce2e9;text-align:left;box-shadow:none}
+    .archive-row-open:hover:not(:disabled){background:#20262e}
+    .archive-row-card.active .archive-row-open:hover:not(:disabled){background:#35291f}
+    .archive-row-profile{overflow:hidden;font-size:var(--zone-font-text,14px);font-weight:760;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}
+    .archive-row-date{overflow:hidden;margin-top:4px;color:#778491;font-size:var(--zone-font-small,12px);font-weight:570;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}
+    .archive-row-metrics{overflow:hidden;margin-top:4px;color:#9aa4b0;font-size:var(--zone-font-small,12px);font-weight:600;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}
+    .archive-row-delete{align-self:stretch;width:34px;min-width:34px;padding:0;border:0;border-left:1px solid #303a46;border-radius:0;background:transparent;color:#e98282;font-size:13px;box-shadow:none}
+    .archive-row-delete:hover:not(:disabled){background:#3b2227;color:#ffaaaa}
     .user-profile-apply .user-profile-date { margin-top:3px; color:#6f7c89; font-size:7px; }
   </style>
 </head>
@@ -984,14 +997,16 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                   <b>Сохранённые проливы</b>
                   <small id="homeArchiveStatus">Выберите запись</small>
                 </div>
-                <button type="button" onclick="loadArchiveList(true)"
-                  aria-label="Обновить проливы" title="Обновить проливы">
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M20 6v5h-5"/><path d="M4 18v-5h5"/>
-                    <path d="M6.1 8.2A7 7 0 0 1 18.8 7L20 11"/>
-                    <path d="M17.9 15.8A7 7 0 0 1 5.2 17L4 13"/>
-                  </svg>
-                </button>
+                <div class="home-archive-head-actions">
+                  <button type="button" onclick="loadArchiveList(true)"
+                    aria-label="Обновить проливы" title="Обновить проливы">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M20 6v5h-5"/><path d="M4 18v-5h5"/>
+                      <path d="M6.1 8.2A7 7 0 0 1 18.8 7L20 11"/>
+                      <path d="M17.9 15.8A7 7 0 0 1 5.2 17L4 13"/>
+                    </svg>
+                  </button>
+                </div>
               </div>
 
               <div id="homeArchiveList" class="history-list home-archive-list">
@@ -1018,83 +1033,6 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         <input id="softInfusionTime" type="number" value="0">
         <input id="softInfusionStartPower" type="number" value="0">
       </div>
-
-      <section id="page-history" class="page">
-        <div class="history-page-head">
-          <div>
-            <h1>История</h1>
-            <p>Сохранённые проливы</p>
-          </div>
-          <button class="history-refresh-button" type="button"
-            onclick="loadArchiveList(true)"
-            aria-label="Обновить историю" title="Обновить историю">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M20 6v5h-5"/><path d="M4 18v-5h5"/>
-              <path d="M6.1 8.2A7 7 0 0 1 18.8 7L20 11"/>
-              <path d="M17.9 15.8A7 7 0 0 1 5.2 17L4 13"/>
-            </svg>
-          </button>
-        </div>
-
-        <div class="history-workspace">
-          <aside class="card history-list-card">
-            <div class="history-list-head">
-              <b>Проливы</b>
-              <small id="historyCount">—</small>
-            </div>
-            <div id="historyList" class="history-list">
-              <div class="history-list-state">Загрузка истории…</div>
-            </div>
-          </aside>
-
-          <article id="historyDetail" class="card history-detail-card">
-            <div id="historyDetailEmpty" class="history-detail-empty">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 5h16v14H4z"/><path d="M7 15l3-4 3 3 2-2 2 3"/>
-              </svg>
-              <b>Выберите пролив</b>
-              <span>График и показатели появятся здесь.</span>
-            </div>
-
-            <div id="historyDetailBody" hidden>
-              <div class="history-detail-head">
-                <div>
-                  <div id="historyDetailTitle" class="section-title">Пролив</div>
-                  <div id="historyDetailSubtitle" class="section-subtitle">—</div>
-                </div>
-                <button class="history-show-home" type="button"
-                  onclick="showSelectedArchiveOnHome()">
-                  Показать на главной
-                </button>
-              </div>
-
-              <div class="history-detail-metrics">
-                <div><small>Вес</small><b id="historyDrinkWeight">—</b></div>
-                <div><small>Время</small><b id="historyDuration">—</b></div>
-                <div><small>Пик давления</small><b id="historyPeakPressure">—</b></div>
-                <div><small>Цель веса</small><b id="historyTargetWeight">—</b></div>
-              </div>
-
-              <div class="history-chart-wrap">
-                <canvas id="historyChart"></canvas>
-              </div>
-
-              <div class="legend chart-legend-bottom shot-legend-split history-legend">
-                <div class="legend-group legend-group-left">
-                  <button class="shot-legend-toggle" type="button" data-shot-line-visibility="profile" onclick="toggleShotLineVisibility('profile')" aria-pressed="true" title="Скрыть или показать линию профиля"><i data-shot-line-indicator="profile" style="width:18px;height:0;border-radius:0;border-top:3px dashed #ffd166;background:transparent;vertical-align:middle;margin-bottom:2px"></i>Профиль</button>
-                  <button class="shot-legend-toggle" type="button" data-shot-line-visibility="pressure" onclick="toggleShotLineVisibility('pressure')" aria-pressed="true" title="Скрыть или показать линию давления"><i data-shot-line-indicator="pressure" style="background:#54a9ff"></i>Давление</button>
-                </div>
-                <div class="legend-group legend-group-right">
-                  <button class="shot-legend-toggle" type="button" data-shot-line-visibility="flow" onclick="toggleShotLineVisibility('flow')" aria-pressed="true" title="Скрыть или показать линию потока"><i data-shot-line-indicator="flow" style="background:#4bd18b"></i>Поток, г/с</button>
-                  <button class="shot-legend-toggle" type="button" data-shot-line-visibility="pump" onclick="toggleShotLineVisibility('pump')" aria-pressed="true" title="Скрыть или показать линию помпы"><i data-shot-line-indicator="pump" style="background:#9a72ef;opacity:.35"></i>Помпа</button>
-                </div>
-              </div>
-
-              <div id="historyDetailNote" class="history-detail-note"></div>
-            </div>
-          </article>
-        </div>
-      </section>
 
       <section id="page-settings" class="page">
         <div class="settings-page-head">
@@ -2632,9 +2570,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       setTemperatureWindow(tempWindowSeconds);
       updateChartControls();
       renderUserProfiles();
-      renderArchiveList();
       renderHomeArchiveList();
-      renderArchiveDetail();
       renderHomeArchiveSummary(
         archiveSelectedSummary
       );
@@ -3062,7 +2998,6 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     function redrawShotLineSettings() {
       requestAnimationFrame(() => {
         draw();
-        drawHistoryArchiveChart();
       });
     }
 
@@ -4552,7 +4487,6 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     let archiveSelectedSummary = null;
     let archiveDetailSeries = [];
     let archiveListLoadToken = 0;
-    let archiveDetailLoadToken = 0;
     const archiveSummaryCache = new Map();
     const archiveSeriesCache = new Map();
 
@@ -9713,15 +9647,21 @@ if (card) {
       }
     }
 
-    function buildProfileSeries(config = profileCfg) {
+    function buildProfileSeries(
+      config = profileCfg,
+      profileName = currentProfileName || 'Custom'
+    ) {
       const prePump = Math.max(0, Number(config.prePump) || 0);
       const prePause = Math.max(0, Number(config.prePause) || 0);
       const mainSeconds = Math.max(0, Number(config.shotSeconds) || 0);
       const total = prePump + prePause + mainSeconds;
       if (total <= 0) return [];
 
-      const startPressure = Math.max(0, Number(config.prePower) || 0);
       const mainPressure = Math.max(0, Number(config.mainPressure) || 0);
+      const startPressure =
+        String(profileName || '') === 'Classic'
+          ? mainPressure
+          : Math.max(0, Number(config.prePower) || 0);
       const endPressure = Math.max(0, Number(config.endPressure) || 0);
       const configuredSoftStart = Math.max(0, Number(config.softInfusionTime) || 0);
       const rampSeconds = Math.min(mainSeconds, configuredSoftStart);
@@ -13056,6 +12996,9 @@ if (card) {
           /^\d{10,13}$/.test(String(value))
         ) {
           const number = Number(value);
+          if (!Number.isFinite(number) || number < 1577836800) {
+            continue;
+          }
           date = new Date(
             number < 1e12
               ? number * 1000
@@ -13077,7 +13020,7 @@ if (card) {
       const date = archiveDate(summary, raw);
 
       if (!date) {
-        return '#' + id;
+        return tr('Дата неизвестна');
       }
 
       return new Intl.DateTimeFormat(
@@ -13085,6 +13028,9 @@ if (card) {
           ? 'en-US'
           : 'ru-RU',
         {
+          day:'2-digit',
+          month:'2-digit',
+          year:'2-digit',
           hour:'2-digit',
           minute:'2-digit'
         }
@@ -13205,257 +13151,25 @@ if (card) {
 
       const duration = archiveDuration(summary);
       const drink = archiveDrinkWeight(summary);
-      const dose = archiveDose(summary);
-      const peak = archivePeakPressure(summary);
       const parts = [];
 
       if (drink > 0) {
         parts.push(
-          dose > 0
-            ? fmt(dose, 0) +
-              ' → ' +
-              fmt(drink, 1) +
-              ' ' +
-              tr('г')
-            : fmt(drink, 1) +
-              ' ' +
-              tr('г')
+          tr('Вес') + ' ' +
+          fmt(drink, 1) + ' ' + tr('г')
         );
       }
 
       if (duration > 0) {
         parts.push(
-          fmt(duration, 1) +
-          ' ' +
-          tr('с')
-        );
-      }
-
-      if (peak > 0) {
-        parts.push(
-          fmt(peak, 1) +
-          ' ' +
-          tr('бар')
+          tr('Время') + ' ' +
+          fmt(duration, 1) + ' ' + tr('с')
         );
       }
 
       return parts.length
         ? parts.join(' · ')
         : tr('Данные пролива');
-    }
-
-    function renderArchiveList() {
-      const list = $('historyList');
-      const count = $('historyCount');
-
-      if (!list || !count) return;
-
-      count.textContent = message(
-        'localSaved',
-        archiveIndex.length
-      );
-
-      if (!archiveIndex.length) {
-        list.innerHTML =
-          '<div class="history-list-state">' +
-          archiveEscapeHtml(
-            tr('История пока пуста')
-          ) +
-          '<br><small>' +
-          archiveEscapeHtml(
-            tr('После первого пролива здесь появится запись.')
-          ) +
-          '</small></div>';
-        return;
-      }
-
-      list.innerHTML = archiveIndex
-        .map(item => {
-          const id = item.id;
-          const summary =
-            archiveSummaryCache.get(id) ||
-            item.summary ||
-            null;
-          const active =
-            id === archiveSelectedId;
-
-          return (
-            '<button class="history-row' +
-            (active ? ' active' : '') +
-            '" type="button" data-archive-id="' +
-            id +
-            '" onclick="selectArchiveShot(' +
-            id +
-            ',true)">' +
-              '<span class="history-row-time">' +
-                archiveEscapeHtml(
-                  archiveTimeLabel(
-                    summary,
-                    item.raw,
-                    id
-                  )
-                ) +
-              '</span>' +
-              '<span class="history-row-copy">' +
-                '<b>' +
-                  archiveEscapeHtml(
-                    archiveProfile(summary)
-                  ) +
-                '</b>' +
-                '<small>' +
-                  archiveEscapeHtml(
-                    archiveRowMeta(summary)
-                  ) +
-                '</small>' +
-              '</span>' +
-              '<span class="history-row-arrow" aria-hidden="true">›</span>' +
-            '</button>'
-          );
-        })
-        .join('');
-    }
-
-    function setArchiveDetailLoading() {
-      const empty = $('historyDetailEmpty');
-      const body = $('historyDetailBody');
-
-      if (empty) {
-        empty.hidden = false;
-        empty.style.removeProperty('display');
-        empty.querySelector('b').textContent =
-          tr('Загрузка пролива…');
-        empty.querySelector('span').textContent =
-          tr('Читаем график и показатели.');
-      }
-
-      if (body) {
-        body.hidden = true;
-        body.style.display = 'none';
-      }
-    }
-
-    function setArchiveDetailMessage(
-      title,
-      messageText
-    ) {
-      const empty = $('historyDetailEmpty');
-      const body = $('historyDetailBody');
-
-      if (empty) {
-        empty.hidden = false;
-        empty.style.removeProperty('display');
-        empty.querySelector('b').textContent =
-          tr(title);
-        empty.querySelector('span').textContent =
-          tr(messageText);
-      }
-
-      if (body) {
-        body.hidden = true;
-        body.style.display = 'none';
-      }
-    }
-
-    function renderArchiveDetail() {
-      const empty = $('historyDetailEmpty');
-      const body = $('historyDetailBody');
-      const summary = archiveSelectedSummary;
-
-      if (
-        !empty ||
-        !body ||
-        !summary ||
-        !archiveSelectedId
-      ) {
-        return;
-      }
-
-      const duration = archiveDuration(summary);
-      const drink = archiveDrinkWeight(summary);
-      const target = archiveTargetWeight(summary);
-      const peak = archivePeakPressure(summary);
-      const date = archiveDateLabel(
-        summary,
-        archiveIndex.find(
-          item => item.id === archiveSelectedId
-        )?.raw
-      );
-
-      $('historyDetailTitle').textContent =
-        message(
-          'shotNumber',
-          archiveSelectedId
-        );
-
-      $('historyDetailSubtitle').textContent =
-        [
-          archiveProfile(summary),
-          date
-        ]
-          .filter(Boolean)
-          .join(' · ');
-
-      $('historyDrinkWeight').textContent =
-        drink > 0
-          ? fmt(drink, 1) +
-            ' ' +
-            tr('г')
-          : '—';
-
-      $('historyDuration').textContent =
-        duration > 0
-          ? fmt(duration, 1) +
-            ' ' +
-            tr('с')
-          : '—';
-
-      $('historyPeakPressure').textContent =
-        peak > 0
-          ? fmt(peak, 2) +
-            ' ' +
-            tr('бар')
-          : '—';
-
-      $('historyTargetWeight').textContent =
-        target > 0
-          ? fmt(target, 1) +
-            ' ' +
-            tr('г')
-          : '—';
-
-      const errors = archiveErrors(summary);
-      const dose = archiveDose(summary);
-      const noteParts = [];
-
-      if (dose > 0) {
-        noteParts.push(
-          tr('Доза') +
-          ': ' +
-          fmt(dose, 1) +
-          ' ' +
-          tr('г')
-        );
-      }
-
-      if (errors > 0) {
-        noteParts.push(
-          tr('Ошибки XDB401') +
-          ': ' +
-          fmt(errors, 0)
-        );
-      }
-
-      $('historyDetailNote').textContent =
-        noteParts.join(' · ');
-
-      empty.hidden = true;
-      empty.style.display = 'none';
-      body.hidden = false;
-      body.style.removeProperty('display');
-
-      requestAnimationFrame(
-        drawHistoryArchiveChart
-      );
     }
 
     async function fetchArchiveSummary(
@@ -13571,122 +13285,41 @@ if (card) {
       return series;
     }
 
-    function drawHistoryArchiveChart() {
-      const canvas = $('historyChart');
+    async function deleteSelectedArchiveShot(shotId = archiveSelectedId) {
+      const id = Number(shotId);
+      if (!id) return;
 
-      if (
-        !canvas ||
-        !canvas.isConnected ||
-        canvas.getBoundingClientRect().width < 20 ||
-        !archiveDetailSeries.length
-      ) {
+      const item = archiveIndex.find(entry => entry.id === id);
+      const summary = archiveSummaryCache.get(id) || item?.summary || null;
+      const label = archiveDateLabel(summary, item?.raw) || tr('без даты');
+
+      if (!confirm(tr('Удалить сохранённый пролив') + ' (' + label + ')?')) {
         return;
       }
 
-      activeChartFontZone = 'shot';
-
-      const frame = canvasFrame(
-        'historyChart',
-        {
-          left:54,
-          right:60,
-          top:34,
-          bottom:24
-        }
-      );
-      const series = archiveDetailSeries;
-      const archiveStages = archiveStageConfig(
-        archiveSelectedSummary,
-        series
-      );
-
-      drawRecipeBands(frame, archiveStages, series);
-      drawPressureAxes(frame, series);
-      drawArchiveStageGuides(frame, archiveStages, series);
-
-      const profileLine =
-        shotLineStyle('profile');
-      const pumpLine =
-        shotLineStyle('pump');
-      const flowLine =
-        shotLineStyle('flow');
-      const pressureLine =
-        shotLineStyle('pressure');
-
-      if (shotLineVisible('profile')) {
-        plotLine(frame, series, 't', profileLine.color, 0, 12, profileLine.width, true, profileLine.opacity);
-      }
-      if (shotLineVisible('pump')) {
-        plotLine(frame, series, 'u', pumpLine.color, 0, 100, pumpLine.width, false, pumpLine.opacity);
-      }
-      if (shotLineVisible('flow')) {
-        plotLine(frame, series, 'f', flowLine.color, 0, 6, flowLine.width, false, flowLine.opacity);
-      }
-      if (shotLineVisible('pressure')) {
-        plotLine(frame, series, 'p', pressureLine.color, 0, 12, pressureLine.width, false, pressureLine.opacity);
-      }
-    }
-
-    async function selectArchiveShot(
-      id,
-      scrollToDetail = false
-    ) {
-      id = Number(id);
-
-      if (!id) return;
-
-      archiveSelectedId = id;
-      renderArchiveList();
-      renderHomeArchiveList();
-      setArchiveDetailLoading();
-
-      const token = ++archiveDetailLoadToken;
-      const item = archiveIndex.find(
-        entry => entry.id === id
-      );
-
       try {
-        const [summary, series] =
-          await Promise.all([
-            fetchArchiveSummary(
-              id,
-              item?.raw
-            ),
-            fetchArchiveSeries(id)
-          ]);
+        const response = await fetch('/shots/delete/' + id, {
+          method:'POST',
+          cache:'no-store'
+        });
+        if (!response.ok) throw Error('archive delete failed');
 
-        if (token !== archiveDetailLoadToken) {
-          return;
+        archiveSummaryCache.delete(id);
+        archiveSeriesCache.delete(id);
+        if (archiveSelectedId === id) {
+          archiveSelectedId = 0;
+          archiveSelectedSummary = null;
+          archiveDetailSeries = [];
+          archiveSeries = [];
+          chartMode = 'auto';
+          archiveTitle = '';
         }
-
-        archiveSelectedSummary = summary;
-        archiveDetailSeries = series;
-        renderArchiveList();
-        renderHomeArchiveList();
-        renderArchiveDetail();
-
-        if (
-          scrollToDetail &&
-          matchMedia(
-            '(max-width:820px)'
-          ).matches
-        ) {
-          $('historyDetail')?.scrollIntoView({
-            behavior:'smooth',
-            block:'start'
-          });
-        }
+        toast(tr('Пролив удалён'));
+        await loadArchiveList(true);
+        updateChartControls();
+        draw();
       } catch (_) {
-        if (token !== archiveDetailLoadToken) {
-          return;
-        }
-
-        archiveSelectedSummary = null;
-        archiveDetailSeries = [];
-        setArchiveDetailMessage(
-          'Не удалось открыть пролив',
-          'Файл архива недоступен.'
-        );
+        toast(tr('Не удалось удалить пролив'), true);
       }
     }
 
@@ -13713,7 +13346,6 @@ if (card) {
             item.id,
             item.raw
           );
-          renderArchiveList();
           renderHomeArchiveList();
         } catch (_) {}
 
@@ -13935,12 +13567,19 @@ if (card) {
             id === archiveSelectedId;
 
           return (
-            '<button class="history-row' +
+            '<div class="archive-row-card' +
             (active ? ' active' : '') +
-            '" type="button" onclick="selectHomeArchiveShot(' +
-            id +
-            ')">' +
-              '<span class="history-row-time">' +
+            '">' +
+              '<button class="archive-row-open" type="button" onclick="selectHomeArchiveShot(' + id + ')">' +
+                '<b class="archive-row-profile">' +
+                  archiveEscapeHtml(archiveProfile(summary)) +
+                '</b>' +
+                '<span class="archive-row-metrics">' +
+                  archiveEscapeHtml(
+                    archiveRowMeta(summary)
+                  ) +
+                '</span>' +
+                '<span class="archive-row-date">' +
                 archiveEscapeHtml(
                   archiveTimeLabel(
                     summary,
@@ -13948,21 +13587,13 @@ if (card) {
                     id
                   )
                 ) +
-              '</span>' +
-              '<span class="history-row-copy">' +
-                '<b>' +
-                  archiveEscapeHtml(
-                    archiveProfile(summary)
-                  ) +
-                '</b>' +
-                '<small>' +
-                  archiveEscapeHtml(
-                    archiveRowMeta(summary)
-                  ) +
-                '</small>' +
-              '</span>' +
-              '<span class="history-row-arrow" aria-hidden="true">›</span>' +
-            '</button>'
+                '</span>' +
+              '</button>' +
+              '<button class="archive-row-delete" type="button" onclick="deleteSelectedArchiveShot(' + id + ')"' +
+                (shotRunning ? ' disabled' : '') +
+                ' aria-label="' + archiveEscapeHtml(tr('Удалить пролив')) +
+                '" title="' + archiveEscapeHtml(tr('Удалить пролив')) + '">🗑</button>' +
+            '</div>'
           );
         })
         .join('');
@@ -14053,15 +13684,11 @@ if (card) {
         );
         chartMode = 'archive';
         archiveTitle =
-          message('shotNumber', id) +
-          ' · ' +
-          archiveProfile(summary);
+          (archiveDateLabel(summary, item?.raw) || tr('Пролив без даты')) +
+          ' · ' + archiveProfile(summary);
 
         renderHomeArchiveSummary(summary);
         renderHomeArchiveList();
-        renderArchiveList();
-        renderHomeArchiveList();
-        renderArchiveDetail();
 
         if (status) {
           status.textContent =
@@ -14092,7 +13719,7 @@ if (card) {
       force = false
     ) {
       const token = ++archiveListLoadToken;
-      const list = $('historyList');
+      const list = $('homeArchiveList');
 
       if (list) {
         list.innerHTML =
@@ -14154,38 +13781,18 @@ if (card) {
             archiveIndex[0]?.id || 0;
         }
 
-        renderArchiveList();
-
         renderHomeArchiveList();
 
         if (!archiveSelectedId) {
           archiveSelectedSummary = null;
           archiveDetailSeries = [];
-          setArchiveDetailMessage(
-            'История пока пуста',
-            'После первого пролива здесь появится запись.'
-          );
           return;
         }
 
-        const activePageId =
-          document.querySelector('.page.active')?.id || '';
-        const needsArchiveDetail =
-          activePageId === 'page-history' ||
-          homeShotRailMode === 'shots';
-
-        if (needsArchiveDetail) {
-          await selectArchiveShot(
-            archiveSelectedId,
-            false
+        if (homeShotRailMode === 'shots') {
+          await selectHomeArchiveShot(
+            archiveSelectedId
           );
-
-          if (homeShotRailMode === 'shots') {
-            await selectHomeArchiveShot(
-              archiveSelectedId
-            );
-          }
-
         }
 
         // Fill the first visible rows immediately, even while Home remains
@@ -14199,10 +13806,6 @@ if (card) {
         archiveSelectedSummary = null;
         archiveDetailSeries = [];
 
-        if ($('historyCount')) {
-          $('historyCount').textContent = '—';
-        }
-
         if (list) {
           list.innerHTML =
             '<div class="history-list-state">' +
@@ -14214,61 +13817,7 @@ if (card) {
             '</div>';
         }
 
-        setArchiveDetailMessage(
-          'Архив недоступен',
-          'Не удалось получить список проливов.'
-        );
       }
-    }
-
-    function showSelectedArchiveOnHome() {
-      if (
-        !archiveSelectedId ||
-        !archiveDetailSeries.length
-      ) {
-        return;
-      }
-
-      archiveSeries =
-        archiveDetailSeries.map(
-          point => ({ ...point })
-        );
-      chartMode = 'archive';
-      archiveTitle =
-        message(
-          'shotNumber',
-          archiveSelectedId
-        ) +
-        ' · ' +
-        archiveProfile(
-          archiveSelectedSummary
-        );
-      homeShotRailMode = 'shots';
-      try {
-        localStorage.setItem(
-          HOME_SHOT_RAIL_MODE_KEY,
-          'shots'
-        );
-      } catch (_) {}
-      syncHomeShotRailUi();
-      renderHomeArchiveSummary(
-        archiveSelectedSummary
-      );
-      renderHomeArchiveList();
-
-      showPage('home');
-      updateChartControls();
-      draw();
-      toast(
-        message(
-          'archiveLoaded',
-          archiveSelectedId
-        )
-      );
-    }
-
-    async function loadArchivedShot() {
-      showSelectedArchiveOnHome();
     }
 
     async function loadHomeStatus(){
@@ -14364,7 +13913,6 @@ if (card) {
       draw();
       drawTemp();
       drawRecipePreview();
-      drawHistoryArchiveChart();
       updateMainCurveEditor();
     });
     initHomeValueScrub();

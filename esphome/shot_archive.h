@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <dirent.h>
 #include <string>
@@ -30,16 +32,19 @@ inline float pending_dose_g = NAN;
 inline float pending_target_weight_g = NAN;
 inline float pending_preinfusion_s = NAN;
 inline float pending_pause_s = NAN;
+inline uint32_t pending_timestamp = 0;
 
 inline void begin_metadata(const std::string &profile, float brew_target_c,
                            float dose_g, float target_weight_g,
-                           float preinfusion_s, float pause_s) {
+                           float preinfusion_s, float pause_s,
+                           uint32_t timestamp = 0) {
   pending_profile = profile;
   pending_brew_target_c = brew_target_c;
   pending_dose_g = dose_g;
   pending_target_weight_g = target_weight_g;
   pending_preinfusion_s = preinfusion_s;
   pending_pause_s = pause_s;
+  pending_timestamp = timestamp;
 }
 
 inline std::vector<uint32_t> list_ids() {
@@ -145,10 +150,14 @@ inline std::string make_summary_json(uint32_t id) {
   const auto &first = silvia_diag::last_shot.front();
   const auto &last = silvia_diag::last_shot.back();
   const uint32_t shot_errors = last.xdb_total_errors - first.xdb_total_errors;
+  const std::string timestamp_json = pending_timestamp >= 1577836800U
+                                         ? std::to_string(pending_timestamp)
+                                         : "null";
   char json[1400];
   snprintf(json, sizeof(json),
            "{\n"
            "  \"id\": %lu,\n"
+           "  \"timestamp\": %s,\n"
            "  \"profile\": \"%s\",\n"
            "  \"shot_duration_s\": %.3f,\n"
            "  \"brew_temperature_target_c\": %.2f,\n"
@@ -159,7 +168,7 @@ inline std::string make_summary_json(uint32_t id) {
            "  \"samples\": %u,\n"
            "  \"csv\": \"shot-%06lu.csv\"\n"
            "}\n",
-           static_cast<unsigned long>(id), pending_profile.c_str(),
+           static_cast<unsigned long>(id), timestamp_json.c_str(), pending_profile.c_str(),
            last.elapsed_ms / 1000.0f, pending_brew_target_c, pending_dose_g,
            last.weight_g, pending_target_weight_g, pending_preinfusion_s,
            pending_pause_s, maximum_pressure, maximum_overshoot,
@@ -213,16 +222,41 @@ inline bool valid_archive_name(const std::string &name) {
 class ArchiveHandler : public AsyncWebHandler {
  public:
   bool canHandle(AsyncWebServerRequest *request) const override {
-    if (request->method() != HTTP_GET)
-      return false;
     char buffer[AsyncWebServerRequest::URL_BUF_SIZE];
     const std::string url = request->url_to(buffer);
-    return url == "/shots/index.json" || url.rfind("/shots/file/", 0) == 0;
+    if (request->method() == HTTP_GET)
+      return url == "/shots/index.json" || url.rfind("/shots/file/", 0) == 0;
+    return request->method() == HTTP_POST && url.rfind("/shots/delete/", 0) == 0;
   }
 
   void handleRequest(AsyncWebServerRequest *request) override {
     char buffer[AsyncWebServerRequest::URL_BUF_SIZE];
     const std::string url = request->url_to(buffer);
+    if (request->method() == HTTP_POST) {
+      const std::string value = url.substr(strlen("/shots/delete/"));
+      if (value.empty() ||
+          !std::all_of(value.begin(), value.end(), [](char c) { return c >= '0' && c <= '9'; })) {
+        request->send(400, "application/json", "{\"ok\":false,\"error\":\"invalid_id\"}");
+        return;
+      }
+      const unsigned long parsed = strtoul(value.c_str(), nullptr, 10);
+      if (parsed == 0 || parsed > UINT32_MAX) {
+        request->send(400, "application/json", "{\"ok\":false,\"error\":\"invalid_id\"}");
+        return;
+      }
+      const uint32_t id = static_cast<uint32_t>(parsed);
+      const bool csv_removed = std::remove(path_for(id, "csv").c_str()) == 0;
+      const bool json_removed = std::remove(path_for(id, "json").c_str()) == 0;
+      if (!csv_removed && !json_removed) {
+        request->send(404, "application/json", "{\"ok\":false,\"error\":\"not_found\"}");
+        return;
+      }
+      ESP_LOGI(TAG, "Deleted local shot %06lu", static_cast<unsigned long>(id));
+      auto *response = request->beginResponse(200, "application/json", "{\"ok\":true}");
+      response->addHeader("Cache-Control", "no-store");
+      request->send(response);
+      return;
+    }
     if (url == "/shots/index.json") {
       const auto ids = list_ids();
       std::string json = "{\"mounted\":" + std::string(mounted ? "true" : "false") +
