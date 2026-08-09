@@ -31,7 +31,196 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
             )) 12px minmax(0,var(--home-top-machine-track,
               calc(56% - 6px)
             ))!important}}.machine-control-card{grid-template-rows:78px minmax(58px,1fr);gap:7px}.machine-top-strip{height:78px;min-height:78px;grid-template-columns:78px minmax(0,1fr);gap:7px;align-items:stretch}.machine-power-tile{width:78px;min-width:78px;aspect-ratio:1;place-self:start;padding:12px}.machine-power-tile .power-inline{width:52px;min-width:52px;height:52px;min-height:52px;margin:0;place-self:center;box-sizing:border-box}.machine-power-tile,.machine-status-banner{min-height:78px;height:78px;box-sizing:border-box}.machine-actions-dock .machine-quick-actions .quick-action{position:relative;min-height:58px;overflow:hidden;display:block!important;padding:0!important}.machine-actions-dock .machine-quick-actions .quick-icon{position:absolute!important;inset:0!important;width:42px!important;height:42px!important;margin:auto!important;display:grid!important;place-items:center!important;align-self:auto!important;justify-self:auto!important;transform:none!important;border-radius:0!important;background:0 0!important}.machine-actions-dock .machine-quick-actions .quick-icon svg{display:block;width:32px!important;height:32px!important;margin:auto;overflow:visible}.machine-actions-dock .machine-quick-actions .quick-action.active .quick-icon,.machine-actions-dock .machine-quick-actions .quick-action.danger .quick-icon,.machine-actions-dock .machine-quick-actions .quick-action:disabled .quick-icon{background:0 0!important;transform:none!important}@media (max-width:900px) and (min-width:701px){.machine-control-card{grid-template-rows:70px minmax(56px,1fr)}.machine-top-strip{height:70px;min-height:70px;grid-template-columns:70px minmax(0,1fr)}.machine-power-tile{width:70px;min-width:70px;padding:11px}.machine-power-tile .power-inline{width:46px;min-width:46px;height:46px;min-height:46px}.machine-power-tile,.machine-status-banner{min-height:70px;height:70px}.machine-actions-dock .machine-quick-actions .quick-icon{width:38px!important;height:38px!important}.machine-actions-dock .machine-quick-actions .quick-icon svg{width:29px!important;height:29px!important}}@media (max-width:700px){.machine-control-card{min-height:138px;grid-template-rows:68px minmax(58px,1fr)}.machine-top-strip{height:68px;min-height:68px;grid-template-columns:68px minmax(0,1fr)}.machine-power-tile{width:68px;min-width:68px;padding:10px}.machine-power-tile .power-inline{width:46px;min-width:46px;height:46px;min-height:46px}.machine-power-tile,.machine-status-banner{min-height:68px;height:68px}}@media (max-width:430px){.machine-control-card{grid-template-rows:62px minmax(54px,1fr)}.machine-top-strip{height:62px;min-height:62px;grid-template-columns:62px minmax(0,1fr);gap:6px}.machine-power-tile{width:62px;min-width:62px;padding:9px}.machine-power-tile .power-inline{width:42px;min-width:42px;height:42px;min-height:42px}.machine-power-tile,.machine-status-banner{min-height:62px;height:62px}.machine-actions-dock .machine-quick-actions .quick-icon{width:35px!important;height:35px!important}.machine-actions-dock .machine-quick-actions .quick-icon svg{width:27px!important;height:27px!important}}.machine-icon-size-tools{flex:1 0 100%;display:grid;align-items:end;gap:8px 10px;padding:9px 10px;border:1px solid #303a46;border-radius:10px;background:#11161b}.machine-icon-size-tools label{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 9px;align-items:center;color:#aeb8c4;font-size:10px;font-weight:700}.machine-icon-size-tools output{color:#e5eaf0;font-variant-numeric:tabular-nums}.machine-icon-size-tools input{grid-column:1/-1;width:100%;min-width:0;height:18px;padding:0;border:0;background:0 0}.machine-icon-size-tools>button{align-self:end;white-space:nowrap}#page-home .home-top-grid>[data-home-top-panel]{width:100%!important;max-width:none!important;min-width:0!important;justify-self:stretch!important;align-self:stretch!important;box-sizing:border-box}#page-home .home-top-grid>.machine-panel{display:grid!important;grid-template-columns:minmax(0,1fr)}#page-home .home-top-grid>.home-metrics-panel,#page-home .machine-panel>.machine-control-card{width:100%!important;max-width:none!important;min-width:0!important;justify-self:stretch!important;align-self:stretch!important;box-sizing:border-box}#page-home{--machine-action-icon-size:48px;--machine-power-button-size:52px;--home-section-gap:18px;--home-temperature-card-height:165px;--home-left-column-share:50fr;--home-right-column-share:50fr;--home-left-column-share:38fr;--home-pressure-column-share:18fr;--home-right-column-share:44fr}#page-home .machine-power-tile .power-inline{width:var(--machine-power-button-size)!important;min-width:var(--machine-power-button-size)!important;height:var(--machine-power-button-size)!important;min-height:var(--machine-power-button-size)!important}#page-home .machine-power-tile .power-symbol{font-size:calc(var(--machine-power-button-size)*.44)!important}#page-home .machine-actions-dock .machine-quick-actions .quick-icon svg{display:block!important;margin:0!important;transform:none!important;width:min(var(--machine-action-icon-size),42px)!important;height:min(var(--machine-action-icon-size),42px)!important;width:var(--machine-action-icon-size)!important;height:var(--machine-action-icon-size)!important}#page-home .machine-actions-dock .machine-quick-actions .quick-icon{width:calc(var(--machine-action-icon-size) + 10px)!important;height:calc(var(--machine-action-icon-size) + 10px)!important}@media (max-width:760px){.machine-icon-size-tools{grid-template-columns:minmax(0,1fr)}.machine-icon-size-tools>button{width:100%}}#page-home .home-top-grid>.machine-panel{position:relative!important;display:block!important;width:100%!important;min-width:0!important;max-width:none!important;overflow:visible}#page-home .home-top-grid>.machine-panel>.machine-control-card{position:absolute!important;inset:0!important;width:auto!important;min-width:0!important;max-width:none!important;margin:0!important;box-sizing:border-box!important}#page-home .home-top-grid>.machine-panel>.dashboard-drag-handle,#page-home .home-top-grid>.machine-panel>.dashboard-hide-button,#page-home .home-top-grid>.machine-panel>.home-top-panel-order-handle{z-index:80}@media (max-width:700px){#page-home .home-top-grid>.machine-panel{min-height:138px}}@media (max-width:430px){#page-home .home-top-grid>.machine-panel{min-height:126px}}#page-home .machine-control-card{grid-template-rows:78px 80px!important;min-height:165px!important}#page-home .machine-actions-dock .machine-quick-actions{display:grid;grid-auto-columns:123px;align-content:center;align-items:center}#page-home .machine-actions-dock .machine-quick-actions .quick-action{box-sizing:border-box}@media (max-width:700px){#page-home .machine-control-card{grid-template-rows:68px 80px!important;min-height:155px!important}#page-home .home-top-grid>.machine-panel{min-height:155px!important}}@media (max-width:430px){#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-columns:auto;width:100%}#page-home .machine-actions-dock .machine-quick-actions .quick-action{width:100%!important;min-width:0!important;max-width:none!important}}#page-home .machine-control-card{overflow:visible!important;border-radius:0!important;clip-path:none!important}#page-home .machine-power-tile{position:relative;isolation:isolate;overflow:visible}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{position:relative!important;display:block!important;margin:0!important;padding:0!important;border-width:1px!important;border-style:solid!important;box-sizing:border-box!important;transform:none!important;translate:none!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action.active .quick-icon,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger .quick-icon,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active .quick-icon,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled .quick-icon,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover .quick-icon,#page-home .machine-actions-dock .machine-quick-actions .quick-icon{position:absolute!important;top:50%!important;left:50%!important;right:auto!important;bottom:auto!important;width:calc(var(--machine-action-icon-size) + 10px)!important;height:calc(var(--machine-action-icon-size) + 10px)!important;margin:0!important;padding:0!important;display:grid!important;place-items:center!important;transform:translate(-50%,-50%)!important;translate:none!important;background:0 0!important;border:0!important;border-radius:0!important;box-shadow:none!important}#page-home .machine-status-banner{display:grid!important;grid-template-rows:minmax(0,1fr)}#page-home .machine-status-main{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;padding:0 4px}#page-home .machine-status-main .machine-mode-status{min-width:0;min-height:30px;display:inline-flex;align-items:center;gap:7px;margin:0;padding:6px 10px;border:1px solid #34404c;border-radius:10px;background:#171d24}#page-home .machine-status-main .machine-mode-status b{overflow:hidden;color:#e8edf3;font-size:13px;line-height:1;text-overflow:ellipsis;white-space:nowrap}#page-home .machine-status-main .machine-auto-off{min-height:20px;margin:0;padding:3px 7px}#page-home .machine-water-tile{position:relative;display:grid!important;place-items:center;padding:0!important;overflow:hidden;border:1px solid #35404c!important;border-radius:11px!important;background:#192027!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}#page-home .machine-water-drop{display:grid;place-items:center;width:28px;height:28px;color:#788492}#page-home .machine-water-drop svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}#page-home .machine-water-result{position:absolute;right:3px;bottom:3px;min-width:15px;height:15px;display:grid;place-items:center;padding:0 3px;border:1px solid #44505d;border-radius:999px;background:#252d36;color:#aeb8c4;font-size:9px;line-height:1;font-weight:850}#page-home .machine-water-tile.ok{border-color:#35694c!important;background:linear-gradient(145deg,#183326,#14251d)!important}#page-home .machine-water-tile.ok .machine-water-drop{color:#67d99a}#page-home .machine-water-tile.ok .machine-water-result{border-color:#3d7a58;background:#235139;color:#9af0bd}#page-home .machine-water-tile.warn{border-color:#804347!important;background:linear-gradient(145deg,#3b2327,#281b1e)!important}#page-home .machine-water-tile.warn .machine-water-drop{color:#ff8188}#page-home .machine-water-tile.warn .machine-water-result{border-color:#8d4a50;background:#582b31;color:#ffc0c4}#page-home .machine-status-hidden,#page-home .machine-water-label{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important}@media (max-width:430px){#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:100%!important;min-width:0!important;max-width:none!important}#page-home .machine-status-banner{grid-template-columns:minmax(0,1fr) 43px;gap:6px;padding:6px!important}#page-home .machine-water-tile{width:43px!important;min-width:43px!important}}#page-home .machine-water-tile{width:78px!important;min-width:78px!important;height:78px!important;min-height:78px!important;align-self:stretch;box-sizing:border-box}#page-home .machine-status-banner{grid-template-columns:minmax(0,1fr)!important}#page-home .machine-actions-dock .machine-quick-actions{width:100%;grid-template-columns:repeat(4,minmax(0,123px))!important}#page-home .machine-custom-action.empty{border-style:dashed!important;border-color:#4c5865!important;background:linear-gradient(145deg,#222930,#1a2026)!important}#page-home .machine-custom-action.empty .quick-icon{color:#8793a0}#page-home .machine-custom-action:not(.empty){border-color:#5a506e!important;background:linear-gradient(145deg,#342e43,#252131)!important}#page-home .machine-custom-action:not(.empty) .quick-icon{color:#c9b5f0}.machine-shortcut-dialog[hidden]{display:none}.machine-shortcut-dialog{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:18px;background:rgba(5,8,11,.72);backdrop-filter:blur(4px)}.machine-shortcut-dialog-card{width:min(390px,100%);padding:16px;border:1px solid #3b4653;border-radius:16px;background:linear-gradient(145deg,#20262e,#171c22);box-shadow:0 20px 55px rgba(0,0,0,.46)}.machine-shortcut-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.machine-shortcut-dialog-head b{display:block;font-size:16px}.machine-shortcut-dialog-head small{display:block;margin-top:4px;color:#919ca9;font-size:11px}.machine-shortcut-close{width:30px;min-width:30px;height:30px;padding:0;border-radius:9px;background:#2a313a;color:#c8d0da;font-size:18px}.machine-shortcut-field{display:grid;gap:6px;margin-top:15px;color:#aab4c0;font-size:11px;font-weight:700}.machine-shortcut-dialog-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:14px}@media (max-width:900px) and (min-width:701px){#page-home .machine-top-strip{grid-template-columns:70px minmax(0,1fr) 70px!important}#page-home .machine-water-tile{width:70px!important;min-width:70px!important;height:70px!important;min-height:70px!important}}@media (max-width:700px){#page-home .machine-top-strip{grid-template-columns:68px minmax(0,1fr) 68px!important}#page-home .machine-water-tile{width:68px!important;min-width:68px!important;height:68px!important;min-height:68px!important}}@media (max-width:430px){#page-home .machine-top-strip{grid-template-columns:62px minmax(0,1fr) 62px!important}#page-home .machine-water-tile{width:62px!important;min-width:62px!important;height:62px!important;min-height:62px!important}#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px}}#page-home .machine-top-strip{grid-template-columns:78px minmax(0,1fr)!important;gap:7px}#page-home .machine-status-banner{position:relative;display:flex!important;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px!important;overflow:hidden}#page-home .machine-status-copy{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px}#page-home .machine-status-copy>#shotStatus{display:block;max-width:100%;margin:0;padding:0;border:0!important;border-radius:0!important;background:0 0!important;font-size:18px;line-height:1.05;font-weight:760;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-shadow:none!important}#page-home .machine-status-copy .machine-auto-off{min-height:0;margin:0;padding:0;border:0;background:0 0;color:#8f9aa7}#page-home .machine-water-indicator{position:relative;flex:0 0 auto;width:38px!important;min-width:38px!important;height:38px!important;min-height:38px!important;display:grid!important;place-items:center;padding:0!important;border:1px solid #35404c!important;border-radius:11px!important;background:#1c232b!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}#page-home .machine-water-indicator .machine-water-drop{width:24px;height:24px;color:#74808d}#page-home .machine-water-indicator .machine-water-drop svg{width:22px;height:22px}#page-home .machine-water-indicator .machine-water-result{display:none!important}#page-home .machine-water-indicator.ok{border-color:#35694c!important;background:#193126!important}#page-home .machine-water-indicator.ok .machine-water-drop{color:#63d493}#page-home .machine-water-indicator.warn{border-color:#774047!important;background:#352126!important}#page-home .machine-water-indicator.warn .machine-water-drop{color:#f27a82}#page-home .machine-water-indicator.unknown{border-color:#35404c!important;background:#1c232b!important}#page-home .machine-water-indicator.unknown .machine-water-drop{color:#74808d}#page-home .machine-actions-dock .machine-quick-actions .quick-action{width:123px!important;min-width:123px!important;max-width:123px!important;height:80px!important;min-height:80px!important;max-height:80px!important}@media (max-width:900px) and (min-width:701px){#page-home .machine-top-strip{grid-template-columns:70px minmax(0,1fr)!important}}@media (max-width:700px){#page-home .machine-top-strip{grid-template-columns:68px minmax(0,1fr)!important}#page-home .machine-status-copy>#shotStatus{font-size:16px}}@media (max-width:430px){#page-home .machine-top-strip{grid-template-columns:62px minmax(0,1fr)!important}#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px}#page-home .machine-actions-dock .machine-quick-actions .quick-action{width:100%!important;min-width:0!important;max-width:none!important}#page-home .machine-water-indicator{width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important}}#page-home .home-metrics-panel{min-height:165px;height:100%;padding:0!important;border:0!important;border-radius:0!important;background:0 0!important;box-shadow:none!important;overflow:visible}#page-home .home-metrics-grid{width:100%;min-width:0;min-height:165px!important;height:165px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:minmax(0,1fr)!important;align-items:stretch;gap:10px}#page-home .home-metrics-grid>.home-metric-card{width:100%;min-width:0;height:165px;min-height:165px;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box}#page-home .home-metrics-grid .home-metric-icon{width:38px;min-width:38px;height:38px;margin:0;border-radius:11px}#page-home .home-metrics-grid .home-metric-icon svg{width:23px;height:23px}#page-home .home-metrics-grid .home-metric-copy{width:100%;min-width:0}#page-home .home-metrics-grid .home-metric-copy small{display:block;overflow:hidden;font-size:10px;line-height:1.1;text-overflow:ellipsis;white-space:nowrap}#page-home .home-metrics-grid .home-metric-copy strong,#page-home .home-metrics-grid .home-metric-copy>span{display:block;margin-top:7px;overflow:hidden;font-size:24px;line-height:1;text-overflow:ellipsis;white-space:nowrap}#page-home .home-metrics-grid .home-metric-copy>span{font-size:9px;line-height:1.15}#page-home .home-metrics-grid .home-metric-progress{left:13px;right:13px;bottom:11px}#page-home .home-metrics-grid .metric-open-indicator{top:9px;right:9px}#page-home .home-metrics-grid .temperature-metric-open .home-metric-state{right:33px}@media (max-width:900px) and (min-width:701px){#page-home .home-metrics-grid,#page-home .home-metrics-panel{min-height:155px!important;height:155px}#page-home .home-metrics-grid>.home-metric-card{height:155px;min-height:155px;padding:13px 10px}#page-home .home-metrics-grid .home-metric-copy strong{font-size:20px}}@media (max-width:700px){#page-home .home-metrics-grid,#page-home .home-metrics-panel{min-height:138px!important;height:138px}#page-home .home-metrics-grid>.home-metric-card{height:138px;min-height:138px;padding:12px 10px}#page-home .home-metrics-grid .home-metric-copy strong{font-size:19px}}@media (max-width:430px){#page-home .home-metrics-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:minmax(0,1fr)!important;gap:6px}#page-home .home-metrics-grid>.home-metric-card{padding:10px 7px}#page-home .home-metrics-grid .home-metric-icon{width:32px;min-width:32px;height:32px}#page-home .home-metrics-grid .home-metric-icon svg{width:20px;height:20px}#page-home .home-metrics-grid .home-metric-copy small,#page-home .home-metrics-grid .home-metric-copy>span{font-size:8px}#page-home .home-metrics-grid .home-metric-copy strong{font-size:16px}}#page-home .home-dashboard-layout{gap:var(--home-section-gap)!important}@media (max-width:980px){.machine-icon-size-tools{grid-template-columns:repeat(2,minmax(210px,1fr))}.machine-icon-size-tools>button{grid-column:1/-1;width:100%}}@media (max-width:620px){.machine-icon-size-tools{grid-template-columns:minmax(0,1fr)}.machine-icon-size-tools>button{grid-column:auto}}#page-home .machine-status-copy>#shotStatus{font-family:var(--ha-font-family-body)!important;font-size:var(--zone-font-title,16px)!important;font-weight:var(--ha-font-weight-medium)!important;line-height:var(--ha-line-height-condensed)!important;letter-spacing:0!important;color:#d8dee7!important;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}@media (max-width:700px){#page-home .machine-status-copy>#shotStatus{font-size:var(--zone-font-title,16px)!important}}@media (min-width:701px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{width:100%;min-width:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-areas:none!important;gap:12px!important;align-items:stretch}#page-home .home-top-grid>.home-metrics-panel,#page-home .home-top-grid>.machine-panel{grid-area:auto!important;width:100%!important;min-width:0!important;max-width:none!important;align-self:stretch!important;justify-self:stretch!important}}@media (max-width:700px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{grid-template-columns:minmax(0,1fr)!important;grid-template-areas:none!important;gap:12px!important}}#page-home .home-top-panel-order-handle,#page-home .home-top-resize-handle{display:none!important;visibility:hidden!important;pointer-events:none!important}#page-home.home-layout-editing .home-top-grid>.home-metrics-panel,#page-home.home-layout-editing .home-top-grid>.machine-panel{outline:0!important;outline-offset:0!important;box-shadow:none}#page-home.home-layout-editing .home-overview.dashboard-block>.home-top-grid,#page-home.home-layout-editing .home-overview.dashboard-block>.home-top-grid>*{pointer-events:none!important}#page-home .home-metrics-grid>.home-metric-card{position:relative;display:grid;grid-template-rows:38px minmax(0,1fr) 26px;align-items:stretch;gap:7px;padding:13px 13px 12px;overflow:hidden;border:1px solid #303945;border-radius:14px;background:linear-gradient(155deg,#1b222a 0,#151a20 58%,#12171c 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 5px 15px rgba(0,0,0,.16)}#page-home .home-metric-head{justify-content:space-between}#page-home .home-metric-head,#page-home .home-metric-title{min-width:0;display:flex;align-items:center;gap:8px}#page-home .home-metric-title>small{overflow:hidden;color:#aeb8c4;font-size:var(--zone-font-small,10px)!important;font-weight:var(--ha-font-weight-medium);line-height:1.1;text-overflow:ellipsis;white-space:nowrap}#page-home .home-metric-title .home-metric-icon{width:34px;min-width:34px;height:34px;margin:0;display:grid;place-items:center;border-radius:10px}#page-home .home-metric-title .home-metric-icon svg{width:21px;height:21px}#page-home .home-metric-footer,#page-home .home-metric-main{min-width:0;display:flex;align-items:center;justify-content:flex-start}#page-home .home-metric-main{padding-left:2px}#page-home .home-metric-main strong{display:flex;align-items:baseline;gap:5px;margin:0;color:#eef2f6;font-size:clamp(27px,2.45vw,36px)!important;font-weight:var(--ha-font-weight-medium)!important;line-height:.95;letter-spacing:-.035em}#page-home .home-metric-main strong i{overflow:hidden;font-style:normal;text-overflow:ellipsis}#page-home .home-metric-main strong em{flex:0 0 auto;color:#8f9aa7;font-size:.42em;font-style:normal;font-weight:var(--ha-font-weight-medium);letter-spacing:0}#page-home .home-metric-footer{gap:7px;overflow:hidden;color:#87929f;font-size:var(--zone-font-small,10px);line-height:1;white-space:nowrap}#page-home .home-metric-footer span,#page-home .home-metric-main strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#page-home .home-metric-footer span+span::before{content:"·";margin-right:7px;color:#4f5a66}#page-home .home-metric-footer i{color:#cbd3dc;font-style:normal;font-weight:var(--ha-font-weight-medium)}#page-home .home-backflush-main strong{color:#72dda0;font-size:clamp(25px,2.15vw,32px)!important;letter-spacing:-.02em}#page-home .temperature-metric{border-color:#4d3c31;background:linear-gradient(155deg,#211c18 0,#181713 58%,#131512 100%)}#page-home .pressure-metric{border-color:#2d465b;background:linear-gradient(155deg,#17232d 0,#151b21 58%,#12171c 100%)}#page-home .cleaning-metric{border-color:#334b3e;background:linear-gradient(155deg,#17251d 0,#151c18 58%,#121713 100%)}#page-home .temperature-metric .home-metric-main strong{color:#f2d2b7}#page-home .pressure-metric .home-metric-main strong{color:#b9dcff}@media (max-width:900px){#page-home .home-metrics-grid>.home-metric-card{grid-template-rows:34px minmax(0,1fr) 24px;gap:5px;padding:11px 10px 10px}#page-home .home-metric-title .home-metric-icon{width:30px;min-width:30px;height:30px}#page-home .home-metric-title{gap:6px}#page-home .home-metric-footer{gap:4px}#page-home .home-metric-footer span+span::before{margin-right:4px}}@media (max-width:430px){#page-home .home-metrics-grid>.home-metric-card{grid-template-rows:28px minmax(0,1fr) 20px;padding:8px 7px}#page-home .home-metric-title .home-metric-icon{width:26px;min-width:26px;height:26px;border-radius:8px}#page-home .home-metric-title .home-metric-icon svg{width:17px;height:17px}#page-home .home-metric-main strong{font-size:21px!important}#page-home .home-backflush-main strong{font-size:19px!important}#page-home .home-metric-footer{font-size:7px}#page-home .metric-open-indicator{display:none}}#page-home .home-metrics-grid>.metric-tile{position:relative!important;display:grid!important;grid-template-rows:34px minmax(0,1fr) 22px!important;align-items:stretch!important;gap:7px!important;padding:12px 13px 11px!important;overflow:hidden!important;border:1px solid #34404c!important;border-radius:14px!important;background:linear-gradient(155deg,#1c232b,#151a20 72%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 5px 14px rgba(0,0,0,.15)!important}#page-home .metric-tile::before{position:absolute;top:0;left:18px;right:18px;height:2px;border-radius:0 0 999px 999px;opacity:.75}#page-home .temperature-metric::before{background:#d99054}#page-home .pressure-metric::before{background:#5da9ef}#page-home .cleaning-metric::before{background:#65c892}#page-home .metric-tile-head{display:flex;align-items:center;justify-content:space-between;gap:7px}#page-home .metric-tile-label{min-width:0;display:flex;align-items:center;gap:7px;color:#aeb8c4;font-family:var(--ha-font-family-body);font-size:var(--zone-font-small,10px);font-weight:var(--ha-font-weight-medium);line-height:1;white-space:nowrap}#page-home .metric-tile-label>span:last-child{overflow:visible;text-overflow:clip;white-space:nowrap}#page-home .metric-tile-label .home-metric-icon{width:30px!important;min-width:30px!important;height:30px!important;margin:0!important;display:grid!important;place-items:center!important;border-radius:9px!important}#page-home .metric-tile-label .home-metric-icon svg{width:19px!important;height:19px!important}#page-home .metric-tile-value{display:flex;align-items:center;justify-content:center;gap:5px;padding:0 2px;overflow:visible;color:#edf2f7;font-family:var(--ha-font-family-body);font-size:clamp(30px,2.65vw,38px)!important;font-weight:var(--ha-font-weight-medium);line-height:.95;letter-spacing:-.035em;white-space:nowrap}#page-home .metric-tile-value i{font-style:normal;font-weight:inherit}#page-home .metric-tile-value em{align-self:flex-end;margin-bottom:3px;color:#8e99a6;font-size:.36em;font-style:normal;font-weight:var(--ha-font-weight-medium);letter-spacing:0}#page-home .temperature-metric .metric-tile-value{color:#f1c9aa}#page-home .pressure-metric .metric-tile-value{color:#a8d4ff}#page-home .metric-tile-ratio{gap:7px;color:#dce4ec}#page-home .metric-tile-ratio b{color:#66727f;font-size:.65em;font-weight:var(--ha-font-weight-normal);letter-spacing:0}#page-home .metric-tile-meta{display:flex;align-items:center;justify-content:center;gap:5px;overflow:visible;color:#8f9aa7;font-size:9px!important;font-weight:var(--ha-font-weight-normal);line-height:1;white-space:nowrap}#page-home .metric-tile-meta i{color:#cbd4dd;font-style:normal;font-weight:var(--ha-font-weight-medium)}#page-home .metric-tile-meta b{color:#505b67;font-weight:var(--ha-font-weight-normal)}#page-home .metric-status-badge{flex:0 0 auto;min-width:28px;padding:4px 7px;border:1px solid #35694c;border-radius:999px;background:#183025;color:#72dda0;font-size:9px;font-weight:var(--ha-font-weight-bold);line-height:1;text-align:center;white-space:nowrap}#page-home .cleaning-metric.due .metric-status-badge{border-color:#75502f;background:#332419;color:#ffc27f}#page-home .cleaning-metric.due .metric-tile-value{color:#ffc27f}#page-home .metric-open-indicator{position:static!important;flex:0 0 auto;width:24px!important;min-width:24px!important;height:24px!important;display:grid!important;place-items:center!important;border-radius:8px!important;font-size:10px!important;transform:none!important}#page-home .home-metric-progress{left:13px!important;right:13px!important;bottom:7px!important;height:3px!important;opacity:.68}#page-home .temperature-metric-open .home-metric-state{display:none!important}@media (max-width:900px){#page-home .home-metrics-grid>.metric-tile{grid-template-rows:30px minmax(0,1fr) 20px!important;gap:5px!important;padding:10px 9px 9px!important}#page-home .metric-tile-label{gap:5px;font-size:9px}#page-home .metric-tile-label .home-metric-icon{width:27px!important;min-width:27px!important;height:27px!important}#page-home .metric-tile-value{font-size:clamp(25px,2.7vw,32px)!important}#page-home .metric-tile-meta{font-size:8px!important}}@media (max-width:430px){#page-home .home-metrics-grid>.metric-tile{grid-template-rows:26px minmax(0,1fr) 18px!important;padding:8px 6px!important}#page-home .metric-tile-label>span:last-child{display:none}#page-home .metric-tile-value{font-size:21px!important}#page-home .metric-tile-meta{font-size:7px!important}#page-home .metric-status-badge{padding:3px 5px;font-size:8px}#page-home .metric-open-indicator{display:none!important}}#page-home .home-metrics-grid>.metric-tile{grid-template-columns:minmax(0,1fr)!important;grid-auto-flow:row!important}#page-home .metric-tile-head,#page-home .metric-tile-meta,#page-home .metric-tile-value{position:relative!important;inset:auto!important;grid-column:1!important;grid-row:1!important;width:100%!important;min-width:0!important;box-sizing:border-box}#page-home .metric-tile-meta,#page-home .metric-tile-value{grid-row:2!important}#page-home .metric-tile-meta{grid-row:3!important}#page-home .metric-tile::before{content:none!important;display:none!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action::before{content:""!important;position:absolute!important;top:0!important;left:16px!important;right:16px!important;bottom:auto!important;width:auto!important;height:3px!important;display:block!important;border-radius:0 0 999px 999px!important;opacity:.78!important;transform:none!important;transition:opacity .18s ease,box-shadow .18s ease!important;pointer-events:none}#page-home .machine-actions-dock #shotAction::before{background:#e18b48!important}#page-home .machine-actions-dock #waterAction::before{background:#54a9ff!important}#page-home .machine-actions-dock #steamAction::before{background:#d9b85f!important}#page-home .machine-actions-dock #shotAction.danger::before{background:#ff806b!important;opacity:1!important;box-shadow:0 0 9px rgba(255,112,89,.42)!important}#page-home .machine-actions-dock #waterAction.active::before{background:#68bdff!important;opacity:1!important;box-shadow:0 0 9px rgba(84,169,255,.38)!important}#page-home .machine-actions-dock #steamAction.active::before{background:#ffd166!important;opacity:1!important;box-shadow:0 0 9px rgba(255,209,102,.35)!important}#page-home .machine-actions-dock .quick-action:disabled::before{opacity:.28!important;box-shadow:none!important}#page-home .home-top-grid{align-items:stretch!important}#page-home .machine-compact-status{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:22px minmax(0,1fr)!important;gap:6px!important}#page-home .machine-compact-head{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px}#page-home .machine-compact-head>#shotStatus{min-width:0;overflow:hidden;color:#dce3ea!important;font-family:var(--ha-font-family-body)!important;font-size:var(--zone-font-text,14px)!important;font-weight:var(--ha-font-weight-medium)!important;line-height:1;text-overflow:ellipsis;white-space:nowrap}#page-home .machine-compact-head .machine-auto-off{flex:0 0 auto;min-height:20px;padding:3px 6px;font-size:9px}#page-home .machine-mini-metrics{min-width:0;display:grid}#page-home .machine-mini-metric{position:relative;min-width:0;display:grid;align-items:center;overflow:hidden;border:1px solid #303a45;background:#151b21;box-sizing:border-box}#page-home .machine-mini-icon{display:grid;place-items:center;background:#202832;color:#8d99a6}#page-home .home-temperature-hero-icon svg{width:16px;height:16px}#page-home .home-temperature-hero-icon svg,#page-home .machine-mini-icon svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}#page-home .mini-pressure .machine-mini-icon{color:#76bfff}#page-home .mini-backflush .machine-mini-icon{color:#b29aeb}#page-home .machine-mini-copy{display:flex;flex-direction:column}#page-home .machine-mini-copy small,#page-home .machine-mini-copy strong{max-width:100%;overflow:hidden;font-weight:var(--ha-font-weight-medium);line-height:1;text-overflow:ellipsis;white-space:nowrap}#page-home .machine-mini-copy strong{display:flex;align-items:baseline;gap:3px}#page-home .home-temperature-hero-reading strong i,#page-home .machine-mini-copy strong em,#page-home .machine-mini-copy strong i{font-style:normal}#page-home .machine-mini-copy strong em{color:#7f8a97}#page-home .machine-mini-copy strong b{color:#697582;font-size:10px;font-weight:var(--ha-font-weight-normal)}#page-home .mini-water>#machineWaterIcon,#page-home .mini-water>#machineWaterText{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important}#page-home .water-state-dot{display:block;border-radius:50%;background:#68737f;box-shadow:0 0 0 3px rgba(104,115,127,.12)}#page-home .mini-water.ok{border-color:#315b44;background:#15251d}#page-home .mini-water.ok .machine-mini-icon{color:#62d595}#page-home .mini-water.ok .water-state-dot{background:#62d595;box-shadow:0 0 0 3px rgba(98,213,149,.13)}#page-home .mini-water.warn{border-color:#6a3d42;background:#2b1d20}#page-home .mini-water.warn .machine-mini-icon{color:#ef7b83}#page-home .mini-water.warn .water-state-dot{background:#ef7b83;box-shadow:0 0 0 3px rgba(239,123,131,.13)}#page-home .home-temperature-hero{position:relative;min-width:0;padding:0!important;overflow:hidden;border:1px solid #34404c!important;border-radius:14px!important;background:radial-gradient(circle at 82% -20%,rgba(225,139,72,.16),transparent 47%),linear-gradient(155deg,#1b222a,#13181e 72%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 6px 18px rgba(0,0,0,.18)!important;cursor:pointer}#page-home .home-temperature-hero:focus-visible,#page-home .home-temperature-hero:hover{border-color:#725039!important;outline:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 0 0 3px rgba(225,139,72,.08),0 7px 20px rgba(0,0,0,.2)!important}#page-home .home-temperature-hero-state{height:100%;display:grid;box-sizing:border-box}#page-home .home-temperature-hero-head{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:10px}#page-home .home-temperature-hero-title{min-width:0;display:flex;align-items:center;gap:7px;color:#b7c0ca;font-size:var(--zone-font-text,12px);font-weight:var(--ha-font-weight-medium);line-height:1;white-space:nowrap}#page-home .home-temperature-hero-icon{width:24px;min-width:24px;height:24px;display:grid;place-items:center;border-radius:7px;background:#29241f;color:#e7a06a}#page-home .home-temperature-hero-badges{min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:5px}#page-home .home-temperature-pid,#page-home .home-temperature-state-label{min-height:21px;display:inline-flex;align-items:center;padding:3px 7px;border:1px solid #394550;border-radius:999px;background:#1b2229;color:#9da8b4;font-size:8px;font-weight:var(--ha-font-weight-medium);line-height:1;white-space:nowrap}#page-home .home-temperature-pid{color:#d4dbe3}#page-home .home-temperature-pid i{margin:0 2px 0 4px;color:#efae7b;font-style:normal;font-weight:var(--ha-font-weight-bold)}#page-home .home-temperature-open{width:22px;height:22px;display:grid;place-items:center;border-radius:7px;background:#242c34;color:#8f9aa7;font-size:10px}#page-home .home-temperature-hero-reading strong{min-width:0;display:flex;align-items:baseline;gap:5px;color:#f0c5a4;font-weight:var(--ha-font-weight-medium);line-height:.95;letter-spacing:-.035em;white-space:nowrap}#page-home .home-temperature-hero-reading strong em{color:#8e99a6;font-size:12px;font-style:normal;font-weight:var(--ha-font-weight-medium);letter-spacing:0}#page-home .home-temperature-target{flex:0 0 auto;font-size:9px}#page-home .home-temperature-mini-chart{position:relative;min-width:0;overflow:hidden;border-top:1px solid rgba(255,255,255,.035);border-bottom:1px solid rgba(255,255,255,.035)}#page-home #homePressureGauge,#page-home #homeTempMiniChart{width:100%;height:100%;display:block}#page-home .home-temperature-hero-footer{min-width:0;display:grid;align-items:center;font-size:8px;line-height:1}#page-home .home-temperature-heat-track{background:#28313a}#page-home .home-temperature-heat-track>#homeHeatFill{width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#d97852,#e9b06e);transition:width .2s ease}#page-home .home-temperature-delta{min-width:0;overflow:hidden;text-align:right;text-overflow:ellipsis;white-space:nowrap}#page-home .home-temperature-hero-state.ready .home-temperature-state-label{border-color:#35664d;background:#182a21;color:#91eab5}#page-home .home-temperature-hero-state.heating .home-temperature-state-label{border-color:#70512f;background:#2b2118;color:#ffc27f}#page-home .home-temperature-hero-state.error .home-temperature-state-label{border-color:#743c43;background:#321f23;color:#ff9ba2}@media (max-width:900px) and (min-width:701px){#page-home .home-temperature-state-label,#page-home .machine-mini-copy small{display:none}#page-home .machine-mini-metric{grid-template-columns:22px minmax(0,1fr);gap:3px;padding:4px}#page-home .machine-mini-icon{width:22px;height:22px}#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;padding:0 2px}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:100%!important;min-width:0!important;max-width:none!important}}@media (max-width:700px){#page-home .home-top-grid>.home-temperature-hero,#page-home .home-top-grid>.machine-panel{height:153px!important}}@media (max-width:430px){#page-home .home-temperature-open,#page-home .home-temperature-state-label,#page-home .machine-mini-copy small{display:none}#page-home .machine-mini-metric{grid-template-columns:20px minmax(0,1fr);gap:3px;padding:3px 4px}#page-home .machine-mini-icon{width:20px;height:20px}#page-home .machine-mini-icon svg{width:14px;height:14px}#page-home .machine-mini-copy strong{font-size:11px!important}#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:100%!important;min-width:0!important;max-width:none!important}#page-home .home-temperature-hero-reading strong{font-size:27px!important}#page-home .home-temperature-delta{max-width:92px}}@media (min-width:701px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{gap:7px!important}}#page-home .machine-compact-status{position:relative;display:block!important;padding:6px!important}#page-home .machine-compact-head{display:none!important}#page-home .machine-mini-metrics{width:100%;height:100%;min-height:0;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}#page-home .machine-mini-metric{height:100%;min-height:0;grid-template-columns:minmax(0,1fr);grid-template-rows:31px minmax(0,1fr);place-items:center;align-content:center;gap:5px;padding:7px 5px;text-align:center;border-radius:10px}#page-home .machine-mini-icon{width:31px;height:31px;border-radius:9px}#page-home .machine-mini-icon svg{width:19px;height:19px}#page-home .machine-mini-copy{width:100%;min-width:0;align-items:center;justify-content:flex-start;gap:4px}#page-home .machine-mini-copy small{width:100%;color:#8d98a5;font-size:9px!important;text-align:center}#page-home .machine-mini-copy strong{width:100%;justify-content:center;color:#e0e7ee;font-size:16px!important;text-align:center}#page-home .machine-mini-copy strong em{font-size:9px}#page-home .water-state-dot{width:10px;height:10px}#page-home .machine-auto-off-overlay{position:absolute;top:5px;right:5px;z-index:5;min-height:20px;padding:3px 6px;border:1px solid #47515d;border-radius:999px;background:#222a32;box-shadow:0 3px 9px rgba(0,0,0,.25);font-size:8px}@media (max-width:900px) and (min-width:701px){#page-home .machine-mini-metric{grid-template-rows:28px minmax(0,1fr);gap:4px;padding:6px 3px}#page-home .machine-mini-icon{width:28px;height:28px}#page-home .machine-mini-copy small{display:block!important;font-size:8px!important}#page-home .machine-mini-copy strong{font-size:13px!important}}@media (max-width:700px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{gap:7px!important}}@media (max-width:430px){#page-home .machine-mini-metrics{gap:4px}#page-home .machine-mini-metric{grid-template-rows:25px minmax(0,1fr);gap:3px;padding:5px 2px}#page-home .machine-mini-icon{width:25px;height:25px}#page-home .machine-mini-icon svg{width:16px;height:16px}#page-home .machine-mini-copy small{display:block!important;font-size:7px!important}#page-home .machine-mini-copy strong{font-size:11px!important}}#page-home .home-top-grid>.home-temperature-hero,#page-home .home-top-grid>.machine-panel{min-height:165px!important;height:165px!important}#page-home .home-top-grid>.machine-panel>.machine-control-card{min-height:165px!important;height:165px!important;grid-template-rows:78px 80px!important;gap:7px!important}#page-home .machine-restored-status{position:relative;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;height:78px!important;min-height:78px!important;padding:11px 13px!important;overflow:hidden!important;box-sizing:border-box}#page-home .machine-restored-status .machine-status-copy{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px}#page-home .machine-restored-status .machine-status-copy>#shotStatus{display:block!important;max-width:100%;margin:0;padding:0;overflow:hidden;border:0!important;border-radius:0!important;background:0 0!important;box-shadow:none!important;color:#d8dee7!important;font-family:var(--ha-font-family-body)!important;font-size:var(--zone-font-title,16px)!important;font-weight:var(--ha-font-weight-medium)!important;line-height:var(--ha-line-height-condensed)!important;letter-spacing:0!important;text-overflow:ellipsis;white-space:nowrap}#page-home .machine-restored-status .machine-auto-off{min-height:0!important;margin:0!important;padding:0!important;border:0!important;background:0 0!important;color:#8f9aa7!important;box-shadow:none!important}#page-home .machine-restored-status .machine-water-indicator{position:relative;flex:0 0 auto;width:38px!important;min-width:38px!important;height:38px!important;min-height:38px!important;display:grid!important;place-items:center!important;padding:0!important;border:1px solid #35404c!important;border-radius:11px!important;background:#1c232b!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important}#page-home .machine-restored-status .machine-water-drop{width:24px;height:24px;display:grid;place-items:center;color:#74808d}#page-home .machine-restored-status .machine-water-drop svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}#page-home .machine-restored-status .machine-water-label,#page-home .machine-restored-status .machine-water-result{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important}#page-home .machine-restored-status .machine-water-indicator.ok{border-color:#35694c!important;background:#193126!important}#page-home .machine-restored-status .machine-water-indicator.ok .machine-water-drop{color:#63d493!important}#page-home .machine-restored-status .machine-water-indicator.warn{border-color:#774047!important;background:#352126!important}#page-home .machine-restored-status .machine-water-indicator.warn .machine-water-drop{color:#f27a82!important}#page-home .machine-restored-status .machine-water-indicator.unknown{border-color:#35404c!important;background:#1c232b!important}#page-home .machine-restored-status .machine-water-indicator.unknown .machine-water-drop{color:#74808d!important}#page-home .machine-actions-dock,#page-home .machine-actions-dock .machine-quick-actions{height:80px!important;min-height:80px!important}#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,123px)!important;grid-auto-rows:80px!important;justify-content:center!important;gap:10px!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:123px!important;min-width:123px!important;max-width:123px!important;height:80px!important;min-height:80px!important;max-height:80px!important}#page-home .machine-actions-dock .machine-quick-actions .quick-icon{width:58px!important;height:58px!important}@media (max-width:900px) and (min-width:701px){#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:100%!important;min-width:0!important;max-width:none!important}}@media (max-width:700px){#page-home .home-top-grid>.home-temperature-hero,#page-home .home-top-grid>.machine-panel{min-height:165px!important;height:165px!important}}@media (max-width:430px){#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:100%!important;min-width:0!important;max-width:none!important}#page-home .machine-restored-status{padding:9px 10px!important}#page-home .machine-restored-status .machine-water-indicator{width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important}}#page-home .home-top-grid>.home-temperature-hero,#page-home .home-top-grid>.machine-panel,#page-home .home-top-grid>.machine-panel>.machine-control-card{height:var(--home-temperature-card-height)!important;min-height:var(--home-temperature-card-height)!important}#page-home .home-top-grid>.machine-panel>.machine-control-card{grid-template-rows:78px minmax(80px,1fr)!important}#page-home .machine-actions-dock{align-items:center;justify-content:center}#page-home .home-temperature-hero-state{min-height:0}@media (max-width:1180px){.machine-icon-size-tools{grid-template-columns:repeat(2,minmax(210px,1fr))}.machine-icon-size-tools>button{grid-column:1/-1;width:100%}}@media (max-width:620px){.machine-icon-size-tools{grid-template-columns:minmax(0,1fr)}.machine-icon-size-tools>button{grid-column:auto}}@media (min-width:701px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{grid-template-columns:minmax(0,var(--home-left-column-share)) minmax(0,var(--home-right-column-share))!important}}.machine-icon-size-tools{grid-template-columns:repeat(5,minmax(170px,1fr)) auto}@media (max-width:1320px){.machine-icon-size-tools{grid-template-columns:repeat(3,minmax(190px,1fr))}.machine-icon-size-tools>button{grid-column:1/-1;width:100%}}@media (max-width:920px){.machine-icon-size-tools{grid-template-columns:repeat(2,minmax(210px,1fr))}}@media (max-width:620px){.machine-icon-size-tools{grid-template-columns:minmax(0,1fr)}.machine-icon-size-tools>button{grid-column:auto}}#page-settings [data-settings-panel=pressure]{width:100%;margin:0 auto}.pressure-parameter-grid,.pressure-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.pressure-settings-grid{gap:10px;margin-top:12px}.pressure-parameter-grid{gap:8px}#page-settings [data-settings-panel=pressure] .temperature-setting-control{grid-template-columns:minmax(82px,138px) auto;justify-content:end}#page-settings [data-settings-panel=pressure] .temperature-status-row>strong,#page-settings [data-settings-panel=pressure] .temperature-status-row>strong i{font-size:var(--zone-font-text)!important;font-weight:var(--ha-font-weight-medium);font-style:normal;font-variant-numeric:tabular-nums}.pressure-settings-save{margin-top:10px}@media (max-width:760px){#page-settings [data-settings-panel=pressure]{max-width:none}.pressure-parameter-grid,.pressure-settings-grid{grid-template-columns:minmax(0,1fr)}.pressure-settings-section-wide{grid-column:1}}@media (max-width:520px){#page-settings [data-settings-panel=pressure] .temperature-setting-control{grid-template-columns:minmax(0,1fr) auto;justify-content:stretch}}#page-settings [data-settings-panel=pump]{width:100%;margin:0 auto}.pump-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}#page-settings [data-settings-panel=pump] .temperature-setting-control{grid-template-columns:minmax(82px,138px) auto;justify-content:end}#page-settings [data-settings-panel=pump] .pump-toggle-row{grid-template-columns:minmax(0,1fr) auto}#page-settings [data-settings-panel=pump] .toggle-control{align-self:center;justify-self:end}.pump-legacy-details{min-width:0;margin:0;padding:0;border:1px solid #303944;border-radius:12px;background:#12171c;overflow:hidden}.pump-legacy-details>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;cursor:pointer;list-style:none;color:#dce2e9;font-size:var(--zone-font-text)!important;font-weight:var(--ha-font-weight-medium)}.pump-legacy-details>summary::-webkit-details-marker{display:none}.pump-legacy-details>summary::after{content:"›";color:#7f8a96;font-size:18px;line-height:1;transform:rotate(90deg);transition:transform .16s ease}.pump-legacy-details[open]>summary::after{transform:rotate(-90deg)}.pump-legacy-content{padding:0 12px 12px;border-top:1px solid #29313a}#page-settings .pump-legacy-note{margin:9px 0 2px;color:#84909d;font-size:var(--zone-font-small)!important;line-height:1.4}.pump-settings-save{margin-top:10px}@media (max-width:760px){#page-settings [data-settings-panel=pump]{max-width:none}.pump-settings-grid{grid-template-columns:minmax(0,1fr)}.pump-legacy-details,.pump-settings-section-wide{grid-column:1}}@media (max-width:520px){#page-settings [data-settings-panel=pump] .temperature-setting-control{grid-template-columns:minmax(0,1fr) auto;justify-content:stretch}#page-settings [data-settings-panel=pump] .pump-toggle-row{grid-template-columns:minmax(0,1fr) auto}}.machine-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.machine-settings-section-wide{grid-column:1/-1}.machine-setting-control,.settings-help-label-wrap>b,.settings-help-label-wrap>label{min-width:0}#page-settings .machine-setting-control select{width:100%;min-width:0;min-height:36px;padding:7px 9px;border-radius:8px;font-size:var(--zone-font-text)!important}.machine-autooff-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px}.machine-inline-actions{display:flex;justify-content:flex-end;padding-top:9px;border-top:1px solid #29313a}#page-settings .machine-inline-actions button,#page-settings .machine-primary-actions button,#page-settings .machine-settings-save button{min-height:36px;padding:7px 12px;font-size:var(--zone-font-text)!important;font-weight:var(--ha-font-weight-medium)}.machine-settings-save{margin-top:10px}#page-settings .temperature-status-row>strong i{font-style:normal;font-variant-numeric:tabular-nums}.settings-help-all-button{flex:0 0 auto;min-height:30px;padding:5px 9px;border:1px solid #343e49;border-radius:9px;background:#171d23;color:#aeb7c1;font-size:var(--zone-font-small)!important;font-weight:var(--ha-font-weight-medium);line-height:1}.settings-help-all-button.active,.settings-help-all-button:hover{border-color:#596676;background:#1c232a;color:#e2e7ec}.settings-help-label-wrap,.xdb-human-chips>span{min-width:0;display:inline-flex;align-items:center;gap:6px}.settings-info-button{flex:0 0 auto;width:19px;height:19px;display:inline-grid;place-items:center;padding:0;border:1px solid #3a4550;border-radius:50%;background:0 0;color:#82909e;font-size:11px!important;font-weight:700;line-height:1}.settings-info-button.active,.settings-info-button:hover{border-color:#687788;background:#202831;color:#e4e9ee}.settings-help-panel .settings-help-text{display:none!important}.settings-help-panel .settings-help-owner[data-help-open=true]>.settings-help-text,.settings-help-panel.help-all-open .settings-help-text{display:block!important}.settings-help-panel .settings-help-owner[data-help-open=true]>.settings-help-text{animation:settingsHelpReveal .14s ease-out}.temperature-settings-section-head>.settings-help-label-wrap{justify-self:start}.pid-parameter-main>.settings-help-label-wrap{flex:0 1 auto}@media (max-width:760px){#page-settings [data-settings-panel=machine]{max-width:none}.machine-autooff-grid,.machine-settings-grid{grid-template-columns:minmax(0,1fr)}.machine-settings-section-wide{grid-column:1}}@media (max-width:520px){.settings-panel-head{align-items:center}.settings-help-all-button{padding:5px 8px}.machine-inline-actions button{width:100%}}#page-settings [data-settings-panel=machine]{width:100%;margin:0 auto}.machine-primary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}.machine-primary-row{margin:0;padding:11px 12px;border:1px solid #303944!important;border-radius:12px;background:#12171c;grid-template-columns:minmax(0,1fr) 150px}.machine-primary-row .temperature-setting-copy{gap:3px}#page-settings .machine-primary-row .temperature-setting-copy>label{font-size:var(--zone-font-text)!important;font-weight:var(--ha-font-weight-medium)}.machine-live-meta{color:#84909d;font-size:var(--zone-font-small)!important;line-height:1.25}.machine-live-meta b{color:#b8c2cc;font-size:inherit!important;font-weight:var(--ha-font-weight-medium);font-variant-numeric:tabular-nums}.machine-primary-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}#page-settings [data-settings-panel=machine] .settings-panel-head{margin-bottom:0}@media (max-width:760px){#page-settings [data-settings-panel=machine]{max-width:none}.machine-primary-grid{grid-template-columns:minmax(0,1fr)}}@media (max-width:520px){.machine-primary-row{grid-template-columns:minmax(0,1fr) 132px;padding:10px}.machine-primary-actions{display:grid;grid-template-columns:minmax(0,1fr)}#page-settings .machine-primary-actions button{width:100%}}#page-settings [data-settings-panel=machine],#page-settings [data-settings-panel=pressure],#page-settings [data-settings-panel=pump],#page-settings [data-settings-panel=temperature]{max-width:720px}.machine-primary-grid,.pid-parameter-grid,.pressure-parameter-grid,.pressure-settings-grid,.pump-settings-grid,.temperature-settings-grid{grid-template-columns:minmax(0,1fr)!important}.pressure-settings-section-wide,.pump-legacy-details,.pump-settings-section-wide,.temperature-settings-section-wide{grid-column:1!important}.machine-primary-row{min-height:54px}.settings-info-button{display:none!important}.settings-help-label-wrap{display:contents}@media (max-width:760px){#page-settings [data-settings-panel=machine],#page-settings [data-settings-panel=pressure],#page-settings [data-settings-panel=pump],#page-settings [data-settings-panel=temperature]{max-width:none}}@media (min-width:980px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{grid-template-columns:minmax(350px,var(--home-left-column-share)) minmax(155px,var(--home-pressure-column-share)) minmax(290px,var(--home-right-column-share))!important;gap:7px!important}#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,123px))!important;justify-content:space-between!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:100%!important;min-width:0!important;max-width:123px!important}}#page-home .home-pressure-hero{position:relative;min-width:0;height:var(--home-temperature-card-height)!important;min-height:var(--home-temperature-card-height)!important;gap:3px;overflow:hidden;border:1px solid #344556;border-radius:14px;background:radial-gradient(circle at 50% 105%,rgba(69,143,201,.17),transparent 58%),linear-gradient(155deg,#19222b,#12181e 74%);box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 6px 18px rgba(0,0,0,.17);box-sizing:border-box}#page-home .home-pressure-hero::before{position:absolute;top:0;left:19px;right:19px;height:2px;border-radius:0 0 999px 999px;background:#5da9ef;opacity:.82}#page-home .home-pressure-hero.live{border-color:#3d6482}#page-home .home-pressure-head{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:6px}#page-home .home-pressure-reading strong,#page-home .home-pressure-title{font-family:var(--ha-font-family-body);font-weight:var(--ha-font-weight-medium)}#page-home .home-pressure-title{min-width:0;display:flex;align-items:center;gap:6px;color:#b7c3cf;font-size:10px;line-height:1;white-space:nowrap}#page-home .home-pressure-icon{width:24px;min-width:24px;height:24px;display:grid;place-items:center;border-radius:7px;background:#1f2d39;color:#70b9f5}#page-home .home-pressure-icon svg,.diagnostics-system-section-icon svg,.xdb-human-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}#page-home .home-pressure-range{flex:0 0 auto;color:#748392;font-size:7px;line-height:1;white-space:nowrap}#page-home .home-pressure-reading{z-index:2;display:flex;align-items:baseline;transform:translateX(-50%);white-space:nowrap;pointer-events:none}#page-home .home-pressure-reading strong{color:#b7dcfa}#page-home .home-pressure-reading em{color:#8593a1;font-style:normal;font-weight:var(--ha-font-weight-medium);font-size:10px!important}#page-home .home-pressure-footer{min-width:0;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:4px;color:#6f7d8b;font-size:7px;line-height:1}#page-home .home-pressure-target{overflow:hidden;color:#8593a1;text-align:center;text-overflow:ellipsis;white-space:nowrap}#page-home .home-pressure-target b,.diagnostics-section-label,.xdb-human-copy>b{color:#72dda0;font-size:9px;font-weight:var(--ha-font-weight-medium)}@media (min-width:701px) and (max-width:979px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr)!important;gap:7px!important}#page-home .home-top-grid>.machine-panel{grid-column:1/-1}#page-home .home-pressure-hero{grid-column:1}#page-home .home-temperature-hero{grid-column:2}}@media (max-width:700px){#page-home .home-pressure-hero{height:var(--home-temperature-card-height)!important;min-height:var(--home-temperature-card-height)!important}}@media (max-width:430px){#page-home .home-pressure-reading strong{font-size:26px}#page-home .home-pressure-title{font-size:9px}}#page-home .home-pressure-hero{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr)!important;place-items:center!important;padding:12px!important}#page-home .home-pressure-footer,#page-home .home-pressure-head,#page-home .home-temperature-heat-track>#homeHeatFill{display:none!important}#page-home .home-pressure-gauge{position:relative;min-width:0;align-self:center;justify-self:stretch;overflow:hidden}#page-home .home-pressure-reading{position:absolute!important}#page-home .home-pressure-reading strong{font-size:clamp(25px,2.15vw,34px)}@media (max-width:430px){#page-home .home-pressure-gauge{min-height:90px}#page-home .home-pressure-reading strong{font-size:28px}}#page-home .home-pressure-hero{background:radial-gradient(circle at 50% 48%,rgba(68,139,191,.13),transparent 54%),linear-gradient(155deg,#19222b,#12181e 74%)!important}#page-home .home-pressure-gauge{width:100%!important;height:calc(var(--home-temperature-card-height) - 18px)!important;min-height:112px;max-height:242px}#page-home .home-pressure-reading{top:74%!important;left:50%!important;bottom:auto!important;gap:4px!important;transform:translate(-50%,-50%)!important}#page-home .home-pressure-reading strong{font-size:31px!important;line-height:.9!important;letter-spacing:-.035em}@media (max-width:430px){#page-home .home-pressure-gauge{min-height:105px}#page-home .home-pressure-reading strong{font-size:31px!important}}#page-home .home-pressure-hero::before,#page-home .pressure-variant-a::before{content:none!important;display:none!important}#page-home .pressure-variant-a{padding:6px!important;background:radial-gradient(circle at 50% 46%,rgba(70,146,202,.16),transparent 58%),linear-gradient(155deg,#19222b,#12181e 74%)!important}#page-home .pressure-variant-a .home-pressure-gauge{width:100%!important;height:100%!important;min-height:122px;max-height:none}#page-home .pressure-variant-a .pressure-reading-stacked{top:76%!important;left:50%!important;bottom:auto!important;display:flex!important;flex-direction:column;align-items:center;gap:2px!important;transform:translate(-50%,-50%)!important}#page-home .pressure-variant-a .pressure-reading-stacked strong{font-size:36px!important;line-height:.82!important}#page-home .pressure-variant-a .pressure-reading-stacked em{font-size:9px!important;letter-spacing:.08em;text-transform:uppercase}.diagnostics-section-label{margin-top:13px;color:#7f8b97;font-size:10px;letter-spacing:.055em;text-transform:uppercase}.xdb-human-card{display:grid;grid-template-columns:42px minmax(0,1fr);align-items:start;gap:11px;margin-top:12px;padding:12px 13px;border:1px solid #35424e;border-radius:12px;background:#151b21;transition:border-color .18s ease,background .18s ease}.xdb-human-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:11px;background:#222b34;color:#91a0ae}.diagnostics-system-section-icon svg,.xdb-human-icon svg{width:23px;height:23px}.xdb-human-copy{min-width:0}.xdb-human-copy>b{display:block;color:#dce4ec;font-size:15px;line-height:1.2}.xdb-human-copy>p{margin:5px 0 0;color:#8e9aa6;font-size:11px;line-height:1.45}.xdb-human-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.xdb-human-chips>span{gap:4px;padding:5px 7px;border:1px solid #303b46;border-radius:8px;background:#11171c;color:#758390;font-size:9px;line-height:1}.xdb-human-chips b,.xdb-shot-head>div>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.xdb-human-chips b{max-width:240px;color:#abb7c2;font-weight:var(--ha-font-weight-medium)}.xdb-human-card.ok{border-color:rgba(76,184,127,.38);background:linear-gradient(135deg,rgba(54,139,96,.12),rgba(21,27,33,.96) 56%)}.xdb-human-card.ok .xdb-human-icon{background:rgba(54,139,96,.15);color:#68d49b}.xdb-human-card.warning{border-color:rgba(220,174,73,.43);background:linear-gradient(135deg,rgba(178,127,45,.13),rgba(21,27,33,.96) 58%)}.xdb-human-card.warning .xdb-human-icon{background:rgba(178,127,45,.16);color:#e6bd68}.xdb-human-card.critical{border-color:rgba(224,99,86,.5);background:linear-gradient(135deg,rgba(178,70,61,.16),rgba(21,27,33,.97) 58%)}.xdb-human-card.critical .xdb-human-icon{background:rgba(178,70,61,.18);color:#f08073}.xdb-shot-card{margin-top:13px;padding:12px 13px;border:1px solid #303b46;border-radius:12px;background:#12181e}.xdb-shot-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.xdb-shot-facts>div,.xdb-shot-head>div{min-width:0;display:flex;flex-direction:column;gap:3px}.xdb-shot-facts b,.xdb-shot-head>div>b{color:#cfd8e1;font-size:12px;font-weight:var(--ha-font-weight-medium)}.xdb-shot-head>div>span{color:#75828f;font-size:9px}.xdb-shot-head button{flex:0 0 auto}.xdb-shot-card>p{margin:10px 0 0;color:#929eaa;font-size:11px;line-height:1.5}.xdb-shot-card.problem{border-color:rgba(224,99,86,.38)}.xdb-shot-card.clear,.xdb-system-summary.ok{border-color:rgba(76,184,127,.32)}.xdb-shot-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:11px}.xdb-shot-facts>div{gap:4px;padding:8px 9px;border:1px solid #2d3741;border-radius:9px;background:#0f151a}.xdb-shot-facts span{color:#71808d;font-size:8px;line-height:1.2}.xdb-shot-facts b{overflow:hidden;color:#bcc7d1;font-size:11px;line-height:1.25;text-overflow:ellipsis}.xdb-system-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:11px 12px;border:1px solid #35404b;border-radius:11px;background:#141a20}.diagnostics-system-section-head>div,.xdb-system-summary>div{min-width:0}.xdb-system-summary b{color:#d2dbe3;font-size:12px;font-weight:var(--ha-font-weight-medium)}.xdb-system-summary p{margin:4px 0 0;color:#82909c;font-size:10px;line-height:1.4}.xdb-system-summary>span{flex:0 0 auto;max-width:180px;padding:6px 8px;overflow:hidden;border:1px solid #303b46;border-radius:8px;background:#10161b;color:#9eabb7;font-size:9px;text-align:right;text-overflow:ellipsis;white-space:nowrap}.xdb-system-summary.warning{border-color:rgba(220,174,73,.38)}.xdb-system-summary.critical{border-color:rgba(224,99,86,.45)}@media (max-width:620px){.xdb-shot-facts{grid-template-columns:minmax(0,1fr)}.xdb-shot-head,.xdb-system-summary{align-items:stretch;flex-direction:column}.xdb-shot-head button,.xdb-system-summary>span{width:100%;max-width:none}.xdb-system-summary>span{text-align:left}}@media (max-width:430px){.xdb-human-card{grid-template-columns:36px minmax(0,1fr);padding:11px}.xdb-human-icon{width:36px;height:36px}}.diagnostics-system-section{margin-top:12px;padding:12px;border:1px solid #303b46;border-radius:13px;background:#12181e}.diagnostics-system-section+.diagnostics-system-section{margin-top:10px}.diagnostics-system-section-head{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:10px}.diagnostics-system-section-head>div>b{display:block;color:#d7e0e8;font-size:13px;line-height:1.2}.diagnostics-system-section-head>div>p{margin:3px 0 0;color:#7f8c98;font-size:9px;line-height:1.35}.diagnostics-system-section-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:10px}.diagnostics-system-section-icon svg{width:21px;height:21px;stroke-width:1.7}.diagnostics-system-section-icon.sensor{background:rgba(70,139,192,.14);color:#70b9ee}.diagnostics-system-section-icon.esp{background:rgba(132,107,184,.14);color:#b19ae2}.diagnostics-section-health{min-width:0;padding:6px 8px;border:1px solid #303b46;border-radius:8px;background:#0f151a;color:#75828e;font-size:9px;white-space:nowrap}#page-home .home-temperature-target b,.diagnostics-section-health b,.diagnostics-system-section-head>div>b{font-weight:var(--ha-font-weight-medium)}.diagnostics-system-section .xdb-system-summary{margin-top:11px}.diagnostics-system-section .diagnostics-section-label{margin-top:12px}.diagnostics-esp-grid,.diagnostics-sensor-grid{margin-top:8px}.diagnostics-esp-grid>div,.diagnostics-sensor-grid>div{min-height:64px}.diagnostics-esp-note{margin:9px 1px 0;color:#74818d;font-size:9px;line-height:1.4}.diagnostics-system-actions{margin-top:11px}#shotChartCard .home-archive-summary{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0 0 7px}#shotChartCard .home-archive-summary .home-archive-metric{min-width:0;min-height:49px;padding:7px 8px;border:1px solid #3c4552;border-radius:10px;background:linear-gradient(145deg,#171c23,#11151a);color:var(--text);text-align:left;box-shadow:none}#shotChartCard .home-archive-summary .home-archive-metric b,#shotChartCard .home-archive-summary .home-archive-metric small{display:block;overflow:hidden;color:#9ca6b2;font-size:var(--zone-font-chart)!important;font-weight:var(--ha-font-weight-medium);line-height:1.1;text-overflow:ellipsis;white-space:nowrap}#shotChartCard .home-archive-summary .home-archive-metric b{margin-top:3px;color:#e7ebf0;font-size:var(--zone-font-value)!important;line-height:1}@media (max-width:620px){.diagnostics-system-section-head{grid-template-columns:38px minmax(0,1fr)}.diagnostics-section-health{grid-column:1/-1}#shotChartCard .home-archive-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (max-width:390px){#shotChartCard .home-archive-summary{grid-template-columns:minmax(0,1fr)}}@media (min-width:981px){.shot-profile-board,.shot-profile-board.line-settings-open{align-items:start!important}.shot-profile-board.line-settings-open>#shotChartCard,.shot-profile-board>#shotChartCard{align-self:start!important;height:auto!important;min-height:520px}.shot-profile-board.line-settings-open>#profileLibraryCard,.shot-profile-board>#profileLibraryCard{align-self:start!important;height:520px!important;min-height:520px!important;max-height:520px!important}#profileLibraryCard .home-shot-rail-pane{min-height:0}#profileLibraryCard .home-archive-list,#profileLibraryCard .user-profile-list{min-height:0;overflow:auto}}#page-home .home-temperature-hero-state{grid-template-rows:35px minmax(58px,1fr) 23px!important;gap:6px!important;padding:10px 12px!important}#page-home .home-temperature-hero-reading{min-width:0;display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:0 2px}#page-home .home-temperature-hero-reading strong{font-size:32px!important}#page-home .home-temperature-target{color:#98a3af;font-size:var(--zone-font-text,14px)!important;font-weight:var(--ha-font-weight-medium);line-height:1;white-space:nowrap}#page-home .home-temperature-target b{color:#a9e2be;font-size:32px!important;letter-spacing:-.02em}#page-home .home-temperature-mini-chart{min-height:58px}#page-home .home-temperature-hero-footer{grid-template-columns:auto minmax(72px,1fr) minmax(0,auto);gap:9px;color:#9aa5b1;font-size:var(--zone-font-small,10px)!important;font-weight:var(--ha-font-weight-medium)}#page-home .home-temperature-hero-footer>span:first-child{color:#b8c1cb}#page-home .home-temperature-heat-track{--heat-pct:0%;position:relative;height:6px;overflow:hidden;border-radius:999px;background:linear-gradient(90deg,#c9aa58 0,#df9a4e 52%,#e87c4f 78%,#ee6952 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.035)}#page-home .home-temperature-heat-track::after{content:"";position:absolute;top:0;right:0;bottom:0;width:calc(100% - var(--heat-pct));background:#29323b;transition:width .2s ease}#page-home .home-temperature-delta{max-width:160px;color:#aab4bf;font-size:inherit;font-weight:var(--ha-font-weight-medium)}@media (max-width:430px){#page-home .home-temperature-hero-state{grid-template-rows:32px minmax(54px,1fr) 21px!important;padding:9px!important}#page-home .home-temperature-hero-reading strong,#page-home .home-temperature-target b{font-size:28px!important}#page-home .home-temperature-target{font-size:12px!important}#page-home .home-temperature-hero-footer{grid-template-columns:auto minmax(48px,1fr) minmax(0,auto);gap:6px;font-size:9px!important}#page-home .home-temperature-delta{max-width:108px}}#page-home .machine-mascot{--mascot-accent:#73808d;position:relative;flex:0 0 auto;width:60px;height:42px;display:grid;grid-template-columns:1fr 1fr;align-items:center;justify-items:center;column-gap:8px;padding:7px 9px 11px;border:1px solid #35404c;border-radius:13px;background:radial-gradient(circle at 50% 15%,rgba(255,255,255,.035),transparent 48%),#171e26;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 0 0 1px rgba(0,0,0,.08);box-sizing:border-box;color:var(--mascot-accent);overflow:visible;transition:border-color .22s ease,background .22s ease,box-shadow .22s ease,color .22s ease}#page-home .machine-mascot::before{content:"";position:absolute;inset:5px;border-radius:9px;background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--mascot-accent) 10%,transparent),transparent 68%);opacity:.75;pointer-events:none;transition:opacity .22s ease}#page-home .machine-mascot-eye{position:relative;z-index:1;width:15px;height:12px;display:grid;place-items:center;border:1.5px solid currentColor;border-radius:50%;background:rgba(9,12,16,.62);box-shadow:0 0 8px color-mix(in srgb,currentColor 16%,transparent);transform-origin:center;animation:machineMascotBlink 6.8s ease-in-out infinite;transition:height .2s ease,border-radius .2s ease,transform .2s ease,opacity .2s ease,background .2s ease}#page-home .machine-mascot-eye:nth-of-type(2){animation-delay:.13s}#page-home .machine-mascot-pupil{width:4px;height:4px;border-radius:50%;background:currentColor;box-shadow:0 0 6px color-mix(in srgb,currentColor 55%,transparent);animation:machineMascotLook 5.2s ease-in-out infinite;transition:transform .2s ease,opacity .2s ease}#page-home .machine-mascot-mouth{position:absolute;z-index:1;left:50%;bottom:6px;width:13px;height:5px;border-bottom:1.5px solid currentColor;border-radius:0 0 10px 10px;transform:translateX(-50%);opacity:.75;transition:width .2s ease,height .2s ease,border .2s ease,border-radius .2s ease,transform .2s ease,opacity .2s ease}#page-home .machine-mascot-steam{position:absolute;top:-7px;right:8px;width:20px;height:12px;opacity:0;pointer-events:none;transition:opacity .2s ease}#page-home .machine-mascot-steam i{position:absolute;bottom:0;width:2px;height:8px;border-radius:999px;background:currentColor;opacity:0;animation:machineMascotSteam 1.45s ease-out infinite}#page-home .machine-mascot-steam i:nth-child(1){left:2px;animation-delay:0s}#page-home .machine-mascot-steam i:nth-child(2){left:9px;animation-delay:.34s}#page-home .machine-mascot-steam i:nth-child(3){left:16px;animation-delay:.68s}#page-home .machine-mascot.state-off{--mascot-accent:#66717d;border-color:#303842;background:#161b21;opacity:.72}#page-home .machine-mascot.state-off .machine-mascot-eye{height:4px;border-radius:999px;border-width:1.5px 0 0;background:0 0;box-shadow:none;animation:none;transform:translateY(2px)}#page-home .machine-mascot.state-off .machine-mascot-pupil{opacity:0;animation:none}#page-home .machine-mascot.state-off .machine-mascot-mouth{width:10px;height:1px;border:0;border-top:1.5px solid currentColor;border-radius:0;opacity:.5}#page-home .machine-mascot.state-heating{--mascot-accent:#e59a55;border-color:#5b4432;background:#211b18;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 0 15px rgba(225,139,72,.07);animation:machineMascotWarm 2.4s ease-in-out infinite}#page-home .machine-mascot.state-heating .machine-mascot-pupil{animation:machineMascotHeatLook 2.8s ease-in-out infinite}#page-home .machine-mascot.state-ready{--mascot-accent:#61d493;border-color:#37684d;background:#17251e}#page-home .machine-mascot.state-ready .machine-mascot-eye{height:10px}#page-home .machine-mascot.state-ready .machine-mascot-mouth{width:15px;height:7px;border-bottom-width:2px;opacity:1;animation:machineMascotSmile 3.2s ease-in-out infinite}#page-home .machine-mascot.state-shot{--mascot-accent:#ffd166;border-color:#6a592e;background:#241f16;animation:machineMascotFocus 1.25s ease-in-out infinite}#page-home .machine-mascot.state-shot .machine-mascot-eye{height:8px;border-radius:45%}#page-home .machine-mascot.state-shot .machine-mascot-pupil{animation:none;transform:translateY(1px) scale(.9)}#page-home .machine-mascot.state-shot .machine-mascot-mouth{width:8px;height:2px;border-radius:999px;opacity:.82}#page-home .machine-mascot.state-water{--mascot-accent:#62b9ff;border-color:#315b79;background:#17232c}#page-home .machine-mascot.state-water .machine-mascot-pupil{animation:machineMascotWaterLook 1.8s ease-in-out infinite}#page-home .machine-mascot.state-water .machine-mascot-mouth{width:6px;height:6px;border:1.5px solid currentColor;border-radius:50%;opacity:.85}#page-home .machine-mascot.state-steam{--mascot-accent:#b695ff;border-color:#574775;background:#201b2b}#page-home .machine-mascot.state-steam .machine-mascot-eye{width:16px;height:13px}#page-home .machine-mascot.state-steam .machine-mascot-steam{opacity:.9}#page-home .machine-mascot.state-steam .machine-mascot-steam i{opacity:.62}#page-home .machine-mascot.state-steam .machine-mascot-mouth{width:10px;height:6px;border-bottom-width:2px;opacity:1}#page-home .machine-mascot.state-warning{--mascot-accent:#f0a55f;border-color:#785139;background:#2a2119}#page-home .machine-mascot.state-warning .machine-mascot-eye:first-of-type{transform:rotate(-8deg)}#page-home .machine-mascot.state-warning .machine-mascot-eye:nth-of-type(2){transform:rotate(8deg)}#page-home .machine-mascot.state-warning .machine-mascot-mouth{width:14px;height:6px;border:0;border-top:1.8px solid currentColor;border-radius:10px 10px 0 0;transform:translateX(-50%) translateY(2px);opacity:1}#page-home .machine-mascot.state-error{--mascot-accent:#ff7777;border-color:#7c4247;background:#2b1b1f;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 0 14px rgba(255,104,104,.08)}#page-home .machine-mascot.state-error .machine-mascot-eye{width:17px;height:14px;animation-duration:3.6s}#page-home .machine-mascot.state-error .machine-mascot-pupil{animation:none;transform:scale(.72)}#page-home .machine-mascot.state-error .machine-mascot-mouth{width:14px;height:6px;border:0;border-top:1.8px solid currentColor;border-radius:10px 10px 0 0;transform:translateX(-50%) translateY(2px);opacity:1}@media (max-width:760px){#page-home .machine-mascot{width:52px;height:38px;padding:6px 7px 10px;column-gap:6px}#page-home .machine-mascot-eye{width:13px;height:10px}}@media (prefers-reduced-motion:reduce){#page-home .machine-mascot,#page-home .machine-mascot *,#page-home .machine-mascot::before{animation:none!important;transition:none!important}}#page-home .pressure-variant-a .home-pressure-backflush{position:absolute;left:9px;right:9px;bottom:6px;z-index:4;min-width:0;display:flex;align-items:center;justify-content:center;gap:5px;padding:4px 7px 2px;border-top:1px solid rgba(118,145,167,.18);color:#788896;font-size:9px;font-weight:600;line-height:1.05;white-space:nowrap;pointer-events:none}#page-home .pressure-variant-a .home-pressure-backflush-icon{color:#7299b7;font-size:11px;line-height:1}#page-home .pressure-variant-a .home-pressure-backflush.due{color:#efb37c;border-top-color:rgba(225,139,72,.32)}#page-home .pressure-variant-a .home-pressure-backflush.due .home-pressure-backflush-icon{color:#e18b48}#shotChartCard .target-weight-footer.shot-result b{color:#d8eadf}#page-settings .pressure-settings-grid,#page-settings .pump-settings-grid,#page-settings .temperature-settings-grid{gap:14px}#page-settings .temperature-settings-section{padding:0;border:0;border-radius:0;background:0 0}#page-settings .temperature-settings-section-head{margin:0 3px 7px;padding:0 1px;gap:3px}#page-maintenance .service-setting-copy label,#page-maintenance .toggle-copy span,#page-settings .temperature-settings-section-head>.settings-help-label-wrap>b,#page-settings .temperature-settings-section-head>b{color:#dce2e9;font-size:var(--zone-font-text)!important;font-weight:var(--ha-font-weight-medium);line-height:1.25}#page-settings .temperature-settings-section>.temperature-autotune-row,#page-settings .temperature-settings-section>.temperature-setting-row{margin:0;padding:10px 12px;border:1px solid #303944!important;border-radius:11px;background:#12171c}#page-settings .temperature-settings-section>.pid-parameter-grid+.temperature-autotune-row,#page-settings .temperature-settings-section>.pressure-parameter-grid+.temperature-setting-row,#page-settings .temperature-settings-section>.temperature-autotune-row+.temperature-setting-row,#page-settings .temperature-settings-section>.temperature-setting-row+.temperature-autotune-row,#page-settings .temperature-settings-section>.temperature-setting-row+.temperature-setting-row{margin-top:7px}#page-settings .temperature-settings-section-head+.temperature-autotune-row,#page-settings .temperature-settings-section-head+.temperature-setting-row{border-top:1px solid #303944!important}#page-settings .temperature-settings-section>.pid-parameter-grid,#page-settings .temperature-settings-section>.pressure-parameter-grid{margin-top:0}#page-settings .temperature-settings-section .pid-parameter-card{background:#12171c;border-color:#303944}@media (max-width:520px){#page-settings .temperature-settings-section>.temperature-autotune-row,#page-settings .temperature-settings-section>.temperature-setting-row{padding:10px}}#page-maintenance .service-panel{width:100%;max-width:780px;margin:0 auto}#page-maintenance .service-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}#page-maintenance .service-subsection-title{margin:14px 3px 7px;padding:0 1px;color:#dce2e9;font-size:var(--zone-font-text)!important;font-weight:var(--ha-font-weight-medium);line-height:1.25}#page-maintenance .service-subsection-title:first-of-type{margin-top:12px}#page-maintenance .service-fields{grid-template-columns:minmax(0,1fr);gap:7px;margin-top:0}#page-maintenance .service-fields .setting,#page-maintenance .service-fields .toggle-setting{min-height:58px;margin:0;padding:10px 12px;border:1px solid #303944;border-radius:11px;background:#12171c}#page-maintenance .service-fields .setting{display:grid;grid-template-columns:minmax(0,1fr) minmax(116px,150px);align-items:center;gap:14px}#page-maintenance .service-fields .toggle-setting{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px}#page-maintenance .service-setting-copy,#page-maintenance .toggle-copy{min-width:0;display:grid;gap:3px}#page-maintenance .service-setting-control{min-width:0;display:grid;grid-template-columns:minmax(78px,1fr) auto;align-items:center;gap:7px}#page-maintenance .service-setting-control input,#page-maintenance .service-setting-control select{min-width:0;width:100%}#page-maintenance .service-setting-control>span{min-width:24px;color:#8995a2;font-size:var(--zone-font-small)!important;text-align:left;white-space:nowrap}#page-maintenance .service-status-grid{grid-template-columns:minmax(0,1fr);gap:7px;margin-top:0}#page-maintenance .service-status-grid>div{min-height:48px;padding:9px 11px;border-radius:11px;background:#12171c}#page-maintenance .service-status-wide{grid-column:1}#page-maintenance .service-status-single{max-width:none;margin-left:0}#page-maintenance .service-actions{justify-content:flex-start;margin-top:8px}#page-maintenance .service-actions-danger{padding-top:0;border-top:0}#page-maintenance .service-group-help{margin:-1px 3px 7px;color:#7f8995;font-size:var(--zone-font-small)!important;line-height:1.4}#page-maintenance .service-note{margin-top:8px}#page-maintenance .service-help-panel .service-help-text{display:none!important}#page-maintenance .service-help-panel.help-all-open .service-help-text{display:block!important;animation:settingsHelpReveal .14s ease-out}@media (max-width:520px){#page-maintenance .service-fields .setting,#page-maintenance .service-fields .toggle-setting{grid-template-columns:minmax(0,1fr);gap:8px;padding:10px}#page-maintenance .service-setting-control{grid-template-columns:minmax(0,1fr) auto}#page-maintenance .service-fields .toggle-setting .toggle-control{justify-self:end}}
-  </style>
+  
+/* XDB401 diagnostics: flatter hierarchy, CSV-first layout */
+#page-diagnostics .diagnostics-sensor-clean{
+  margin-top:12px;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+}
+#page-diagnostics .diagnostics-sensor-clean .xdb-human-status{
+  grid-template-columns:minmax(0,1fr);
+  margin-top:0;
+  padding:10px 12px;
+  border:1px solid #303b46;
+  border-left:3px solid #596978;
+  border-radius:10px;
+  background:#12181e;
+}
+#page-diagnostics .diagnostics-sensor-clean .xdb-human-status.ok{
+  border-color:#303b46;
+  border-left-color:#4bb77f;
+  background:#12181e;
+}
+#page-diagnostics .diagnostics-sensor-clean .xdb-human-status.warning{
+  border-color:#303b46;
+  border-left-color:#d4a94d;
+  background:#12181e;
+}
+#page-diagnostics .diagnostics-sensor-clean .xdb-human-status.critical{
+  border-color:#303b46;
+  border-left-color:#df6558;
+  background:#12181e;
+}
+#page-diagnostics .xdb-human-status-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+#page-diagnostics .xdb-human-status-title{
+  min-width:0;
+  display:grid;
+  gap:3px;
+}
+#page-diagnostics .xdb-human-status-title>span{
+  color:#7f8c98;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+#page-diagnostics .xdb-human-status-title>b{
+  color:#dce4ec;
+  font-size:13px;
+  font-weight:var(--ha-font-weight-medium);
+  line-height:1.25;
+}
+#page-diagnostics .diagnostics-sensor-clean .xdb-human-copy>p{
+  margin:5px 0 0;
+  color:#8996a2;
+  font-size:10px;
+  line-height:1.4;
+}
+#page-diagnostics .diagnostics-sensor-clean .xdb-human-chips{
+  margin-top:7px;
+}
+#page-diagnostics .diagnostics-sensor-clean .xdb-human-chips>span{
+  padding:4px 7px;
+  background:#0f151a;
+}
+#page-diagnostics .diagnostics-sensor-clean .diagnostics-section-health{
+  flex:0 0 auto;
+  padding:5px 7px;
+  border:0;
+  background:transparent;
+  font-size:9px;
+}
+#page-diagnostics .diagnostics-sensor-clean .xdb-system-summary-compact{
+  margin-top:10px;
+  padding:8px 1px 0;
+  border:0;
+  border-top:1px solid #29333d;
+  border-radius:0;
+  background:transparent;
+}
+#page-diagnostics .diagnostics-sensor-clean .xdb-system-summary-compact.ok,
+#page-diagnostics .diagnostics-sensor-clean .xdb-system-summary-compact.warning,
+#page-diagnostics .diagnostics-sensor-clean .xdb-system-summary-compact.critical{
+  border-color:#29333d;
+}
+#page-diagnostics .diagnostics-sensor-clean .xdb-system-summary-compact>span{
+  padding:4px 7px;
+  background:#0f151a;
+}
+#page-diagnostics .diagnostics-sensor-clean .diagnostics-primary-label{
+  margin-top:15px;
+  color:#a8b5c1;
+}
+#page-diagnostics .diagnostics-sensor-clean .xdb-shot-card-primary{
+  margin-top:7px;
+  padding:13px 14px;
+  border-color:#3a4753;
+  background:#141b21;
+  box-shadow:inset 3px 0 0 #4e89b5;
+}
+#page-diagnostics .diagnostics-sensor-clean .xdb-shot-card-primary.clear{
+  border-color:#34443d;
+  box-shadow:inset 3px 0 0 #4bb77f;
+}
+#page-diagnostics .diagnostics-sensor-clean .xdb-shot-card-primary.problem{
+  border-color:#49383a;
+  box-shadow:inset 3px 0 0 #df6558;
+}
+#page-diagnostics .diagnostics-sensor-clean .xdb-shot-card-primary .xdb-shot-head>div>b{
+  font-size:13px;
+}
+#page-diagnostics .diagnostics-sensor-clean .diagnostics-csv-actions{
+  margin-top:7px;
+  justify-content:flex-start;
+}
+#page-diagnostics .diagnostics-sensor-clean .diagnostics-csv-actions .button{
+  width:auto;
+  min-width:178px;
+  padding:8px 11px;
+  border-radius:9px;
+  font-size:10px!important;
+}
+#page-diagnostics .diagnostics-sensor-clean>.diagnostics-section-label{
+  margin-top:14px;
+}
+
+/* XDB401 pressure tab typography aligned with the rest of the dashboard */
+#page-diagnostics [data-diagnostics-panel="pressure"] .xdb-human-status-title>span{
+  font-size:var(--zone-font-small)!important;
+  letter-spacing:.035em;
+}
+#page-diagnostics [data-diagnostics-panel="pressure"] .xdb-human-status-title>b{
+  font-size:15px!important;
+  line-height:1.3;
+}
+#page-diagnostics [data-diagnostics-panel="pressure"] .xdb-human-copy>p{
+  font-size:var(--zone-font-small)!important;
+  line-height:1.45;
+}
+#page-diagnostics [data-diagnostics-panel="pressure"] .xdb-human-chips>span,
+#page-diagnostics [data-diagnostics-panel="pressure"] .diagnostics-section-health{
+  font-size:var(--zone-font-small)!important;
+}
+#page-diagnostics [data-diagnostics-panel="pressure"] .xdb-system-summary-compact>div>b{
+  font-size:14px!important;
+  line-height:1.3;
+}
+#page-diagnostics [data-diagnostics-panel="pressure"] .xdb-system-summary-compact>div>p{
+  font-size:var(--zone-font-small)!important;
+  line-height:1.45;
+}
+#page-diagnostics [data-diagnostics-panel="pressure"] .xdb-system-summary-compact>span{
+  font-size:var(--zone-font-small)!important;
+}
+#page-diagnostics [data-diagnostics-panel="pressure"] .xdb-shot-card-primary .xdb-shot-head>div>b{
+  font-size:14px!important;
+  line-height:1.3;
+}
+#page-diagnostics [data-diagnostics-panel="pressure"] .xdb-shot-card-primary .xdb-shot-head>div>span,
+#page-diagnostics [data-diagnostics-panel="pressure"] .xdb-shot-card-primary>p{
+  font-size:var(--zone-font-small)!important;
+  line-height:1.45;
+}
+#page-diagnostics [data-diagnostics-panel="pressure"] .xdb-shot-facts span{
+  font-size:var(--zone-font-small)!important;
+}
+#page-diagnostics [data-diagnostics-panel="pressure"] .xdb-shot-facts b{
+  font-size:13px!important;
+}
+#page-diagnostics [data-diagnostics-panel="pressure"] .diagnostics-csv-actions .button{
+  font-size:var(--zone-font-small)!important;
+}
+@media (max-width:620px){
+  #page-diagnostics .xdb-human-status-top{
+    flex-direction:column;
+    gap:6px;
+  }
+  #page-diagnostics .diagnostics-sensor-clean .diagnostics-section-health{
+    align-self:flex-start;
+  }
+  #page-diagnostics .diagnostics-sensor-clean .diagnostics-csv-actions .button{
+    width:100%;
+  }
+}
+</style>
   <style>
     .user-profile-actions { grid-template-columns: 34px; }
     .user-profile-actions button { width:34px; min-width:34px; }
@@ -53,7 +242,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     .user-profile-apply .user-profile-date { margin-top:3px; color:#6f7c89; font-size:7px; }
   </style>
 </head>
-<body class="sidebar-collapsed">
+<body class="sidebar-collapsed" style="visibility:hidden" onload="this.style.visibility=''">
   <div class="shell">
     <aside id="sidebar" class="sidebar">
       <div class="side-head">
@@ -1772,38 +1961,20 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                 <div><span>Рост давления</span><b><i id="diagPressureSlope">—</i> бар/с</b></div>
               </div>
 
-              <section class="diagnostics-system-section diagnostics-sensor-section">
-                <div class="diagnostics-system-section-head">
-                  <span class="diagnostics-system-section-icon sensor" aria-hidden="true">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M4 16a8 8 0 0 1 16 0"/>
-                      <path d="M12 16l4-5"/>
-                      <circle cx="12" cy="16" r="1.4"/>
-                      <path d="M7 19h10"/>
-                    </svg>
-                  </span>
-                  <div>
-                    <b>XDB401</b>
-                    <p>Температура, обмен, пакеты и состояние датчика давления.</p>
-                  </div>
-                  <span class="diagnostics-section-health">
-                    Состояние: <b id="diagSensorHealth">—</b>
-                  </span>
-                </div>
-
+              <section class="diagnostics-system-section diagnostics-sensor-section diagnostics-sensor-clean">
                 <div id="xdbHumanCard"
-                  class="xdb-human-card checking" role="status"
+                  class="xdb-human-card xdb-human-status checking" role="status"
                   aria-live="polite">
-                  <div class="xdb-human-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M4 16a8 8 0 0 1 16 0"/>
-                      <path d="M12 16l4-5"/>
-                      <circle cx="12" cy="16" r="1.4"/>
-                      <path d="M7 19h10"/>
-                    </svg>
-                  </div>
                   <div class="xdb-human-copy">
-                    <b id="xdbHumanTitle">Проверяем XDB401…</b>
+                    <div class="xdb-human-status-top">
+                      <div class="xdb-human-status-title">
+                        <span>Датчик XDB401</span>
+                        <b id="xdbHumanTitle">Проверяем XDB401…</b>
+                      </div>
+                      <span class="diagnostics-section-health">
+                        Состояние: <b id="diagSensorHealth">—</b>
+                      </span>
+                    </div>
                     <p id="xdbHumanText">Получаем состояние датчика и счётчики обмена.</p>
                     <div class="xdb-human-chips">
                       <span>Ошибок подряд: <b id="xdbHumanConsecutive">—</b></span>
@@ -1819,7 +1990,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                 </div>
 
                 <div id="xdbSystemSummary"
-                  class="xdb-system-summary checking">
+                  class="xdb-system-summary xdb-system-summary-compact checking">
                   <div>
                     <b id="xdbSystemSummaryTitle">Накопительная статистика XDB401</b>
                     <p id="xdbSystemSummaryText">
@@ -1827,6 +1998,34 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                     </p>
                   </div>
                   <span id="xdbSystemDominant">—</span>
+                </div>
+
+                <div class="diagnostics-section-label diagnostics-primary-label">Последний пролив</div>
+                <div id="xdbLastShotCard"
+                  class="xdb-shot-card xdb-shot-card-primary loading">
+                  <div class="xdb-shot-head">
+                    <div>
+                      <b>Последний диагностический CSV</b>
+                      <span id="xdbShotState">Проверяем запись последнего пролива…</span>
+                    </div>
+                    <button class="small secondary" type="button"
+                      onclick="analyzeLatestShotCsv(true)">Обновить анализ</button>
+                  </div>
+
+                  <p id="xdbShotSummary">
+                    После анализа здесь появится понятное объяснение остановки помпы и ошибок XDB401.
+                  </p>
+
+                  <div id="xdbShotFacts" class="xdb-shot-facts" hidden>
+                    <div><span>Срабатывание защиты</span><b id="xdbShotEventTime">—</b></div>
+                    <div><span>Возраст данных</span><b id="xdbShotSensorAge">—</b></div>
+                    <div><span>Восстановление связи</span><b id="xdbShotRecovery">—</b></div>
+                    <div><span>Причина</span><b id="xdbShotReason">—</b></div>
+                  </div>
+                </div>
+
+                <div class="service-actions diagnostics-system-actions diagnostics-csv-actions">
+                  <a class="button" href="/shot.csv">Скачать последний CSV</a>
                 </div>
 
                 <div class="diagnostics-section-label">Технические счётчики XDB401</div>
@@ -1841,34 +2040,6 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                   <div class="diagnostics-wide"><span>Последняя ошибка XDB401</span><b id="errLast">—</b></div>
                 </div>
               </section>
-
-
-              <div id="xdbLastShotCard"
-                class="xdb-shot-card loading">
-                <div class="xdb-shot-head">
-                  <div>
-                    <b>Последний диагностический CSV</b>
-                    <span id="xdbShotState">Проверяем запись последнего пролива…</span>
-                  </div>
-                  <button class="small secondary" type="button"
-                    onclick="analyzeLatestShotCsv(true)">Обновить анализ</button>
-                </div>
-
-                <p id="xdbShotSummary">
-                  После анализа здесь появится понятное объяснение остановки помпы и ошибок XDB401.
-                </p>
-
-                <div id="xdbShotFacts" class="xdb-shot-facts" hidden>
-                  <div><span>Срабатывание защиты</span><b id="xdbShotEventTime">—</b></div>
-                  <div><span>Возраст данных</span><b id="xdbShotSensorAge">—</b></div>
-                  <div><span>Восстановление связи</span><b id="xdbShotRecovery">—</b></div>
-                  <div><span>Причина</span><b id="xdbShotReason">—</b></div>
-                </div>
-              </div>
-
-              <div class="service-actions diagnostics-system-actions">
-                <a class="button" href="/shot.csv">Скачать последний CSV</a>
-              </div>
             </section>
 
             <section class="service-panel" data-diagnostics-panel="temperature" hidden>
@@ -4333,14 +4504,10 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
           { option:'Custom' }
         );
 
-        const confirmed = await waitForProfile('Custom');
-        if (!confirmed) {
-          throw Error('custom profile confirmation timeout');
-        }
-
         /*
-         * Не перезагружаем number-сущности сразу после сохранения.
-         * Они могут кратковременно вернуть старый кэш и убрать кривую.
+         * Native ESPHome-style flow: do not poll the Select back. The edited
+         * values are already the exact local snapshot; ESP confirmations and
+         * any corrections arrive through SSE.
          */
         applyRecipeConfig(editedConfig);
         readProfileCfgFromInputs();
@@ -4515,6 +4682,10 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     let lastShotTargetWeight = NaN;
     let postShotWeightCaptureUntil = 0;
     let machineOn = false;
+    let powerCommandPending = false;
+    let powerDesiredState = null;
+    let powerCommandStartedAt = 0;
+    let powerConfirmTimer = 0;
     let hotWaterOn = false;
     let steamModeOn = false;
     let waterAvailable = null;
@@ -6485,7 +6656,10 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
 
         function initHomeDashboardLayout() {
       const page = $('page-home');
-      if (!page || $('homeDashboardLayout')) return;
+      if (!page || $('homeDashboardLayout')) {
+        document.body.style.visibility = '';
+        return;
+      }
 
       const overview = page.querySelector('.home-overview');
       const shotBoard = $('shotProfileBoard');
@@ -6494,7 +6668,10 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
           ? shotBoard.parentElement
           : null;
 
-      if (!overview || !shotBoard) return;
+      if (!overview || !shotBoard) {
+        document.body.style.visibility = '';
+        return;
+      }
 
       initShotProfileBoard();
 
@@ -6541,6 +6718,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       requestAnimationFrame(() => {
         syncHomeTopPanelSizeToViewport();
         syncShotProfileSizeToViewport();
+        document.body.style.visibility = '';
       });
 
       document.addEventListener(
@@ -7164,10 +7342,42 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       if (targetNode) targetNode.textContent = Number.isFinite(target) ? fmt(target) + ' ' + tr('бар') : tr('— бар');
     }
 
-    function showPower(on) {
-      machineOn = !!on;
+    function showPower(on, source = 'state') {
+      const next = !!on;
+
+      /*
+       * Power commands are rendered optimistically so the control reacts on
+       * the same frame as the click. While a command is in flight, ESPHome
+       * can still deliver one stale SSE state from before the relay changed.
+       * Ignore only that contradictory state for a short confirmation window;
+       * the desired state itself confirms the command immediately.
+       */
+      if (source === 'state' && powerCommandPending) {
+        if (next === powerDesiredState) {
+          powerCommandPending = false;
+          powerDesiredState = null;
+          powerCommandStartedAt = 0;
+          if (powerConfirmTimer) {
+            clearTimeout(powerConfirmTimer);
+            powerConfirmTimer = 0;
+          }
+        } else if (Date.now() - powerCommandStartedAt < 4000) {
+          return;
+        } else {
+          powerCommandPending = false;
+          powerDesiredState = null;
+          powerCommandStartedAt = 0;
+        }
+      }
+
+      machineOn = next;
       const button = $('powerButton');
-      if (button) { button.classList.toggle('on', machineOn); button.classList.toggle('off', !machineOn); button.setAttribute('aria-label', tr(machineOn ? 'Выключить' : 'Включить')); }
+      if (button) {
+        button.classList.toggle('on', machineOn);
+        button.classList.toggle('off', !machineOn);
+        button.setAttribute('aria-label', tr(machineOn ? 'Выключить' : 'Включить'));
+        button.setAttribute('aria-busy', powerCommandPending ? 'true' : 'false');
+      }
       if ($('powerButtonLabel')) $('powerButtonLabel').textContent = tr(machineOn ? 'Включено' : 'Выключено');
       updateHomeDashboard(); updateQuickActions();
     }
@@ -7690,6 +7900,8 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
 
       const silent = !!options.silent;
       const previousActive = activeUserProfileId;
+      const previousConfig = recipeConfigFromInputs();
+      const previousProfile = currentProfileName;
 
       userProfileApplying = true;
       activeUserProfileId = id;
@@ -7720,15 +7932,10 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
 
         await post('select', 'Silvia Shot Profile', 'set', { option:'Custom' });
 
-        const confirmed = await waitForProfile('Custom');
-        if (!confirmed) throw Error('custom profile confirmation timeout');
-
-        await sleep(180);
-        await loadHomeProfileSnapshot(true);
-
-        currentProfileName = 'Custom';
-        syncProfileControls('Custom');
         clearMainCurveDraftState();
+        currentProfileName = 'Custom';
+        recipeBaseProfile = 'Custom';
+        syncProfileControls('Custom');
         captureRecipeBaseline('Custom');
         updateMainCurveEditor();
 
@@ -7736,9 +7943,19 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         return true;
       } catch (_) {
         activeUserProfileId = previousActive;
+        applyRecipeConfig(previousConfig);
+        readProfileCfgFromInputs();
+        currentProfileName = previousProfile;
+        recipeBaseProfile = previousProfile || recipeBaseProfile;
+        syncProfileControls(previousProfile);
+        updateRecipeProfileUi();
+        updateRecipeDescription();
+        updateMainCurveEditor();
+        draw();
+        drawRecipePreview();
 
         if (!silent) toast(tr('Профиль не применён'), true);
-        await loadHomeProfileSnapshot(false);
+        if (!eventStreamHealthy()) await loadHomeProfileSnapshot(false);
 
         return false;
       } finally {
@@ -7936,6 +8153,18 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         )
       };
 
+      const builtInRamp = builtInProfileRampSeconds(
+        profile,
+        visible.shotSeconds
+      );
+      if (Number.isFinite(builtInRamp)) {
+        visible.softInfusionTime = builtInRamp;
+      }
+      if (profile === 'Classic') {
+        visible.prePower = visible.mainPressure;
+        visible.endPressure = visible.mainPressure;
+      }
+
       [
         'prePump',
         'prePause',
@@ -7998,6 +8227,8 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       mainCurveHoverKey = '';
       mainCurveDragPointerId = null;
       mainCurveDragStartConfig = null;
+      chartHoverIndex = -1;
+      hideChartTooltip();
     }
 
     function updateMainCurveEditor() {
@@ -9544,8 +9775,18 @@ if (card) {
 
     function apply(event) {
       const key = clean(event.name_id || event.id);
+      const exactPidStateHandled = applyExactPidStateFromSse(key, event);
+      const numberStateHandled = applyNumberStateFromSse(key, event);
       const hit = Object.entries(E).find(([name]) => key.endsWith(name));
-      if (!hit) return;
+
+      if (!hit) {
+        if (numberStateHandled || exactPidStateHandled) {
+          updateHomeDashboard();
+          updateQuickActions();
+          health();
+        }
+        return;
+      }
 
       const [elementId, type] = hit[1];
       const value = event.value ?? event.state;
@@ -9578,23 +9819,31 @@ if (card) {
         renderStatusValue(elementId, type, value);
       } else {
         if (elementId === 'profile') {
-          const nextProfile = String(value ?? '');
+          const nextProfile = String(value ?? '').trim();
+          const fetchedOptions = profileOptionsFromData(event);
+
+          if (fetchedOptions.length) {
+            availableProfileOptions = fetchedOptions;
+          } else if (nextProfile && !availableProfileOptions.includes(nextProfile)) {
+            // Normal DETAIL_STATE updates do not repeat Select options. Keep a
+            // newly observed option visible without requiring a REST detail GET.
+            availableProfileOptions = [...availableProfileOptions, nextProfile];
+          }
+
           const profileChanged =
             !!nextProfile &&
             nextProfile !== currentProfileName;
 
-          currentProfileName = nextProfile;
+          if (nextProfile) currentProfileName = nextProfile;
           syncProfileControls(currentProfileName);
           updateShotScenario();
           updateChartControls();
 
-          /*
-           * The select state can arrive before its profile numbers. Fetch one
-           * compact, atomic snapshot after the event burst settles so the
-           * graph never combines a new profile name with old parameters.
-           */
-          if (profileChanged) {
-            scheduleHomeProfileSnapshot();
+          // The preset's Number events may arrive just before or just after the
+          // Select event. Debouncing both sides gives the graph one coherent,
+          // near-instant redraw while SSE remains the source of truth.
+          if (profileChanged || fetchedOptions.length) {
+            scheduleProfileStateCommitFromSse();
           }
         } else {
           renderStatusValue(elementId, type, value);
@@ -9647,6 +9896,37 @@ if (card) {
       }
     }
 
+    function builtInProfileRampSeconds(profileName, mainSeconds) {
+      const profile = String(profileName || '');
+      let seconds = NaN;
+
+      if (profile === 'Slayer Style') seconds = 5;
+      else if (profile === 'Bloom') seconds = 4;
+      else if (profile === 'Classic' || profile === 'Lever') seconds = 3;
+
+      if (!Number.isFinite(seconds)) return NaN;
+      return Math.min(Math.max(0, Number(mainSeconds) || 0), seconds);
+    }
+
+    function displayedProfileRampSeconds(config, profileName) {
+      const mainSeconds = Math.max(0, Number(config?.shotSeconds) || 0);
+      const configured = Math.min(
+        mainSeconds,
+        Math.max(0, Number(config?.softInfusionTime) || 0)
+      );
+      const builtIn = builtInProfileRampSeconds(profileName, mainSeconds);
+      const editing = !!(
+        recipeDirty ||
+        mainCurveDirty ||
+        mainCurveEditing ||
+        mainCurveDragKey
+      );
+
+      return !editing && Number.isFinite(builtIn)
+        ? builtIn
+        : configured;
+    }
+
     function buildProfileSeries(
       config = profileCfg,
       profileName = currentProfileName || 'Custom'
@@ -9658,13 +9938,14 @@ if (card) {
       if (total <= 0) return [];
 
       const mainPressure = Math.max(0, Number(config.mainPressure) || 0);
-      const startPressure =
-        String(profileName || '') === 'Classic'
-          ? mainPressure
-          : Math.max(0, Number(config.prePower) || 0);
-      const endPressure = Math.max(0, Number(config.endPressure) || 0);
-      const configuredSoftStart = Math.max(0, Number(config.softInfusionTime) || 0);
-      const rampSeconds = Math.min(mainSeconds, configuredSoftStart);
+      const classicProfile = String(profileName || '') === 'Classic';
+      const startPressure = classicProfile
+        ? mainPressure
+        : Math.max(0, Number(config.prePower) || 0);
+      const endPressure = classicProfile
+        ? mainPressure
+        : Math.max(0, Number(config.endPressure) || 0);
+      const rampSeconds = displayedProfileRampSeconds(config, profileName);
       const finishSeconds = Math.max(0, mainSeconds - rampSeconds);
       const smoothstep = value => {
         const x = Math.max(0, Math.min(1, value));
@@ -10535,13 +10816,9 @@ if (card) {
         prePump + prePause + mainSeconds
       );
 
-      const configuredSoftStart = Math.max(
-        0,
-        Number(config.softInfusionTime) || 0
-      );
-      const rampSeconds = Math.min(
-        mainSeconds,
-        configuredSoftStart
+      const rampSeconds = displayedProfileRampSeconds(
+        config,
+        profileName
       );
 
       const xFor = seconds =>
@@ -10660,8 +10937,18 @@ if (card) {
           Math.max(0, rampSeconds)
         );
 
-      const startValue = config.prePower;
-      const finishValue = config.endPressure;
+      const cleanClassic =
+        profileName === 'Classic' &&
+        !recipeDirty &&
+        !mainCurveDirty &&
+        !mainCurveEditing &&
+        !mainCurveDragKey;
+      const startValue = cleanClassic
+        ? profileTargetAt(series, startSeconds)
+        : config.prePower;
+      const finishValue = cleanClassic
+        ? profileTargetAt(series, profileTotal)
+        : config.endPressure;
 
       addPressure(
         'prePower',
@@ -10937,11 +11224,16 @@ if (card) {
         const y = Math.max(top, Math.min(bottom, event.clientY - rect.top));
         const raw = (bottom - y) / plotHeight * 12;
         const value = Math.max(0, Math.min(12, Math.round(raw * 10) / 10));
-        const input = $(recipeDragKey);
+        const pressureKey = ['prePower', 'mainPressure', 'endPressure'].includes(recipeDragKey);
 
-        if (input && Math.abs((Number(input.value) || 0) - value) >= 0.049) {
-          input.value = value.toFixed(1);
-          recipeFieldChanged();
+        if (pressureKey && classicPressurePointsLinked()) {
+          if (setClassicPressureInputs(value)) recipeFieldChanged();
+        } else {
+          const input = $(recipeDragKey);
+          if (input && Math.abs((Number(input.value) || 0) - value) >= 0.049) {
+            input.value = value.toFixed(1);
+            recipeFieldChanged();
+          }
         }
         event.preventDefault();
         return;
@@ -11492,6 +11784,22 @@ if (card) {
       return true;
     }
 
+    function classicPressurePointsLinked() {
+      return String(
+        recipeBaseProfile ||
+        currentProfileName ||
+        ''
+      ) === 'Classic';
+    }
+
+    function setClassicPressureInputs(value) {
+      let changed = false;
+      ['prePower', 'mainPressure', 'endPressure'].forEach(id => {
+        changed = setMainCurveInput(id, value, 0, 12) || changed;
+      });
+      return changed;
+    }
+
     function commitMainCurveChange() {
       recipeFieldChanged();
       mainCurveDirty = true;
@@ -11528,7 +11836,12 @@ if (card) {
       if (!beginMainCurveEditSession()) return;
 
       let changed = false;
-      changed = setMainCurveInput('mainPressure', mainCurvePressureFromPointer(event), 0, 12) || changed;
+      const pressure = mainCurvePressureFromPointer(event);
+      if (classicPressurePointsLinked()) {
+        changed = setClassicPressureInputs(pressure) || changed;
+      } else {
+        changed = setMainCurveInput('mainPressure', pressure, 0, 12) || changed;
+      }
       changed = setMainCurveInput('softInfusionTime', brewElapsed, 0, shotSeconds) || changed;
 
       if (changed) {
@@ -11649,46 +11962,33 @@ if (card) {
               ) || changed;
           }
         } else if (
-          mainCurveDragKey === 'prePower'
+          ['prePower', 'mainPressure', 'endPressure'].includes(mainCurveDragKey)
         ) {
-          changed =
-            setMainCurveInput(
-              'prePower',
-              pressure,
-              0,
-              12
-            ) || changed;
-        } else if (
-          mainCurveDragKey === 'mainPressure'
-        ) {
-          changed =
-            setMainCurveInput(
-              'mainPressure',
-              pressure,
-              0,
-              12
-            ) || changed;
-          changed =
-            setMainCurveInput(
-              'softInfusionTime',
-              Number(start.softInfusionTime) +
-                deltaSeconds,
-              0,
-              Math.max(
+          if (classicPressurePointsLinked()) {
+            changed = setClassicPressureInputs(pressure) || changed;
+          } else {
+            changed =
+              setMainCurveInput(
+                mainCurveDragKey,
+                pressure,
                 0,
-                Number(start.shotSeconds) || 0
-              )
-            ) || changed;
-        } else if (
-          mainCurveDragKey === 'endPressure'
-        ) {
-          changed =
-            setMainCurveInput(
-              'endPressure',
-              pressure,
-              0,
-              12
-            ) || changed;
+                12
+              ) || changed;
+          }
+
+          if (mainCurveDragKey === 'mainPressure') {
+            changed =
+              setMainCurveInput(
+                'softInfusionTime',
+                Number(start.softInfusionTime) +
+                  deltaSeconds,
+                0,
+                Math.max(
+                  0,
+                  Number(start.shotSeconds) || 0
+                )
+              ) || changed;
+          }
         }
 
         if (changed) {
@@ -12311,8 +12611,9 @@ if (card) {
     let eventStreamConnected = false;
     let eventStreamLastActivityAt = 0;
     let fallbackSyncBusy = false;
-    let profileSnapshotTimer = 0;
     let profileSnapshotSerial = 0;
+    let profileStateCommitTimer = 0;
+    const profileStateCommitDelayMs = 45;
     const eventStreamStaleMs = 30000;
     const fallbackSyncIntervalMs = 10000;
 
@@ -12389,11 +12690,48 @@ if (card) {
     }
 
     async function machinePower() {
+      if (powerCommandPending) return;
+
+      const previous = machineOn;
+      const desired = !previous;
+      powerCommandPending = true;
+      powerDesiredState = desired;
+      powerCommandStartedAt = Date.now();
+
+      // Immediate visual response; SSE remains the source of truth.
+      showPower(desired, 'optimistic');
+
       try {
-        await post('switch', 'Silvia Power Relay', machineOn ? 'turn_off' : 'turn_on');
-        showPower(!machineOn);
-        toast(tr(machineOn ? 'Кофемашина включена' : 'Кофемашина выключена'));
+        await post('switch', 'Silvia Power Relay', desired ? 'turn_on' : 'turn_off');
+        toast(tr(desired ? 'Кофемашина включена' : 'Кофемашина выключена'));
+
+        // Normally SSE confirms almost immediately. If it does not, perform one
+        // lightweight read so the optimistic state cannot remain stale.
+        if (powerCommandPending) {
+          if (powerConfirmTimer) clearTimeout(powerConfirmTimer);
+          powerConfirmTimer = setTimeout(async () => {
+            powerConfirmTimer = 0;
+            if (!powerCommandPending) return;
+            try {
+              const state = await get('switch', 'Silvia Power Relay');
+              powerCommandPending = false;
+              powerDesiredState = null;
+              powerCommandStartedAt = 0;
+              showPower(stateOn(state.value ?? state.state), 'confirm');
+            } catch (_) {
+              // Keep waiting for SSE; the 4 s guard in showPower releases stale protection.
+            }
+          }, 1200);
+        }
       } catch (_) {
+        if (powerConfirmTimer) {
+          clearTimeout(powerConfirmTimer);
+          powerConfirmTimer = 0;
+        }
+        powerCommandPending = false;
+        powerDesiredState = null;
+        powerCommandStartedAt = 0;
+        showPower(previous, 'rollback');
         toast(tr('Питание не изменено'), true);
       }
     }
@@ -12447,6 +12785,156 @@ if (card) {
       scaleNums,
       backflushNums
     ];
+
+    /*
+     * Native ESPHome-style state path:
+     * /events is the primary source of truth for both the initial entity dump
+     * and subsequent updates. REST GET is kept only as a fallback when SSE is
+     * unavailable. Number entities are therefore indexed once and updated
+     * directly from their SSE state events.
+     */
+    const NUMBER_ENTITY_LOOKUP = new Map();
+    ALL_NUMBER_GROUPS.forEach(group => {
+      Object.entries(group).forEach(([id, name]) => {
+        NUMBER_ENTITY_LOOKUP.set(clean(name), { id, name });
+      });
+    });
+    const PROFILE_NUMBER_ENTITY_KEYS = new Set(
+      Object.values(nums).map(name => clean(name))
+    );
+
+    function profileLocalDraftActive() {
+      return !!(
+        recipeDirty ||
+        mainCurveDirty ||
+        mainCurveEditing ||
+        mainCurveDragKey
+      );
+    }
+
+    function commitProfileStateFromSse() {
+      if (profileStateCommitTimer) {
+        clearTimeout(profileStateCommitTimer);
+        profileStateCommitTimer = 0;
+      }
+
+      // Do not let delayed ESP state overwrite a curve that is being edited
+      // locally. Profile application/save paths clear or explicitly allow the
+      // draft before their state burst arrives.
+      if (
+        profileLocalDraftActive() &&
+        !homeProfileApplying &&
+        !recipeApplying &&
+        !userProfileApplying &&
+        !homeQuickSaving
+      ) {
+        return;
+      }
+
+      readProfileCfgFromInputs();
+
+      if (!profileLocalDraftActive()) {
+        const profile = currentProfileName || 'Custom';
+        recipeBaseProfile = profile;
+        captureRecipeBaseline(profile);
+      }
+
+      chartMode = 'auto';
+      updateRecipeProfileUi();
+      updateRecipeDescription();
+      updateShotScenario();
+      updateChartControls();
+      updateMainCurveEditor();
+
+      requestAnimationFrame(() => {
+        draw();
+        drawRecipePreview();
+      });
+    }
+
+    function scheduleProfileStateCommitFromSse(delay = profileStateCommitDelayMs) {
+      if (profileStateCommitTimer) clearTimeout(profileStateCommitTimer);
+      profileStateCommitTimer = setTimeout(() => {
+        profileStateCommitTimer = 0;
+        commitProfileStateFromSse();
+      }, delay);
+    }
+
+    let exactPidStateSeen = false;
+
+    function applyExactPidStateFromSse(key, event) {
+      if (!key.endsWith('silvia pid parameters exact')) return false;
+
+      const parts = String(event.value ?? event.state ?? '')
+        .split('|')
+        .map(Number);
+
+      if (parts.length === 3 && parts.every(Number.isFinite)) {
+        exactPidStateSeen = true;
+        setNumberEntityValue('Silvia PID KP', parts[0]);
+        setNumberEntityValue('Silvia PID KI', parts[1]);
+        setNumberEntityValue('Silvia PID KD', parts[2]);
+      }
+
+      return true;
+    }
+
+    function applyNumberStateFromSse(key, event) {
+      let lookupKey = key;
+      let entry = NUMBER_ENTITY_LOOKUP.get(lookupKey);
+      if (!entry) {
+        const match = [...NUMBER_ENTITY_LOOKUP.entries()]
+          .find(([entityKey]) => key.endsWith(entityKey));
+        if (match) {
+          lookupKey = match[0];
+          entry = match[1];
+        }
+      }
+      if (!entry) return false;
+
+      const isProfileNumber = PROFILE_NUMBER_ENTITY_KEYS.has(lookupKey);
+      const localDraftProtected = !!(
+        isProfileNumber &&
+        profileLocalDraftActive() &&
+        !homeProfileApplying &&
+        !recipeApplying &&
+        !userProfileApplying &&
+        !homeQuickSaving
+      );
+
+      if (localDraftProtected) return true;
+
+      const value = event.value ?? event.state;
+      const roundedPidNumber =
+        exactPidStateSeen &&
+        ['pidKp', 'pidKi', 'pidKd'].includes(entry.id);
+
+      if (
+        value !== undefined &&
+        value !== null &&
+        !roundedPidNumber
+      ) {
+        setNumberEntityValue(entry.name, value);
+      }
+
+      // DETAIL_ALL on the initial EventSource connection carries Number
+      // traits. Mirror them into our controls just like the stock ESPHome UI.
+      const input = $(entry.id);
+      if (input) {
+        if (event.min_value !== undefined) input.min = String(event.min_value);
+        if (event.max_value !== undefined) input.max = String(event.max_value);
+        if (event.step !== undefined) input.step = String(event.step);
+      }
+
+      if (isProfileNumber) {
+        // A preset publishes several Number states in a short burst. Coalesce
+        // them so our graph is redrawn once with a coherent profile snapshot,
+        // without issuing any REST reads.
+        scheduleProfileStateCommitFromSse();
+      }
+
+      return true;
+    }
 
     function setNumberEntityValue(entityName, value) {
       const numeric = Number(value);
@@ -12618,27 +13106,6 @@ if (card) {
       }
     }
 
-    function scheduleHomeProfileSnapshot(delay = 140) {
-      if (
-        recipeApplying ||
-        homeProfileApplying ||
-        recipeDirty ||
-        mainCurveDirty ||
-        mainCurveEditing ||
-        mainCurveDragKey
-      ) {
-        return;
-      }
-
-      if (profileSnapshotTimer) {
-        clearTimeout(profileSnapshotTimer);
-      }
-
-      profileSnapshotTimer = setTimeout(() => {
-        profileSnapshotTimer = 0;
-        loadHomeProfileSnapshot(true);
-      }, delay);
-    }
 
     const SETTINGS_STATUS_IDS = new Set([
       'pressureFeedForward',
@@ -12681,6 +13148,11 @@ if (card) {
     }
 
     async function loadSettings() {
+      // With a healthy EventSource the initial DETAIL_ALL dump has already
+      // populated these controls, and future changes arrive as state events.
+      // This mirrors the stock ESPHome dashboard and avoids duplicate GETs.
+      if (eventStreamHealthy()) return;
+
       await Promise.all([
         loadNumberControls([
           machineNums,
@@ -12694,16 +13166,15 @@ if (card) {
         ])
       ]);
 
-      // ESPHome web_server rounds Number REST values to whole numbers.
-      // Restore the real PID coefficients from a compact text snapshot.
+      // REST Number formatting can lose PID precision; this compact text
+      // snapshot is retained only for the no-SSE fallback path.
       await loadExactPidControls();
-
-      if (!eventStreamHealthy()) {
-        await refreshStatus(SETTINGS_STATUS_IDS);
-      }
+      await refreshStatus(SETTINGS_STATUS_IDS);
     }
 
     async function loadMaintenanceSettings() {
+      if (eventStreamHealthy()) return;
+
       await Promise.all([
         loadNumberControls([
           scaleNums,
@@ -12715,56 +13186,51 @@ if (card) {
         ])
       ]);
 
-      if (!eventStreamHealthy()) {
-        await refreshStatus(MAINTENANCE_STATUS_IDS);
-      }
+      await refreshStatus(MAINTENANCE_STATUS_IDS);
     }
 
-    async function waitForProfile(option) {
-      for (let attempt = 0; attempt < 20; attempt++) {
-        try {
-          const profile = await get('select', 'Silvia Shot Profile');
-          if (String(profile.value ?? profile.state ?? '') === option) return true;
-        } catch (_) {}
-        await sleep(150);
-      }
-      return false;
-    }
 
     async function applySelectedProfile() {
       const select = $('profileSelect');
-      const option = select.value;
-      select.disabled = true;
-      recipeDirty = false;
+      const option = select?.value;
+      if (!option || recipeApplying) return;
+
+      const previous = currentProfileName;
       recipeApplying = true;
+      recipeDirty = false;
+      clearMainCurveDraftState();
+
+      // Match the stock ESPHome select behaviour: the control responds
+      // immediately, while the ESP-published states arrive asynchronously.
       currentProfileName = option;
       recipeBaseProfile = option;
       syncProfileControls(option);
-
       updateRecipeProfileUi();
       updateRecipeDescription();
       chartMode = 'auto';
       updateChartControls();
+      updateMainCurveEditor();
       draw();
       drawRecipePreview();
 
       try {
         await post('select', 'Silvia Shot Profile', 'set', { option });
-        const confirmed = await waitForProfile(option);
-        if (!confirmed) throw Error('profile confirmation timeout');
-
-        await sleep(180);
-        recipeApplying = false;
-        await loadHomeProfileSnapshot(true);
         toast(message('profileApplied', profileLabel(option)));
-        requestAnimationFrame(drawRecipePreview);
       } catch (_) {
-        recipeApplying = false;
+        currentProfileName = previous;
+        recipeBaseProfile = previous || recipeBaseProfile;
+        syncProfileControls(previous);
         updateRecipeProfileUi();
+        updateRecipeDescription();
+        updateMainCurveEditor();
+        draw();
+        drawRecipePreview();
         toast(tr('Профиль не применён'), true);
-        await loadHomeProfileSnapshot(false);
+
+        // REST is only a recovery path when the event stream itself is down.
+        if (!eventStreamHealthy()) await loadHomeProfileSnapshot(false);
       } finally {
-        select.disabled = false;
+        recipeApplying = false;
       }
     }
 
@@ -12780,30 +13246,38 @@ if (card) {
 
       const previous = currentProfileName;
       homeProfileApplying = true;
+      recipeDirty = false;
+      clearMainCurveDraftState();
+
+      // Optimistic UI, exactly like a native ESPHome select. Profile Number
+      // states then stream back over /events and redraw the graph in one
+      // coalesced frame. No waitForProfile(), sleeps or REST rereads.
       currentProfileName = option;
+      recipeBaseProfile = option;
       syncProfileControls(option);
+      chartMode = 'auto';
+      updateRecipeProfileUi();
+      updateRecipeDescription();
+      updateMainCurveEditor();
       updateQuickActions();
+      draw();
+      drawRecipePreview();
 
       try {
         await post('select', 'Silvia Shot Profile', 'set', { option });
-
-        const confirmed = await waitForProfile(option);
-        if (!confirmed) throw Error('profile confirmation timeout');
-
-        await sleep(180);
-        await loadHomeProfileSnapshot(true);
-
-        recipeDirty = false;
-        clearMainCurveDraftState();
-        updateMainCurveEditor();
-
         toast(message('profileApplied', profileLabel(option)));
       } catch (_) {
         currentProfileName = previous;
+        recipeBaseProfile = previous || recipeBaseProfile;
         syncProfileControls(previous);
+        updateRecipeProfileUi();
+        updateRecipeDescription();
+        updateMainCurveEditor();
+        draw();
+        drawRecipePreview();
         toast(tr('Профиль не применён'), true);
 
-        await loadHomeProfileSnapshot(false);
+        if (!eventStreamHealthy()) await loadHomeProfileSnapshot(false);
       } finally {
         homeProfileApplying = false;
         updateQuickActions();
@@ -12824,9 +13298,13 @@ if (card) {
             setNumberEntityValue(name, node.value);
           }
         }
-        await loadHomeProfileSnapshot(true);
         recipeDirty = false;
-        captureRecipeBaseline(currentProfileName || 'Custom');
+        currentProfileName = 'Custom';
+        recipeBaseProfile = 'Custom';
+        syncProfileControls('Custom');
+        readProfileCfgFromInputs();
+        captureRecipeBaseline('Custom');
+        updateMainCurveEditor();
         saved = true;
         toast(tr('Ручные настройки сохранены как Custom'));
       } catch (_) {
@@ -14001,12 +14479,11 @@ if (card) {
     });
 
     /*
-     * Home startup is intentionally light: the EventSource sends current
-     * entity states when it connects, while this small snapshot supplies the
-     * profile numbers needed to draw the recipe atomically. Full settings are
-     * loaded only when the user actually opens Settings/Maintenance.
+     * Native ESPHome startup model: EventSource('/events') supplies the
+     * initial DETAIL_ALL entity dump and all later state changes. No REST
+     * profile snapshot is issued on page load; profile Number events are
+     * coalesced into one graph redraw by scheduleProfileStateCommitFromSse().
      */
-    scheduleHomeProfileSnapshot(180);
     loadArchiveList();
 
 
