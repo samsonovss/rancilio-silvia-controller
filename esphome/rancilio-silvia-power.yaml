@@ -4,6 +4,7 @@ esphome:
   includes:
     - shot_profiles.h
     - shot_diagnostics.h
+    - shot_analyzer.h
     - shot_archive.h
     - coffee_dashboard.h
   on_boot:
