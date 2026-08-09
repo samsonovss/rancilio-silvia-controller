@@ -1186,7 +1186,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                     Мои
                     <span class="profile-count-badge"><span id="userProfileCount">0</span></span>
                   </b>
-                  <small id="userProfileHint">Сохраняются в этом браузере</small>
+                  <small id="userProfileHint">Хранятся на кофемашине</small>
                 </div>
 
                 <div class="user-profile-save">
@@ -2582,6 +2582,13 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     const EN_TRANSLATIONS = {"Локальная панель":"Local dashboard","Главная":"Home","Рецепты":"Recipes","История":"History","Настройки":"Settings","Обслуживание":"Maintenance","Диагностика":"Diagnostics","Управление кофемашиной":"Espresso machine control","Включить":"Turn on","Выключить":"Turn off","подключение…":"connecting…","онлайн":"online","нет связи":"offline","Давление":"Pressure","бар":"bar","Основная цель профиля":"Main profile target","Цель сейчас":"Current target","— бар":"— bar","Ожидание":"Idle","Начать пролив":"Start shot","Остановить":"Stop","Температура":"Temperature","Цель":"Target","Факт":"Actual","Секунды":"Seconds","Вес":"Weight","г":"g","Поток":"Flow","г/с":"g/s","Помпа":"Pump","Датчик":"Sensor","Давление, поток и мощность помпы":"Pressure, flow and pump power","Профиль":"Selected profile","Последний пролив":"Last shot","Температурная стабильность":"Temperature stability","Температура воды и выход нагревателя":"Water temperature and heater output","Цель воды":"Water target","Нагрев":"Heat","Сценарий шота":"Shot sequence","Загрузка параметров…":"Loading parameters…","Выбор профиля и параметры напитка.":"Profile selection and drink parameters.","Рецепт":"Recipe","Активный профиль":"Active profile","Температура кофе, °C":"Brew temperature, °C","Доза, г":"Dose, g","Целевой вес, г":"Target weight, g","Время основного пролива, с":"Main extraction time, s","Профиль давления":"Pressure profile","Предсмачивание, с":"Preinfusion, s","Пауза, с":"Pause, s","Давление предсмачивания, бар":"Preinfusion pressure, bar","Основное давление, бар":"Main pressure, bar","Конечное давление, бар":"End pressure, bar","Сохранить как Custom":"Save as Custom","Автоматика веса":"Weight automation","Остановка по весу":"Stop by weight","Остановить пролив по целевому весу и прогнозу потока.":"Stop the shot using target weight and flow prediction.","Целевой вес задаётся в рецепте выше. Время пролива остаётся максимальным защитным ограничением.":"Target weight is set in the recipe above. Shot time remains the maximum safety limit.","История проливов":"Shot history","Локальный архив ESP32 и сохранённая цель каждого пролива.":"Local ESP32 archive with the stored target for each shot.","Архив проливов ESP32":"ESP32 shot archive","Сохранённый пролив":"Saved shot","Архив пуст":"Archive is empty","Обновить":"Refresh","Показать на главной":"Show on Home","После первого пролива здесь появится его локальный паспорт.":"A local shot summary will appear here after the first extraction.","Настройки управления":"Control settings","Температурный PID, регулирование давления и запуск помпы.":"Temperature PID, pressure control and pump startup.","Интерфейс":"Interface","Язык локальной панели сохраняется в этом браузере.":"The dashboard language is saved in this browser.","Язык":"Language","Температурный PID":"Temperature PID","Коэффициенты нагревателя и поведение при прогреве.":"Heater coefficients and warm-up behavior.","Диапазон прогрева, °C":"Warm-up range, °C","Поправка температуры, °C":"Temperature offset, °C","Feed-forward нагрева, максимум %":"Heat feed-forward maximum, %","Сохранить PID":"Save PID","Прогрев без интеграла":"Warm-up without integral","Автонастройка":"Autotune","Регулирование давления":"Pressure control","Коэффициенты замкнутого регулятора и мягкое начало фазы.":"Closed-loop coefficients and soft phase start.","Kp давления":"Pressure Kp","Ki давления":"Pressure Ki","Мягкое наполнение, с":"Soft infusion, s","Начальная мощность, %":"Starting power, %","Сохранить давление":"Save pressure settings","Адаптивный выход":"Adaptive output","Скорость давления":"Pressure rate","бар/с":"bar/s","Запуск профиля и помпа":"Profile startup and pump","Параметры перехода к регулированию и аппаратного управления помпой.":"Control handoff and hardware pump parameters.","Стартовый boost профиля":"Profile startup boost","Короткий импульс перед обычным регулированием давления.":"Short pulse before normal pressure control.","Мощность boost, %":"Boost power, %","Время boost, мс":"Boost time, ms","Стабилизация перед PI, мс":"Settling before PI, ms","Плавность помпы, мс":"Pump ramp time, ms","Аппаратный boost помпы":"Pump hardware boost","Импульс драйвера при запуске помпы.":"Driver pulse when the pump starts.","Время boost помпы, мс":"Pump boost time, ms","Аппаратные тайминги симистора":"Triac hardware timing","Задержка gate, мкс":"Gate delay, µs","Импульс gate, мкс":"Gate pulse, µs","Сохранить запуск":"Save startup settings","Двухсекундный защитный тайм-аут и длительность handoff сейчас не вынесены ESPHome в отдельные сущности, поэтому здесь не показываются.":"The two-second safety timeout and handoff duration are not exposed as separate ESPHome entities, so they are not shown here.","Режим машины":"Machine mode","Режим PID":"PID mode","Цель пара, °C":"Steam target, °C","Автовыключение, мин":"Auto-off, min","Сохранить":"Save","Сбросить таймер":"Reset timer","До автоотключения":"Until auto-off","мин":"min","Весы, обратная промывка, диагностическая запись и сервис устройства.":"Scale, backflush, diagnostic recording and device service.","Весы":"Scale","Калибровочный вес, г":"Calibration weight, g","Автоматическая тара":"Automatic tare","Тарировать стабильные весы перед следующим проливом.":"Tare stable scales before the next shot.","Тарировать":"Tare","Калибровать":"Calibrate","Калибровка: сначала пустые весы → «Тарировать», затем положить указанный вес → «Калибровать».":"Calibration: empty the scale → “Tare”, then place the specified weight → “Calibrate”.","Обратная промывка":"Backflush","Напоминание, проливов":"Reminder, shots","Пауза перед ополаскиванием, с":"Delay before rinse, s","Сохранить параметры":"Save parameters","Статус":"Status","После промывки":"Since backflush","Всего проливов":"Lifetime shots","Запустить":"Start","Сбросить счётчик":"Reset counter","Диагностика пролива":"Shot diagnostics","Записать следующий пролив":"Record next shot","Синхронный CSV внутренних данных регулятора.":"Synchronized CSV of internal controller data.","CSV готов":"CSV ready","Скачать CSV":"Download CSV","Очистить":"Clear","Устройство":"Device","Причина перезапуска":"Restart reason","Израсходовано кофе":"Coffee used","Перезапустить ESP32":"Restart ESP32","Живые показатели регуляторов, XDB401 и памяти ESP32.":"Live controller, XDB401 and ESP32 memory values.","Давление и помпа":"Pressure and pump","Давление и XDB401":"Pressure and XDB401","Диагностика регулятора давления и датчика XDB401.":"Pressure-controller and XDB401 diagnostics","Регулятор":"Controller","Температура, обмен, пакеты и состояние датчика давления.":"Temperature, communication, packets, and pressure-sensor status","Текущее состояние":"Current status","Рост давления":"Pressure rise","Температура XDB401":"XDB401 temperature","PID результат":"PID output","Прогрев":"Warm-up","XDB401, память и система":"XDB401, memory and system","Всего ошибок":"Total errors","Старт":"Start","Тайм-аут":"Timeout","Пакет":"Packet","Отбраковано":"Rejected","Подряд":"Consecutive","Последняя ошибка":"Last error","Свободно PSRAM":"Free PSRAM","Крупнейший блок PSRAM":"Largest PSRAM block","Внутренний heap":"Internal heap","Состояние датчика":"Sensor health","Скачать последний CSV":"Download latest CSV","Стандартная страница ESPHome":"Standard ESPHome page","Свернуть меню":"Collapse menu","Открыть меню":"Open menu","Разделы":"Sections","Текущий пролив · цель записывается вместе с данными":"Current shot · target is recorded with the data","Последний пролив · сохранённая цель этого пролива":"Last shot · this shot’s stored target","Архивный пролив · цель взята из CSV":"Archived shot · target loaded from CSV","помпа":"pump","нагрев":"heat","с":"s","Ошибка":"Error","Да":"Yes","Нет":"No","Активен":"Active","Пролив":"Brew","Предсмачивание":"Preinfusion","Пауза":"Pause","Готов":"Ready","Включено":"Enabled","Выключено":"Disabled","Команда не выполнена":"Command failed","Питание не изменено":"Power state was not changed","Профиль не применён":"Profile was not applied","Ручные настройки сохранены как Custom":"Manual settings saved as Custom","Ошибка сохранения":"Save failed","Настройки сохранены":"Settings saved","Переключатель не изменён":"Switch was not changed","Режим не изменён":"Mode was not changed","Команда отправлена":"Command sent","Калибровка запущена":"Calibration started","Калибровка не запущена":"Calibration did not start","Архив пока недоступен":"Archive is currently unavailable","профиль не указан":"profile not specified","цель из CSV":"target from CSV","пик":"peak","ошибки XDB401":"XDB401 errors","Не удалось открыть пролив":"Could not open shot","Пролив запущен":"Shot started","Пролив остановлен":"Shot stopped","Кофемашина включена":"Espresso machine turned on","Кофемашина выключена":"Espresso machine turned off","Температурный PID сохранён":"Temperature PID saved","Настройки давления сохранены":"Pressure settings saved","Настройки запуска сохранены":"Startup settings saved","Настройки машины сохранены":"Machine settings saved","Параметры обслуживания сохранены":"Maintenance settings saved","Запустить автонастройку PID? Машина должна быть включена и находиться под наблюдением.":"Start PID autotune? The machine must be powered on and supervised.","Запустить автоматическую обратную промывку? Установи глухую корзину и не оставляй машину без присмотра.":"Start automatic backflush? Install the blind basket and do not leave the machine unattended.","Сбросить счётчик проливов после промывки?":"Reset the shot counter after backflush?","Удалить диагностический CSV из памяти?":"Delete the diagnostic CSV from memory?","Перезапустить ESP32? Управление машиной временно отключится.":"Restart ESP32? Machine control will be temporarily unavailable.","Язык изменён":"Language changed","Питание":"Power","Выключена":"Off","Готова":"Ready","Нагрев пара":"Heating steam","Пар готов":"Steam ready","Подача воды":"Hot water","Ошибка датчика":"Sensor error","Бак воды":"Water tank","Вода есть":"Water available","Мало воды":"Low water","Нет данных":"No data","Промывка":"Backflush","До промывки":"Until cleaning","Проливов всего":"Total shots","Быстрые действия":"Quick actions","Остановить пролив":"Stop shot","Вода":"Water","Пар":"Steam","Вода включена":"Hot water enabled","Вода выключена":"Hot water disabled","Пар включён":"Steam enabled","Пар выключен":"Steam disabled","Напоминание выключено":"Reminder disabled","Настройка профиля с мгновенным предпросмотром.":"Profile editing with instant preview.","Редактор профиля":"Profile editor","Профиль синхронизирован":"Profile synchronized","Параметры пролива":"Shot parameters","Температура кофе":"Brew temperature","Время пролива":"Shot time","Мягкий старт":"Soft start","Стартовая мощность":"Starting power","Точки давления":"Pressure points","Начало":"Start","Основная":"Main","Финиш":"Finish","Напиток и весы":"Drink and scale","Вес напитка":"Beverage weight","Стоп по весу":"Stop by weight","Доза кофе":"Coffee dose","Целевой вес":"Target weight","Время пролива остаётся защитным ограничением.":"Shot time remains a safety limit.","Сбросить изменения":"Reset changes","Сохранить Custom":"Save Custom","Предпросмотр профиля":"Profile preview","Изменения отображаются сразу":"Changes appear instantly","Общее время":"Total time","Исходный профиль":"Original profile","Изменённый профиль":"Edited profile","Текущий профиль":"Current profile","Изменения не сохранены":"Unsaved changes","База":"Base","Базовый профиль":"Base profile","Основной пролив":"Main extraction","Старт помпы":"Pump start","Нет изменений для сброса":"No changes to reset","Изменения сброшены":"Changes reset","сохранено":"saved","Профиль загружен":"Profile loaded","Применение профиля…":"Applying profile…","Перетащите цветные точки давления вверх или вниз. Время меняется кнопками слева.":"Drag the colored pressure points up or down. Change timing with the controls on the left.","График пролива":"Shot graph","Температура и нагрев":"Temperature and heat","ОК":"OK","Пора":"Due","шотов":"shots","Останавливать по весу":"Stop at target weight","Пролив остановится при достижении целевого веса. Время остаётся защитным ограничением.":"The shot stops when the target weight is reached. Time remains a safety limit.","Выбрать профиль":"Select profile","Кривая":"Curve","Редактирование кривой":"Curve editing","Перетаскивайте цветные точки давления вверх или вниз.":"Drag the colored pressure points up or down.","Отмена":"Cancel","Увеличить график":"Expand chart","Уменьшить график":"Collapse chart","Изменения кривой отменены":"Curve changes canceled","Кривая сохранена как Custom":"Curve saved as Custom","Редактировать кривую":"Edit curve","Завершить редактирование":"Finish editing","Нет воды":"No water","Последние 10 минут · в реальном времени":"Last 10 minutes · live","Последние 5 минут · в реальном времени":"Last 5 minutes · live","5 мин":"5 min","10 мин":"10 min","Профиль и этапы выбранного пролива":"Profile and stages of the selected shot","Последние 3 минуты":"Last 3 minutes","Последние 5 минут":"Last 5 minutes","Последние 10 минут":"Last 10 minutes","3 мин":"3 min","Автоотключение":"Auto-off","Автоотключение через":"Auto-off in","Автоотключение выключено":"Auto-off disabled","через":"in","выключено":"disabled","Настроить экран":"Customize screen","Готово":"Done","Сбросить":"Reset","Перетаскивайте крупные блоки за ручку ⠿":"Drag large blocks using the ⠿ handle","Перетащить блок":"Drag block","Расположение сохранено":"Layout saved","Расположение сброшено":"Layout reset","Редактирование профиля":"Profile editing","Архивный пролив · профиль из CSV":"Archived shot · profile from CSV","Редактировать профиль":"Edit profile","Редактирование недоступно во время пролива":"Editing is unavailable during a shot","Профиль сохранён как Custom":"Profile saved as Custom","Изменения профиля отменены":"Profile changes canceled","Параметры и кривая обновляются сразу. Сохранение создаёт Custom.":"Parameters and curve update instantly. Saving creates Custom.","Точки давления также можно перетаскивать прямо на графике.":"Pressure points can also be dragged directly on the chart.","Редактировать точки давления":"Edit pressure points","Перетаскивайте цветные точки прямо на графике.":"Drag the colored points directly on the chart.","Изменение отменено":"Change canceled","Параметр":"Parameter","Перетаскивайте блоки за ⠿ или скрывайте кнопкой справа":"Drag blocks using ⠿ or hide them with the right button","Скрытые блоки":"Hidden blocks","Скрыть блок":"Hide block","Состояние машины":"Machine status","Температурный график":"Temperature chart","Температура и PID":"Temperature and PID","Состояние бойлера за последнюю минуту":"Boiler status over the last minute","Нагрев PID":"PID heating","PID активен":"PID active","Удержание":"Holding","Температура на цели":"Temperature on target","До цели":"To target","Выше цели":"Above target","Ожидание данных":"Waiting for data","Состояние":"Status","График":"Chart","Текущее состояние бойлера":"Current boiler status","Период":"Period","Открыть рецепты":"Open recipes","Готов к проливу":"Ready to brew","Машина выключена":"Machine is off","Стоп":"Stop","Состояние бака воды":"Water tank status","Режим":"Mode","Завершить настройку экрана":"Finish dashboard setup","Состояние и пролив":"Status and brew","Основные показатели машины":"Main machine metrics","Вес пролива":"Brew weight","Счётчик проливов":"Shot counter","Требуется промывка":"Cleaning required","Встроенные профили":"Built-in profiles","Профили кофемашины":"Machine profiles","Мои профили":"My profiles","Сохраняются в этом браузере":"Stored in this browser","Название профиля":"Profile name","Сохранить текущий профиль":"Save current profile","Сохранённых профилей пока нет":"No saved profiles yet","Пользовательские настройки":"Custom settings","Введите название профиля":"Enter a profile name","Профиль сохранён":"Profile saved","Профиль обновлён":"Profile updated","Переименовать профиль":"Rename profile","Новое название профиля":"New profile name","Профиль с таким названием уже существует":"A profile with this name already exists","Профиль переименован":"Profile renamed","Удалить профиль":"Delete profile","Профиль удалён":"Profile deleted","Не удалось сохранить профиль в браузере":"Could not save profile in the browser","Профиль применён":"Profile applied","Вкл":"On","Выкл":"Off","Остановка по весу включена":"Stop by weight is on","Остановка по весу выключена":"Stop by weight is off","Изменения профиля":"Profile changes","Проверьте форму кривой и сохраните её как «Свой».":"Check the curve shape and save it as Custom.","Перетаскивайте точки и границы стадий":"Drag points and stage boundaries","Двойной клик по основному проливу переносит точку «Основная»":"Double-click the main extraction to move the Main point","Набор":"Ramp","Двойной клик доступен в стадии основного пролива":"Double-click is available in the main extraction stage","Есть изменения — введите название и нажмите +":"Changes are ready — enter a name and press +","Профиль сохранён и применён":"Profile saved and applied","Профиль обновлён и применён":"Profile updated and applied","Профиль сохранён, но не применён":"Profile saved but not applied","Сначала измените профиль":"Change the profile first","Перетащить карточку":"Drag card","Время изменяется маркером на графике":"Time is changed with the chart marker","Изменить целевой вес":"Edit target weight","Тяните маркеры этапов вправо или влево":"Drag stage markers left or right","Нажмите «＋ Предсмачивание» или «＋ Пауза», чтобы быстро добавить этап":"Tap + Preinfusion or + Pause to add the stage","Настроить шрифты":"Adjust fonts","Размеры шрифтов":"Font sizes","Изменения применяются сразу и сохраняются в этом браузере":"Changes apply immediately and are saved in this browser","Обычный текст":"Regular text","Заголовки":"Headings","Крупные значения":"Large values","Подписи графиков":"Chart labels","Текст":"Text","Значения":"Values","Размеры шрифтов сброшены":"Font sizes reset","Добавить":"Add","Вернуть размеры Home Assistant":"Restore Home Assistant sizes","Общие размеры":"Global sizes","Базовая типографика всей панели":"Base typography for the whole dashboard","Отдельные окна":"Individual panels","Дополнительный масштаб поверх общих настроек":"Additional scale on top of global settings","Левое меню":"Left menu","Управление машиной":"Machine controls","Показатели":"Metrics","Перенос настроек":"Transfer settings","Скопируйте эту строку и отправьте её мне или вставьте в другом браузере":"Copy this line and send it to me or paste it in another browser","Копировать настройки":"Copy settings","Применить из поля":"Apply from field","Настройки шрифтов":"Font settings","Настройки шрифтов скопированы":"Font settings copied","Скопируйте строку из поля":"Copy the line from the field","Неверный формат настроек":"Invalid settings format","Настройки шрифтов применены":"Font settings applied","Общие размеры и отдельный масштаб каждого окна сохраняются в этом браузере":"Global sizes and each panel scale are saved in this browser","Независимые размеры шрифтов":"Independent font sizes","Каждый блок меняется отдельно. Размеры указаны прямо в пикселях.":"Each panel changes independently. Sizes are shown directly in pixels.","Изменение одного окна больше не влияет на остальные окна.":"Changing one panel no longer affects the other panels.","Настраивается независимо":"Adjusted independently","Заголовок":"Heading","График / мелкие подписи":"Chart / small labels","Сбросить это окно":"Reset this panel","Сбросить всё":"Reset all","Независимые размеры в пикселях":"Independent sizes in pixels","Размеры окна сброшены":"Panel font sizes reset","Скопируйте строку и отправьте её мне — эти размеры можно сделать значениями по умолчанию":"Copy the line and send it to me — these sizes can become the defaults","Изменение одного окна больше не влияет на остальные окна. Текущий набор сохранён как стандартный.":"Changing one panel no longer affects the others. The current set is saved as the default.","Встроенные":"Built-in","Мои":"Mine","Тяните влево или вправо для изменения цели":"Drag left or right to change the target","Тяните влево или вправо для изменения предсмачивания":"Drag left or right to change preinfusion","Тяните влево или вправо для изменения паузы":"Drag left or right to change the pause","Тяните влево или вправо для изменения времени пролива":"Drag left or right to change brew time","Тяните влево или вправо для изменения целевого веса":"Drag left or right to change target weight","Предсмач.":"Preinf.","Поток, г/с":"Flow, g/s","Сохранённые проливы":"Saved shots","Обновить историю":"Refresh history","Проливы":"Shots","Загрузка истории…":"Loading history…","Выберите пролив":"Select a shot","График и показатели появятся здесь.":"The chart and metrics will appear here.","Время":"Duration","Пик давления":"Peak pressure","Цель веса":"Target weight","История пока пуста":"History is empty","После первого пролива здесь появится запись.":"A record will appear here after the first shot.","Профиль не указан":"Profile not specified","Загрузка…":"Loading…","Данные пролива":"Shot data","Загрузка пролива…":"Loading shot…","Читаем график и показатели.":"Reading chart and metrics.","Файл архива недоступен.":"The archive file is unavailable.","Доза":"Dose","Ошибки XDB401":"XDB401 errors","Архив недоступен":"Archive unavailable","Не удалось получить список проливов.":"Could not load the shot list.","Профили и проливы":"Profiles and shots","Выберите запись":"Select a record","Обновить проливы":"Refresh shots","Параметры управления машиной":"Machine control parameters","Категории":"Categories","5 разделов":"5 sections","PID и прогрев":"PID and warmup","Регулятор и наполнение":"Control and infusion","Запуск и симистор":"Startup and triac","Машина":"Machine","Режим и автовыключение":"Mode and auto-off","Язык панели":"Dashboard language","Нагрев, прогрев и температурная компенсация.":"Heating, warmup and temperature compensation.","Feed-forward, максимум %":"Feed-forward, maximum %","Замкнутый регулятор и мягкое начало пролива.":"Closed-loop control and a gentle shot start.","Boost, плавный старт и аппаратные тайминги.":"Boost, soft start and hardware timing.","Защитный тайм-аут и длительность handoff не вынесены ESPHome в отдельные сущности.":"The safety timeout and handoff duration are not exposed as separate ESPHome entities.","Рабочий режим, температура пара и таймер питания.":"Operating mode, steam temperature and power timer.","Параметры локальной панели.":"Local dashboard settings.","Выбранный язык сохраняется только в этом браузере.":"The selected language is stored only in this browser.","Весы, промывка, запись пролива и устройство":"Scale, backflush, shot logging and device","4 раздела":"4 sections","Тара и калибровка":"Tare and calibration","Цикл и напоминание":"Cycle and reminder","Запись пролива":"Shot logging","Диагностический CSV":"Diagnostic CSV","Счётчики и перезапуск":"Counters and restart","Тара, автоматическая подготовка и калибровка.":"Tare, automatic preparation and calibration.","Сначала оставьте весы пустыми и нажмите «Тарировать», затем положите указанный вес и нажмите «Калибровать».":"First leave the scale empty and press Tare, then place the specified weight and press Calibrate.","Настройка напоминания и управление автоматическим циклом.":"Reminder settings and automatic cycle control.","Синхронная запись внутренних данных регулятора в CSV.":"Synchronous logging of internal controller data to CSV.","Запись активируется только для следующего запуска помпы.":"Logging is enabled only for the next pump start.","Состояние контроллера и сервисные действия.":"Controller status and service actions.","Регуляторы, датчик давления и память ESP32":"Controllers, pressure sensor and ESP32 memory","3 раздела":"3 sections","Помпа и XDB401":"Pump and XDB401","PID и нагрев":"PID and heating","Ошибки и память":"Errors and memory","Живые значения регулятора давления и датчика XDB401.":"Live pressure controller and XDB401 sensor values.","Текущая температура, составляющие PID и feed-forward.":"Current temperature, PID components and feed-forward.","Ошибки обмена, состояние датчика и память контроллера.":"Communication errors, sensor status and controller memory.","Язык интерфейса":"Interface language","Русский язык":"Russian language","Английский язык":"English language","Профиль пролива":"Shot profile","Профили":"Profiles","Расположение карточки":"Card position","Перетащить верхнюю карточку":"Drag upper card","Изменить ширину верхних карточек":"Resize upper cards","Двойной щелчок — стандартный размер":"Double-click for default size","Изменить ширину нижних карточек":"Resize lower cards","Иконки Пролив / Вода / Пар":"Brew / Water / Steam icons","Круглая кнопка питания":"Round power button","Размеры по умолчанию":"Default sizes","Добавить быстрый ярлык":"Add quick shortcut","Быстрый ярлык":"Quick shortcut","Выберите действие для четвёртой плитки":"Choose an action for the fourth tile","Действие":"Action","Удалить":"Remove","Закрыть":"Close","График температуры":"Temperature chart","Отступ между верхним и нижним блоками":"Gap between upper and lower blocks","из":"of","проливов":"shots","Счётчик":"Counter","Высота температурного графика":"Temperature chart height","Ширина левой / правой карточки":"Left / right card width","Ширина управление / давление / температура":"Controls / pressure / temperature width","Манометр давления от 0 до 12 бар":"Pressure gauge from 0 to 12 bar","Проверяем XDB401…":"Checking XDB401…","Получаем состояние датчика и счётчики обмена.":"Loading sensor state and communication counters.","Ошибок подряд:":"Consecutive errors:","Последняя:":"Latest:","Последний диагностический CSV":"Latest diagnostic CSV","Проверяем запись последнего пролива…":"Checking the latest recorded shot…","Обновить анализ":"Refresh analysis","После анализа здесь появится понятное объяснение остановки помпы и ошибок XDB401.":"A clear explanation of pump shutdown and XDB401 errors will appear here.","Срабатывание защиты":"Protection triggered","Возраст данных":"Data age","Восстановление связи":"Connection recovery","Причина":"Cause","Накопительная статистика XDB401":"Cumulative XDB401 statistics","Загружаем общие счётчики ошибок с момента запуска контроллера.":"Loading cumulative error counters since controller startup.","Технические счётчики":"Technical counters","Текущие значения":"Current values","XDB401 работает нормально":"XDB401 is working normally","Сейчас данные давления поступают. Накопленные ошибки были раньше и не образуют текущую серию.":"Pressure data is currently arriving. Accumulated errors happened earlier and do not form a current sequence.","Данные давления поступают, ошибок связи подряд нет.":"Pressure data is arriving and there are no consecutive communication errors.","XDB401 отвечает с ошибками":"XDB401 is responding with errors","Появилась короткая серия ошибок обмена. Контроллер пока продолжает работу, но связь с датчиком нестабильна.":"A short sequence of communication errors appeared. The controller is still operating, but the sensor link is unstable.","Связь с XDB401 потеряна":"Connection to XDB401 lost","Помпа остановлена защитой: контроллер не получает надёжные данные давления.":"The pump was stopped by protection because the controller is not receiving reliable pressure data.","Контроллер не получает надёжные данные давления. При проливе защита может остановить помпу.":"The controller is not receiving reliable pressure data. During a shot, protection may stop the pump.","Нет текущей ошибки":"No current error","запуск измерения":"measurement start","чтение статуса":"status read","тайм-аут измерения":"measurement timeout","чтение пакета":"packet read","отбракованные пакеты":"rejected packets","Сейчас идёт серия ошибок XDB401. Ниже показаны накопительные счётчики с момента запуска ESP32.":"An XDB401 error sequence is active. The counters below are cumulative since ESP32 startup.","Ошибки XDB401 уже фиксировались. Эти значения накопительные и относятся ко всему времени работы после запуска ESP32.":"XDB401 errors have been recorded. These values are cumulative for the entire uptime since ESP32 startup.","После запуска ESP32 ошибок обмена с XDB401 пока не зарегистрировано.":"No XDB401 communication errors have been recorded since ESP32 startup.","Чаще всего":"Most often","Ошибок нет":"No errors","ош. запуска":"start errors","ош. статуса":"status errors","тайм-аутов":"timeouts","ош. пакета":"packet errors","отбраковано":"rejected","свежие данные давления не поступали":"fresh pressure data was not received","CSV пуст или не распознан":"CSV is empty or unrecognized","В последнем файле нет строк, которые можно использовать для диагностики.":"The latest file contains no rows that can be used for diagnostics.","Защитное отключение не найдено":"No protective shutdown found","Во время последнего пролива XDB401 зарегистрировал ошибки, но данные восстановились до срабатывания защиты и помпа не была принудительно остановлена.":"XDB401 recorded errors during the latest shot, but data recovered before protection triggered and the pump was not forcibly stopped.","Последний записанный пролив прошёл без потери связи с XDB401 и без остановки помпы защитой.":"The latest recorded shot completed without losing XDB401 communication or a protective pump shutdown.","не зафиксировано":"not recorded","Обнаружено защитное отключение":"Protective shutdown detected","На":"At","контроллер потерял надёжные данные XDB401 и остановил помпу защитой SENSOR_FAIL. Максимальный возраст данных составил":"the controller lost reliable XDB401 data and stopped the pump with SENSOR_FAIL protection. Maximum data age was","Ошибок подряд":"Consecutive errors","В последнем CSV обнаружена потеря XDB401, но нулевой выход помпы в строках сбоя не найден.":"The latest CSV shows an XDB401 loss, but zero pump output was not found in the failure rows.","Последний CSV недоступен":"Latest CSV unavailable","Запишите диагностический пролив, после чего здесь появится автоматический разбор связи XDB401 и остановки помпы.":"Record a diagnostic shot and an automatic analysis of XDB401 communication and pump shutdown will appear here.","мс":"ms","Ошибки и состояние системы":"Errors and system status","Ошибки датчика отделены от памяти и состояния ESP32.":"Sensor errors are separated from ESP32 memory and status.","Ошибки датчика давления":"Pressure sensor errors","XDB401: обмен, пакеты и текущее состояние связи.":"XDB401 communication, packets, and current link status.","Состояние:":"Status:","Технические счётчики XDB401":"XDB401 technical counters","Старт измерения":"Measurement start","Чтение статуса":"Status read","Тайм-аут измерения":"Measurement timeout","Чтение пакета":"Packet read","Отбраковано пакетов":"Rejected packets","Последняя ошибка XDB401":"Latest XDB401 error","Система":"System","Память и сервисные данные ESP32.":"ESP32 memory and service data.","ESP32 и память":"ESP32 and memory","Ресурсы контроллера отдельно от ошибок датчика.":"Controller resources separated from sensor errors.","Свободный внутренний heap":"Free internal heap","Показатели памяти относятся к ESP32 и не являются ошибками XDB401.":"Memory values belong to the ESP32 and are not XDB401 errors.","Длительность пролива":"Shot duration","Линии графика":"Chart lines","Толщина и прозрачность":"Width and transparency","Толщина":"Width","Прозрачность":"Transparency","Линии по умолчанию":"Reset lines","Настройки линий графика сброшены":"Chart line settings reset","Настройки линий":"Line settings","Цвет":"Color","Цвет, толщина и прозрачность":"Color, width and transparency","По умолчанию":"Defaults","Настроить линии графика":"Configure chart lines","Границы этапов":"Stage boundaries","PI-регулятор управляет мощностью помпы по фактическому давлению и динамике его роста.":"The PI controller adjusts pump power from measured pressure and its rate of change.","PI-регулятор давления":"Pressure PI controller","Поддерживает давление профиля, изменяя мощность помпы по ошибке давления. Настройки действуют для всех профилей.":"Maintains profile pressure by adjusting pump power from pressure error. These settings apply to all profiles.","Определяет, насколько сильно помпа реагирует на текущую разницу между целью и фактическим давлением.":"Controls how strongly the pump reacts to the current difference between target and measured pressure.","Убирает устойчивое отклонение от цели и помогает регулятору подстроиться под сопротивление кофейной таблетки.":"Removes steady pressure error and helps the controller adapt to coffee-puck resistance.","Мягкое начало пролива":"Soft shot start","Общая плавная оболочка запуска помпы. Это не предсмачивание профиля, а ограничение резкого старта для любого профиля.":"A shared gentle pump-start envelope. This is not profile preinfusion; it limits abrupt startup for any profile.","Длительность плавного старта":"Soft-start duration","За это время допустимая мощность помпы увеличивается постепенно. Значение 0 с отключает мягкий старт.":"During this time the allowed pump power rises gradually. A value of 0 s disables soft start.","Начальная мощность помпы":"Initial pump power","Стартовая граница мощности, с которой начинается плавный разгон перед обычным регулированием давления.":"The starting power limit from which the smooth ramp begins before normal pressure control.","Состояние регулятора":"Controller status","Живые диагностические значения. Они рассчитываются автоматически и здесь не настраиваются.":"Live diagnostic values. They are calculated automatically and are not configured here.","Адаптивная коррекция помпы":"Adaptive pump correction","Текущая автоматическая добавка к управлению помпой с учётом поведения давления.":"Current automatic pump-control correction based on pressure behavior.","Насколько быстро прямо сейчас изменяется давление; регулятор использует динамику, чтобы заранее тормозить разгон.":"How quickly pressure is changing right now; the controller uses this trend to brake the rise early.","Сохранить настройки давления":"Save pressure settings","Аппаратный запуск, плавность изменения мощности и низкоуровневые параметры драйвера.":"Hardware startup, power ramping, and low-level driver parameters.","Плавность управления":"Control ramping","Параметры обычного управления диммером помпы вне активного pressure-профиля.":"Normal pump-dimmer settings outside an active pressure profile.","Время плавного изменения мощности":"Power ramp time","Сглаживает переход между уровнями мощности, чтобы команда на помпу не менялась ступенькой. Во время активного профиля пролива прошивка временно управляет разгоном сама.":"Smooths transitions between power levels so the pump command does not change abruptly. During an active shot profile, firmware temporarily controls the ramp itself.","Аппаратный запуск помпы":"Hardware pump startup","Низкоуровневый стартовый импульс драйвера. Для pressure-фаз пролива он отключается, потому что там используется мягкий старт давления.":"Low-level driver startup pulse. It is disabled for pressure-controlled shot phases because those use the pressure soft start.","Стартовый импульс":"Startup pulse","Разрешает кратковременный boost при обычном запуске помпы и в фазах, где профиль явно допускает такой старт.":"Allows a brief boost during normal pump startup and in phases where the profile explicitly allows it.","Длительность стартового импульса":"Startup pulse duration","Сколько времени драйвер удерживает стартовый boost перед переходом к обычной мощности.":"How long the driver holds the startup boost before switching to normal power.","Тайминги симистора":"Triac timing","Аппаратные параметры управления силовым ключом помпы. Они применяются напрямую к драйверу и обычно не требуют изменения после настройки железа.":"Hardware timing for the pump power switch. These values are applied directly to the driver and usually do not need changes after hardware setup.","Задержка gate":"Gate delay","Задержка управляющего импульса симистора после обнаружения перехода сети через ноль.":"Delay of the triac control pulse after the mains zero crossing is detected.","Импульс gate":"Gate pulse","Длительность управляющего импульса на затвор симистора после рассчитанной задержки.":"Duration of the triac gate pulse after the configured delay.","Параметры старого старта pressure-профиля":"Legacy pressure-profile startup parameters","Эти сущности всё ещё есть в ESPHome, но текущий алгоритм pressure-профиля принудительно отменяет timed boost и использует мягкий старт из раздела «Давление». Поэтому оставляем их доступными для совместимости, но не ставим в основной блок.":"These entities still exist in ESPHome, but the current pressure-profile algorithm cancels the timed boost and uses the soft start from the Pressure section. They remain available for compatibility but are kept out of the main controls.","Стартовый boost pressure-профиля":"Pressure-profile startup boost","Сохранённый переключатель старого алгоритма запуска.":"Stored switch from the previous startup algorithm.","Мощность boost":"Boost power","Сохранённая мощность стартового импульса старой схемы.":"Stored startup-pulse power from the previous scheme.","Время boost":"Boost time","Сохранённая длительность стартового импульса старой схемы.":"Stored startup-pulse duration from the previous scheme.","Стабилизация перед PI":"Settling before PI","Сущность старой схемы перехода к PI. В текущем алгоритме переход выполняется по реакции давления или по защитному тайм-ауту.":"Entity from the previous PI handoff scheme. The current algorithm transitions on pressure response or a safety timeout.","Сохранить настройки помпы":"Save pump settings","Настройки помпы сохранены":"Pump settings saved","Защитный переход pressure-профиля к PI по тайм-ауту задаётся самой прошивкой и отдельной настройкой не является.":"The pressure-profile safety handoff to PI on timeout is defined by firmware and is not a separate setting."};
 
     Object.assign(EN_TRANSLATIONS, {
+      "Хранятся на кофемашине":"Stored on the espresso machine",
+      "Хранилище профилей временно недоступно":"Profile storage is temporarily unavailable",
+      "Не удалось загрузить профили с кофемашины":"Could not load profiles from the espresso machine",
+      "Не удалось сохранить профиль на кофемашине":"Could not save the profile on the espresso machine",
+      "Не удалось переименовать профиль на кофемашине":"Could not rename the profile on the espresso machine",
+      "Не удалось удалить профиль с кофемашины":"Could not delete the profile from the espresso machine",
+      "На кофемашине уже сохранено 30 профилей":"The espresso machine already has 30 saved profiles",
       "Пояснения":"Help",
       "Скрыть пояснения":"Hide help",
       "Показать пояснение":"Show explanation",
@@ -2681,10 +2688,11 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     };
     let availableProfileOptions = [];
     let homeProfileApplying = false;
-    const USER_PROFILES_STORAGE_KEY = 'silvia-user-profiles-v1';
     let userProfiles = [];
+    let userProfilesLoadError = false;
     let activeUserProfileId = '';
     let userProfileApplying = false;
+    let userProfileStorageBusy = false;
     let currentLanguage = 'ru';
     const i18nTextNodes = [];
     const i18nAttributes = [];
@@ -7733,43 +7741,60 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       return clean;
     }
 
-    function loadUserProfiles() {
+    async function loadUserProfiles(options = {}) {
       try {
-        const parsed = JSON.parse(localStorage.getItem(USER_PROFILES_STORAGE_KEY) || '[]');
-        let migrated = false;
-        userProfiles = Array.isArray(parsed)
-          ? parsed
-              .filter(item => item && typeof item.name === 'string' && item.config)
-              .map(item => {
-                if (!Number(item.createdAt) || !Number(item.updatedAt)) migrated = true;
-                const updatedAt = Number(item.updatedAt) || Date.now();
-                return {
-                  id: String(item.id || userProfileId()),
-                  name: item.name.trim().slice(0,36),
-                  config: sanitizeUserProfileConfig(item.config),
-                  createdAt: Number(item.createdAt) || updatedAt,
-                  updatedAt
-                };
-              })
+        const response = await fetch('/profiles/index.json', { cache:'no-store' });
+        if (!response.ok) throw new Error('profiles_http_' + response.status);
+        const payload = await response.json();
+        userProfiles = Array.isArray(payload?.profiles)
+          ? payload.profiles
+              .filter(item => item && typeof item.id === 'string' && typeof item.name === 'string' && item.config)
+              .map(item => ({
+                id:item.id,
+                name:item.name.trim().slice(0,36),
+                config:sanitizeUserProfileConfig(item.config),
+                createdAt:Number(item.createdAt) || 0,
+                updatedAt:Number(item.updatedAt) || Number(item.createdAt) || 0
+              }))
               .filter(item => item.name)
           : [];
-        if (migrated) {
-          localStorage.setItem(USER_PROFILES_STORAGE_KEY, JSON.stringify(userProfiles));
-        }
-      } catch (_) {
-        userProfiles = [];
-      }
-      renderUserProfiles();
-    }
-
-    function storeUserProfiles() {
-      try {
-        localStorage.setItem(USER_PROFILES_STORAGE_KEY, JSON.stringify(userProfiles));
+        userProfilesLoadError = false;
+        renderUserProfiles();
         return true;
       } catch (_) {
-        toast(tr('Не удалось сохранить профиль в браузере'), true);
+        userProfilesLoadError = true;
+        renderUserProfiles();
+        if (!options.silent) toast(tr('Не удалось загрузить профили с кофемашины'), true);
         return false;
       }
+    }
+
+    function userProfileForm(item) {
+      const body = new URLSearchParams({
+        id:String(item.id),
+        name:String(item.name),
+        createdAt:String(Math.trunc(Number(item.createdAt) || Date.now())),
+        updatedAt:String(Math.trunc(Number(item.updatedAt) || Date.now()))
+      });
+      recipeFieldIds.forEach(id => body.set(id, String(Number(item.config?.[id]))));
+      return body;
+    }
+
+    async function storeUserProfile(item) {
+      const response = await fetch('/profiles/save', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' },
+        body:userProfileForm(item)
+      });
+      if (!response.ok) {
+        let error = '';
+        try { error = String((await response.json())?.error || ''); } catch (_) {}
+        if (response.status === 409 || error === 'profile_limit') {
+          throw new Error('profile_limit');
+        }
+        throw new Error(error || ('profiles_http_' + response.status));
+      }
+      return true;
     }
 
     function userProfileMeta(config) {
@@ -7814,7 +7839,9 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       if (!userProfiles.length) {
         const empty = document.createElement('div');
         empty.className = 'user-profile-empty';
-        empty.textContent = tr('Сохранённых профилей пока нет');
+        empty.textContent = tr(userProfilesLoadError
+          ? 'Хранилище профилей временно недоступно'
+          : 'Сохранённых профилей пока нет');
         root.appendChild(empty);
         return;
       }
@@ -7830,7 +7857,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
           const applyButton = document.createElement('button');
           applyButton.type = 'button';
           applyButton.className = 'user-profile-apply';
-          applyButton.disabled = userProfileApplying || shotRunning;
+          applyButton.disabled = userProfileApplying || userProfileStorageBusy || shotRunning;
           applyButton.onclick = () => applyUserProfile(item.id);
 
           const name = document.createElement('b');
@@ -7850,7 +7877,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
           rename.textContent = '✎';
           rename.title = tr('Переименовать профиль');
           rename.setAttribute('aria-label', tr('Переименовать профиль'));
-          rename.disabled = userProfileApplying || shotRunning;
+          rename.disabled = userProfileApplying || userProfileStorageBusy || shotRunning;
           rename.onclick = () => renameUserProfile(item.id);
 
           const remove = document.createElement('button');
@@ -7859,7 +7886,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
           remove.textContent = '🗑';
           remove.title = tr('Удалить профиль');
           remove.setAttribute('aria-label', tr('Удалить профиль'));
-          remove.disabled = userProfileApplying || shotRunning;
+          remove.disabled = userProfileApplying || userProfileStorageBusy || shotRunning;
           remove.onclick = () => deleteUserProfile(item.id);
 
           actions.append(rename, remove);
@@ -7869,7 +7896,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     }
 
     async function saveCurrentUserProfile() {
-      if (userProfileApplying || shotRunning) return;
+      if (userProfileApplying || userProfileStorageBusy || shotRunning) return;
 
       const hasDraft = !!(mainCurveDirty || recipeDirty);
       if (!hasDraft) {
@@ -7897,6 +7924,8 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       );
       const existed = !!item;
       const now = Date.now();
+      const previousConfig = existed ? { ...item.config } : null;
+      const previousUpdatedAt = existed ? item.updatedAt : 0;
 
       if (item) {
         item.config = config;
@@ -7912,10 +7941,29 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         userProfiles.push(item);
       }
 
-      if (!storeUserProfiles()) return;
+      userProfileStorageBusy = true;
+      renderUserProfiles();
+      try {
+        await storeUserProfile(item);
+      } catch (error) {
+        userProfileStorageBusy = false;
+        if (!existed) {
+          userProfiles = userProfiles.filter(profile => profile.id !== item.id);
+        } else {
+          item.config = previousConfig;
+          item.updatedAt = previousUpdatedAt;
+        }
+        renderUserProfiles();
+        toast(tr(error?.message === 'profile_limit'
+          ? 'На кофемашине уже сохранено 30 профилей'
+          : 'Не удалось сохранить профиль на кофемашине'), true);
+        return;
+      }
+      userProfileStorageBusy = false;
 
       if (input) input.value = '';
       renderUserProfiles();
+      await loadUserProfiles({ silent:true });
 
       const applied = await applyUserProfile(item.id, { silent:true });
 
@@ -7926,7 +7974,8 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       }
     }
 
-    function renameUserProfile(id) {
+    async function renameUserProfile(id) {
+      if (userProfileApplying || userProfileStorageBusy || shotRunning) return;
       const item = userProfiles.find(profile => profile.id === id);
       if (!item) return;
       const next = prompt(tr('Новое название профиля'), item.name);
@@ -7940,23 +7989,46 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         return;
       }
 
+      const previousName = item.name;
+      const previousUpdatedAt = item.updatedAt;
       item.name = name;
       item.updatedAt = Date.now();
-      if (storeUserProfiles()) {
+      userProfileStorageBusy = true;
+      renderUserProfiles();
+      try {
+        await storeUserProfile(item);
+        userProfileStorageBusy = false;
         renderUserProfiles();
+        await loadUserProfiles({ silent:true });
         toast(tr('Профиль переименован'));
+      } catch (_) {
+        userProfileStorageBusy = false;
+        item.name = previousName;
+        item.updatedAt = previousUpdatedAt;
+        renderUserProfiles();
+        toast(tr('Не удалось переименовать профиль на кофемашине'), true);
       }
     }
 
-    function deleteUserProfile(id) {
+    async function deleteUserProfile(id) {
+      if (userProfileApplying || userProfileStorageBusy || shotRunning) return;
       const item = userProfiles.find(profile => profile.id === id);
       if (!item) return;
       if (!confirm(tr('Удалить профиль') + ' «' + item.name + '»?')) return;
-      userProfiles = userProfiles.filter(profile => profile.id !== id);
-      if (activeUserProfileId === id) activeUserProfileId = '';
-      if (storeUserProfiles()) {
+      userProfileStorageBusy = true;
+      renderUserProfiles();
+      try {
+        const response = await fetch('/profiles/delete/' + encodeURIComponent(id), { method:'POST' });
+        if (!response.ok) throw new Error('profiles_http_' + response.status);
+        userProfileStorageBusy = false;
+        userProfiles = userProfiles.filter(profile => profile.id !== id);
+        if (activeUserProfileId === id) activeUserProfileId = '';
         renderUserProfiles();
         toast(tr('Профиль удалён'));
+      } catch (_) {
+        userProfileStorageBusy = false;
+        renderUserProfiles();
+        toast(tr('Не удалось удалить профиль с кофемашины'), true);
       }
     }
 
@@ -8305,7 +8377,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       const profileNameInput = $('userProfileName');
       const profileSaveButton = $('userProfileSaveButton');
       const hasDraft = !!(mainCurveDirty || recipeDirty);
-      const saveBusy = userProfileApplying || shotRunning;
+      const saveBusy = userProfileApplying || userProfileStorageBusy || shotRunning;
 if (card) {
         card.classList.toggle('curve-ready', mainCurveCanEdit());
         card.classList.toggle('curve-editing', mainCurveEditing || mainCurveDirty);
@@ -8316,7 +8388,7 @@ if (card) {
         profileHint.textContent = tr(
           hasDraft
             ? 'Есть изменения — введите название и нажмите +'
-            : 'Сохраняются в этом браузере'
+            : 'Хранятся на кофемашине'
         );
         profileHint.classList.toggle('pending', hasDraft);
       }
@@ -14705,7 +14777,7 @@ if (card) {
     loadTypographySettings();
     loadShotLineVisibility();
     loadShotLineSettings();
-    loadUserProfiles();
+    loadUserProfiles({ silent:true });
     initHomeDashboardLayout();
     connectionLastOkAt = Date.now();
     scheduleDashboardOffline();

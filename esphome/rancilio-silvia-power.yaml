@@ -6,6 +6,7 @@ esphome:
     - shot_diagnostics.h
     - shot_analyzer.h
     - shot_archive.h
+    - user_profiles.h
     - coffee_dashboard.h
   on_boot:
     - priority: 800
@@ -36,6 +37,7 @@ esphome:
             silvia_archive::mount();
             silvia_diag::register_web_handler();
             silvia_archive::register_web_handler();
+            silvia_profiles::register_web_handler();
             silvia_web::register_web_handler();
   on_shutdown:
     - priority: 700
