@@ -122,6 +122,8 @@ i2c:
   sda: ${xdb401_sda_pin}
   scl: ${xdb401_scl_pin}
   scan: true
+  # frequency: 10kHz
+  # timeout: 5ms
 
 # -------------------------
 # GPIO настройки
@@ -2290,6 +2292,7 @@ script:
                     id(silvia_brew_target_weight).state,
                     id(active_preinfusion_pump_seconds),
                     id(active_preinfusion_pause_seconds),
+                    id(active_brew_shot_seconds),
                     id(silvia_time).now().is_valid()
                         ? static_cast<uint32_t>(id(silvia_time).now().timestamp)
                         : 0U);

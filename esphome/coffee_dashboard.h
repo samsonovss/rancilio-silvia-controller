@@ -1127,6 +1127,27 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                     <b id="homeSummaryTotalTime">—</b>
                   </div>
                 </div>
+
+                <section id="shotQualityCard" class="shot-quality-card" hidden
+                  aria-live="polite">
+                  <div class="shot-quality-main">
+                    <div id="shotQualityScore" class="shot-quality-score">—</div>
+                    <div class="shot-quality-copy">
+                      <small>Оценка пролива</small>
+                      <b id="shotQualityTitle">—</b>
+                      <p id="shotQualityDiagnosis">—</p>
+                    </div>
+                    <button id="shotQualityToggle" class="small shot-quality-toggle"
+                      type="button" onclick="toggleShotQualityDetails()"
+                      aria-expanded="false" aria-controls="shotQualityDetails">Подробнее</button>
+                  </div>
+                  <div id="shotQualityDetails" class="shot-quality-details" hidden>
+                    <div><span>Рекомендация по помолу</span><b id="shotQualityGrind">—</b></div>
+                    <div><span>Уверенность датчика</span><b id="shotQualityConfidence">—</b></div>
+                    <div><span>Средняя ошибка давления</span><b id="shotQualityPressureError">—</b></div>
+                    <div><span>Средний поток</span><b id="shotQualityFlow">—</b></div>
+                  </div>
+                </section>
               </div>
           </div>
           <aside id="profileLibraryCard" class="card shot-profile-card profile-library home-shot-rail" data-shot-panel="profiles">
@@ -2324,6 +2345,42 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       }
     }
 
+    /* Local post-shot analysis: compact summary first, evidence on demand. */
+    #shotQualityCard {
+      margin-top:8px;
+      overflow:hidden;
+      border:1px solid #34404b;
+      border-left:3px solid #71808e;
+      border-radius:11px;
+      background:#11171c;
+    }
+    #shotQualityCard[hidden],#shotQualityDetails[hidden]{display:none!important}
+    #shotQualityCard.good{border-left-color:#4bb77f}
+    #shotQualityCard.acceptable{border-left-color:#d4a94d}
+    #shotQualityCard.poor,#shotQualityCard.sensor_fault{border-left-color:#df6558}
+    .shot-quality-main{min-width:0;display:grid;grid-template-columns:52px minmax(0,1fr) auto;align-items:center;gap:10px;padding:9px 10px}
+    .shot-quality-score{width:46px;height:46px;display:grid;place-items:center;border:1px solid #44515d;border-radius:50%;background:#171e24;color:#dce5ec;font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
+    #shotQualityCard.good .shot-quality-score{border-color:#3d7558;color:#8ae1ad}
+    #shotQualityCard.acceptable .shot-quality-score{border-color:#725f31;color:#edc96f}
+    #shotQualityCard.poor .shot-quality-score,#shotQualityCard.sensor_fault .shot-quality-score{border-color:#754147;color:#f08a83}
+    .shot-quality-copy{min-width:0}
+    .shot-quality-copy small{display:block;color:#7f8c98;font-size:9px;font-weight:700;letter-spacing:.055em;text-transform:uppercase}
+    .shot-quality-copy b{display:block;margin-top:1px;color:#dce4eb;font-size:13px;line-height:1.25}
+    .shot-quality-copy p{margin:3px 0 0;overflow:hidden;color:#8f9ba6;font-size:10px;line-height:1.35;text-overflow:ellipsis;white-space:nowrap}
+    .shot-quality-toggle{min-height:31px;padding:6px 9px;border:1px solid #3b4651;background:#1d242b;color:#b8c2cc;font-size:10px}
+    .shot-quality-details{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;border-top:1px solid #2b353e;background:#2b353e}
+    .shot-quality-details>div{min-width:0;padding:8px 9px;background:#11171c}
+    .shot-quality-details span,.shot-quality-details b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .shot-quality-details span{color:#788591;font-size:9px}
+    .shot-quality-details b{margin-top:3px;color:#cfd8e0;font-size:11px;font-weight:650}
+    .archive-row-open{position:relative;padding-right:46px}
+    .archive-row-quality{position:absolute;top:9px;right:9px;min-width:28px;height:22px;display:grid;place-items:center;padding:0 5px;border:1px solid #45515d;border-radius:999px;background:#202831;color:#b8c3ce;font-size:10px;font-weight:800;font-variant-numeric:tabular-nums}
+    .archive-row-quality.good{border-color:#386a50;color:#7bdca2}
+    .archive-row-quality.acceptable{border-color:#6a592f;color:#e7c46c}
+    .archive-row-quality.poor,.archive-row-quality.sensor_fault{border-color:#6d3e44;color:#ee8580}
+    @media (max-width:620px){.shot-quality-details{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:430px){.shot-quality-main{grid-template-columns:46px minmax(0,1fr)}.shot-quality-score{width:42px;height:42px;font-size:16px}.shot-quality-toggle{grid-column:1/-1;width:100%}.shot-quality-copy p{white-space:normal}.shot-quality-details{grid-template-columns:minmax(0,1fr)}}
+
 
     /* Stage 170: reuse the auto-off line for the live shot phase timer. */
     #page-home .machine-status-copy > #shotStatus.run,
@@ -2586,7 +2643,17 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       "Feed-forward максимум": "Feed-forward maximum",
       "Ограничивает дополнительный нагрев во время пролива для компенсации притока холодной воды.": "Limits additional heating during extraction to compensate for incoming cold water.",
       "Запустить": "Start"
-    });    const I18N_MESSAGES = {
+    });
+    Object.assign(EN_TRANSLATIONS, {
+      "Оценка пролива":"Shot assessment",
+      "Подробнее":"Details",
+      "Скрыть":"Hide",
+      "Рекомендация по помолу":"Grind recommendation",
+      "Уверенность датчика":"Sensor confidence",
+      "Средняя ошибка давления":"Mean pressure error",
+      "Средний поток":"Average flow"
+    });
+    const I18N_MESSAGES = {
       ru: {
         profileApplied: profile => 'Профиль ' + profile + ' применён',
         modeApplied: mode => 'Режим ' + mode + ' применён',
@@ -4652,6 +4719,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     let archiveIndex = [];
     let archiveSelectedId = 0;
     let archiveSelectedSummary = null;
+    let latestShotSummary = null;
     let archiveDetailSeries = [];
     let archiveListLoadToken = 0;
     const archiveSummaryCache = new Map();
@@ -8756,6 +8824,7 @@ if (card) {
         liveStart = performance.now();
         lastPoint = 0;
         chartMode = 'auto';
+        renderShotQuality(null);
 
         updateShotPhaseStatus();
       } else {
@@ -8783,6 +8852,15 @@ if (card) {
         shotPhaseConfig = null;
         chartMode = 'auto';
         restoreShotStatusAfterRun();
+        setTimeout(async () => {
+          const loaded = await refreshLatestShotAnalysis();
+          if (!loaded) {
+            setTimeout(() => void refreshLatestShotAnalysis(), 900);
+          }
+          if (homeShotRailMode === 'shots') {
+            void loadArchiveList(true);
+          }
+        }, 350);
       }
 
       updatePressureTarget();
@@ -13622,6 +13700,171 @@ if (card) {
       );
     }
 
+    const SHOT_QUALITY_COPY = {
+      ru: {
+        quality: {
+          good:'Хороший пролив',
+          acceptable:'Есть небольшие отклонения',
+          poor:'Требует корректировки',
+          sensor_fault:'Проверить датчик',
+          no_data:'Недостаточно данных'
+        },
+        diagnosis: {
+          normal:'Давление и выход напитка соответствуют профилю.',
+          overpressure:'Давление заметно превышало заданный профиль.',
+          underpressure:'Среднее давление было ниже заданного профиля.',
+          too_restrictive:'Напиток набирался медленно: таблетка слишком плотная.',
+          too_free:'Целевой вес набран слишком быстро: пролив слишком свободный.',
+          channeling_suspected:'Давление и поток нестабильны: возможно образование каналов.',
+          unstable:'Давление заметно колебалось во время основной фазы.',
+          sensor_fault:'Данные XDB401 недостаточно надёжны для оценки пролива.',
+          no_data:'Запишите новый диагностический пролив для автоматической оценки.'
+        },
+        grind: {
+          none:'Без изменений',
+          finer:'Немного мельче',
+          coarser:'Немного крупнее',
+          check_puck:'Проверить распределение таблетки',
+          unknown:'Нет рекомендации'
+        }
+      },
+      en: {
+        quality: {
+          good:'Good shot',
+          acceptable:'Minor deviations',
+          poor:'Adjustment recommended',
+          sensor_fault:'Check the sensor',
+          no_data:'Not enough data'
+        },
+        diagnosis: {
+          normal:'Pressure and beverage output match the selected profile.',
+          overpressure:'Pressure rose noticeably above the requested profile.',
+          underpressure:'Average pressure stayed below the requested profile.',
+          too_restrictive:'The beverage accumulated slowly: the puck was too restrictive.',
+          too_free:'Target weight was reached too quickly: the shot ran too freely.',
+          channeling_suspected:'Pressure and flow were unstable; channeling may have occurred.',
+          unstable:'Pressure fluctuated noticeably during the main extraction.',
+          sensor_fault:'XDB401 data is not reliable enough to assess this shot.',
+          no_data:'Record a new diagnostic shot to enable automatic assessment.'
+        },
+        grind: {
+          none:'No change',
+          finer:'Slightly finer',
+          coarser:'Slightly coarser',
+          check_puck:'Check puck preparation',
+          unknown:'No recommendation'
+        }
+      }
+    };
+
+    function shotQualityText(group, code) {
+      const language = SHOT_QUALITY_COPY[currentLanguage] || SHOT_QUALITY_COPY.ru;
+      return language[group]?.[code] || SHOT_QUALITY_COPY.ru[group]?.[code] || code;
+    }
+
+    function archiveAnalysis(summary) {
+      const analysis = summary?.analysis;
+      return analysis && Number(analysis.version) >= 1 ? analysis : null;
+    }
+
+    function archiveQualityBadge(summary) {
+      const analysis = archiveAnalysis(summary);
+      if (!analysis) return '';
+      const quality = String(analysis.quality || 'no_data');
+      const score = Number(analysis.quality_score);
+      const label = quality === 'sensor_fault'
+        ? '!'
+        : Number.isFinite(score)
+          ? String(Math.round(score))
+          : '—';
+      return '<span class="archive-row-quality ' +
+        archiveEscapeHtml(quality) + '" title="' +
+        archiveEscapeHtml(shotQualityText('quality', quality)) + '">' +
+        archiveEscapeHtml(label) + '</span>';
+    }
+
+    function renderShotQuality(summary) {
+      const card = $('shotQualityCard');
+      if (!card) return;
+      const analysis = archiveAnalysis(summary);
+      if (!analysis) {
+        card.hidden = true;
+        return;
+      }
+
+      const quality = String(analysis.quality || 'no_data');
+      const diagnosis = String(analysis.diagnosis || 'no_data');
+      const grind = String(analysis.suggested_grind || 'unknown');
+      const score = Number(analysis.quality_score);
+      const confidence = Number(analysis.sensor_confidence);
+      const metrics = analysis.metrics || {};
+
+      card.hidden = false;
+      card.className = 'shot-quality-card ' + quality;
+      $('shotQualityScore').textContent = Number.isFinite(score)
+        ? Math.round(score) + '%'
+        : '—';
+      $('shotQualityTitle').textContent = shotQualityText('quality', quality);
+      $('shotQualityDiagnosis').textContent = shotQualityText('diagnosis', diagnosis);
+      $('shotQualityGrind').textContent = shotQualityText('grind', grind);
+      $('shotQualityConfidence').textContent = Number.isFinite(confidence)
+        ? Math.round(confidence) + '%'
+        : '—';
+
+      const pressureError = Number(metrics.mean_absolute_error_bar);
+      $('shotQualityPressureError').textContent = Number.isFinite(pressureError)
+        ? fmt(pressureError, 2) + ' ' + tr('бар')
+        : '—';
+      const averageFlow = Number(metrics.average_flow_g_s);
+      $('shotQualityFlow').textContent = Number.isFinite(averageFlow)
+        ? fmt(averageFlow, 2) + ' ' + tr('г/с')
+        : '—';
+
+      const summaryKey = String(summary?.id ?? summary?.timestamp ?? 'latest');
+      if (card.dataset.summaryKey !== summaryKey) {
+        card.dataset.summaryKey = summaryKey;
+        const details = $('shotQualityDetails');
+        const toggle = $('shotQualityToggle');
+        if (details) details.hidden = true;
+        if (toggle) {
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+      }
+      const details = $('shotQualityDetails');
+      const toggle = $('shotQualityToggle');
+      if (toggle) {
+        toggle.textContent = tr(details?.hidden ? 'Подробнее' : 'Скрыть');
+      }
+    }
+
+    function toggleShotQualityDetails() {
+      const details = $('shotQualityDetails');
+      const toggle = $('shotQualityToggle');
+      if (!details || !toggle) return;
+      details.hidden = !details.hidden;
+      toggle.setAttribute('aria-expanded', String(!details.hidden));
+      toggle.textContent = tr(details.hidden ? 'Подробнее' : 'Скрыть');
+    }
+
+    async function refreshLatestShotAnalysis() {
+      try {
+        const response = await fetch('/shots/index.json', { cache:'no-store' });
+        if (!response.ok) return false;
+        const data = await response.json();
+        const shots = Array.isArray(data.shots) ? data.shots : [];
+        const raw = shots[shots.length - 1];
+        const id = archiveShotId(raw);
+        if (!id) return false;
+        archiveSummaryCache.delete(id);
+        const summary = await fetchArchiveSummary(id, raw);
+        latestShotSummary = summary;
+        if (homeShotRailMode !== 'shots') renderShotQuality(summary);
+        return !!archiveAnalysis(summary);
+      } catch (_) {
+        return false;
+      }
+    }
+
     function archiveRowMeta(summary) {
       if (!summary) {
         return tr('Загрузка…');
@@ -13887,6 +14130,12 @@ if (card) {
         archiveTitle = '';
       }
 
+      renderShotQuality(
+        shotsMode
+          ? archiveSelectedSummary
+          : latestShotSummary
+      );
+
       updateChartControls();
       updateMainCurveEditor();
       requestAnimationFrame(draw);
@@ -13958,6 +14207,7 @@ if (card) {
       updateShotProfileResizeLabel();
       syncHomeShotRailUi();
       renderHomeArchiveList();
+      void refreshLatestShotAnalysis();
     }
 
     function setHomeShotRailMode(
@@ -14049,6 +14299,7 @@ if (card) {
             (active ? ' active' : '') +
             '">' +
               '<button class="archive-row-open" type="button" onclick="selectHomeArchiveShot(' + id + ')">' +
+                archiveQualityBadge(summary) +
                 '<b class="archive-row-profile">' +
                   archiveEscapeHtml(archiveProfile(summary)) +
                 '</b>' +
@@ -14118,6 +14369,10 @@ if (card) {
             ' ' +
             tr('г')
           : '—';
+
+      if (homeShotRailMode === 'shots') {
+        renderShotQuality(summary);
+      }
     }
 
     async function selectHomeArchiveShot(id) {

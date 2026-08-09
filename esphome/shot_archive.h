@@ -14,6 +14,7 @@
 #include "esp_littlefs.h"
 #include "esphome/core/log.h"
 #include "esphome/components/web_server_base/web_server_base.h"
+#include "shot_analyzer.h"
 #include "shot_diagnostics.h"
 
 namespace silvia_archive {
@@ -32,11 +33,12 @@ inline float pending_dose_g = NAN;
 inline float pending_target_weight_g = NAN;
 inline float pending_preinfusion_s = NAN;
 inline float pending_pause_s = NAN;
+inline float pending_main_s = NAN;
 inline uint32_t pending_timestamp = 0;
 
 inline void begin_metadata(const std::string &profile, float brew_target_c,
                            float dose_g, float target_weight_g,
-                           float preinfusion_s, float pause_s,
+                           float preinfusion_s, float pause_s, float main_s,
                            uint32_t timestamp = 0) {
   pending_profile = profile;
   pending_brew_target_c = brew_target_c;
@@ -44,6 +46,7 @@ inline void begin_metadata(const std::string &profile, float brew_target_c,
   pending_target_weight_g = target_weight_g;
   pending_preinfusion_s = preinfusion_s;
   pending_pause_s = pause_s;
+  pending_main_s = main_s;
   pending_timestamp = timestamp;
 }
 
@@ -126,6 +129,14 @@ inline bool write_atomic(const std::string &path, const std::string &contents) {
   return true;
 }
 
+inline std::string json_number(float value, unsigned precision = 3) {
+  if (!std::isfinite(value))
+    return "null";
+  char buffer[48];
+  snprintf(buffer, sizeof(buffer), "%.*f", static_cast<int>(precision), value);
+  return buffer;
+}
+
 inline std::string make_summary_json(uint32_t id) {
   float maximum_pressure = 0.0f;
   float maximum_overshoot = 0.0f;
@@ -150,10 +161,21 @@ inline std::string make_summary_json(uint32_t id) {
   const auto &first = silvia_diag::last_shot.front();
   const auto &last = silvia_diag::last_shot.back();
   const uint32_t shot_errors = last.xdb_total_errors - first.xdb_total_errors;
+  const silvia_analysis::ShotMetadata analysis_metadata{
+      pending_dose_g, pending_target_weight_g, pending_main_s};
+  const auto analysis =
+      silvia_analysis::analyze(silvia_diag::last_shot, analysis_metadata);
   const std::string timestamp_json = pending_timestamp >= 1577836800U
                                          ? std::to_string(pending_timestamp)
                                          : "null";
-  char json[1400];
+  const std::string analysis_mae = json_number(analysis.mean_absolute_error_bar);
+  const std::string analysis_mean_error = json_number(analysis.mean_error_bar);
+  const std::string analysis_instability = json_number(analysis.pressure_instability_bar);
+  const std::string analysis_flow = json_number(analysis.average_flow_g_s);
+  const std::string analysis_flow_variation = json_number(analysis.flow_variation);
+  const std::string analysis_drink_ratio = json_number(analysis.drink_ratio);
+  const std::string analysis_main_duration = json_number(analysis.main_duration_s);
+  char json[2600];
   snprintf(json, sizeof(json),
            "{\n"
            "  \"id\": %lu,\n"
@@ -165,6 +187,17 @@ inline std::string make_summary_json(uint32_t id) {
            "  \"preinfusion\": {\"pump_s\": %.2f, \"pause_s\": %.2f},\n"
            "  \"pressure\": {\"maximum_bar\": %.3f, \"maximum_overshoot_bar\": %.3f, \"final_bar\": %.3f},\n"
            "  \"sensor\": {\"max_age_ms\": %lu, \"shot_errors\": %lu},\n"
+           "  \"analysis\": {\n"
+           "    \"version\": 1,\n"
+           "    \"quality_score\": %d,\n"
+           "    \"sensor_confidence\": %d,\n"
+           "    \"reliable\": %s,\n"
+           "    \"quality\": \"%s\",\n"
+           "    \"diagnosis\": \"%s\",\n"
+           "    \"suggested_grind\": \"%s\",\n"
+           "    \"channeling_suspected\": %s,\n"
+           "    \"metrics\": {\"mean_absolute_error_bar\": %s, \"mean_error_bar\": %s, \"pressure_instability_bar\": %s, \"average_flow_g_s\": %s, \"flow_variation\": %s, \"drink_ratio\": %s, \"main_duration_s\": %s, \"pressure_drop_events\": %lu}\n"
+           "  },\n"
            "  \"samples\": %u,\n"
            "  \"csv\": \"shot-%06lu.csv\"\n"
            "}\n",
@@ -174,6 +207,15 @@ inline std::string make_summary_json(uint32_t id) {
            pending_pause_s, maximum_pressure, maximum_overshoot,
            last.pressure_bar, static_cast<unsigned long>(maximum_sensor_age),
            static_cast<unsigned long>(shot_errors),
+           analysis.score, analysis.sensor_confidence,
+           analysis.reliable ? "true" : "false", analysis.quality.c_str(),
+           analysis.diagnosis.c_str(), analysis.grind.c_str(),
+           analysis.channeling_suspected ? "true" : "false",
+           analysis_mae.c_str(), analysis_mean_error.c_str(),
+           analysis_instability.c_str(), analysis_flow.c_str(),
+           analysis_flow_variation.c_str(), analysis_drink_ratio.c_str(),
+           analysis_main_duration.c_str(),
+           static_cast<unsigned long>(analysis.pressure_drop_events),
            static_cast<unsigned>(silvia_diag::last_shot.size()),
            static_cast<unsigned long>(id));
   return json;
