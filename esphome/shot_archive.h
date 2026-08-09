@@ -175,49 +175,54 @@ inline std::string make_summary_json(uint32_t id) {
   const std::string analysis_flow_variation = json_number(analysis.flow_variation);
   const std::string analysis_drink_ratio = json_number(analysis.drink_ratio);
   const std::string analysis_main_duration = json_number(analysis.main_duration_s);
-  char json[2600];
-  snprintf(json, sizeof(json),
-           "{\n"
-           "  \"id\": %lu,\n"
-           "  \"timestamp\": %s,\n"
-           "  \"profile\": \"%s\",\n"
-           "  \"shot_duration_s\": %.3f,\n"
-           "  \"brew_temperature_target_c\": %.2f,\n"
-           "  \"coffee\": {\"dose_g\": %.2f, \"drink_weight_g\": %.3f, \"target_weight_g\": %.2f},\n"
-           "  \"preinfusion\": {\"pump_s\": %.2f, \"pause_s\": %.2f},\n"
-           "  \"pressure\": {\"maximum_bar\": %.3f, \"maximum_overshoot_bar\": %.3f, \"final_bar\": %.3f},\n"
-           "  \"sensor\": {\"max_age_ms\": %lu, \"shot_errors\": %lu},\n"
-           "  \"analysis\": {\n"
-           "    \"version\": 1,\n"
-           "    \"quality_score\": %d,\n"
-           "    \"sensor_confidence\": %d,\n"
-           "    \"reliable\": %s,\n"
-           "    \"quality\": \"%s\",\n"
-           "    \"diagnosis\": \"%s\",\n"
-           "    \"suggested_grind\": \"%s\",\n"
-           "    \"channeling_suspected\": %s,\n"
-           "    \"metrics\": {\"mean_absolute_error_bar\": %s, \"mean_error_bar\": %s, \"pressure_instability_bar\": %s, \"average_flow_g_s\": %s, \"flow_variation\": %s, \"drink_ratio\": %s, \"main_duration_s\": %s, \"pressure_drop_events\": %lu}\n"
-           "  },\n"
-           "  \"samples\": %u,\n"
-           "  \"csv\": \"shot-%06lu.csv\"\n"
-           "}\n",
-           static_cast<unsigned long>(id), timestamp_json.c_str(), pending_profile.c_str(),
-           last.elapsed_ms / 1000.0f, pending_brew_target_c, pending_dose_g,
-           last.weight_g, pending_target_weight_g, pending_preinfusion_s,
-           pending_pause_s, maximum_pressure, maximum_overshoot,
-           last.pressure_bar, static_cast<unsigned long>(maximum_sensor_age),
-           static_cast<unsigned long>(shot_errors),
-           analysis.score, analysis.sensor_confidence,
-           analysis.reliable ? "true" : "false", analysis.quality.c_str(),
-           analysis.diagnosis.c_str(), analysis.grind.c_str(),
-           analysis.channeling_suspected ? "true" : "false",
-           analysis_mae.c_str(), analysis_mean_error.c_str(),
-           analysis_instability.c_str(), analysis_flow.c_str(),
-           analysis_flow_variation.c_str(), analysis_drink_ratio.c_str(),
-           analysis_main_duration.c_str(),
-           static_cast<unsigned long>(analysis.pressure_drop_events),
-           static_cast<unsigned>(silvia_diag::last_shot.size()),
+  char csv_name[32];
+  snprintf(csv_name, sizeof(csv_name), "shot-%06lu.csv",
            static_cast<unsigned long>(id));
+
+  // Keep the multi-kilobyte summary off the ESPHome/FreeRTOS task stack.
+  // std::string owns its payload on the heap; only small string objects and
+  // the short CSV filename buffer remain on the stack while a shot is saved.
+  std::string json;
+  json.reserve(2200);
+  json += "{\n";
+  json += "  \"id\": " + std::to_string(id) + ",\n";
+  json += "  \"timestamp\": " + timestamp_json + ",\n";
+  json += "  \"profile\": \"" + pending_profile + "\",\n";
+  json += "  \"shot_duration_s\": " + json_number(last.elapsed_ms / 1000.0f) + ",\n";
+  json += "  \"brew_temperature_target_c\": " + json_number(pending_brew_target_c, 2) + ",\n";
+  json += "  \"coffee\": {\"dose_g\": " + json_number(pending_dose_g, 2) +
+          ", \"drink_weight_g\": " + json_number(last.weight_g) +
+          ", \"target_weight_g\": " + json_number(pending_target_weight_g, 2) + "},\n";
+  json += "  \"preinfusion\": {\"pump_s\": " + json_number(pending_preinfusion_s, 2) +
+          ", \"pause_s\": " + json_number(pending_pause_s, 2) + "},\n";
+  json += "  \"pressure\": {\"maximum_bar\": " + json_number(maximum_pressure) +
+          ", \"maximum_overshoot_bar\": " + json_number(maximum_overshoot) +
+          ", \"final_bar\": " + json_number(last.pressure_bar) + "},\n";
+  json += "  \"sensor\": {\"max_age_ms\": " + std::to_string(maximum_sensor_age) +
+          ", \"shot_errors\": " + std::to_string(shot_errors) + "},\n";
+  json += "  \"analysis\": {\n";
+  json += "    \"version\": 1,\n";
+  json += "    \"quality_score\": " + std::to_string(analysis.score) + ",\n";
+  json += "    \"sensor_confidence\": " + std::to_string(analysis.sensor_confidence) + ",\n";
+  json += std::string("    \"reliable\": ") + (analysis.reliable ? "true" : "false") + ",\n";
+  json += "    \"quality\": \"" + analysis.quality + "\",\n";
+  json += "    \"diagnosis\": \"" + analysis.diagnosis + "\",\n";
+  json += "    \"suggested_grind\": \"" + analysis.grind + "\",\n";
+  json += std::string("    \"channeling_suspected\": ") +
+          (analysis.channeling_suspected ? "true" : "false") + ",\n";
+  json += "    \"metrics\": {\"mean_absolute_error_bar\": " + analysis_mae +
+          ", \"mean_error_bar\": " + analysis_mean_error +
+          ", \"pressure_instability_bar\": " + analysis_instability +
+          ", \"average_flow_g_s\": " + analysis_flow +
+          ", \"flow_variation\": " + analysis_flow_variation +
+          ", \"drink_ratio\": " + analysis_drink_ratio +
+          ", \"main_duration_s\": " + analysis_main_duration +
+          ", \"pressure_drop_events\": " +
+          std::to_string(analysis.pressure_drop_events) + "}\n";
+  json += "  },\n";
+  json += "  \"samples\": " + std::to_string(silvia_diag::last_shot.size()) + ",\n";
+  json += "  \"csv\": \"" + std::string(csv_name) + "\"\n";
+  json += "}\n";
   return json;
 }
 
