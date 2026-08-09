@@ -1578,57 +1578,10 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                   </div>
                 </section>
 
-                <details class="pump-legacy-details">
-                  <summary>Параметры старого старта pressure-профиля</summary>
-                  <div class="pump-legacy-content">
-                    <p class="pump-legacy-note">Эти сущности всё ещё есть в ESPHome, но текущий алгоритм pressure-профиля принудительно отменяет timed boost и использует мягкий старт из раздела «Давление». Поэтому оставляем их доступными для совместимости, но не ставим в основной блок.</p>
-
-                    <div class="temperature-setting-row pump-toggle-row">
-                      <div class="temperature-setting-copy">
-                        <b>Стартовый boost pressure-профиля</b>
-                        <small>Сохранённый переключатель старого алгоритма запуска.</small>
-                      </div>
-                      <label class="toggle-control"><input id="startupBoostEnabled" type="checkbox" onchange="updateSwitch(this,'Silvia Pressure Profile Startup Boost')"><i></i></label>
-                    </div>
-
-                    <div class="temperature-setting-row">
-                      <div class="temperature-setting-copy">
-                        <label for="startupBoostPower">Мощность boost</label>
-                        <small>Сохранённая мощность стартового импульса старой схемы.</small>
-                      </div>
-                      <div class="temperature-setting-control">
-                        <input id="startupBoostPower" type="number" min="0" max="100" step="5">
-                        <span>%</span>
-                      </div>
-                    </div>
-
-                    <div class="temperature-setting-row">
-                      <div class="temperature-setting-copy">
-                        <label for="startupBoostTime">Время boost</label>
-                        <small>Сохранённая длительность стартового импульса старой схемы.</small>
-                      </div>
-                      <div class="temperature-setting-control">
-                        <input id="startupBoostTime" type="number" min="0" max="500" step="10">
-                        <span>мс</span>
-                      </div>
-                    </div>
-
-                    <div class="temperature-setting-row">
-                      <div class="temperature-setting-copy">
-                        <label for="startupSettling">Стабилизация перед PI</label>
-                        <small>Сущность старой схемы перехода к PI. В текущем алгоритме переход выполняется по реакции давления или по защитному тайм-ауту.</small>
-                      </div>
-                      <div class="temperature-setting-control">
-                        <input id="startupSettling" type="number" min="0" max="1000" step="100">
-                        <span>мс</span>
-                      </div>
-                    </div>
-                  </div>
-                </details>
               </div>
 
               <div class="settings-actions pump-settings-save">
-                <button class="primary" onclick="saveNumberGroup(startupNums,tr('Настройки помпы сохранены'))">Сохранить настройки помпы</button>
+                <button class="primary" onclick="saveNumberGroup(pumpNums,tr('Настройки помпы сохранены'))">Сохранить настройки помпы</button>
               </div>
 
               <div class="settings-note">Защитный переход pressure-профиля к PI по тайм-ауту задаётся самой прошивкой и отдельной настройкой не является.</div>
@@ -2428,7 +2381,6 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       'silvia water level': ['waterLevelState', 'bool'],
       'silvia steam target': ['steamTargetLive', 'num'],
       'silvia backflush reminder shots': ['backflushReminderLive', 'num0'],
-      'silvia pressure profile startup boost': ['startupBoostEnabled', 'toggle'],
       'silvia pump start boost': ['pumpStartBoostEnabled', 'toggle'],
       'silvia scale auto tare': ['scaleAutoTare', 'toggle'],
       'silvia stop brew by weight': ['stopByWeight', 'toggle'],
@@ -2507,10 +2459,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       pressureSoftInfusionStartPower: 'Silvia Soft Infusion Start Power'
     };
 
-    const startupNums = {
-      startupBoostPower: 'Silvia Pressure Profile Startup Boost Power',
-      startupBoostTime: 'Silvia Pressure Profile Startup Boost Time',
-      startupSettling: 'Silvia Pressure Profile Startup Settling Time',
+    const pumpNums = {
       pumpRamp: 'Silvia Pump Ramp Time',
       pumpStartBoostTime: 'Silvia Pump Start Boost Time',
       pumpGateDelay: 'Silvia Pump Gate Delay',
@@ -2527,7 +2476,6 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     };
 
     const switchControls = {
-      startupBoostEnabled: 'Silvia Pressure Profile Startup Boost',
       pumpStartBoostEnabled: 'Silvia Pump Start Boost',
       scaleAutoTare: 'Silvia Scale Auto Tare',
       stopByWeight: 'Silvia Stop Brew By Weight',
@@ -12931,7 +12879,7 @@ if (card) {
       machineNums,
       temperatureNums,
       pressureNums,
-      startupNums,
+      pumpNums,
       scaleNums,
       backflushNums
     ];
@@ -13308,10 +13256,9 @@ if (card) {
           machineNums,
           temperatureNums,
           pressureNums,
-          startupNums
+          pumpNums
         ]),
         loadSwitchControls([
-          'startupBoostEnabled',
           'pumpStartBoostEnabled'
         ])
       ]);

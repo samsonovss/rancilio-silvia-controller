@@ -520,41 +520,6 @@ globals:
     restore_value: no
     initial_value: '0'
 
-  - id: silvia_pressure_profile_startup_boost_enabled
-    type: bool
-    restore_value: yes
-    initial_value: 'false'
-
-  - id: active_pressure_profile_startup_boost_enabled
-    type: bool
-    restore_value: no
-    initial_value: 'false'
-
-  - id: active_pressure_profile_startup_boost_power
-    type: float
-    restore_value: no
-    initial_value: '100.0f'
-
-  - id: active_pressure_profile_startup_boost_ms
-    type: uint32_t
-    restore_value: no
-    initial_value: '100'
-
-  - id: pressure_profile_startup_boost_pending
-    type: bool
-    restore_value: no
-    initial_value: 'false'
-
-  - id: active_pressure_profile_startup_settling_ms
-    type: uint32_t
-    restore_value: no
-    initial_value: '0'
-
-  - id: pressure_profile_startup_settling_until_ms
-    type: uint32_t
-    restore_value: no
-    initial_value: '0'
-
   - id: pressure_profile_startup_active
     type: bool
     restore_value: no
@@ -1077,42 +1042,6 @@ number:
     mode: slider
 
   - platform: template
-    name: "Silvia Pressure Profile Startup Boost Power"
-    id: silvia_pressure_profile_startup_boost_power
-    optimistic: true
-    restore_value: true
-    initial_value: 100
-    min_value: 0
-    max_value: 100
-    step: 5
-    unit_of_measurement: "%"
-    mode: slider
-
-  - platform: template
-    name: "Silvia Pressure Profile Startup Boost Time"
-    id: silvia_pressure_profile_startup_boost_ms
-    optimistic: true
-    restore_value: true
-    initial_value: 100
-    min_value: 0
-    max_value: 500
-    step: 10
-    unit_of_measurement: "ms"
-    mode: box
-
-  - platform: template
-    name: "Silvia Pressure Profile Startup Settling Time"
-    id: silvia_pressure_profile_startup_settling_ms
-    optimistic: true
-    restore_value: true
-    initial_value: 0
-    min_value: 0
-    max_value: 1000
-    step: 100
-    unit_of_measurement: "ms"
-    mode: box
-
-  - platform: template
     name: "Silvia Pump Ramp Time"
     id: silvia_pump_ramp_ms
     optimistic: true
@@ -1263,19 +1192,6 @@ switch:
     id: silvia_shot_diagnostics
     optimistic: true
     restore_mode: RESTORE_DEFAULT_OFF
-
-  - platform: template
-    name: "Silvia Pressure Profile Startup Boost"
-    id: silvia_pressure_profile_startup_boost
-    lambda: 'return id(silvia_pressure_profile_startup_boost_enabled);'
-    turn_on_action:
-      - lambda: |-
-          id(silvia_pressure_profile_startup_boost_enabled) = true;
-          id(silvia_pressure_profile_startup_boost).publish_state(true);
-    turn_off_action:
-      - lambda: |-
-          id(silvia_pressure_profile_startup_boost_enabled) = false;
-          id(silvia_pressure_profile_startup_boost).publish_state(false);
 
   - platform: template
     name: "Silvia Pump Start Boost"
@@ -1747,7 +1663,6 @@ script:
     then:
       - lambda: |-
           id(active_target_brew_pressure) = 0.0f;
-          id(pressure_profile_startup_settling_until_ms) = 0;
           id(pressure_profile_startup_active) = false;
           id(pressure_profile_pressure_dropped) = false;
           id(pressure_profile_drop_samples) = 0;
@@ -1799,11 +1714,7 @@ script:
                           phase.mode != silvia::ShotControlMode::PRESSURE && phase.start_boost
                               ? id(active_pump_start_boost_ms)
                               : 0);
-                      // Pressure profiles use the global soft-start envelope.
-                      // Disable the legacy timed boost so it cannot bypass the
-                      // configured starting power.
                       if (phase.mode == silvia::ShotControlMode::PRESSURE) {
-                        id(pressure_profile_startup_boost_pending) = false;
                         id(silvia_pump_dimmer).cancel_timed_override();
                       }
                   - repeat:
@@ -2250,21 +2161,10 @@ script:
                 id(active_preinfusion_boost_enabled) = id(silvia_preinfusion_boost_enabled);
                 id(active_main_brew_boost_enabled) = id(silvia_main_brew_boost_enabled);
                 id(active_pump_start_boost_ms) = (uint32_t) id(silvia_pump_start_boost_ms).state;
-                id(active_pressure_profile_startup_boost_enabled) =
-                    id(silvia_pressure_profile_startup_boost_enabled);
-                id(active_pressure_profile_startup_boost_power) =
-                    id(silvia_pressure_profile_startup_boost_power).state;
-                id(active_pressure_profile_startup_boost_ms) =
-                    (uint32_t) id(silvia_pressure_profile_startup_boost_ms).state;
-                id(active_pressure_profile_startup_settling_ms) =
-                    (uint32_t) id(silvia_pressure_profile_startup_settling_ms).state;
                 id(active_soft_infusion_seconds) =
                     id(silvia_soft_infusion_seconds).state;
                 id(active_soft_infusion_start_power) =
                     id(silvia_soft_infusion_start_power).state;
-                id(pressure_profile_startup_boost_pending) =
-                    id(active_pressure_profile_startup_boost_enabled) &&
-                    id(active_pressure_profile_startup_boost_ms) > 0;
                 auto shot_profile = silvia::build_shot_profile(
                     profile,
                     id(active_preinfusion_pump_seconds),
@@ -2317,7 +2217,6 @@ script:
                 id(pressure_profile_rise_samples) = 0;
                 id(pressure_profile_startup_started_ms) = millis();
                 id(pressure_profile_handoff_active) = false;
-                id(pressure_profile_startup_settling_until_ms) = 0;
             - if:
                 condition:
                   lambda: 'return ${use_pump_dimmer};'
