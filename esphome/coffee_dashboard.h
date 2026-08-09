@@ -2358,28 +2358,28 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     #shotQualityCard.good{border-left-color:#4bb77f}
     #shotQualityCard.acceptable{border-left-color:#d4a94d}
     #shotQualityCard.poor,#shotQualityCard.sensor_fault{border-left-color:#df6558}
-    .shot-quality-main{min-width:0;display:grid;grid-template-columns:52px minmax(0,1fr) auto;align-items:center;gap:10px;padding:9px 10px}
-    .shot-quality-score{width:46px;height:46px;display:grid;place-items:center;border:1px solid #44515d;border-radius:50%;background:#171e24;color:#dce5ec;font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
+    .shot-quality-main{min-width:0;display:grid;grid-template-columns:56px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 11px}
+    .shot-quality-score{width:50px;height:50px;display:grid;place-items:center;border:1px solid #44515d;border-radius:50%;background:#171e24;color:#dce5ec;font-size:var(--zone-font-value,22px);font-weight:800;font-variant-numeric:tabular-nums}
     #shotQualityCard.good .shot-quality-score{border-color:#3d7558;color:#8ae1ad}
     #shotQualityCard.acceptable .shot-quality-score{border-color:#725f31;color:#edc96f}
     #shotQualityCard.poor .shot-quality-score,#shotQualityCard.sensor_fault .shot-quality-score{border-color:#754147;color:#f08a83}
     .shot-quality-copy{min-width:0}
-    .shot-quality-copy small{display:block;color:#7f8c98;font-size:9px;font-weight:700;letter-spacing:.055em;text-transform:uppercase}
-    .shot-quality-copy b{display:block;margin-top:1px;color:#dce4eb;font-size:13px;line-height:1.25}
-    .shot-quality-copy p{margin:3px 0 0;overflow:hidden;color:#8f9ba6;font-size:10px;line-height:1.35;text-overflow:ellipsis;white-space:nowrap}
-    .shot-quality-toggle{min-height:31px;padding:6px 9px;border:1px solid #3b4651;background:#1d242b;color:#b8c2cc;font-size:10px}
+    .shot-quality-copy small{display:block;color:#7f8c98;font-size:var(--zone-font-small,12px);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+    .shot-quality-copy b{display:block;margin-top:2px;color:#dce4eb;font-size:var(--zone-font-text,14px);line-height:1.3}
+    .shot-quality-copy p{margin:4px 0 0;overflow:hidden;color:#8f9ba6;font-size:var(--zone-font-small,12px);line-height:1.4;text-overflow:ellipsis;white-space:nowrap}
+    .shot-quality-toggle{min-height:34px;padding:7px 10px;border:1px solid #3b4651;background:#1d242b;color:#b8c2cc;font-size:var(--zone-font-small,12px)}
     .shot-quality-details{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;border-top:1px solid #2b353e;background:#2b353e}
-    .shot-quality-details>div{min-width:0;padding:8px 9px;background:#11171c}
+    .shot-quality-details>div{min-width:0;padding:10px 11px;background:#11171c}
     .shot-quality-details span,.shot-quality-details b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .shot-quality-details span{color:#788591;font-size:9px}
-    .shot-quality-details b{margin-top:3px;color:#cfd8e0;font-size:11px;font-weight:650}
+    .shot-quality-details span{color:#788591;font-size:var(--zone-font-small,12px);line-height:1.3}
+    .shot-quality-details b{margin-top:4px;color:#cfd8e0;font-size:var(--zone-font-text,14px);font-weight:650;line-height:1.3}
     .archive-row-open{position:relative;padding-right:46px}
-    .archive-row-quality{position:absolute;top:9px;right:9px;min-width:28px;height:22px;display:grid;place-items:center;padding:0 5px;border:1px solid #45515d;border-radius:999px;background:#202831;color:#b8c3ce;font-size:10px;font-weight:800;font-variant-numeric:tabular-nums}
+    .archive-row-quality{position:absolute;top:9px;right:9px;min-width:32px;height:24px;display:grid;place-items:center;padding:0 6px;border:1px solid #45515d;border-radius:999px;background:#202831;color:#b8c3ce;font-size:var(--zone-font-small,12px);font-weight:800;font-variant-numeric:tabular-nums}
     .archive-row-quality.good{border-color:#386a50;color:#7bdca2}
     .archive-row-quality.acceptable{border-color:#6a592f;color:#e7c46c}
     .archive-row-quality.poor,.archive-row-quality.sensor_fault{border-color:#6d3e44;color:#ee8580}
     @media (max-width:620px){.shot-quality-details{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media (max-width:430px){.shot-quality-main{grid-template-columns:46px minmax(0,1fr)}.shot-quality-score{width:42px;height:42px;font-size:16px}.shot-quality-toggle{grid-column:1/-1;width:100%}.shot-quality-copy p{white-space:normal}.shot-quality-details{grid-template-columns:minmax(0,1fr)}}
+    @media (max-width:430px){.shot-quality-main{grid-template-columns:52px minmax(0,1fr)}.shot-quality-score{width:46px;height:46px;font-size:var(--zone-font-value,22px)}.shot-quality-toggle{grid-column:1/-1;width:100%}.shot-quality-copy p{white-space:normal}.shot-quality-details{grid-template-columns:minmax(0,1fr)}}
 
 
     /* Stage 170: reuse the auto-off line for the live shot phase timer. */
