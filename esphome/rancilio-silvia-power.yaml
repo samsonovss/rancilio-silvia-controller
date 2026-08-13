@@ -26,11 +26,6 @@ esphome:
             id: silvia_shot_profile
             option: "Classic"
         - lambda: |-
-            id(silvia_pump_dimmer).set_start_boost_ms(
-                id(silvia_pump_start_boost_enabled) ? (uint32_t) id(silvia_pump_start_boost_ms).state : 0);
-            id(silvia_pump_dimmer).set_ramp_ms((uint32_t) id(silvia_pump_ramp_ms).state);
-            id(silvia_pump_dimmer).set_gate_delay_us((uint32_t) id(silvia_pump_gate_delay_us).state);
-            id(silvia_pump_dimmer).set_gate_pulse_us((uint32_t) id(silvia_pump_gate_pulse_us).state);
             id(silvia_brew_shot_remaining).publish_state(0);
             id(silvia_brew_shot_status).publish_state("Ожидание");
             id(silvia_backflush_status).update();
@@ -430,11 +425,6 @@ globals:
     restore_value: no
     initial_value: 'false'
 
-  - id: silvia_pump_start_boost_enabled
-    type: bool
-    restore_value: yes
-    initial_value: 'false'
-
   - id: pid_autotune_running
     type: bool
     restore_value: no
@@ -505,21 +495,6 @@ globals:
     restore_value: no
     initial_value: '0.0f'
 
-  - id: active_preinfusion_boost_enabled
-    type: bool
-    restore_value: no
-    initial_value: 'false'
-
-  - id: active_main_brew_boost_enabled
-    type: bool
-    restore_value: no
-    initial_value: 'false'
-
-  - id: active_pump_start_boost_ms
-    type: uint32_t
-    restore_value: no
-    initial_value: '0'
-
   - id: pressure_profile_startup_active
     type: bool
     restore_value: no
@@ -544,26 +519,6 @@ globals:
     type: uint32_t
     restore_value: no
     initial_value: '0'
-
-  - id: pressure_profile_handoff_started_ms
-    type: uint32_t
-    restore_value: no
-    initial_value: '0'
-
-  - id: pressure_profile_handoff_active
-    type: bool
-    restore_value: no
-    initial_value: 'false'
-
-  - id: silvia_preinfusion_boost_enabled
-    type: bool
-    restore_value: yes
-    initial_value: 'false'
-
-  - id: silvia_main_brew_boost_enabled
-    type: bool
-    restore_value: yes
-    initial_value: 'false'
 
   - id: hot_water_running
     type: bool
@@ -1042,75 +997,6 @@ number:
     mode: slider
 
   - platform: template
-    name: "Silvia Pump Ramp Time"
-    id: silvia_pump_ramp_ms
-    optimistic: true
-    restore_value: true
-    initial_value: 800
-    min_value: 0
-    max_value: 3000
-    step: 50
-    unit_of_measurement: "ms"
-    mode: box
-    on_value:
-      then:
-        - lambda: |-
-            if (!id(brew_shot_running)) {
-              id(silvia_pump_dimmer).set_ramp_ms((uint32_t) x);
-            }
-
-  - platform: template
-    name: "Silvia Pump Start Boost Time"
-    id: silvia_pump_start_boost_ms
-    optimistic: true
-    restore_value: true
-    initial_value: 100
-    min_value: 0
-    max_value: 1000
-    step: 10
-    unit_of_measurement: "ms"
-    mode: box
-    on_value:
-      then:
-        - lambda: |-
-            if (!id(brew_shot_running)) {
-              id(silvia_pump_dimmer).set_start_boost_ms(
-                  id(silvia_pump_start_boost_enabled) ? (uint32_t) x : 0);
-            }
-
-  - platform: template
-    name: "Silvia Pump Gate Delay"
-    id: silvia_pump_gate_delay_us
-    optimistic: true
-    restore_value: true
-    initial_value: 100
-    min_value: 10
-    max_value: 1000
-    step: 10
-    unit_of_measurement: "us"
-    mode: box
-    on_value:
-      then:
-        - lambda: |-
-            id(silvia_pump_dimmer).set_gate_delay_us((uint32_t) x);
-
-  - platform: template
-    name: "Silvia Pump Gate Pulse"
-    id: silvia_pump_gate_pulse_us
-    optimistic: true
-    restore_value: true
-    initial_value: 300
-    min_value: 50
-    max_value: 1000
-    step: 10
-    unit_of_measurement: "us"
-    mode: box
-    on_value:
-      then:
-        - lambda: |-
-            id(silvia_pump_dimmer).set_gate_pulse_us((uint32_t) x);
-
-  - platform: template
     name: "Silvia Brew Target"
     id: silvia_brew_target
     optimistic: true
@@ -1192,79 +1078,6 @@ switch:
     id: silvia_shot_diagnostics
     optimistic: true
     restore_mode: RESTORE_DEFAULT_OFF
-
-  - platform: template
-    name: "Silvia Pump Start Boost"
-    id: silvia_pump_start_boost
-    lambda: 'return id(silvia_pump_start_boost_enabled);'
-    turn_on_action:
-      - lambda: |-
-          id(silvia_pump_start_boost_enabled) = true;
-          id(silvia_pump_start_boost).publish_state(true);
-          id(silvia_pump_dimmer).set_start_boost_ms((uint32_t) id(silvia_pump_start_boost_ms).state);
-    turn_off_action:
-      - lambda: |-
-          id(silvia_pump_start_boost_enabled) = false;
-          id(silvia_pump_start_boost).publish_state(false);
-          id(silvia_pump_dimmer).set_start_boost_ms(0);
-
-  - platform: template
-    name: "Silvia Preinfusion Boost"
-    id: silvia_preinfusion_boost
-    lambda: 'return id(silvia_preinfusion_boost_enabled);'
-    turn_on_action:
-      - lambda: |-
-          id(silvia_preinfusion_boost_enabled) = true;
-          id(silvia_preinfusion_boost).publish_state(true);
-      - if:
-          condition:
-            lambda: 'return !id(shot_profile_applying) && id(silvia_shot_profile).current_option() != "Custom";'
-          then:
-            - select.set:
-                id: silvia_shot_profile
-                option: "Custom"
-      - component.update: silvia_shot_profile_preview
-    turn_off_action:
-      - lambda: |-
-          id(silvia_preinfusion_boost_enabled) = false;
-          id(silvia_preinfusion_boost).publish_state(false);
-      - if:
-          condition:
-            lambda: 'return !id(shot_profile_applying) && id(silvia_shot_profile).current_option() != "Custom";'
-          then:
-            - select.set:
-                id: silvia_shot_profile
-                option: "Custom"
-      - component.update: silvia_shot_profile_preview
-
-  - platform: template
-    name: "Silvia Main Brew Boost"
-    id: silvia_main_brew_boost
-    lambda: 'return id(silvia_main_brew_boost_enabled);'
-    turn_on_action:
-      - lambda: |-
-          id(silvia_main_brew_boost_enabled) = true;
-          id(silvia_main_brew_boost).publish_state(true);
-      - if:
-          condition:
-            lambda: 'return !id(shot_profile_applying) && id(silvia_shot_profile).current_option() != "Custom";'
-          then:
-            - select.set:
-                id: silvia_shot_profile
-                option: "Custom"
-      - component.update: silvia_shot_profile_preview
-    turn_off_action:
-      - lambda: |-
-          id(silvia_main_brew_boost_enabled) = false;
-          id(silvia_main_brew_boost).publish_state(false);
-      - if:
-          condition:
-            lambda: 'return !id(shot_profile_applying) && id(silvia_shot_profile).current_option() != "Custom";'
-          then:
-            - select.set:
-                id: silvia_shot_profile
-                option: "Custom"
-      - component.update: silvia_shot_profile_preview
 
   - platform: template
     # Historical HA-facing name; there is no physical power relay in the 2-relay design.
@@ -1632,11 +1445,7 @@ script:
             lambda: 'return ${use_pump_dimmer};'
           then:
             - lambda: |-
-                id(silvia_pump_dimmer).set_ramp_ms((uint32_t) id(silvia_pump_ramp_ms).state);
-                id(silvia_pump_dimmer).set_start_boost_ms(
-                    id(silvia_pump_start_boost_enabled)
-                        ? (uint32_t) id(silvia_pump_start_boost_ms).state
-                        : 0);
+                id(silvia_pump_dimmer).set_ramp_ms(800);
 
   - id: pump_output_on
     mode: restart
@@ -1667,8 +1476,6 @@ script:
           id(pressure_profile_pressure_dropped) = false;
           id(pressure_profile_drop_samples) = 0;
           id(pressure_profile_rise_samples) = 0;
-          id(pressure_profile_handoff_active) = false;
-          id(silvia_pump_dimmer).cancel_timed_override();
       - if:
           condition:
             lambda: 'return ${use_pump_dimmer};'
@@ -1708,15 +1515,6 @@ script:
                 condition:
                   lambda: 'return ${use_pump_dimmer};'
                 then:
-                  - lambda: |-
-                      const auto &phase = silvia::active_shot_phases[id(active_shot_phase_index)];
-                      id(silvia_pump_dimmer).set_start_boost_ms(
-                          phase.mode != silvia::ShotControlMode::PRESSURE && phase.start_boost
-                              ? id(active_pump_start_boost_ms)
-                              : 0);
-                      if (phase.mode == silvia::ShotControlMode::PRESSURE) {
-                        id(silvia_pump_dimmer).cancel_timed_override();
-                      }
                   - repeat:
                       count: !lambda |-
                         const auto &phase = silvia::active_shot_phases[id(active_shot_phase_index)];
@@ -1743,7 +1541,6 @@ script:
                                     float diag_p_term = 0.0f;
                                     float diag_i_term = 0.0f;
                                     float diag_pi_output = 0.0f;
-                                    float diag_handoff_percent = 0.0f;
                                     float diag_time_to_target = -1.0f;
                                     float diag_soft_start_limit = 100.0f;
                                     float diag_desired_pressure_slope = 0.0f;
@@ -1881,8 +1678,6 @@ script:
                                               ? silvia_diag::TransitionReason::PRESSURE_RESPONSE
                                               : silvia_diag::TransitionReason::TIMEOUT_2S;
                                           id(pressure_profile_startup_active) = false;
-                                          id(pressure_profile_handoff_active) = false;
-                                          id(pressure_profile_handoff_started_ms) = now;
                                           if (sensor_ok) {
                                             id(pressure_control_incremental_drive) =
                                                 soft_start_limit;
@@ -1896,7 +1691,6 @@ script:
                                             id(pressure_control_adaptive_feed_forward) = 0.0f;
                                             id(pressure_control_incremental_drive) = 0.0f;
                                             id(pressure_control_incremental_initialized) = false;
-                                            id(pressure_profile_handoff_active) = false;
                                           }
                                         }
                                       }
@@ -1998,16 +1792,6 @@ script:
                                               pressure_recovery_boost;
                                           diag_pi_output = candidate_drive;
                                           diag_pi_enabled = true;
-                                          diag_handoff_percent = 100.0f;
-                                        } else if (id(pressure_profile_handoff_active)) {
-                                          // Never hold full pump output if pressure feedback
-                                          // becomes invalid during the handoff.
-                                          id(pressure_profile_handoff_active) = false;
-                                          id(pressure_control_integral) = 0.0f;
-                                          id(pressure_control_adaptive_feed_forward) = 0.0f;
-                                          id(pressure_control_incremental_drive) = 0.0f;
-                                          id(pressure_control_incremental_initialized) = false;
-                                          drive = 0.0f;
                                         } else {
                                           id(pressure_control_integral) = 0.0f;
                                           id(pressure_control_adaptive_feed_forward) = 0.0f;
@@ -2016,8 +1800,7 @@ script:
                                           drive = 0.0f;
                                         }
                                       }
-                                      if (!sensor_ok && !id(pressure_profile_startup_active) &&
-                                          !id(pressure_profile_handoff_active)) {
+                                      if (!sensor_ok && !id(pressure_profile_startup_active)) {
                                         id(pressure_control_integral) = 0.0f;
                                         id(pressure_control_adaptive_feed_forward) = 0.0f;
                                         id(pressure_control_incremental_drive) = 0.0f;
@@ -2030,12 +1813,8 @@ script:
                                         diag_startup_state = id(pressure_profile_pressure_dropped)
                                             ? silvia_diag::StartupState::WAIT_RISE
                                             : silvia_diag::StartupState::WAIT_DROP;
-                                      } else if (id(pressure_profile_handoff_active)) {
-                                        diag_startup_state = silvia_diag::StartupState::HANDOFF;
                                       } else {
                                         diag_startup_state = silvia_diag::StartupState::PI;
-                                        if (diag_pi_enabled)
-                                          diag_handoff_percent = 100.0f;
                                       }
                                     }
                                     silvia_diag::record(silvia_diag::ShotSample{
@@ -2063,7 +1842,6 @@ script:
                                         diag_p_term,
                                         diag_i_term,
                                         diag_pi_output,
-                                        diag_handoff_percent,
                                         drive * 100.0f,
                                         id(brew_temperature_feed_forward_value) * 100.0f,
                                         id(silvia_pressure_sensor_temperature).state,
@@ -2128,7 +1906,7 @@ script:
                           id(silvia_brew_valve_relay).state,
                           silvia_diag::StartupState::PUMP_OFF,
                           silvia_diag::last_transition_reason,
-                          0, 0, false, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                          0, 0, false, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
                           id(brew_temperature_feed_forward_value) * 100.0f,
                           id(silvia_pressure_sensor_temperature).state,
                           id(silvia_boiler_temp_pt100).state,
@@ -2158,9 +1936,6 @@ script:
                 id(active_preinfusion_pump_power) = id(silvia_preinfusion_pump_power).state;
                 id(active_main_brew_pump_power) = id(silvia_main_brew_pump_power).state;
                 id(active_end_brew_pump_power) = id(silvia_end_brew_pump_power).state;
-                id(active_preinfusion_boost_enabled) = id(silvia_preinfusion_boost_enabled);
-                id(active_main_brew_boost_enabled) = id(silvia_main_brew_boost_enabled);
-                id(active_pump_start_boost_ms) = (uint32_t) id(silvia_pump_start_boost_ms).state;
                 id(active_soft_infusion_seconds) =
                     id(silvia_soft_infusion_seconds).state;
                 id(active_soft_infusion_start_power) =
@@ -2172,9 +1947,7 @@ script:
                     id(active_brew_shot_seconds),
                     id(active_preinfusion_pump_power),
                     id(active_main_brew_pump_power),
-                    id(active_end_brew_pump_power),
-                    id(active_preinfusion_boost_enabled),
-                    id(active_main_brew_boost_enabled));
+                    id(active_end_brew_pump_power));
                 silvia::active_shot_phases = shot_profile.phases;
                 id(brew_shot_running) = true;
                 id(silvia_scale_post_shot_tare_armed) = false;
@@ -2187,7 +1960,11 @@ script:
                 id(hot_water_running) = false;
                 id(silvia_brew_shot_remaining).publish_state(0);
                 id(silvia_brew_shot_status).publish_state("Запуск");
-                silvia_diag::begin_shot(id(silvia_shot_diagnostics).state, millis());
+                const bool training_collection =
+                    silvia_archive::training_collection_enabled;
+                silvia_diag::begin_shot(
+                    id(silvia_shot_diagnostics).state || training_collection,
+                    millis());
                 silvia_archive::begin_metadata(
                     id(silvia_shot_profile).current_option(),
                     id(silvia_brew_target).state,
@@ -2198,7 +1975,8 @@ script:
                     id(active_brew_shot_seconds),
                     id(silvia_time).now().is_valid()
                         ? static_cast<uint32_t>(id(silvia_time).now().timestamp)
-                        : 0U);
+                        : 0U,
+                    training_collection);
             - switch.turn_on: silvia_brew_valve_relay
             - lambda: |-
                 id(pressure_control_integral) = 0.0f;
@@ -2216,14 +1994,12 @@ script:
                 id(pressure_profile_drop_samples) = 0;
                 id(pressure_profile_rise_samples) = 0;
                 id(pressure_profile_startup_started_ms) = millis();
-                id(pressure_profile_handoff_active) = false;
             - if:
                 condition:
                   lambda: 'return ${use_pump_dimmer};'
                 then:
                   - lambda: |-
                       id(silvia_pump_dimmer).set_ramp_ms(0);
-                      id(silvia_pump_dimmer).set_start_boost_ms(0);
             - repeat:
                 count: !lambda |-
                   return (int) silvia::active_shot_phases.size();
@@ -3533,7 +3309,6 @@ output:
     max_zero_cross_interval_us: 13000
     gate_delay_us: 100
     gate_pulse_us: 300
-    start_boost_ms: 0
     ramp_ms: 800
     zero_cross_pin:
       number: ${pump_dimmer_zero_cross_pin}
@@ -3715,8 +3490,6 @@ select:
             - number.set:
                 id: silvia_end_brew_pump_power
                 value: 9.0
-            - switch.turn_off: silvia_preinfusion_boost
-            - switch.turn_off: silvia_main_brew_boost
       - if:
           condition:
             lambda: 'return x == "Lever";'
@@ -3739,8 +3512,6 @@ select:
             - number.set:
                 id: silvia_end_brew_pump_power
                 value: 6.0
-            - switch.turn_off: silvia_preinfusion_boost
-            - switch.turn_off: silvia_main_brew_boost
       - if:
           condition:
             lambda: 'return x == "Slayer Style";'
@@ -3763,8 +3534,6 @@ select:
             - number.set:
                 id: silvia_end_brew_pump_power
                 value: 7.0
-            - switch.turn_off: silvia_preinfusion_boost
-            - switch.turn_off: silvia_main_brew_boost
       - if:
           condition:
             lambda: 'return x == "Bloom";'
@@ -3787,8 +3556,6 @@ select:
             - number.set:
                 id: silvia_end_brew_pump_power
                 value: 8.0
-            - switch.turn_off: silvia_preinfusion_boost
-            - switch.turn_off: silvia_main_brew_boost
       # number.set publishes its on_value actions asynchronously. Keep the
       # guard active until those callbacks have completed, otherwise they
       # immediately turn a freshly selected preset back into Custom.

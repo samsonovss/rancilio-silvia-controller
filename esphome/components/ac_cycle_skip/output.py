@@ -25,7 +25,6 @@ CONF_MIN_ZERO_CROSS_INTERVAL_US = "min_zero_cross_interval_us"
 CONF_MAX_ZERO_CROSS_INTERVAL_US = "max_zero_cross_interval_us"
 CONF_GATE_DELAY_US = "gate_delay_us"
 CONF_GATE_PULSE_US = "gate_pulse_us"
-CONF_START_BOOST_MS = "start_boost_ms"
 CONF_RAMP_MS = "ramp_ms"
 
 
@@ -75,9 +74,6 @@ CONFIG_SCHEMA = cv.All(
             cv.Optional(CONF_GATE_PULSE_US, default=300): cv.int_range(
                 min=50, max=1000
             ),
-            cv.Optional(CONF_START_BOOST_MS, default=0): cv.int_range(
-                min=0, max=1000
-            ),
             cv.Optional(CONF_RAMP_MS, default=800): cv.int_range(min=0, max=5000),
         }
     ).extend(cv.COMPONENT_SCHEMA),
@@ -100,5 +96,4 @@ async def to_code(config):
     cg.add(var.set_max_zero_cross_interval_us(config[CONF_MAX_ZERO_CROSS_INTERVAL_US]))
     cg.add(var.set_gate_delay_us(config[CONF_GATE_DELAY_US]))
     cg.add(var.set_gate_pulse_us(config[CONF_GATE_PULSE_US]))
-    cg.add(var.set_start_boost_ms(config[CONF_START_BOOST_MS]))
     cg.add(var.set_ramp_ms(config[CONF_RAMP_MS]))

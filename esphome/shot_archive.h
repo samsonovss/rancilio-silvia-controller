@@ -23,8 +23,11 @@ static constexpr const char *TAG = "shot_archive";
 static constexpr const char *BASE_PATH = "/shots";
 static constexpr const char *PARTITION = "shots_archive";
 static constexpr size_t MAX_LOCAL_SHOTS = 80;
+static constexpr size_t MIN_FREE_BYTES = 64U * 1024U;
+static constexpr const char *TRAINING_SETTINGS_PATH = "/shots/training.conf";
 
 inline bool mounted = false;
+inline bool training_collection_enabled = true;
 inline uint32_t last_saved_started_ms = 0;
 inline std::string last_save_status = "not_attempted";
 inline std::string pending_profile = "Unknown";
@@ -35,11 +38,13 @@ inline float pending_preinfusion_s = NAN;
 inline float pending_pause_s = NAN;
 inline float pending_main_s = NAN;
 inline uint32_t pending_timestamp = 0;
+inline bool pending_training_collection = false;
 
 inline void begin_metadata(const std::string &profile, float brew_target_c,
                            float dose_g, float target_weight_g,
                            float preinfusion_s, float pause_s, float main_s,
-                           uint32_t timestamp = 0) {
+                           uint32_t timestamp = 0,
+                           bool training_collection = false) {
   pending_profile = profile;
   pending_brew_target_c = brew_target_c;
   pending_dose_g = dose_g;
@@ -48,6 +53,7 @@ inline void begin_metadata(const std::string &profile, float brew_target_c,
   pending_pause_s = pause_s;
   pending_main_s = main_s;
   pending_timestamp = timestamp;
+  pending_training_collection = training_collection;
 }
 
 inline std::vector<uint32_t> list_ids() {
@@ -76,13 +82,49 @@ inline std::string path_for(uint32_t id, const char *extension) {
   return path;
 }
 
-inline void prune_oldest() {
-  auto ids = list_ids();
-  while (ids.size() >= MAX_LOCAL_SHOTS) {
-    const uint32_t id = ids.front();
-    std::remove(path_for(id, "csv").c_str());
-    std::remove(path_for(id, "json").c_str());
-    ids.erase(ids.begin());
+inline bool file_exists(const std::string &path) {
+  struct stat info {};
+  return stat(path.c_str(), &info) == 0;
+}
+
+inline bool is_pinned(uint32_t id) {
+  return file_exists(path_for(id, "pin"));
+}
+
+inline void remove_shot_files(uint32_t id) {
+  std::remove(path_for(id, "csv").c_str());
+  std::remove(path_for(id, "json").c_str());
+  std::remove(path_for(id, "train").c_str());
+  std::remove(path_for(id, "pin").c_str());
+}
+
+inline bool remove_oldest_unpinned() {
+  const auto ids = list_ids();
+  for (const uint32_t id : ids) {
+    if (is_pinned(id))
+      continue;
+    remove_shot_files(id);
+    ESP_LOGI(TAG, "Pruned local shot %06lu", static_cast<unsigned long>(id));
+    return true;
+  }
+  return false;
+}
+
+inline bool ensure_capacity(size_t required_bytes) {
+  while (list_ids().size() >= MAX_LOCAL_SHOTS) {
+    if (!remove_oldest_unpinned())
+      return false;
+  }
+  while (true) {
+    size_t total = 0;
+    size_t used = 0;
+    if (esp_littlefs_info(PARTITION, &total, &used) != ESP_OK)
+      return true;
+    const size_t free_bytes = total > used ? total - used : 0;
+    if (free_bytes >= required_bytes + MIN_FREE_BYTES)
+      return true;
+    if (!remove_oldest_unpinned())
+      return false;
   }
 }
 
@@ -100,6 +142,12 @@ inline bool mount() {
     return false;
   }
   mounted = true;
+  FILE *settings = fopen(TRAINING_SETTINGS_PATH, "rb");
+  if (settings != nullptr) {
+    const int value = fgetc(settings);
+    fclose(settings);
+    training_collection_enabled = value != '0';
+  }
   size_t total = 0;
   size_t used = 0;
   if (esp_littlefs_info(PARTITION, &total, &used) == ESP_OK)
@@ -109,7 +157,10 @@ inline bool mount() {
   return true;
 }
 
-inline bool write_atomic(const std::string &path, const std::string &contents) {
+template<typename Allocator>
+inline bool write_atomic(
+    const std::string &path,
+    const std::basic_string<char, std::char_traits<char>, Allocator> &contents) {
   // A shot is written only once, after capture has finished.  Writing the
   // final file directly avoids depending on VFS rename support and still
   // keeps the high-frequency capture path completely in PSRAM.
@@ -129,6 +180,10 @@ inline bool write_atomic(const std::string &path, const std::string &contents) {
   return true;
 }
 
+inline bool write_atomic(const std::string &path, const char *contents) {
+  return write_atomic(path, std::string(contents));
+}
+
 inline std::string json_number(float value, unsigned precision = 3) {
   if (!std::isfinite(value))
     return "null";
@@ -137,7 +192,55 @@ inline std::string json_number(float value, unsigned precision = 3) {
   return buffer;
 }
 
-inline std::string make_summary_json(uint32_t id) {
+inline std::string make_training_json(
+    uint32_t id,
+    const silvia_analysis::TrainingAssessment &training,
+    size_t csv_bytes) {
+  const std::string timestamp_json = pending_timestamp >= 1577836800U
+                                         ? std::to_string(pending_timestamp)
+                                         : "null";
+  std::string json;
+  json.reserve(760);
+  json += "{\"version\":1";
+  json += ",\"id\":" + std::to_string(id);
+  json += ",\"timestamp\":" + timestamp_json;
+  json += ",\"profile\":\"" + pending_profile + "\"";
+  json += std::string(",\"collected\":") +
+          (pending_training_collection ? "true" : "false");
+  json += ",\"status\":\"" + training.status + "\"";
+  json += std::string(",\"eligible\":") +
+          (training.eligible ? "true" : "false");
+  json += ",\"issues\":" + std::to_string(training.issues);
+  json += ",\"samples\":" + std::to_string(training.total_samples);
+  json += ",\"working_samples\":" +
+          std::to_string(training.working_samples);
+  json += ",\"valid_samples\":" +
+          std::to_string(training.valid_working_samples);
+  json += ",\"invalid_samples\":" +
+          std::to_string(training.invalid_working_samples);
+  json += ",\"usable_windows\":" +
+          std::to_string(training.usable_windows);
+  json += ",\"sensor_errors\":" +
+          std::to_string(training.sensor_errors);
+  json += ",\"max_sensor_age_ms\":" +
+          std::to_string(training.maximum_sensor_age_ms);
+  json += ",\"max_consecutive_errors\":" +
+          std::to_string(training.maximum_consecutive_errors);
+  json += ",\"max_sample_gap_ms\":" +
+          std::to_string(training.maximum_sample_gap_ms);
+  json += ",\"timeline_gaps\":" +
+          std::to_string(training.timeline_gap_events);
+  json += ",\"pressure_jumps\":" +
+          std::to_string(training.pressure_jump_events);
+  json += ",\"phase_mask\":" + std::to_string(training.phase_mask);
+  json += ",\"csv_bytes\":" + std::to_string(csv_bytes);
+  json += "}";
+  return json;
+}
+
+inline std::string make_summary_json(
+    uint32_t id,
+    const silvia_analysis::TrainingAssessment &training) {
   float maximum_pressure = 0.0f;
   float maximum_overshoot = 0.0f;
   uint32_t maximum_sensor_age = 0;
@@ -200,6 +303,18 @@ inline std::string make_summary_json(uint32_t id) {
           ", \"final_bar\": " + json_number(last.pressure_bar) + "},\n";
   json += "  \"sensor\": {\"max_age_ms\": " + std::to_string(maximum_sensor_age) +
           ", \"shot_errors\": " + std::to_string(shot_errors) + "},\n";
+  json += "  \"training\": {\"version\": 1, \"collected\": " +
+          std::string(pending_training_collection ? "true" : "false") +
+          ", \"status\": \"" + training.status +
+          "\", \"eligible\": " +
+          std::string(training.eligible ? "true" : "false") +
+          ", \"issues\": " + std::to_string(training.issues) +
+          ", \"usable_windows\": " +
+          std::to_string(training.usable_windows) +
+          ", \"valid_samples\": " +
+          std::to_string(training.valid_working_samples) +
+          ", \"invalid_samples\": " +
+          std::to_string(training.invalid_working_samples) + "},\n";
   json += "  \"analysis\": {\n";
   json += "    \"version\": 1,\n";
   json += "    \"quality_score\": " + std::to_string(analysis.score) + ",\n";
@@ -235,26 +350,91 @@ inline bool save_current_shot() {
     return false;
   if (silvia_diag::shot_started_ms == last_saved_started_ms)
     return false;
-  prune_oldest();
   auto ids = list_ids();
   const uint32_t id = ids.empty() ? 1 : ids.back() + 1;
-  const std::string csv = silvia_diag::make_csv();
+  const auto training =
+      silvia_analysis::assess_for_training(silvia_diag::last_shot);
+  const auto csv = silvia_diag::make_csv();
+  const std::string summary = make_summary_json(id, training);
+  const std::string training_json = make_training_json(id, training, csv.size());
+  const size_t required_bytes =
+      csv.size() + summary.size() + training_json.size() + 4096U;
+  if (!ensure_capacity(required_bytes)) {
+    last_save_status = "archive_full_pinned";
+    ESP_LOGE(TAG, "Cannot save shot: archive is full and all old shots are pinned");
+    return false;
+  }
   const std::string csv_path = path_for(id, "csv");
   const std::string json_path = path_for(id, "json");
+  const std::string training_path = path_for(id, "train");
   if (!write_atomic(csv_path, csv)) {
     ESP_LOGE(TAG, "Failed to save %s", csv_path.c_str());
     return false;
   }
-  if (!write_atomic(json_path, make_summary_json(id))) {
+  if (!write_atomic(json_path, summary)) {
     std::remove(csv_path.c_str());
     ESP_LOGE(TAG, "Failed to save %s", json_path.c_str());
     return false;
   }
+  if (!write_atomic(training_path, training_json)) {
+    std::remove(csv_path.c_str());
+    std::remove(json_path.c_str());
+    ESP_LOGE(TAG, "Failed to save %s", training_path.c_str());
+    return false;
+  }
   last_saved_started_ms = silvia_diag::shot_started_ms;
-  last_save_status = "saved:" + std::to_string(id);
-  ESP_LOGI(TAG, "Saved local shot %06lu (%u samples)",
+  last_save_status = "saved:" + std::to_string(id) + ":" + training.status;
+  ESP_LOGI(TAG, "Saved local shot %06lu (%u samples, training=%s, collected=%s)",
            static_cast<unsigned long>(id),
-           static_cast<unsigned>(silvia_diag::last_shot.size()));
+           static_cast<unsigned>(silvia_diag::last_shot.size()),
+           training.status.c_str(),
+           pending_training_collection ? "yes" : "no");
+  return true;
+}
+
+inline bool read_file(const std::string &path, std::string &content,
+                      size_t maximum_bytes = 4096U) {
+  FILE *file = fopen(path.c_str(), "rb");
+  if (file == nullptr)
+    return false;
+  fseek(file, 0, SEEK_END);
+  const long size = ftell(file);
+  rewind(file);
+  if (size < 0 || static_cast<size_t>(size) > maximum_bytes) {
+    fclose(file);
+    return false;
+  }
+  content.resize(static_cast<size_t>(size));
+  const bool ok = size == 0 ||
+                  fread(content.data(), 1, content.size(), file) == content.size();
+  fclose(file);
+  if (!ok)
+    content.clear();
+  return ok;
+}
+
+inline bool set_training_collection(bool enabled) {
+  if (!mounted)
+    return false;
+  if (!write_atomic(TRAINING_SETTINGS_PATH, enabled ? "1\n" : "0\n"))
+    return false;
+  training_collection_enabled = enabled;
+  return true;
+}
+
+inline bool parse_id_after(const std::string &url, const char *prefix,
+                           uint32_t &id) {
+  if (url.rfind(prefix, 0) != 0)
+    return false;
+  const std::string value = url.substr(strlen(prefix));
+  if (value.empty() ||
+      !std::all_of(value.begin(), value.end(),
+                   [](char c) { return c >= '0' && c <= '9'; }))
+    return false;
+  const unsigned long parsed = strtoul(value.c_str(), nullptr, 10);
+  if (parsed == 0 || parsed > UINT32_MAX)
+    return false;
+  id = static_cast<uint32_t>(parsed);
   return true;
 }
 
@@ -266,40 +446,159 @@ inline bool valid_archive_name(const std::string &name) {
          (strcmp(extension, "csv") == 0 || strcmp(extension, "json") == 0);
 }
 
+inline void stream_archive_file(AsyncWebServerRequest *request, FILE *file,
+                                const char *content_type) {
+  static constexpr size_t STREAM_CHUNK_SIZE = 1024;
+  char *chunk = static_cast<char *>(malloc(STREAM_CHUNK_SIZE));
+  if (chunk == nullptr) {
+    fclose(file);
+    ESP_LOGW(TAG, "Could not allocate archive streaming buffer");
+    request->send(500, "text/plain", "Archive streaming buffer unavailable");
+    return;
+  }
+
+  httpd_resp_set_status(*request, HTTPD_200);
+  httpd_resp_set_type(*request, content_type);
+  httpd_resp_set_hdr(*request, "Cache-Control", "no-store");
+  httpd_resp_set_hdr(*request, "Accept-Ranges", "none");
+
+  // Keep archive payloads out of std::string and the large transfer buffer off
+  // the deliberately small ESP-IDF HTTP task stack.
+  bool read_ok = true;
+  bool send_ok = true;
+  while (send_ok) {
+    const size_t count = fread(chunk, 1, STREAM_CHUNK_SIZE, file);
+    if (count > 0 && httpd_resp_send_chunk(*request, chunk, count) != ESP_OK) {
+      send_ok = false;
+      break;
+    }
+    if (count < STREAM_CHUNK_SIZE) {
+      read_ok = !ferror(file);
+      break;
+    }
+  }
+  fclose(file);
+  free(chunk);
+
+  if (read_ok && send_ok) {
+    httpd_resp_send_chunk(*request, nullptr, 0);
+  } else {
+    ESP_LOGW(TAG, "Archive streaming failed (read_ok=%s, send_ok=%s)",
+             read_ok ? "true" : "false", send_ok ? "true" : "false");
+  }
+}
+
 class ArchiveHandler : public AsyncWebHandler {
  public:
   bool canHandle(AsyncWebServerRequest *request) const override {
     char buffer[AsyncWebServerRequest::URL_BUF_SIZE];
     const std::string url = request->url_to(buffer);
     if (request->method() == HTTP_GET)
-      return url == "/shots/index.json" || url.rfind("/shots/file/", 0) == 0;
-    return request->method() == HTTP_POST && url.rfind("/shots/delete/", 0) == 0;
+      return url == "/shots/index.json" ||
+             url == "/training/index.json" ||
+             url.rfind("/shots/file/", 0) == 0;
+    return request->method() == HTTP_POST &&
+           (url == "/training/collection/on" ||
+            url == "/training/collection/off" ||
+            url.rfind("/training/pin/", 0) == 0 ||
+            url.rfind("/training/unpin/", 0) == 0 ||
+            url.rfind("/shots/delete/", 0) == 0);
   }
 
   void handleRequest(AsyncWebServerRequest *request) override {
     char buffer[AsyncWebServerRequest::URL_BUF_SIZE];
     const std::string url = request->url_to(buffer);
     if (request->method() == HTTP_POST) {
-      const std::string value = url.substr(strlen("/shots/delete/"));
-      if (value.empty() ||
-          !std::all_of(value.begin(), value.end(), [](char c) { return c >= '0' && c <= '9'; })) {
+      if (url == "/training/collection/on" ||
+          url == "/training/collection/off") {
+        const bool enabled = url == "/training/collection/on";
+        if (!set_training_collection(enabled)) {
+          request->send(500, "application/json",
+                        "{\"ok\":false,\"error\":\"settings_write_failed\"}");
+          return;
+        }
+        const std::string json =
+            std::string("{\"ok\":true,\"collection_enabled\":") +
+            (enabled ? "true}" : "false}");
+        auto *response = request->beginResponse(200, "application/json", json);
+        response->addHeader("Cache-Control", "no-store");
+        request->send(response);
+        return;
+      }
+
+      uint32_t id = 0;
+      const bool pin = parse_id_after(url, "/training/pin/", id);
+      const bool unpin = !pin && parse_id_after(url, "/training/unpin/", id);
+      if (pin || unpin) {
+        if (!file_exists(path_for(id, "csv"))) {
+          request->send(404, "application/json",
+                        "{\"ok\":false,\"error\":\"not_found\"}");
+          return;
+        }
+        const bool ok = pin
+                            ? write_atomic(path_for(id, "pin"), "1\n")
+                            : (std::remove(path_for(id, "pin").c_str()) == 0 ||
+                               !file_exists(path_for(id, "pin")));
+        if (!ok) {
+          request->send(500, "application/json",
+                        "{\"ok\":false,\"error\":\"pin_write_failed\"}");
+          return;
+        }
+        const std::string json =
+            std::string("{\"ok\":true,\"id\":") + std::to_string(id) +
+            ",\"pinned\":" + (pin ? "true}" : "false}");
+        auto *response = request->beginResponse(200, "application/json", json);
+        response->addHeader("Cache-Control", "no-store");
+        request->send(response);
+        return;
+      }
+
+      if (!parse_id_after(url, "/shots/delete/", id)) {
         request->send(400, "application/json", "{\"ok\":false,\"error\":\"invalid_id\"}");
         return;
       }
-      const unsigned long parsed = strtoul(value.c_str(), nullptr, 10);
-      if (parsed == 0 || parsed > UINT32_MAX) {
-        request->send(400, "application/json", "{\"ok\":false,\"error\":\"invalid_id\"}");
-        return;
-      }
-      const uint32_t id = static_cast<uint32_t>(parsed);
-      const bool csv_removed = std::remove(path_for(id, "csv").c_str()) == 0;
-      const bool json_removed = std::remove(path_for(id, "json").c_str()) == 0;
-      if (!csv_removed && !json_removed) {
+      const bool existed = file_exists(path_for(id, "csv")) ||
+                           file_exists(path_for(id, "json"));
+      if (!existed) {
         request->send(404, "application/json", "{\"ok\":false,\"error\":\"not_found\"}");
         return;
       }
+      remove_shot_files(id);
       ESP_LOGI(TAG, "Deleted local shot %06lu", static_cast<unsigned long>(id));
       auto *response = request->beginResponse(200, "application/json", "{\"ok\":true}");
+      response->addHeader("Cache-Control", "no-store");
+      request->send(response);
+      return;
+    }
+    if (url == "/training/index.json") {
+      const auto ids = list_ids();
+      size_t total = 0;
+      size_t used = 0;
+      esp_littlefs_info(PARTITION, &total, &used);
+      std::string json =
+          "{\"version\":1,\"collection_enabled\":" +
+          std::string(training_collection_enabled ? "true" : "false") +
+          ",\"storage\":{\"total_bytes\":" + std::to_string(total) +
+          ",\"used_bytes\":" + std::to_string(used) +
+          ",\"free_bytes\":" + std::to_string(total > used ? total - used : 0) +
+          "},\"records\":[";
+      bool first_record = true;
+      for (const uint32_t id : ids) {
+        std::string training;
+        if (!read_file(path_for(id, "train"), training, 2048U) || training.empty())
+          continue;
+        if (!first_record)
+          json += ',';
+        first_record = false;
+        json += "{\"pinned\":";
+        json += is_pinned(id) ? "true" : "false";
+        json += ",\"record\":";
+        json += training;
+        json += '}';
+      }
+      json += "]}";
+      auto *response = request->beginResponse(
+          200, "application/json; charset=utf-8", json);
       response->addHeader("Cache-Control", "no-store");
       request->send(response);
       return;
@@ -338,24 +637,10 @@ class ArchiveHandler : public AsyncWebHandler {
       request->send(404, "text/plain", "Archive file not found");
       return;
     }
-    fseek(file, 0, SEEK_END);
-    const long size = ftell(file);
-    rewind(file);
-    std::string content;
-    if (size > 0)
-      content.resize(static_cast<size_t>(size));
-    const bool ok = size >= 0 &&
-                    (size == 0 || fread(content.data(), 1, content.size(), file) == content.size());
-    fclose(file);
-    if (!ok) {
-      request->send(500, "text/plain", "Archive read failed");
-      return;
-    }
     const bool csv = name.size() > 4 && name.substr(name.size() - 4) == ".csv";
-    auto *response = request->beginResponse(
-        200, csv ? "text/csv; charset=utf-8" : "application/json; charset=utf-8", content);
-    response->addHeader("Cache-Control", "no-store");
-    request->send(response);
+    stream_archive_file(
+        request, file,
+        csv ? "text/csv; charset=utf-8" : "application/json; charset=utf-8");
   }
 };
 

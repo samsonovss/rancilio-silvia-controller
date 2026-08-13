@@ -59,37 +59,18 @@ void IRAM_ATTR HOT ACCycleSkipDataStore::reset_sync_(uint32_t now) {
   this->accumulator_q16 = 0;
 }
 
-uint32_t IRAM_ATTR HOT ACCycleSkipDataStore::update_target_(uint32_t now) {
+uint32_t IRAM_ATTR HOT ACCycleSkipDataStore::update_target_() {
   const uint32_t requested = this->requested_q16.load(std::memory_order_relaxed);
 
   if (requested == 0) {
     this->target_q16.store(0, std::memory_order_relaxed);
-    this->boost_until_us.store(0, std::memory_order_relaxed);
-    this->timed_override_duration_ms.store(0, std::memory_order_relaxed);
-    this->timed_override_until_us.store(0, std::memory_order_relaxed);
     return 0;
   }
 
-  const uint32_t override_until = this->timed_override_until_us.load(std::memory_order_relaxed);
-  if (override_until != 0 && static_cast<int32_t>(override_until - now) > 0) {
-    const uint32_t override_target = this->timed_override_q16.load(std::memory_order_relaxed);
-    this->target_q16.store(override_target, std::memory_order_relaxed);
-    return override_target;
-  }
-  this->timed_override_until_us.store(0, std::memory_order_relaxed);
-
   if (requested >= Q16_FULL) {
     this->target_q16.store(Q16_FULL, std::memory_order_relaxed);
-    this->boost_until_us.store(0, std::memory_order_relaxed);
     return Q16_FULL;
   }
-
-  const uint32_t boost_until = this->boost_until_us.load(std::memory_order_relaxed);
-  if (boost_until != 0 && static_cast<int32_t>(boost_until - now) > 0) {
-    this->target_q16.store(Q16_FULL, std::memory_order_relaxed);
-    return Q16_FULL;
-  }
-  this->boost_until_us.store(0, std::memory_order_relaxed);
 
   uint32_t target = this->target_q16.load(std::memory_order_relaxed);
   const uint32_t ramp_ms = this->ramp_ms.load(std::memory_order_relaxed);
@@ -157,7 +138,7 @@ void IRAM_ATTR HOT ACCycleSkipDataStore::gpio_intr() {
     return;
   }
 
-  const uint32_t target = this->update_target_(now);
+  const uint32_t target = this->update_target_();
   if (target == 0) {
     this->force_off_();
     this->accumulator_q16 = 0;
@@ -312,18 +293,12 @@ void ACCycleSkipOutput::on_shutdown() {
     this->gate_pin_->digital_write(false);
   this->store_.requested_q16.store(0, std::memory_order_relaxed);
   this->store_.target_q16.store(0, std::memory_order_relaxed);
-  this->store_.boost_until_us.store(0, std::memory_order_relaxed);
-  this->store_.timed_override_duration_ms.store(0, std::memory_order_relaxed);
-  this->store_.timed_override_until_us.store(0, std::memory_order_relaxed);
 }
 
 void ACCycleSkipOutput::write_state(float state) {
   if (state <= 0.0f || std::isnan(state)) {
     this->store_.requested_q16.store(0, std::memory_order_relaxed);
     this->store_.target_q16.store(0, std::memory_order_relaxed);
-    this->store_.boost_until_us.store(0, std::memory_order_relaxed);
-    this->store_.timed_override_duration_ms.store(0, std::memory_order_relaxed);
-    this->store_.timed_override_until_us.store(0, std::memory_order_relaxed);
     this->store_.force_off_();
     return;
   }
@@ -335,57 +310,7 @@ void ACCycleSkipOutput::write_state(float state) {
     requested = static_cast<uint32_t>(state * Q16_FULL + 0.5f);
   }
 
-  const bool starting = this->store_.requested_q16.load(std::memory_order_relaxed) == 0 && requested > 0 &&
-                        requested < Q16_FULL;
   this->store_.requested_q16.store(requested, std::memory_order_relaxed);
-  const uint32_t override_duration_ms =
-      this->store_.timed_override_duration_ms.exchange(0, std::memory_order_relaxed);
-  if (override_duration_ms > 0) {
-    uint64_t now = 0;
-    if (this->store_.gate_timer == nullptr || gptimer_get_raw_count(this->store_.gate_timer, &now) != ESP_OK)
-      now = micros();
-    this->store_.target_q16.store(this->store_.timed_override_q16.load(std::memory_order_relaxed),
-                                  std::memory_order_relaxed);
-    this->store_.timed_override_until_us.store(
-        static_cast<uint32_t>(now) + override_duration_ms * 1000UL, std::memory_order_relaxed);
-  }
-  const uint32_t start_boost_ms = this->store_.start_boost_ms.load(std::memory_order_relaxed);
-  if (starting && start_boost_ms > 0) {
-    uint64_t now = 0;
-    if (this->store_.gate_timer == nullptr || gptimer_get_raw_count(this->store_.gate_timer, &now) != ESP_OK)
-      now = micros();
-    this->store_.target_q16.store(Q16_FULL, std::memory_order_relaxed);
-    this->store_.boost_until_us.store(static_cast<uint32_t>(now) + start_boost_ms * 1000UL,
-                                      std::memory_order_relaxed);
-  }
-}
-
-void ACCycleSkipOutput::arm_timed_override(float state, uint32_t duration_ms) {
-  if (std::isnan(state))
-    state = 0.0f;
-  state = std::max(0.0f, std::min(1.0f, state));
-  const uint32_t override_q16 =
-      state >= 1.0f ? Q16_FULL : static_cast<uint32_t>(state * Q16_FULL + 0.5f);
-  this->store_.timed_override_q16.store(override_q16, std::memory_order_relaxed);
-  this->store_.timed_override_until_us.store(0, std::memory_order_relaxed);
-  this->store_.timed_override_duration_ms.store(duration_ms, std::memory_order_relaxed);
-}
-
-void ACCycleSkipOutput::cancel_timed_override() {
-  this->store_.timed_override_duration_ms.store(0, std::memory_order_relaxed);
-  this->store_.timed_override_until_us.store(0, std::memory_order_relaxed);
-}
-
-bool ACCycleSkipOutput::timed_override_engaged() {
-  if (this->store_.timed_override_duration_ms.load(std::memory_order_relaxed) > 0)
-    return true;
-  const uint32_t override_until = this->store_.timed_override_until_us.load(std::memory_order_relaxed);
-  if (override_until == 0)
-    return false;
-  uint64_t now = 0;
-  if (this->store_.gate_timer == nullptr || gptimer_get_raw_count(this->store_.gate_timer, &now) != ESP_OK)
-    now = micros();
-  return static_cast<int32_t>(override_until - static_cast<uint32_t>(now)) > 0;
 }
 
 void ACCycleSkipOutput::dump_config() {
@@ -397,7 +322,6 @@ void ACCycleSkipOutput::dump_config() {
                 "  Valid zero-cross interval: %u-%uus\n"
                 "  Gate delay: %uus\n"
                 "  Gate pulse: %uus\n"
-                "  Start boost: %ums\n"
                 "  Ramp time: %ums\n"
                 "  Estimated mains: %.2f Hz\n"
                 "  Rejected zero-cross pulses: %u\n"
@@ -406,7 +330,6 @@ void ACCycleSkipOutput::dump_config() {
                 this->store_.noise_filter_us, this->store_.min_zero_cross_interval_us,
                 this->store_.max_zero_cross_interval_us, this->store_.gate_delay_us.load(std::memory_order_relaxed),
                 this->store_.gate_pulse_us.load(std::memory_order_relaxed),
-                this->store_.start_boost_ms.load(std::memory_order_relaxed),
                 this->store_.ramp_ms.load(std::memory_order_relaxed),
                 1e6f / this->store_.half_cycle_time_us / 2.0f, this->store_.rejected_crossings,
                 this->store_.invalid_crossings, this->store_.resync_events);

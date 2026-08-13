@@ -30,9 +30,80 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
               calc(44% - 6px)
             )) 12px minmax(0,var(--home-top-machine-track,
               calc(56% - 6px)
-            ))!important}}.machine-control-card{grid-template-rows:78px minmax(58px,1fr);gap:7px}.machine-top-strip{height:78px;min-height:78px;grid-template-columns:78px minmax(0,1fr);gap:7px;align-items:stretch}.machine-power-tile{width:78px;min-width:78px;aspect-ratio:1;place-self:start;padding:12px}.machine-power-tile .power-inline{width:52px;min-width:52px;height:52px;min-height:52px;margin:0;place-self:center;box-sizing:border-box}.machine-power-tile,.machine-status-banner{min-height:78px;height:78px;box-sizing:border-box}.machine-actions-dock .machine-quick-actions .quick-action{position:relative;min-height:58px;overflow:hidden;display:block!important;padding:0!important}.machine-actions-dock .machine-quick-actions .quick-icon{position:absolute!important;inset:0!important;width:42px!important;height:42px!important;margin:auto!important;display:grid!important;place-items:center!important;align-self:auto!important;justify-self:auto!important;transform:none!important;border-radius:0!important;background:0 0!important}.machine-actions-dock .machine-quick-actions .quick-icon svg{display:block;width:32px!important;height:32px!important;margin:auto;overflow:visible}.machine-actions-dock .machine-quick-actions .quick-action.active .quick-icon,.machine-actions-dock .machine-quick-actions .quick-action.danger .quick-icon,.machine-actions-dock .machine-quick-actions .quick-action:disabled .quick-icon{background:0 0!important;transform:none!important}@media (max-width:900px) and (min-width:701px){.machine-control-card{grid-template-rows:70px minmax(56px,1fr)}.machine-top-strip{height:70px;min-height:70px;grid-template-columns:70px minmax(0,1fr)}.machine-power-tile{width:70px;min-width:70px;padding:11px}.machine-power-tile .power-inline{width:46px;min-width:46px;height:46px;min-height:46px}.machine-power-tile,.machine-status-banner{min-height:70px;height:70px}.machine-actions-dock .machine-quick-actions .quick-icon{width:38px!important;height:38px!important}.machine-actions-dock .machine-quick-actions .quick-icon svg{width:29px!important;height:29px!important}}@media (max-width:700px){.machine-control-card{min-height:138px;grid-template-rows:68px minmax(58px,1fr)}.machine-top-strip{height:68px;min-height:68px;grid-template-columns:68px minmax(0,1fr)}.machine-power-tile{width:68px;min-width:68px;padding:10px}.machine-power-tile .power-inline{width:46px;min-width:46px;height:46px;min-height:46px}.machine-power-tile,.machine-status-banner{min-height:68px;height:68px}}@media (max-width:430px){.machine-control-card{grid-template-rows:62px minmax(54px,1fr)}.machine-top-strip{height:62px;min-height:62px;grid-template-columns:62px minmax(0,1fr);gap:6px}.machine-power-tile{width:62px;min-width:62px;padding:9px}.machine-power-tile .power-inline{width:42px;min-width:42px;height:42px;min-height:42px}.machine-power-tile,.machine-status-banner{min-height:62px;height:62px}.machine-actions-dock .machine-quick-actions .quick-icon{width:35px!important;height:35px!important}.machine-actions-dock .machine-quick-actions .quick-icon svg{width:27px!important;height:27px!important}}.machine-icon-size-tools{flex:1 0 100%;display:grid;align-items:end;gap:8px 10px;padding:9px 10px;border:1px solid #303a46;border-radius:10px;background:#11161b}.machine-icon-size-tools label{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 9px;align-items:center;color:#aeb8c4;font-size:10px;font-weight:700}.machine-icon-size-tools output{color:#e5eaf0;font-variant-numeric:tabular-nums}.machine-icon-size-tools input{grid-column:1/-1;width:100%;min-width:0;height:18px;padding:0;border:0;background:0 0}.machine-icon-size-tools>button{align-self:end;white-space:nowrap}#page-home .home-top-grid>[data-home-top-panel]{width:100%!important;max-width:none!important;min-width:0!important;justify-self:stretch!important;align-self:stretch!important;box-sizing:border-box}#page-home .home-top-grid>.machine-panel{display:grid!important;grid-template-columns:minmax(0,1fr)}#page-home .home-top-grid>.home-metrics-panel,#page-home .machine-panel>.machine-control-card{width:100%!important;max-width:none!important;min-width:0!important;justify-self:stretch!important;align-self:stretch!important;box-sizing:border-box}#page-home{--machine-action-icon-size:48px;--machine-power-button-size:52px;--home-section-gap:18px;--home-temperature-card-height:165px;--home-left-column-share:50fr;--home-right-column-share:50fr;--home-left-column-share:38fr;--home-pressure-column-share:18fr;--home-right-column-share:44fr}#page-home .machine-power-tile .power-inline{width:var(--machine-power-button-size)!important;min-width:var(--machine-power-button-size)!important;height:var(--machine-power-button-size)!important;min-height:var(--machine-power-button-size)!important}#page-home .machine-power-tile .power-symbol{font-size:calc(var(--machine-power-button-size)*.44)!important}#page-home .machine-actions-dock .machine-quick-actions .quick-icon svg{display:block!important;margin:0!important;transform:none!important;width:min(var(--machine-action-icon-size),42px)!important;height:min(var(--machine-action-icon-size),42px)!important;width:var(--machine-action-icon-size)!important;height:var(--machine-action-icon-size)!important}#page-home .machine-actions-dock .machine-quick-actions .quick-icon{width:calc(var(--machine-action-icon-size) + 10px)!important;height:calc(var(--machine-action-icon-size) + 10px)!important}@media (max-width:760px){.machine-icon-size-tools{grid-template-columns:minmax(0,1fr)}.machine-icon-size-tools>button{width:100%}}#page-home .home-top-grid>.machine-panel{position:relative!important;display:block!important;width:100%!important;min-width:0!important;max-width:none!important;overflow:visible}#page-home .home-top-grid>.machine-panel>.machine-control-card{position:absolute!important;inset:0!important;width:auto!important;min-width:0!important;max-width:none!important;margin:0!important;box-sizing:border-box!important}#page-home .home-top-grid>.machine-panel>.dashboard-drag-handle,#page-home .home-top-grid>.machine-panel>.dashboard-hide-button,#page-home .home-top-grid>.machine-panel>.home-top-panel-order-handle{z-index:80}@media (max-width:700px){#page-home .home-top-grid>.machine-panel{min-height:138px}}@media (max-width:430px){#page-home .home-top-grid>.machine-panel{min-height:126px}}#page-home .machine-control-card{grid-template-rows:78px 80px!important;min-height:165px!important}#page-home .machine-actions-dock .machine-quick-actions{display:grid;grid-auto-columns:123px;align-content:center;align-items:center}#page-home .machine-actions-dock .machine-quick-actions .quick-action{box-sizing:border-box}@media (max-width:700px){#page-home .machine-control-card{grid-template-rows:68px 80px!important;min-height:155px!important}#page-home .home-top-grid>.machine-panel{min-height:155px!important}}@media (max-width:430px){#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-columns:auto;width:100%}#page-home .machine-actions-dock .machine-quick-actions .quick-action{width:100%!important;min-width:0!important;max-width:none!important}}#page-home .machine-control-card{overflow:visible!important;border-radius:0!important;clip-path:none!important}#page-home .machine-power-tile{position:relative;isolation:isolate;overflow:visible}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{position:relative!important;display:block!important;margin:0!important;padding:0!important;border-width:1px!important;border-style:solid!important;box-sizing:border-box!important;transform:none!important;translate:none!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action.active .quick-icon,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger .quick-icon,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active .quick-icon,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled .quick-icon,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover .quick-icon,#page-home .machine-actions-dock .machine-quick-actions .quick-icon{position:absolute!important;top:50%!important;left:50%!important;right:auto!important;bottom:auto!important;width:calc(var(--machine-action-icon-size) + 10px)!important;height:calc(var(--machine-action-icon-size) + 10px)!important;margin:0!important;padding:0!important;display:grid!important;place-items:center!important;transform:translate(-50%,-50%)!important;translate:none!important;background:0 0!important;border:0!important;border-radius:0!important;box-shadow:none!important}#page-home .machine-status-banner{display:grid!important;grid-template-rows:minmax(0,1fr)}#page-home .machine-status-main{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;padding:0 4px}#page-home .machine-status-main .machine-mode-status{min-width:0;min-height:30px;display:inline-flex;align-items:center;gap:7px;margin:0;padding:6px 10px;border:1px solid #34404c;border-radius:10px;background:#171d24}#page-home .machine-status-main .machine-mode-status b{overflow:hidden;color:#e8edf3;font-size:13px;line-height:1;text-overflow:ellipsis;white-space:nowrap}#page-home .machine-status-main .machine-auto-off{min-height:20px;margin:0;padding:3px 7px}#page-home .machine-water-tile{position:relative;display:grid!important;place-items:center;padding:0!important;overflow:hidden;border:1px solid #35404c!important;border-radius:11px!important;background:#192027!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}#page-home .machine-water-drop{display:grid;place-items:center;width:28px;height:28px;color:#788492}#page-home .machine-water-drop svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}#page-home .machine-water-result{position:absolute;right:3px;bottom:3px;min-width:15px;height:15px;display:grid;place-items:center;padding:0 3px;border:1px solid #44505d;border-radius:999px;background:#252d36;color:#aeb8c4;font-size:9px;line-height:1;font-weight:850}#page-home .machine-water-tile.ok{border-color:#35694c!important;background:linear-gradient(145deg,#183326,#14251d)!important}#page-home .machine-water-tile.ok .machine-water-drop{color:#67d99a}#page-home .machine-water-tile.ok .machine-water-result{border-color:#3d7a58;background:#235139;color:#9af0bd}#page-home .machine-water-tile.warn{border-color:#804347!important;background:linear-gradient(145deg,#3b2327,#281b1e)!important}#page-home .machine-water-tile.warn .machine-water-drop{color:#ff8188}#page-home .machine-water-tile.warn .machine-water-result{border-color:#8d4a50;background:#582b31;color:#ffc0c4}#page-home .machine-status-hidden,#page-home .machine-water-label{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important}@media (max-width:430px){#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:100%!important;min-width:0!important;max-width:none!important}#page-home .machine-status-banner{grid-template-columns:minmax(0,1fr) 43px;gap:6px;padding:6px!important}#page-home .machine-water-tile{width:43px!important;min-width:43px!important}}#page-home .machine-water-tile{width:78px!important;min-width:78px!important;height:78px!important;min-height:78px!important;align-self:stretch;box-sizing:border-box}#page-home .machine-status-banner{grid-template-columns:minmax(0,1fr)!important}#page-home .machine-actions-dock .machine-quick-actions{width:100%;grid-template-columns:repeat(4,minmax(0,123px))!important}#page-home .machine-custom-action.empty{border-style:dashed!important;border-color:#4c5865!important;background:linear-gradient(145deg,#222930,#1a2026)!important}#page-home .machine-custom-action.empty .quick-icon{color:#8793a0}#page-home .machine-custom-action:not(.empty){border-color:#5a506e!important;background:linear-gradient(145deg,#342e43,#252131)!important}#page-home .machine-custom-action:not(.empty) .quick-icon{color:#c9b5f0}.machine-shortcut-dialog[hidden]{display:none}.machine-shortcut-dialog{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:18px;background:rgba(5,8,11,.72);backdrop-filter:blur(4px)}.machine-shortcut-dialog-card{width:min(390px,100%);padding:16px;border:1px solid #3b4653;border-radius:16px;background:linear-gradient(145deg,#20262e,#171c22);box-shadow:0 20px 55px rgba(0,0,0,.46)}.machine-shortcut-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.machine-shortcut-dialog-head b{display:block;font-size:16px}.machine-shortcut-dialog-head small{display:block;margin-top:4px;color:#919ca9;font-size:11px}.machine-shortcut-close{width:30px;min-width:30px;height:30px;padding:0;border-radius:9px;background:#2a313a;color:#c8d0da;font-size:18px}.machine-shortcut-field{display:grid;gap:6px;margin-top:15px;color:#aab4c0;font-size:11px;font-weight:700}.machine-shortcut-dialog-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:14px}@media (max-width:900px) and (min-width:701px){#page-home .machine-top-strip{grid-template-columns:70px minmax(0,1fr) 70px!important}#page-home .machine-water-tile{width:70px!important;min-width:70px!important;height:70px!important;min-height:70px!important}}@media (max-width:700px){#page-home .machine-top-strip{grid-template-columns:68px minmax(0,1fr) 68px!important}#page-home .machine-water-tile{width:68px!important;min-width:68px!important;height:68px!important;min-height:68px!important}}@media (max-width:430px){#page-home .machine-top-strip{grid-template-columns:62px minmax(0,1fr) 62px!important}#page-home .machine-water-tile{width:62px!important;min-width:62px!important;height:62px!important;min-height:62px!important}#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px}}#page-home .machine-top-strip{grid-template-columns:78px minmax(0,1fr)!important;gap:7px}#page-home .machine-status-banner{position:relative;display:flex!important;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px!important;overflow:hidden}#page-home .machine-status-copy{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px}#page-home .machine-status-copy>#shotStatus{display:block;max-width:100%;margin:0;padding:0;border:0!important;border-radius:0!important;background:0 0!important;font-size:18px;line-height:1.05;font-weight:760;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-shadow:none!important}#page-home .machine-status-copy .machine-auto-off{min-height:0;margin:0;padding:0;border:0;background:0 0;color:#8f9aa7}#page-home .machine-water-indicator{position:relative;flex:0 0 auto;width:38px!important;min-width:38px!important;height:38px!important;min-height:38px!important;display:grid!important;place-items:center;padding:0!important;border:1px solid #35404c!important;border-radius:11px!important;background:#1c232b!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}#page-home .machine-water-indicator .machine-water-drop{width:24px;height:24px;color:#74808d}#page-home .machine-water-indicator .machine-water-drop svg{width:22px;height:22px}#page-home .machine-water-indicator .machine-water-result{display:none!important}#page-home .machine-water-indicator.ok{border-color:#35694c!important;background:#193126!important}#page-home .machine-water-indicator.ok .machine-water-drop{color:#63d493}#page-home .machine-water-indicator.warn{border-color:#774047!important;background:#352126!important}#page-home .machine-water-indicator.warn .machine-water-drop{color:#f27a82}#page-home .machine-water-indicator.unknown{border-color:#35404c!important;background:#1c232b!important}#page-home .machine-water-indicator.unknown .machine-water-drop{color:#74808d}#page-home .machine-actions-dock .machine-quick-actions .quick-action{width:123px!important;min-width:123px!important;max-width:123px!important;height:80px!important;min-height:80px!important;max-height:80px!important}@media (max-width:900px) and (min-width:701px){#page-home .machine-top-strip{grid-template-columns:70px minmax(0,1fr)!important}}@media (max-width:700px){#page-home .machine-top-strip{grid-template-columns:68px minmax(0,1fr)!important}#page-home .machine-status-copy>#shotStatus{font-size:16px}}@media (max-width:430px){#page-home .machine-top-strip{grid-template-columns:62px minmax(0,1fr)!important}#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px}#page-home .machine-actions-dock .machine-quick-actions .quick-action{width:100%!important;min-width:0!important;max-width:none!important}#page-home .machine-water-indicator{width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important}}#page-home .home-metrics-panel{min-height:165px;height:100%;padding:0!important;border:0!important;border-radius:0!important;background:0 0!important;box-shadow:none!important;overflow:visible}#page-home .home-metrics-grid{width:100%;min-width:0;min-height:165px!important;height:165px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:minmax(0,1fr)!important;align-items:stretch;gap:10px}#page-home .home-metrics-grid>.home-metric-card{width:100%;min-width:0;height:165px;min-height:165px;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box}#page-home .home-metrics-grid .home-metric-icon{width:38px;min-width:38px;height:38px;margin:0;border-radius:11px}#page-home .home-metrics-grid .home-metric-icon svg{width:23px;height:23px}#page-home .home-metrics-grid .home-metric-copy{width:100%;min-width:0}#page-home .home-metrics-grid .home-metric-copy small{display:block;overflow:hidden;font-size:10px;line-height:1.1;text-overflow:ellipsis;white-space:nowrap}#page-home .home-metrics-grid .home-metric-copy strong,#page-home .home-metrics-grid .home-metric-copy>span{display:block;margin-top:7px;overflow:hidden;font-size:24px;line-height:1;text-overflow:ellipsis;white-space:nowrap}#page-home .home-metrics-grid .home-metric-copy>span{font-size:9px;line-height:1.15}#page-home .home-metrics-grid .home-metric-progress{left:13px;right:13px;bottom:11px}#page-home .home-metrics-grid .metric-open-indicator{top:9px;right:9px}#page-home .home-metrics-grid .temperature-metric-open .home-metric-state{right:33px}@media (max-width:900px) and (min-width:701px){#page-home .home-metrics-grid,#page-home .home-metrics-panel{min-height:155px!important;height:155px}#page-home .home-metrics-grid>.home-metric-card{height:155px;min-height:155px;padding:13px 10px}#page-home .home-metrics-grid .home-metric-copy strong{font-size:20px}}@media (max-width:700px){#page-home .home-metrics-grid,#page-home .home-metrics-panel{min-height:138px!important;height:138px}#page-home .home-metrics-grid>.home-metric-card{height:138px;min-height:138px;padding:12px 10px}#page-home .home-metrics-grid .home-metric-copy strong{font-size:19px}}@media (max-width:430px){#page-home .home-metrics-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:minmax(0,1fr)!important;gap:6px}#page-home .home-metrics-grid>.home-metric-card{padding:10px 7px}#page-home .home-metrics-grid .home-metric-icon{width:32px;min-width:32px;height:32px}#page-home .home-metrics-grid .home-metric-icon svg{width:20px;height:20px}#page-home .home-metrics-grid .home-metric-copy small,#page-home .home-metrics-grid .home-metric-copy>span{font-size:8px}#page-home .home-metrics-grid .home-metric-copy strong{font-size:16px}}#page-home .home-dashboard-layout{gap:var(--home-section-gap)!important}@media (max-width:980px){.machine-icon-size-tools{grid-template-columns:repeat(2,minmax(210px,1fr))}.machine-icon-size-tools>button{grid-column:1/-1;width:100%}}@media (max-width:620px){.machine-icon-size-tools{grid-template-columns:minmax(0,1fr)}.machine-icon-size-tools>button{grid-column:auto}}#page-home .machine-status-copy>#shotStatus{font-family:var(--ha-font-family-body)!important;font-size:var(--zone-font-title,16px)!important;font-weight:var(--ha-font-weight-medium)!important;line-height:var(--ha-line-height-condensed)!important;letter-spacing:0!important;color:#d8dee7!important;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}@media (max-width:700px){#page-home .machine-status-copy>#shotStatus{font-size:var(--zone-font-title,16px)!important}}@media (min-width:701px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{width:100%;min-width:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-areas:none!important;gap:12px!important;align-items:stretch}#page-home .home-top-grid>.home-metrics-panel,#page-home .home-top-grid>.machine-panel{grid-area:auto!important;width:100%!important;min-width:0!important;max-width:none!important;align-self:stretch!important;justify-self:stretch!important}}@media (max-width:700px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{grid-template-columns:minmax(0,1fr)!important;grid-template-areas:none!important;gap:12px!important}}#page-home .home-top-panel-order-handle,#page-home .home-top-resize-handle{display:none!important;visibility:hidden!important;pointer-events:none!important}#page-home.home-layout-editing .home-top-grid>.home-metrics-panel,#page-home.home-layout-editing .home-top-grid>.machine-panel{outline:0!important;outline-offset:0!important;box-shadow:none}#page-home.home-layout-editing .home-overview.dashboard-block>.home-top-grid,#page-home.home-layout-editing .home-overview.dashboard-block>.home-top-grid>*{pointer-events:none!important}#page-home .home-metrics-grid>.home-metric-card{position:relative;display:grid;grid-template-rows:38px minmax(0,1fr) 26px;align-items:stretch;gap:7px;padding:13px 13px 12px;overflow:hidden;border:1px solid #303945;border-radius:14px;background:linear-gradient(155deg,#1b222a 0,#151a20 58%,#12171c 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 5px 15px rgba(0,0,0,.16)}#page-home .home-metric-head{justify-content:space-between}#page-home .home-metric-head,#page-home .home-metric-title{min-width:0;display:flex;align-items:center;gap:8px}#page-home .home-metric-title>small{overflow:hidden;color:#aeb8c4;font-size:var(--zone-font-small,10px)!important;font-weight:var(--ha-font-weight-medium);line-height:1.1;text-overflow:ellipsis;white-space:nowrap}#page-home .home-metric-title .home-metric-icon{width:34px;min-width:34px;height:34px;margin:0;display:grid;place-items:center;border-radius:10px}#page-home .home-metric-title .home-metric-icon svg{width:21px;height:21px}#page-home .home-metric-footer,#page-home .home-metric-main{min-width:0;display:flex;align-items:center;justify-content:flex-start}#page-home .home-metric-main{padding-left:2px}#page-home .home-metric-main strong{display:flex;align-items:baseline;gap:5px;margin:0;color:#eef2f6;font-size:clamp(27px,2.45vw,36px)!important;font-weight:var(--ha-font-weight-medium)!important;line-height:.95;letter-spacing:-.035em}#page-home .home-metric-main strong i{overflow:hidden;font-style:normal;text-overflow:ellipsis}#page-home .home-metric-main strong em{flex:0 0 auto;color:#8f9aa7;font-size:.42em;font-style:normal;font-weight:var(--ha-font-weight-medium);letter-spacing:0}#page-home .home-metric-footer{gap:7px;overflow:hidden;color:#87929f;font-size:var(--zone-font-small,10px);line-height:1;white-space:nowrap}#page-home .home-metric-footer span,#page-home .home-metric-main strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#page-home .home-metric-footer span+span::before{content:"·";margin-right:7px;color:#4f5a66}#page-home .home-metric-footer i{color:#cbd3dc;font-style:normal;font-weight:var(--ha-font-weight-medium)}#page-home .home-backflush-main strong{color:#72dda0;font-size:clamp(25px,2.15vw,32px)!important;letter-spacing:-.02em}#page-home .temperature-metric{border-color:#4d3c31;background:linear-gradient(155deg,#211c18 0,#181713 58%,#131512 100%)}#page-home .pressure-metric{border-color:#2d465b;background:linear-gradient(155deg,#17232d 0,#151b21 58%,#12171c 100%)}#page-home .cleaning-metric{border-color:#334b3e;background:linear-gradient(155deg,#17251d 0,#151c18 58%,#121713 100%)}#page-home .temperature-metric .home-metric-main strong{color:#f2d2b7}#page-home .pressure-metric .home-metric-main strong{color:#b9dcff}@media (max-width:900px){#page-home .home-metrics-grid>.home-metric-card{grid-template-rows:34px minmax(0,1fr) 24px;gap:5px;padding:11px 10px 10px}#page-home .home-metric-title .home-metric-icon{width:30px;min-width:30px;height:30px}#page-home .home-metric-title{gap:6px}#page-home .home-metric-footer{gap:4px}#page-home .home-metric-footer span+span::before{margin-right:4px}}@media (max-width:430px){#page-home .home-metrics-grid>.home-metric-card{grid-template-rows:28px minmax(0,1fr) 20px;padding:8px 7px}#page-home .home-metric-title .home-metric-icon{width:26px;min-width:26px;height:26px;border-radius:8px}#page-home .home-metric-title .home-metric-icon svg{width:17px;height:17px}#page-home .home-metric-main strong{font-size:21px!important}#page-home .home-backflush-main strong{font-size:19px!important}#page-home .home-metric-footer{font-size:7px}#page-home .metric-open-indicator{display:none}}#page-home .home-metrics-grid>.metric-tile{position:relative!important;display:grid!important;grid-template-rows:34px minmax(0,1fr) 22px!important;align-items:stretch!important;gap:7px!important;padding:12px 13px 11px!important;overflow:hidden!important;border:1px solid #34404c!important;border-radius:14px!important;background:linear-gradient(155deg,#1c232b,#151a20 72%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 5px 14px rgba(0,0,0,.15)!important}#page-home .metric-tile::before{position:absolute;top:0;left:18px;right:18px;height:2px;border-radius:0 0 999px 999px;opacity:.75}#page-home .temperature-metric::before{background:#d99054}#page-home .pressure-metric::before{background:#5da9ef}#page-home .cleaning-metric::before{background:#65c892}#page-home .metric-tile-head{display:flex;align-items:center;justify-content:space-between;gap:7px}#page-home .metric-tile-label{min-width:0;display:flex;align-items:center;gap:7px;color:#aeb8c4;font-family:var(--ha-font-family-body);font-size:var(--zone-font-small,10px);font-weight:var(--ha-font-weight-medium);line-height:1;white-space:nowrap}#page-home .metric-tile-label>span:last-child{overflow:visible;text-overflow:clip;white-space:nowrap}#page-home .metric-tile-label .home-metric-icon{width:30px!important;min-width:30px!important;height:30px!important;margin:0!important;display:grid!important;place-items:center!important;border-radius:9px!important}#page-home .metric-tile-label .home-metric-icon svg{width:19px!important;height:19px!important}#page-home .metric-tile-value{display:flex;align-items:center;justify-content:center;gap:5px;padding:0 2px;overflow:visible;color:#edf2f7;font-family:var(--ha-font-family-body);font-size:clamp(30px,2.65vw,38px)!important;font-weight:var(--ha-font-weight-medium);line-height:.95;letter-spacing:-.035em;white-space:nowrap}#page-home .metric-tile-value i{font-style:normal;font-weight:inherit}#page-home .metric-tile-value em{align-self:flex-end;margin-bottom:3px;color:#8e99a6;font-size:.36em;font-style:normal;font-weight:var(--ha-font-weight-medium);letter-spacing:0}#page-home .temperature-metric .metric-tile-value{color:#f1c9aa}#page-home .pressure-metric .metric-tile-value{color:#a8d4ff}#page-home .metric-tile-ratio{gap:7px;color:#dce4ec}#page-home .metric-tile-ratio b{color:#66727f;font-size:.65em;font-weight:var(--ha-font-weight-normal);letter-spacing:0}#page-home .metric-tile-meta{display:flex;align-items:center;justify-content:center;gap:5px;overflow:visible;color:#8f9aa7;font-size:9px!important;font-weight:var(--ha-font-weight-normal);line-height:1;white-space:nowrap}#page-home .metric-tile-meta i{color:#cbd4dd;font-style:normal;font-weight:var(--ha-font-weight-medium)}#page-home .metric-tile-meta b{color:#505b67;font-weight:var(--ha-font-weight-normal)}#page-home .metric-status-badge{flex:0 0 auto;min-width:28px;padding:4px 7px;border:1px solid #35694c;border-radius:999px;background:#183025;color:#72dda0;font-size:9px;font-weight:var(--ha-font-weight-bold);line-height:1;text-align:center;white-space:nowrap}#page-home .cleaning-metric.due .metric-status-badge{border-color:#75502f;background:#332419;color:#ffc27f}#page-home .cleaning-metric.due .metric-tile-value{color:#ffc27f}#page-home .metric-open-indicator{position:static!important;flex:0 0 auto;width:24px!important;min-width:24px!important;height:24px!important;display:grid!important;place-items:center!important;border-radius:8px!important;font-size:10px!important;transform:none!important}#page-home .home-metric-progress{left:13px!important;right:13px!important;bottom:7px!important;height:3px!important;opacity:.68}#page-home .temperature-metric-open .home-metric-state{display:none!important}@media (max-width:900px){#page-home .home-metrics-grid>.metric-tile{grid-template-rows:30px minmax(0,1fr) 20px!important;gap:5px!important;padding:10px 9px 9px!important}#page-home .metric-tile-label{gap:5px;font-size:9px}#page-home .metric-tile-label .home-metric-icon{width:27px!important;min-width:27px!important;height:27px!important}#page-home .metric-tile-value{font-size:clamp(25px,2.7vw,32px)!important}#page-home .metric-tile-meta{font-size:8px!important}}@media (max-width:430px){#page-home .home-metrics-grid>.metric-tile{grid-template-rows:26px minmax(0,1fr) 18px!important;padding:8px 6px!important}#page-home .metric-tile-label>span:last-child{display:none}#page-home .metric-tile-value{font-size:21px!important}#page-home .metric-tile-meta{font-size:7px!important}#page-home .metric-status-badge{padding:3px 5px;font-size:8px}#page-home .metric-open-indicator{display:none!important}}#page-home .home-metrics-grid>.metric-tile{grid-template-columns:minmax(0,1fr)!important;grid-auto-flow:row!important}#page-home .metric-tile-head,#page-home .metric-tile-meta,#page-home .metric-tile-value{position:relative!important;inset:auto!important;grid-column:1!important;grid-row:1!important;width:100%!important;min-width:0!important;box-sizing:border-box}#page-home .metric-tile-meta,#page-home .metric-tile-value{grid-row:2!important}#page-home .metric-tile-meta{grid-row:3!important}#page-home .metric-tile::before{content:none!important;display:none!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action::before{content:""!important;position:absolute!important;top:0!important;left:16px!important;right:16px!important;bottom:auto!important;width:auto!important;height:3px!important;display:block!important;border-radius:0 0 999px 999px!important;opacity:.78!important;transform:none!important;transition:opacity .18s ease,box-shadow .18s ease!important;pointer-events:none}#page-home .machine-actions-dock #shotAction::before{background:#e18b48!important}#page-home .machine-actions-dock #waterAction::before{background:#54a9ff!important}#page-home .machine-actions-dock #steamAction::before{background:#d9b85f!important}#page-home .machine-actions-dock #shotAction.danger::before{background:#ff806b!important;opacity:1!important;box-shadow:0 0 9px rgba(255,112,89,.42)!important}#page-home .machine-actions-dock #waterAction.active::before{background:#68bdff!important;opacity:1!important;box-shadow:0 0 9px rgba(84,169,255,.38)!important}#page-home .machine-actions-dock #steamAction.active::before{background:#ffd166!important;opacity:1!important;box-shadow:0 0 9px rgba(255,209,102,.35)!important}#page-home .machine-actions-dock .quick-action:disabled::before{opacity:.28!important;box-shadow:none!important}#page-home .home-top-grid{align-items:stretch!important}#page-home .machine-compact-status{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:22px minmax(0,1fr)!important;gap:6px!important}#page-home .machine-compact-head{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px}#page-home .machine-compact-head>#shotStatus{min-width:0;overflow:hidden;color:#dce3ea!important;font-family:var(--ha-font-family-body)!important;font-size:var(--zone-font-text,14px)!important;font-weight:var(--ha-font-weight-medium)!important;line-height:1;text-overflow:ellipsis;white-space:nowrap}#page-home .machine-compact-head .machine-auto-off{flex:0 0 auto;min-height:20px;padding:3px 6px;font-size:9px}#page-home .machine-mini-metrics{min-width:0;display:grid}#page-home .machine-mini-metric{position:relative;min-width:0;display:grid;align-items:center;overflow:hidden;border:1px solid #303a45;background:#151b21;box-sizing:border-box}#page-home .machine-mini-icon{display:grid;place-items:center;background:#202832;color:#8d99a6}#page-home .home-temperature-hero-icon svg{width:16px;height:16px}#page-home .home-temperature-hero-icon svg,#page-home .machine-mini-icon svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}#page-home .mini-pressure .machine-mini-icon{color:#76bfff}#page-home .mini-backflush .machine-mini-icon{color:#b29aeb}#page-home .machine-mini-copy{display:flex;flex-direction:column}#page-home .machine-mini-copy small,#page-home .machine-mini-copy strong{max-width:100%;overflow:hidden;font-weight:var(--ha-font-weight-medium);line-height:1;text-overflow:ellipsis;white-space:nowrap}#page-home .machine-mini-copy strong{display:flex;align-items:baseline;gap:3px}#page-home .home-temperature-hero-reading strong i,#page-home .machine-mini-copy strong em,#page-home .machine-mini-copy strong i{font-style:normal}#page-home .machine-mini-copy strong em{color:#7f8a97}#page-home .machine-mini-copy strong b{color:#697582;font-size:10px;font-weight:var(--ha-font-weight-normal)}#page-home .mini-water>#machineWaterIcon,#page-home .mini-water>#machineWaterText{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important}#page-home .water-state-dot{display:block;border-radius:50%;background:#68737f;box-shadow:0 0 0 3px rgba(104,115,127,.12)}#page-home .mini-water.ok{border-color:#315b44;background:#15251d}#page-home .mini-water.ok .machine-mini-icon{color:#62d595}#page-home .mini-water.ok .water-state-dot{background:#62d595;box-shadow:0 0 0 3px rgba(98,213,149,.13)}#page-home .mini-water.warn{border-color:#6a3d42;background:#2b1d20}#page-home .mini-water.warn .machine-mini-icon{color:#ef7b83}#page-home .mini-water.warn .water-state-dot{background:#ef7b83;box-shadow:0 0 0 3px rgba(239,123,131,.13)}#page-home .home-temperature-hero{position:relative;min-width:0;padding:0!important;overflow:hidden;border:1px solid #34404c!important;border-radius:14px!important;background:radial-gradient(circle at 82% -20%,rgba(225,139,72,.16),transparent 47%),linear-gradient(155deg,#1b222a,#13181e 72%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 6px 18px rgba(0,0,0,.18)!important;cursor:pointer}#page-home .home-temperature-hero:focus-visible,#page-home .home-temperature-hero:hover{border-color:#725039!important;outline:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 0 0 3px rgba(225,139,72,.08),0 7px 20px rgba(0,0,0,.2)!important}#page-home .home-temperature-hero-state{height:100%;display:grid;box-sizing:border-box}#page-home .home-temperature-hero-head{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:10px}#page-home .home-temperature-hero-title{min-width:0;display:flex;align-items:center;gap:7px;color:#b7c0ca;font-size:var(--zone-font-text,12px);font-weight:var(--ha-font-weight-medium);line-height:1;white-space:nowrap}#page-home .home-temperature-hero-icon{width:24px;min-width:24px;height:24px;display:grid;place-items:center;border-radius:7px;background:#29241f;color:#e7a06a}#page-home .home-temperature-hero-badges{min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:5px}#page-home .home-temperature-pid,#page-home .home-temperature-state-label{min-height:21px;display:inline-flex;align-items:center;padding:3px 7px;border:1px solid #394550;border-radius:999px;background:#1b2229;color:#9da8b4;font-size:8px;font-weight:var(--ha-font-weight-medium);line-height:1;white-space:nowrap}#page-home .home-temperature-pid{color:#d4dbe3}#page-home .home-temperature-pid i{margin:0 2px 0 4px;color:#efae7b;font-style:normal;font-weight:var(--ha-font-weight-bold)}#page-home .home-temperature-open{width:22px;height:22px;display:grid;place-items:center;border-radius:7px;background:#242c34;color:#8f9aa7;font-size:10px}#page-home .home-temperature-hero-reading strong{min-width:0;display:flex;align-items:baseline;gap:5px;color:#f0c5a4;font-weight:var(--ha-font-weight-medium);line-height:.95;letter-spacing:-.035em;white-space:nowrap}#page-home .home-temperature-hero-reading strong em{color:#8e99a6;font-size:12px;font-style:normal;font-weight:var(--ha-font-weight-medium);letter-spacing:0}#page-home .home-temperature-target{flex:0 0 auto;font-size:9px}#page-home .home-temperature-mini-chart{position:relative;min-width:0;overflow:hidden;border-top:1px solid rgba(255,255,255,.035);border-bottom:1px solid rgba(255,255,255,.035)}#page-home #homePressureGauge,#page-home #homeTempMiniChart{width:100%;height:100%;display:block}#page-home .home-temperature-hero-footer{min-width:0;display:grid;align-items:center;font-size:8px;line-height:1}#page-home .home-temperature-heat-track{background:#28313a}#page-home .home-temperature-heat-track>#homeHeatFill{width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#d97852,#e9b06e);transition:width .2s ease}#page-home .home-temperature-delta{min-width:0;overflow:hidden;text-align:right;text-overflow:ellipsis;white-space:nowrap}#page-home .home-temperature-hero-state.ready .home-temperature-state-label{border-color:#35664d;background:#182a21;color:#91eab5}#page-home .home-temperature-hero-state.heating .home-temperature-state-label{border-color:#70512f;background:#2b2118;color:#ffc27f}#page-home .home-temperature-hero-state.error .home-temperature-state-label{border-color:#743c43;background:#321f23;color:#ff9ba2}@media (max-width:900px) and (min-width:701px){#page-home .home-temperature-state-label,#page-home .machine-mini-copy small{display:none}#page-home .machine-mini-metric{grid-template-columns:22px minmax(0,1fr);gap:3px;padding:4px}#page-home .machine-mini-icon{width:22px;height:22px}#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;padding:0 2px}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:100%!important;min-width:0!important;max-width:none!important}}@media (max-width:700px){#page-home .home-top-grid>.home-temperature-hero,#page-home .home-top-grid>.machine-panel{height:153px!important}}@media (max-width:430px){#page-home .home-temperature-open,#page-home .home-temperature-state-label,#page-home .machine-mini-copy small{display:none}#page-home .machine-mini-metric{grid-template-columns:20px minmax(0,1fr);gap:3px;padding:3px 4px}#page-home .machine-mini-icon{width:20px;height:20px}#page-home .machine-mini-icon svg{width:14px;height:14px}#page-home .machine-mini-copy strong{font-size:11px!important}#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:100%!important;min-width:0!important;max-width:none!important}#page-home .home-temperature-hero-reading strong{font-size:27px!important}#page-home .home-temperature-delta{max-width:92px}}@media (min-width:701px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{gap:7px!important}}#page-home .machine-compact-status{position:relative;display:block!important;padding:6px!important}#page-home .machine-compact-head{display:none!important}#page-home .machine-mini-metrics{width:100%;height:100%;min-height:0;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}#page-home .machine-mini-metric{height:100%;min-height:0;grid-template-columns:minmax(0,1fr);grid-template-rows:31px minmax(0,1fr);place-items:center;align-content:center;gap:5px;padding:7px 5px;text-align:center;border-radius:10px}#page-home .machine-mini-icon{width:31px;height:31px;border-radius:9px}#page-home .machine-mini-icon svg{width:19px;height:19px}#page-home .machine-mini-copy{width:100%;min-width:0;align-items:center;justify-content:flex-start;gap:4px}#page-home .machine-mini-copy small{width:100%;color:#8d98a5;font-size:9px!important;text-align:center}#page-home .machine-mini-copy strong{width:100%;justify-content:center;color:#e0e7ee;font-size:16px!important;text-align:center}#page-home .machine-mini-copy strong em{font-size:9px}#page-home .water-state-dot{width:10px;height:10px}#page-home .machine-auto-off-overlay{position:absolute;top:5px;right:5px;z-index:5;min-height:20px;padding:3px 6px;border:1px solid #47515d;border-radius:999px;background:#222a32;box-shadow:0 3px 9px rgba(0,0,0,.25);font-size:8px}@media (max-width:900px) and (min-width:701px){#page-home .machine-mini-metric{grid-template-rows:28px minmax(0,1fr);gap:4px;padding:6px 3px}#page-home .machine-mini-icon{width:28px;height:28px}#page-home .machine-mini-copy small{display:block!important;font-size:8px!important}#page-home .machine-mini-copy strong{font-size:13px!important}}@media (max-width:700px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{gap:7px!important}}@media (max-width:430px){#page-home .machine-mini-metrics{gap:4px}#page-home .machine-mini-metric{grid-template-rows:25px minmax(0,1fr);gap:3px;padding:5px 2px}#page-home .machine-mini-icon{width:25px;height:25px}#page-home .machine-mini-icon svg{width:16px;height:16px}#page-home .machine-mini-copy small{display:block!important;font-size:7px!important}#page-home .machine-mini-copy strong{font-size:11px!important}}#page-home .home-top-grid>.home-temperature-hero,#page-home .home-top-grid>.machine-panel{min-height:165px!important;height:165px!important}#page-home .home-top-grid>.machine-panel>.machine-control-card{min-height:165px!important;height:165px!important;grid-template-rows:78px 80px!important;gap:7px!important}#page-home .machine-restored-status{position:relative;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;height:78px!important;min-height:78px!important;padding:11px 13px!important;overflow:hidden!important;box-sizing:border-box}#page-home .machine-restored-status .machine-status-copy{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px}#page-home .machine-restored-status .machine-status-copy>#shotStatus{display:block!important;max-width:100%;margin:0;padding:0;overflow:hidden;border:0!important;border-radius:0!important;background:0 0!important;box-shadow:none!important;color:#d8dee7!important;font-family:var(--ha-font-family-body)!important;font-size:var(--zone-font-title,16px)!important;font-weight:var(--ha-font-weight-medium)!important;line-height:var(--ha-line-height-condensed)!important;letter-spacing:0!important;text-overflow:ellipsis;white-space:nowrap}#page-home .machine-restored-status .machine-auto-off{min-height:0!important;margin:0!important;padding:0!important;border:0!important;background:0 0!important;color:#8f9aa7!important;box-shadow:none!important}#page-home .machine-restored-status .machine-water-indicator{position:relative;flex:0 0 auto;width:38px!important;min-width:38px!important;height:38px!important;min-height:38px!important;display:grid!important;place-items:center!important;padding:0!important;border:1px solid #35404c!important;border-radius:11px!important;background:#1c232b!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important}#page-home .machine-restored-status .machine-water-drop{width:24px;height:24px;display:grid;place-items:center;color:#74808d}#page-home .machine-restored-status .machine-water-drop svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}#page-home .machine-restored-status .machine-water-label,#page-home .machine-restored-status .machine-water-result{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important}#page-home .machine-restored-status .machine-water-indicator.ok{border-color:#35694c!important;background:#193126!important}#page-home .machine-restored-status .machine-water-indicator.ok .machine-water-drop{color:#63d493!important}#page-home .machine-restored-status .machine-water-indicator.warn{border-color:#774047!important;background:#352126!important}#page-home .machine-restored-status .machine-water-indicator.warn .machine-water-drop{color:#f27a82!important}#page-home .machine-restored-status .machine-water-indicator.unknown{border-color:#35404c!important;background:#1c232b!important}#page-home .machine-restored-status .machine-water-indicator.unknown .machine-water-drop{color:#74808d!important}#page-home .machine-actions-dock,#page-home .machine-actions-dock .machine-quick-actions{height:80px!important;min-height:80px!important}#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,123px)!important;grid-auto-rows:80px!important;justify-content:center!important;gap:10px!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:123px!important;min-width:123px!important;max-width:123px!important;height:80px!important;min-height:80px!important;max-height:80px!important}#page-home .machine-actions-dock .machine-quick-actions .quick-icon{width:58px!important;height:58px!important}@media (max-width:900px) and (min-width:701px){#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:100%!important;min-width:0!important;max-width:none!important}}@media (max-width:700px){#page-home .home-top-grid>.home-temperature-hero,#page-home .home-top-grid>.machine-panel{min-height:165px!important;height:165px!important}}@media (max-width:430px){#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:100%!important;min-width:0!important;max-width:none!important}#page-home .machine-restored-status{padding:9px 10px!important}#page-home .machine-restored-status .machine-water-indicator{width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important}}#page-home .home-top-grid>.home-temperature-hero,#page-home .home-top-grid>.machine-panel,#page-home .home-top-grid>.machine-panel>.machine-control-card{height:var(--home-temperature-card-height)!important;min-height:var(--home-temperature-card-height)!important}#page-home .home-top-grid>.machine-panel>.machine-control-card{grid-template-rows:78px minmax(80px,1fr)!important}#page-home .machine-actions-dock{align-items:center;justify-content:center}#page-home .home-temperature-hero-state{min-height:0}@media (max-width:1180px){.machine-icon-size-tools{grid-template-columns:repeat(2,minmax(210px,1fr))}.machine-icon-size-tools>button{grid-column:1/-1;width:100%}}@media (max-width:620px){.machine-icon-size-tools{grid-template-columns:minmax(0,1fr)}.machine-icon-size-tools>button{grid-column:auto}}@media (min-width:701px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{grid-template-columns:minmax(0,var(--home-left-column-share)) minmax(0,var(--home-right-column-share))!important}}.machine-icon-size-tools{grid-template-columns:repeat(5,minmax(170px,1fr)) auto}@media (max-width:1320px){.machine-icon-size-tools{grid-template-columns:repeat(3,minmax(190px,1fr))}.machine-icon-size-tools>button{grid-column:1/-1;width:100%}}@media (max-width:920px){.machine-icon-size-tools{grid-template-columns:repeat(2,minmax(210px,1fr))}}@media (max-width:620px){.machine-icon-size-tools{grid-template-columns:minmax(0,1fr)}.machine-icon-size-tools>button{grid-column:auto}}#page-settings [data-settings-panel=pressure]{width:100%;margin:0 auto}.pressure-parameter-grid,.pressure-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.pressure-settings-grid{gap:10px;margin-top:12px}.pressure-parameter-grid{gap:8px}#page-settings [data-settings-panel=pressure] .temperature-setting-control{grid-template-columns:minmax(82px,138px) auto;justify-content:end}#page-settings [data-settings-panel=pressure] .temperature-status-row>strong,#page-settings [data-settings-panel=pressure] .temperature-status-row>strong i{font-size:var(--zone-font-text)!important;font-weight:var(--ha-font-weight-medium);font-style:normal;font-variant-numeric:tabular-nums}.pressure-settings-save{margin-top:10px}@media (max-width:760px){#page-settings [data-settings-panel=pressure]{max-width:none}.pressure-parameter-grid,.pressure-settings-grid{grid-template-columns:minmax(0,1fr)}.pressure-settings-section-wide{grid-column:1}}@media (max-width:520px){#page-settings [data-settings-panel=pressure] .temperature-setting-control{grid-template-columns:minmax(0,1fr) auto;justify-content:stretch}}#page-settings [data-settings-panel=pump]{width:100%;margin:0 auto}.pump-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}#page-settings [data-settings-panel=pump] .temperature-setting-control{grid-template-columns:minmax(82px,138px) auto;justify-content:end}#page-settings [data-settings-panel=pump] .pump-toggle-row{grid-template-columns:minmax(0,1fr) auto}#page-settings [data-settings-panel=pump] .toggle-control{align-self:center;justify-self:end}.pump-legacy-details{min-width:0;margin:0;padding:0;border:1px solid #303944;border-radius:12px;background:#12171c;overflow:hidden}.pump-legacy-details>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;cursor:pointer;list-style:none;color:#dce2e9;font-size:var(--zone-font-text)!important;font-weight:var(--ha-font-weight-medium)}.pump-legacy-details>summary::-webkit-details-marker{display:none}.pump-legacy-details>summary::after{content:"›";color:#7f8a96;font-size:18px;line-height:1;transform:rotate(90deg);transition:transform .16s ease}.pump-legacy-details[open]>summary::after{transform:rotate(-90deg)}.pump-legacy-content{padding:0 12px 12px;border-top:1px solid #29313a}#page-settings .pump-legacy-note{margin:9px 0 2px;color:#84909d;font-size:var(--zone-font-small)!important;line-height:1.4}.pump-settings-save{margin-top:10px}@media (max-width:760px){#page-settings [data-settings-panel=pump]{max-width:none}.pump-settings-grid{grid-template-columns:minmax(0,1fr)}.pump-legacy-details,.pump-settings-section-wide{grid-column:1}}@media (max-width:520px){#page-settings [data-settings-panel=pump] .temperature-setting-control{grid-template-columns:minmax(0,1fr) auto;justify-content:stretch}#page-settings [data-settings-panel=pump] .pump-toggle-row{grid-template-columns:minmax(0,1fr) auto}}.machine-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.machine-settings-section-wide{grid-column:1/-1}.machine-setting-control,.settings-help-label-wrap>b,.settings-help-label-wrap>label{min-width:0}#page-settings .machine-setting-control select{width:100%;min-width:0;min-height:36px;padding:7px 9px;border-radius:8px;font-size:var(--zone-font-text)!important}.machine-autooff-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px}.machine-inline-actions{display:flex;justify-content:flex-end;padding-top:9px;border-top:1px solid #29313a}#page-settings .machine-inline-actions button,#page-settings .machine-primary-actions button,#page-settings .machine-settings-save button{min-height:36px;padding:7px 12px;font-size:var(--zone-font-text)!important;font-weight:var(--ha-font-weight-medium)}.machine-settings-save{margin-top:10px}#page-settings .temperature-status-row>strong i{font-style:normal;font-variant-numeric:tabular-nums}.settings-help-all-button{flex:0 0 auto;min-height:30px;padding:5px 9px;border:1px solid #343e49;border-radius:9px;background:#171d23;color:#aeb7c1;font-size:var(--zone-font-small)!important;font-weight:var(--ha-font-weight-medium);line-height:1}.settings-help-all-button.active,.settings-help-all-button:hover{border-color:#596676;background:#1c232a;color:#e2e7ec}.settings-help-label-wrap,.xdb-human-chips>span{min-width:0;display:inline-flex;align-items:center;gap:6px}.settings-info-button{flex:0 0 auto;width:19px;height:19px;display:inline-grid;place-items:center;padding:0;border:1px solid #3a4550;border-radius:50%;background:0 0;color:#82909e;font-size:11px!important;font-weight:700;line-height:1}.settings-info-button.active,.settings-info-button:hover{border-color:#687788;background:#202831;color:#e4e9ee}.settings-help-panel .settings-help-text{display:none!important}.settings-help-panel .settings-help-owner[data-help-open=true]>.settings-help-text,.settings-help-panel.help-all-open .settings-help-text{display:block!important}.settings-help-panel .settings-help-owner[data-help-open=true]>.settings-help-text{animation:settingsHelpReveal .14s ease-out}.temperature-settings-section-head>.settings-help-label-wrap{justify-self:start}.pid-parameter-main>.settings-help-label-wrap{flex:0 1 auto}@media (max-width:760px){#page-settings [data-settings-panel=machine]{max-width:none}.machine-autooff-grid,.machine-settings-grid{grid-template-columns:minmax(0,1fr)}.machine-settings-section-wide{grid-column:1}}@media (max-width:520px){.settings-panel-head{align-items:center}.settings-help-all-button{padding:5px 8px}.machine-inline-actions button{width:100%}}#page-settings [data-settings-panel=machine]{width:100%;margin:0 auto}.machine-primary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}.machine-primary-row{margin:0;padding:11px 12px;border:1px solid #303944!important;border-radius:12px;background:#12171c;grid-template-columns:minmax(0,1fr) 150px}.machine-primary-row .temperature-setting-copy{gap:3px}#page-settings .machine-primary-row .temperature-setting-copy>label{font-size:var(--zone-font-text)!important;font-weight:var(--ha-font-weight-medium)}.machine-live-meta{color:#84909d;font-size:var(--zone-font-small)!important;line-height:1.25}.machine-live-meta b{color:#b8c2cc;font-size:inherit!important;font-weight:var(--ha-font-weight-medium);font-variant-numeric:tabular-nums}.machine-primary-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}#page-settings [data-settings-panel=machine] .settings-panel-head{margin-bottom:0}@media (max-width:760px){#page-settings [data-settings-panel=machine]{max-width:none}.machine-primary-grid{grid-template-columns:minmax(0,1fr)}}@media (max-width:520px){.machine-primary-row{grid-template-columns:minmax(0,1fr) 132px;padding:10px}.machine-primary-actions{display:grid;grid-template-columns:minmax(0,1fr)}#page-settings .machine-primary-actions button{width:100%}}#page-settings [data-settings-panel=machine],#page-settings [data-settings-panel=pressure],#page-settings [data-settings-panel=pump],#page-settings [data-settings-panel=temperature]{max-width:720px}.machine-primary-grid,.pid-parameter-grid,.pressure-parameter-grid,.pressure-settings-grid,.pump-settings-grid,.temperature-settings-grid{grid-template-columns:minmax(0,1fr)!important}.pressure-settings-section-wide,.pump-legacy-details,.pump-settings-section-wide,.temperature-settings-section-wide{grid-column:1!important}.machine-primary-row{min-height:54px}.settings-info-button{display:none!important}.settings-help-label-wrap{display:contents}@media (max-width:760px){#page-settings [data-settings-panel=machine],#page-settings [data-settings-panel=pressure],#page-settings [data-settings-panel=pump],#page-settings [data-settings-panel=temperature]{max-width:none}}@media (min-width:980px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{grid-template-columns:minmax(350px,var(--home-left-column-share)) minmax(155px,var(--home-pressure-column-share)) minmax(290px,var(--home-right-column-share))!important;gap:7px!important}#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,123px))!important;justify-content:space-between!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:100%!important;min-width:0!important;max-width:123px!important}}#page-home .home-pressure-hero{position:relative;min-width:0;height:var(--home-temperature-card-height)!important;min-height:var(--home-temperature-card-height)!important;gap:3px;overflow:hidden;border:1px solid #344556;border-radius:14px;background:radial-gradient(circle at 50% 105%,rgba(69,143,201,.17),transparent 58%),linear-gradient(155deg,#19222b,#12181e 74%);box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 6px 18px rgba(0,0,0,.17);box-sizing:border-box}#page-home .home-pressure-hero::before{position:absolute;top:0;left:19px;right:19px;height:2px;border-radius:0 0 999px 999px;background:#5da9ef;opacity:.82}#page-home .home-pressure-hero.live{border-color:#3d6482}#page-home .home-pressure-head{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:6px}#page-home .home-pressure-reading strong,#page-home .home-pressure-title{font-family:var(--ha-font-family-body);font-weight:var(--ha-font-weight-medium)}#page-home .home-pressure-title{min-width:0;display:flex;align-items:center;gap:6px;color:#b7c3cf;font-size:10px;line-height:1;white-space:nowrap}#page-home .home-pressure-icon{width:24px;min-width:24px;height:24px;display:grid;place-items:center;border-radius:7px;background:#1f2d39;color:#70b9f5}#page-home .home-pressure-icon svg,.diagnostics-system-section-icon svg,.xdb-human-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}#page-home .home-pressure-range{flex:0 0 auto;color:#748392;font-size:7px;line-height:1;white-space:nowrap}#page-home .home-pressure-reading{z-index:2;display:flex;align-items:baseline;transform:translateX(-50%);white-space:nowrap;pointer-events:none}#page-home .home-pressure-reading strong{color:#b7dcfa}#page-home .home-pressure-reading em{color:#8593a1;font-style:normal;font-weight:var(--ha-font-weight-medium);font-size:10px!important}#page-home .home-pressure-footer{min-width:0;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:4px;color:#6f7d8b;font-size:7px;line-height:1}#page-home .home-pressure-target{overflow:hidden;color:#8593a1;text-align:center;text-overflow:ellipsis;white-space:nowrap}#page-home .home-pressure-target b,.diagnostics-section-label,.xdb-human-copy>b{color:#72dda0;font-size:9px;font-weight:var(--ha-font-weight-medium)}@media (min-width:701px) and (max-width:979px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr)!important;gap:7px!important}#page-home .home-top-grid>.machine-panel{grid-column:1/-1}#page-home .home-pressure-hero{grid-column:1}#page-home .home-temperature-hero{grid-column:2}}@media (max-width:700px){#page-home .home-pressure-hero{height:var(--home-temperature-card-height)!important;min-height:var(--home-temperature-card-height)!important}}@media (max-width:430px){#page-home .home-pressure-reading strong{font-size:26px}#page-home .home-pressure-title{font-size:9px}}#page-home .home-pressure-hero{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr)!important;place-items:center!important;padding:12px!important}#page-home .home-pressure-footer,#page-home .home-pressure-head,#page-home .home-temperature-heat-track>#homeHeatFill{display:none!important}#page-home .home-pressure-gauge{position:relative;min-width:0;align-self:center;justify-self:stretch;overflow:hidden}#page-home .home-pressure-reading{position:absolute!important}#page-home .home-pressure-reading strong{font-size:clamp(25px,2.15vw,34px)}@media (max-width:430px){#page-home .home-pressure-gauge{min-height:90px}#page-home .home-pressure-reading strong{font-size:28px}}#page-home .home-pressure-hero{background:radial-gradient(circle at 50% 48%,rgba(68,139,191,.13),transparent 54%),linear-gradient(155deg,#19222b,#12181e 74%)!important}#page-home .home-pressure-gauge{width:100%!important;height:calc(var(--home-temperature-card-height) - 18px)!important;min-height:112px;max-height:242px}#page-home .home-pressure-reading{top:74%!important;left:50%!important;bottom:auto!important;gap:4px!important;transform:translate(-50%,-50%)!important}#page-home .home-pressure-reading strong{font-size:31px!important;line-height:.9!important;letter-spacing:-.035em}@media (max-width:430px){#page-home .home-pressure-gauge{min-height:105px}#page-home .home-pressure-reading strong{font-size:31px!important}}#page-home .home-pressure-hero::before,#page-home .pressure-variant-a::before{content:none!important;display:none!important}#page-home .pressure-variant-a{padding:6px!important;background:radial-gradient(circle at 50% 46%,rgba(70,146,202,.16),transparent 58%),linear-gradient(155deg,#19222b,#12181e 74%)!important}#page-home .pressure-variant-a .home-pressure-gauge{width:100%!important;height:100%!important;min-height:122px;max-height:none}#page-home .pressure-variant-a .pressure-reading-stacked{top:76%!important;left:50%!important;bottom:auto!important;display:flex!important;flex-direction:column;align-items:center;gap:2px!important;transform:translate(-50%,-50%)!important}#page-home .pressure-variant-a .pressure-reading-stacked strong{font-size:36px!important;line-height:.82!important}#page-home .pressure-variant-a .pressure-reading-stacked em{font-size:9px!important;letter-spacing:.08em;text-transform:uppercase}.diagnostics-section-label{margin-top:13px;color:#7f8b97;font-size:10px;letter-spacing:.055em;text-transform:uppercase}.xdb-human-card{display:grid;grid-template-columns:42px minmax(0,1fr);align-items:start;gap:11px;margin-top:12px;padding:12px 13px;border:1px solid #35424e;border-radius:12px;background:#151b21;transition:border-color .18s ease,background .18s ease}.xdb-human-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:11px;background:#222b34;color:#91a0ae}.diagnostics-system-section-icon svg,.xdb-human-icon svg{width:23px;height:23px}.xdb-human-copy{min-width:0}.xdb-human-copy>b{display:block;color:#dce4ec;font-size:15px;line-height:1.2}.xdb-human-copy>p{margin:5px 0 0;color:#8e9aa6;font-size:11px;line-height:1.45}.xdb-human-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.xdb-human-chips>span{gap:4px;padding:5px 7px;border:1px solid #303b46;border-radius:8px;background:#11171c;color:#758390;font-size:9px;line-height:1}.xdb-human-chips b,.xdb-shot-head>div>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.xdb-human-chips b{max-width:240px;color:#abb7c2;font-weight:var(--ha-font-weight-medium)}.xdb-human-card.ok{border-color:rgba(76,184,127,.38);background:linear-gradient(135deg,rgba(54,139,96,.12),rgba(21,27,33,.96) 56%)}.xdb-human-card.ok .xdb-human-icon{background:rgba(54,139,96,.15);color:#68d49b}.xdb-human-card.warning{border-color:rgba(220,174,73,.43);background:linear-gradient(135deg,rgba(178,127,45,.13),rgba(21,27,33,.96) 58%)}.xdb-human-card.warning .xdb-human-icon{background:rgba(178,127,45,.16);color:#e6bd68}.xdb-human-card.critical{border-color:rgba(224,99,86,.5);background:linear-gradient(135deg,rgba(178,70,61,.16),rgba(21,27,33,.97) 58%)}.xdb-human-card.critical .xdb-human-icon{background:rgba(178,70,61,.18);color:#f08073}.xdb-shot-card{margin-top:13px;padding:12px 13px;border:1px solid #303b46;border-radius:12px;background:#12181e}.xdb-shot-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.xdb-shot-facts>div,.xdb-shot-head>div{min-width:0;display:flex;flex-direction:column;gap:3px}.xdb-shot-facts b,.xdb-shot-head>div>b{color:#cfd8e1;font-size:12px;font-weight:var(--ha-font-weight-medium)}.xdb-shot-head>div>span{color:#75828f;font-size:9px}.xdb-shot-head button{flex:0 0 auto}.xdb-shot-card>p{margin:10px 0 0;color:#929eaa;font-size:11px;line-height:1.5}.xdb-shot-card.problem{border-color:rgba(224,99,86,.38)}.xdb-shot-card.clear,.xdb-system-summary.ok{border-color:rgba(76,184,127,.32)}.xdb-shot-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:11px}.xdb-shot-facts>div{gap:4px;padding:8px 9px;border:1px solid #2d3741;border-radius:9px;background:#0f151a}.xdb-shot-facts span{color:#71808d;font-size:8px;line-height:1.2}.xdb-shot-facts b{overflow:hidden;color:#bcc7d1;font-size:11px;line-height:1.25;text-overflow:ellipsis}.xdb-system-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:11px 12px;border:1px solid #35404b;border-radius:11px;background:#141a20}.diagnostics-system-section-head>div,.xdb-system-summary>div{min-width:0}.xdb-system-summary b{color:#d2dbe3;font-size:12px;font-weight:var(--ha-font-weight-medium)}.xdb-system-summary p{margin:4px 0 0;color:#82909c;font-size:10px;line-height:1.4}.xdb-system-summary>span{flex:0 0 auto;max-width:180px;padding:6px 8px;overflow:hidden;border:1px solid #303b46;border-radius:8px;background:#10161b;color:#9eabb7;font-size:9px;text-align:right;text-overflow:ellipsis;white-space:nowrap}.xdb-system-summary.warning{border-color:rgba(220,174,73,.38)}.xdb-system-summary.critical{border-color:rgba(224,99,86,.45)}@media (max-width:620px){.xdb-shot-facts{grid-template-columns:minmax(0,1fr)}.xdb-shot-head,.xdb-system-summary{align-items:stretch;flex-direction:column}.xdb-shot-head button,.xdb-system-summary>span{width:100%;max-width:none}.xdb-system-summary>span{text-align:left}}@media (max-width:430px){.xdb-human-card{grid-template-columns:36px minmax(0,1fr);padding:11px}.xdb-human-icon{width:36px;height:36px}}.diagnostics-system-section{margin-top:12px;padding:12px;border:1px solid #303b46;border-radius:13px;background:#12181e}.diagnostics-system-section+.diagnostics-system-section{margin-top:10px}.diagnostics-system-section-head{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:10px}.diagnostics-system-section-head>div>b{display:block;color:#d7e0e8;font-size:13px;line-height:1.2}.diagnostics-system-section-head>div>p{margin:3px 0 0;color:#7f8c98;font-size:9px;line-height:1.35}.diagnostics-system-section-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:10px}.diagnostics-system-section-icon svg{width:21px;height:21px;stroke-width:1.7}.diagnostics-system-section-icon.sensor{background:rgba(70,139,192,.14);color:#70b9ee}.diagnostics-system-section-icon.esp{background:rgba(132,107,184,.14);color:#b19ae2}.diagnostics-section-health{min-width:0;padding:6px 8px;border:1px solid #303b46;border-radius:8px;background:#0f151a;color:#75828e;font-size:9px;white-space:nowrap}#page-home .home-temperature-target b,.diagnostics-section-health b,.diagnostics-system-section-head>div>b{font-weight:var(--ha-font-weight-medium)}.diagnostics-system-section .xdb-system-summary{margin-top:11px}.diagnostics-system-section .diagnostics-section-label{margin-top:12px}.diagnostics-esp-grid,.diagnostics-sensor-grid{margin-top:8px}.diagnostics-esp-grid>div,.diagnostics-sensor-grid>div{min-height:64px}.diagnostics-esp-note{margin:9px 1px 0;color:#74818d;font-size:9px;line-height:1.4}.diagnostics-system-actions{margin-top:11px}#shotChartCard .home-archive-summary{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0 0 7px}#shotChartCard .home-archive-summary .home-archive-metric{min-width:0;min-height:49px;padding:7px 8px;border:1px solid #3c4552;border-radius:10px;background:linear-gradient(145deg,#171c23,#11151a);color:var(--text);text-align:left;box-shadow:none}#shotChartCard .home-archive-summary .home-archive-metric b,#shotChartCard .home-archive-summary .home-archive-metric small{display:block;overflow:hidden;color:#9ca6b2;font-size:var(--zone-font-chart)!important;font-weight:var(--ha-font-weight-medium);line-height:1.1;text-overflow:ellipsis;white-space:nowrap}#shotChartCard .home-archive-summary .home-archive-metric b{margin-top:3px;color:#e7ebf0;font-size:var(--zone-font-value)!important;line-height:1}@media (max-width:620px){.diagnostics-system-section-head{grid-template-columns:38px minmax(0,1fr)}.diagnostics-section-health{grid-column:1/-1}#shotChartCard .home-archive-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (max-width:390px){#shotChartCard .home-archive-summary{grid-template-columns:minmax(0,1fr)}}@media (min-width:981px){.shot-profile-board,.shot-profile-board.line-settings-open{align-items:start!important}.shot-profile-board.line-settings-open>#shotChartCard,.shot-profile-board>#shotChartCard{align-self:start!important;height:auto!important;min-height:520px}.shot-profile-board.line-settings-open>#profileLibraryCard,.shot-profile-board>#profileLibraryCard{align-self:start!important;height:520px!important;min-height:520px!important;max-height:520px!important}#profileLibraryCard .home-shot-rail-pane{min-height:0}#profileLibraryCard .home-archive-list,#profileLibraryCard .user-profile-list{min-height:0;overflow:auto}}#page-home .home-temperature-hero-state{grid-template-rows:35px minmax(58px,1fr) 23px!important;gap:6px!important;padding:10px 12px!important}#page-home .home-temperature-hero-reading{min-width:0;display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:0 2px}#page-home .home-temperature-hero-reading strong{font-size:32px!important}#page-home .home-temperature-target{color:#98a3af;font-size:var(--zone-font-text,14px)!important;font-weight:var(--ha-font-weight-medium);line-height:1;white-space:nowrap}#page-home .home-temperature-target b{color:#a9e2be;font-size:32px!important;letter-spacing:-.02em}#page-home .home-temperature-mini-chart{min-height:58px}#page-home .home-temperature-hero-footer{grid-template-columns:auto minmax(72px,1fr) minmax(0,auto);gap:9px;color:#9aa5b1;font-size:var(--zone-font-small,10px)!important;font-weight:var(--ha-font-weight-medium)}#page-home .home-temperature-hero-footer>span:first-child{color:#b8c1cb}#page-home .home-temperature-heat-track{--heat-pct:0%;position:relative;height:6px;overflow:hidden;border-radius:999px;background:linear-gradient(90deg,#c9aa58 0,#df9a4e 52%,#e87c4f 78%,#ee6952 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.035)}#page-home .home-temperature-heat-track::after{content:"";position:absolute;top:0;right:0;bottom:0;width:calc(100% - var(--heat-pct));background:#29323b;transition:width .2s ease}#page-home .home-temperature-delta{max-width:160px;color:#aab4bf;font-size:inherit;font-weight:var(--ha-font-weight-medium)}@media (max-width:430px){#page-home .home-temperature-hero-state{grid-template-rows:32px minmax(54px,1fr) 21px!important;padding:9px!important}#page-home .home-temperature-hero-reading strong,#page-home .home-temperature-target b{font-size:28px!important}#page-home .home-temperature-target{font-size:12px!important}#page-home .home-temperature-hero-footer{grid-template-columns:auto minmax(48px,1fr) minmax(0,auto);gap:6px;font-size:9px!important}#page-home .home-temperature-delta{max-width:108px}}#page-home .machine-mascot{--mascot-accent:#73808d;position:relative;flex:0 0 auto;width:60px;height:42px;display:grid;grid-template-columns:1fr 1fr;align-items:center;justify-items:center;column-gap:8px;padding:7px 9px 11px;border:1px solid #35404c;border-radius:13px;background:radial-gradient(circle at 50% 15%,rgba(255,255,255,.035),transparent 48%),#171e26;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 0 0 1px rgba(0,0,0,.08);box-sizing:border-box;color:var(--mascot-accent);overflow:visible;transition:border-color .22s ease,background .22s ease,box-shadow .22s ease,color .22s ease}#page-home .machine-mascot::before{content:"";position:absolute;inset:5px;border-radius:9px;background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--mascot-accent) 10%,transparent),transparent 68%);opacity:.75;pointer-events:none;transition:opacity .22s ease}#page-home .machine-mascot-eye{position:relative;z-index:1;width:15px;height:12px;display:grid;place-items:center;border:1.5px solid currentColor;border-radius:50%;background:rgba(9,12,16,.62);box-shadow:0 0 8px color-mix(in srgb,currentColor 16%,transparent);transform-origin:center;animation:machineMascotBlink 6.8s ease-in-out infinite;transition:height .2s ease,border-radius .2s ease,transform .2s ease,opacity .2s ease,background .2s ease}#page-home .machine-mascot-eye:nth-of-type(2){animation-delay:.13s}#page-home .machine-mascot-pupil{width:4px;height:4px;border-radius:50%;background:currentColor;box-shadow:0 0 6px color-mix(in srgb,currentColor 55%,transparent);animation:machineMascotLook 5.2s ease-in-out infinite;transition:transform .2s ease,opacity .2s ease}#page-home .machine-mascot-mouth{position:absolute;z-index:1;left:50%;bottom:6px;width:13px;height:5px;border-bottom:1.5px solid currentColor;border-radius:0 0 10px 10px;transform:translateX(-50%);opacity:.75;transition:width .2s ease,height .2s ease,border .2s ease,border-radius .2s ease,transform .2s ease,opacity .2s ease}#page-home .machine-mascot-steam{position:absolute;top:-7px;right:8px;width:20px;height:12px;opacity:0;pointer-events:none;transition:opacity .2s ease}#page-home .machine-mascot-steam i{position:absolute;bottom:0;width:2px;height:8px;border-radius:999px;background:currentColor;opacity:0;animation:machineMascotSteam 1.45s ease-out infinite}#page-home .machine-mascot-steam i:nth-child(1){left:2px;animation-delay:0s}#page-home .machine-mascot-steam i:nth-child(2){left:9px;animation-delay:.34s}#page-home .machine-mascot-steam i:nth-child(3){left:16px;animation-delay:.68s}#page-home .machine-mascot.state-off{--mascot-accent:#66717d;border-color:#303842;background:#161b21;opacity:.72}#page-home .machine-mascot.state-off .machine-mascot-eye{height:4px;border-radius:999px;border-width:1.5px 0 0;background:0 0;box-shadow:none;animation:none;transform:translateY(2px)}#page-home .machine-mascot.state-off .machine-mascot-pupil{opacity:0;animation:none}#page-home .machine-mascot.state-off .machine-mascot-mouth{width:10px;height:1px;border:0;border-top:1.5px solid currentColor;border-radius:0;opacity:.5}#page-home .machine-mascot.state-heating{--mascot-accent:#e59a55;border-color:#5b4432;background:#211b18;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 0 15px rgba(225,139,72,.07);animation:machineMascotWarm 2.4s ease-in-out infinite}#page-home .machine-mascot.state-heating .machine-mascot-pupil{animation:machineMascotHeatLook 2.8s ease-in-out infinite}#page-home .machine-mascot.state-ready{--mascot-accent:#61d493;border-color:#37684d;background:#17251e}#page-home .machine-mascot.state-ready .machine-mascot-eye{height:10px}#page-home .machine-mascot.state-ready .machine-mascot-mouth{width:15px;height:7px;border-bottom-width:2px;opacity:1;animation:machineMascotSmile 3.2s ease-in-out infinite}#page-home .machine-mascot.state-shot{--mascot-accent:#ffd166;border-color:#6a592e;background:#241f16;animation:machineMascotFocus 1.25s ease-in-out infinite}#page-home .machine-mascot.state-shot .machine-mascot-eye{height:8px;border-radius:45%}#page-home .machine-mascot.state-shot .machine-mascot-pupil{animation:none;transform:translateY(1px) scale(.9)}#page-home .machine-mascot.state-shot .machine-mascot-mouth{width:8px;height:2px;border-radius:999px;opacity:.82}#page-home .machine-mascot.state-water{--mascot-accent:#62b9ff;border-color:#315b79;background:#17232c}#page-home .machine-mascot.state-water .machine-mascot-pupil{animation:machineMascotWaterLook 1.8s ease-in-out infinite}#page-home .machine-mascot.state-water .machine-mascot-mouth{width:6px;height:6px;border:1.5px solid currentColor;border-radius:50%;opacity:.85}#page-home .machine-mascot.state-steam{--mascot-accent:#b695ff;border-color:#574775;background:#201b2b}#page-home .machine-mascot.state-steam .machine-mascot-eye{width:16px;height:13px}#page-home .machine-mascot.state-steam .machine-mascot-steam{opacity:.9}#page-home .machine-mascot.state-steam .machine-mascot-steam i{opacity:.62}#page-home .machine-mascot.state-steam .machine-mascot-mouth{width:10px;height:6px;border-bottom-width:2px;opacity:1}#page-home .machine-mascot.state-warning{--mascot-accent:#f0a55f;border-color:#785139;background:#2a2119}#page-home .machine-mascot.state-warning .machine-mascot-eye:first-of-type{transform:rotate(-8deg)}#page-home .machine-mascot.state-warning .machine-mascot-eye:nth-of-type(2){transform:rotate(8deg)}#page-home .machine-mascot.state-warning .machine-mascot-mouth{width:14px;height:6px;border:0;border-top:1.8px solid currentColor;border-radius:10px 10px 0 0;transform:translateX(-50%) translateY(2px);opacity:1}#page-home .machine-mascot.state-error{--mascot-accent:#ff7777;border-color:#7c4247;background:#2b1b1f;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 0 14px rgba(255,104,104,.08)}#page-home .machine-mascot.state-error .machine-mascot-eye{width:17px;height:14px;animation-duration:3.6s}#page-home .machine-mascot.state-error .machine-mascot-pupil{animation:none;transform:scale(.72)}#page-home .machine-mascot.state-error .machine-mascot-mouth{width:14px;height:6px;border:0;border-top:1.8px solid currentColor;border-radius:10px 10px 0 0;transform:translateX(-50%) translateY(2px);opacity:1}@media (max-width:760px){#page-home .machine-mascot{width:52px;height:38px;padding:6px 7px 10px;column-gap:6px}#page-home .machine-mascot-eye{width:13px;height:10px}}@media (prefers-reduced-motion:reduce){#page-home .machine-mascot,#page-home .machine-mascot *,#page-home .machine-mascot::before{animation:none!important;transition:none!important}}#page-home .pressure-variant-a .home-pressure-backflush{position:absolute;left:9px;right:9px;bottom:6px;z-index:4;min-width:0;display:flex;align-items:center;justify-content:center;gap:5px;padding:4px 7px 2px;border-top:1px solid rgba(118,145,167,.18);color:#788896;font-size:9px;font-weight:600;line-height:1.05;white-space:nowrap;pointer-events:none}#page-home .pressure-variant-a .home-pressure-backflush-icon{color:#7299b7;font-size:11px;line-height:1}#page-home .pressure-variant-a .home-pressure-backflush.due{color:#efb37c;border-top-color:rgba(225,139,72,.32)}#page-home .pressure-variant-a .home-pressure-backflush.due .home-pressure-backflush-icon{color:#e18b48}#shotChartCard .target-weight-footer.shot-result b{color:#d8eadf}#page-settings .pressure-settings-grid,#page-settings .pump-settings-grid,#page-settings .temperature-settings-grid{gap:14px}#page-settings .temperature-settings-section{padding:0;border:0;border-radius:0;background:0 0}#page-settings .temperature-settings-section-head{margin:0 3px 7px;padding:0 1px;gap:3px}#page-maintenance .service-setting-copy label,#page-maintenance .toggle-copy span,#page-settings .temperature-settings-section-head>.settings-help-label-wrap>b,#page-settings .temperature-settings-section-head>b{color:#dce2e9;font-size:var(--zone-font-text)!important;font-weight:var(--ha-font-weight-medium);line-height:1.25}#page-settings .temperature-settings-section>.temperature-autotune-row,#page-settings .temperature-settings-section>.temperature-setting-row{margin:0;padding:10px 12px;border:1px solid #303944!important;border-radius:11px;background:#12171c}#page-settings .temperature-settings-section>.pid-parameter-grid+.temperature-autotune-row,#page-settings .temperature-settings-section>.pressure-parameter-grid+.temperature-setting-row,#page-settings .temperature-settings-section>.temperature-autotune-row+.temperature-setting-row,#page-settings .temperature-settings-section>.temperature-setting-row+.temperature-autotune-row,#page-settings .temperature-settings-section>.temperature-setting-row+.temperature-setting-row{margin-top:7px}#page-settings .temperature-settings-section-head+.temperature-autotune-row,#page-settings .temperature-settings-section-head+.temperature-setting-row{border-top:1px solid #303944!important}#page-settings .temperature-settings-section>.pid-parameter-grid,#page-settings .temperature-settings-section>.pressure-parameter-grid{margin-top:0}#page-settings .temperature-settings-section .pid-parameter-card{background:#12171c;border-color:#303944}@media (max-width:520px){#page-settings .temperature-settings-section>.temperature-autotune-row,#page-settings .temperature-settings-section>.temperature-setting-row{padding:10px}}#page-maintenance .service-panel{width:100%;max-width:780px;margin:0 auto}#page-maintenance .service-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}#page-maintenance .service-subsection-title{margin:14px 3px 7px;padding:0 1px;color:#dce2e9;font-size:var(--zone-font-text)!important;font-weight:var(--ha-font-weight-medium);line-height:1.25}#page-maintenance .service-subsection-title:first-of-type{margin-top:12px}#page-maintenance .service-fields{grid-template-columns:minmax(0,1fr);gap:7px;margin-top:0}#page-maintenance .service-fields .setting,#page-maintenance .service-fields .toggle-setting{min-height:58px;margin:0;padding:10px 12px;border:1px solid #303944;border-radius:11px;background:#12171c}#page-maintenance .service-fields .setting{display:grid;grid-template-columns:minmax(0,1fr) minmax(116px,150px);align-items:center;gap:14px}#page-maintenance .service-fields .toggle-setting{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px}#page-maintenance .service-setting-copy,#page-maintenance .toggle-copy{min-width:0;display:grid;gap:3px}#page-maintenance .service-setting-control{min-width:0;display:grid;grid-template-columns:minmax(78px,1fr) auto;align-items:center;gap:7px}#page-maintenance .service-setting-control input,#page-maintenance .service-setting-control select{min-width:0;width:100%}#page-maintenance .service-setting-control>span{min-width:24px;color:#8995a2;font-size:var(--zone-font-small)!important;text-align:left;white-space:nowrap}#page-maintenance .service-status-grid{grid-template-columns:minmax(0,1fr);gap:7px;margin-top:0}#page-maintenance .service-status-grid>div{min-height:48px;padding:9px 11px;border-radius:11px;background:#12171c}#page-maintenance .service-status-wide{grid-column:1}#page-maintenance .service-status-single{max-width:none;margin-left:0}#page-maintenance .service-actions{justify-content:flex-start;margin-top:8px}#page-maintenance .service-actions-danger{padding-top:0;border-top:0}#page-maintenance .service-group-help{margin:-1px 3px 7px;color:#7f8995;font-size:var(--zone-font-small)!important;line-height:1.4}#page-maintenance .service-note{margin-top:8px}#page-maintenance .service-help-panel .service-help-text{display:none!important}#page-maintenance .service-help-panel.help-all-open .service-help-text{display:block!important;animation:settingsHelpReveal .14s ease-out}@media (max-width:520px){#page-maintenance .service-fields .setting,#page-maintenance .service-fields .toggle-setting{grid-template-columns:minmax(0,1fr);gap:8px;padding:10px}#page-maintenance .service-setting-control{grid-template-columns:minmax(0,1fr) auto}#page-maintenance .service-fields .toggle-setting .toggle-control{justify-self:end}}
+            ))!important}}.machine-control-card{grid-template-rows:78px minmax(58px,1fr);gap:7px}.machine-top-strip{height:78px;min-height:78px;grid-template-columns:78px minmax(0,1fr);gap:7px;align-items:stretch}.machine-power-tile{width:78px;min-width:78px;aspect-ratio:1;place-self:start;padding:12px}.machine-power-tile .power-inline{width:52px;min-width:52px;height:52px;min-height:52px;margin:0;place-self:center;box-sizing:border-box}.machine-power-tile,.machine-status-banner{min-height:78px;height:78px;box-sizing:border-box}.machine-actions-dock .machine-quick-actions .quick-action{position:relative;min-height:58px;overflow:hidden;display:block!important;padding:0!important}.machine-actions-dock .machine-quick-actions .quick-icon{position:absolute!important;inset:0!important;width:42px!important;height:42px!important;margin:auto!important;display:grid!important;place-items:center!important;align-self:auto!important;justify-self:auto!important;transform:none!important;border-radius:0!important;background:0 0!important}.machine-actions-dock .machine-quick-actions .quick-icon svg{display:block;width:32px!important;height:32px!important;margin:auto;overflow:visible}.machine-actions-dock .machine-quick-actions .quick-action.active .quick-icon,.machine-actions-dock .machine-quick-actions .quick-action.danger .quick-icon,.machine-actions-dock .machine-quick-actions .quick-action:disabled .quick-icon{background:0 0!important;transform:none!important}@media (max-width:900px) and (min-width:701px){.machine-control-card{grid-template-rows:70px minmax(56px,1fr)}.machine-top-strip{height:70px;min-height:70px;grid-template-columns:70px minmax(0,1fr)}.machine-power-tile{width:70px;min-width:70px;padding:11px}.machine-power-tile .power-inline{width:46px;min-width:46px;height:46px;min-height:46px}.machine-power-tile,.machine-status-banner{min-height:70px;height:70px}.machine-actions-dock .machine-quick-actions .quick-icon{width:38px!important;height:38px!important}.machine-actions-dock .machine-quick-actions .quick-icon svg{width:29px!important;height:29px!important}}@media (max-width:700px){.machine-control-card{min-height:138px;grid-template-rows:68px minmax(58px,1fr)}.machine-top-strip{height:68px;min-height:68px;grid-template-columns:68px minmax(0,1fr)}.machine-power-tile{width:68px;min-width:68px;padding:10px}.machine-power-tile .power-inline{width:46px;min-width:46px;height:46px;min-height:46px}.machine-power-tile,.machine-status-banner{min-height:68px;height:68px}}@media (max-width:430px){.machine-control-card{grid-template-rows:62px minmax(54px,1fr)}.machine-top-strip{height:62px;min-height:62px;grid-template-columns:62px minmax(0,1fr);gap:6px}.machine-power-tile{width:62px;min-width:62px;padding:9px}.machine-power-tile .power-inline{width:42px;min-width:42px;height:42px;min-height:42px}.machine-power-tile,.machine-status-banner{min-height:62px;height:62px}.machine-actions-dock .machine-quick-actions .quick-icon{width:35px!important;height:35px!important}.machine-actions-dock .machine-quick-actions .quick-icon svg{width:27px!important;height:27px!important}}.machine-icon-size-tools{flex:1 0 100%;display:grid;align-items:end;gap:8px 10px;padding:9px 10px;border:1px solid #303a46;border-radius:10px;background:#11161b}.machine-icon-size-tools label{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 9px;align-items:center;color:#aeb8c4;font-size:10px;font-weight:700}.machine-icon-size-tools output{color:#e5eaf0;font-variant-numeric:tabular-nums}.machine-icon-size-tools input{grid-column:1/-1;width:100%;min-width:0;height:18px;padding:0;border:0;background:0 0}.machine-icon-size-tools>button{align-self:end;white-space:nowrap}#page-home .home-top-grid>[data-home-top-panel]{width:100%!important;max-width:none!important;min-width:0!important;justify-self:stretch!important;align-self:stretch!important;box-sizing:border-box}#page-home .home-top-grid>.machine-panel{display:grid!important;grid-template-columns:minmax(0,1fr)}#page-home .home-top-grid>.home-metrics-panel,#page-home .machine-panel>.machine-control-card{width:100%!important;max-width:none!important;min-width:0!important;justify-self:stretch!important;align-self:stretch!important;box-sizing:border-box}#page-home{--machine-action-icon-size:48px;--machine-power-button-size:52px;--home-section-gap:18px;--home-temperature-card-height:165px;--home-left-column-share:50fr;--home-right-column-share:50fr;--home-left-column-share:38fr;--home-pressure-column-share:18fr;--home-right-column-share:44fr}#page-home .machine-power-tile .power-inline{width:var(--machine-power-button-size)!important;min-width:var(--machine-power-button-size)!important;height:var(--machine-power-button-size)!important;min-height:var(--machine-power-button-size)!important}#page-home .machine-power-tile .power-symbol{font-size:calc(var(--machine-power-button-size)*.44)!important}#page-home .machine-actions-dock .machine-quick-actions .quick-icon svg{display:block!important;margin:0!important;transform:none!important;width:min(var(--machine-action-icon-size),42px)!important;height:min(var(--machine-action-icon-size),42px)!important;width:var(--machine-action-icon-size)!important;height:var(--machine-action-icon-size)!important}#page-home .machine-actions-dock .machine-quick-actions .quick-icon{width:calc(var(--machine-action-icon-size) + 10px)!important;height:calc(var(--machine-action-icon-size) + 10px)!important}@media (max-width:760px){.machine-icon-size-tools{grid-template-columns:minmax(0,1fr)}.machine-icon-size-tools>button{width:100%}}#page-home .home-top-grid>.machine-panel{position:relative!important;display:block!important;width:100%!important;min-width:0!important;max-width:none!important;overflow:visible}#page-home .home-top-grid>.machine-panel>.machine-control-card{position:absolute!important;inset:0!important;width:auto!important;min-width:0!important;max-width:none!important;margin:0!important;box-sizing:border-box!important}#page-home .home-top-grid>.machine-panel>.dashboard-drag-handle,#page-home .home-top-grid>.machine-panel>.dashboard-hide-button,#page-home .home-top-grid>.machine-panel>.home-top-panel-order-handle{z-index:80}@media (max-width:700px){#page-home .home-top-grid>.machine-panel{min-height:138px}}@media (max-width:430px){#page-home .home-top-grid>.machine-panel{min-height:126px}}#page-home .machine-control-card{grid-template-rows:78px 80px!important;min-height:165px!important}#page-home .machine-actions-dock .machine-quick-actions{display:grid;grid-auto-columns:123px;align-content:center;align-items:center}#page-home .machine-actions-dock .machine-quick-actions .quick-action{box-sizing:border-box}@media (max-width:700px){#page-home .machine-control-card{grid-template-rows:68px 80px!important;min-height:155px!important}#page-home .home-top-grid>.machine-panel{min-height:155px!important}}@media (max-width:430px){#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-columns:auto;width:100%}#page-home .machine-actions-dock .machine-quick-actions .quick-action{width:100%!important;min-width:0!important;max-width:none!important}}#page-home .machine-control-card{overflow:visible!important;border-radius:0!important;clip-path:none!important}#page-home .machine-power-tile{position:relative;isolation:isolate;overflow:visible}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{position:relative!important;display:block!important;margin:0!important;padding:0!important;border-width:1px!important;border-style:solid!important;box-sizing:border-box!important;transform:none!important;translate:none!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action.active .quick-icon,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger .quick-icon,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active .quick-icon,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled .quick-icon,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover .quick-icon,#page-home .machine-actions-dock .machine-quick-actions .quick-icon{position:absolute!important;top:50%!important;left:50%!important;right:auto!important;bottom:auto!important;width:calc(var(--machine-action-icon-size) + 10px)!important;height:calc(var(--machine-action-icon-size) + 10px)!important;margin:0!important;padding:0!important;display:grid!important;place-items:center!important;transform:translate(-50%,-50%)!important;translate:none!important;background:0 0!important;border:0!important;border-radius:0!important;box-shadow:none!important}#page-home .machine-status-banner{display:grid!important;grid-template-rows:minmax(0,1fr)}#page-home .machine-status-main{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;padding:0 4px}#page-home .machine-status-main .machine-mode-status{min-width:0;min-height:30px;display:inline-flex;align-items:center;gap:7px;margin:0;padding:6px 10px;border:1px solid #34404c;border-radius:10px;background:#171d24}#page-home .machine-status-main .machine-mode-status b{overflow:hidden;color:#e8edf3;font-size:13px;line-height:1;text-overflow:ellipsis;white-space:nowrap}#page-home .machine-status-main .machine-auto-off{min-height:20px;margin:0;padding:3px 7px}#page-home .machine-water-tile{position:relative;display:grid!important;place-items:center;padding:0!important;overflow:hidden;border:1px solid #35404c!important;border-radius:11px!important;background:#192027!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}#page-home .machine-water-drop{display:grid;place-items:center;width:28px;height:28px;color:#788492}#page-home .machine-water-drop svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}#page-home .machine-water-result{position:absolute;right:3px;bottom:3px;min-width:15px;height:15px;display:grid;place-items:center;padding:0 3px;border:1px solid #44505d;border-radius:999px;background:#252d36;color:#aeb8c4;font-size:9px;line-height:1;font-weight:850}#page-home .machine-water-tile.ok{border-color:#35694c!important;background:linear-gradient(145deg,#183326,#14251d)!important}#page-home .machine-water-tile.ok .machine-water-drop{color:#67d99a}#page-home .machine-water-tile.ok .machine-water-result{border-color:#3d7a58;background:#235139;color:#9af0bd}#page-home .machine-water-tile.warn{border-color:#804347!important;background:linear-gradient(145deg,#3b2327,#281b1e)!important}#page-home .machine-water-tile.warn .machine-water-drop{color:#ff8188}#page-home .machine-water-tile.warn .machine-water-result{border-color:#8d4a50;background:#582b31;color:#ffc0c4}#page-home .machine-status-hidden,#page-home .machine-water-label{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important}@media (max-width:430px){#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:100%!important;min-width:0!important;max-width:none!important}#page-home .machine-status-banner{grid-template-columns:minmax(0,1fr) 43px;gap:6px;padding:6px!important}#page-home .machine-water-tile{width:43px!important;min-width:43px!important}}#page-home .machine-water-tile{width:78px!important;min-width:78px!important;height:78px!important;min-height:78px!important;align-self:stretch;box-sizing:border-box}#page-home .machine-status-banner{grid-template-columns:minmax(0,1fr)!important}#page-home .machine-actions-dock .machine-quick-actions{width:100%;grid-template-columns:repeat(4,minmax(0,123px))!important}#page-home .machine-custom-action.empty{border-style:dashed!important;border-color:#4c5865!important;background:linear-gradient(145deg,#222930,#1a2026)!important}#page-home .machine-custom-action.empty .quick-icon{color:#8793a0}#page-home .machine-custom-action:not(.empty){border-color:#5a506e!important;background:linear-gradient(145deg,#342e43,#252131)!important}#page-home .machine-custom-action:not(.empty) .quick-icon{color:#c9b5f0}.machine-shortcut-dialog[hidden]{display:none}.machine-shortcut-dialog{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:18px;background:rgba(5,8,11,.72);backdrop-filter:blur(4px)}.machine-shortcut-dialog-card{width:min(390px,100%);padding:16px;border:1px solid #3b4653;border-radius:16px;background:linear-gradient(145deg,#20262e,#171c22);box-shadow:0 20px 55px rgba(0,0,0,.46)}.machine-shortcut-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.machine-shortcut-dialog-head b{display:block;font-size:16px}.machine-shortcut-dialog-head small{display:block;margin-top:4px;color:#919ca9;font-size:11px}.machine-shortcut-close{width:30px;min-width:30px;height:30px;padding:0;border-radius:9px;background:#2a313a;color:#c8d0da;font-size:18px}.machine-shortcut-field{display:grid;gap:6px;margin-top:15px;color:#aab4c0;font-size:11px;font-weight:700}.machine-shortcut-dialog-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:14px}@media (max-width:900px) and (min-width:701px){#page-home .machine-top-strip{grid-template-columns:70px minmax(0,1fr) 70px!important}#page-home .machine-water-tile{width:70px!important;min-width:70px!important;height:70px!important;min-height:70px!important}}@media (max-width:700px){#page-home .machine-top-strip{grid-template-columns:68px minmax(0,1fr) 68px!important}#page-home .machine-water-tile{width:68px!important;min-width:68px!important;height:68px!important;min-height:68px!important}}@media (max-width:430px){#page-home .machine-top-strip{grid-template-columns:62px minmax(0,1fr) 62px!important}#page-home .machine-water-tile{width:62px!important;min-width:62px!important;height:62px!important;min-height:62px!important}#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px}}#page-home .machine-top-strip{grid-template-columns:78px minmax(0,1fr)!important;gap:7px}#page-home .machine-status-banner{position:relative;display:flex!important;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px!important;overflow:hidden}#page-home .machine-status-copy{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px}#page-home .machine-status-copy>#shotStatus{display:block;max-width:100%;margin:0;padding:0;border:0!important;border-radius:0!important;background:0 0!important;font-size:18px;line-height:1.05;font-weight:760;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-shadow:none!important}#page-home .machine-status-copy .machine-auto-off{min-height:0;margin:0;padding:0;border:0;background:0 0;color:#8f9aa7}#page-home .machine-water-indicator{position:relative;flex:0 0 auto;width:38px!important;min-width:38px!important;height:38px!important;min-height:38px!important;display:grid!important;place-items:center;padding:0!important;border:1px solid #35404c!important;border-radius:11px!important;background:#1c232b!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}#page-home .machine-water-indicator .machine-water-drop{width:24px;height:24px;color:#74808d}#page-home .machine-water-indicator .machine-water-drop svg{width:22px;height:22px}#page-home .machine-water-indicator .machine-water-result{display:none!important}#page-home .machine-water-indicator.ok{border-color:#35694c!important;background:#193126!important}#page-home .machine-water-indicator.ok .machine-water-drop{color:#63d493}#page-home .machine-water-indicator.warn{border-color:#774047!important;background:#352126!important}#page-home .machine-water-indicator.warn .machine-water-drop{color:#f27a82}#page-home .machine-water-indicator.unknown{border-color:#35404c!important;background:#1c232b!important}#page-home .machine-water-indicator.unknown .machine-water-drop{color:#74808d}#page-home .machine-actions-dock .machine-quick-actions .quick-action{width:123px!important;min-width:123px!important;max-width:123px!important;height:80px!important;min-height:80px!important;max-height:80px!important}@media (max-width:900px) and (min-width:701px){#page-home .machine-top-strip{grid-template-columns:70px minmax(0,1fr)!important}}@media (max-width:700px){#page-home .machine-top-strip{grid-template-columns:68px minmax(0,1fr)!important}#page-home .machine-status-copy>#shotStatus{font-size:16px}}@media (max-width:430px){#page-home .machine-top-strip{grid-template-columns:62px minmax(0,1fr)!important}#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px}#page-home .machine-actions-dock .machine-quick-actions .quick-action{width:100%!important;min-width:0!important;max-width:none!important}#page-home .machine-water-indicator{width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important}}#page-home .home-metrics-panel{min-height:165px;height:100%;padding:0!important;border:0!important;border-radius:0!important;background:0 0!important;box-shadow:none!important;overflow:visible}#page-home .home-metrics-grid{width:100%;min-width:0;min-height:165px!important;height:165px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:minmax(0,1fr)!important;align-items:stretch;gap:10px}#page-home .home-metrics-grid>.home-metric-card{width:100%;min-width:0;height:165px;min-height:165px;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box}#page-home .home-metrics-grid .home-metric-icon{width:38px;min-width:38px;height:38px;margin:0;border-radius:11px}#page-home .home-metrics-grid .home-metric-icon svg{width:23px;height:23px}#page-home .home-metrics-grid .home-metric-copy{width:100%;min-width:0}#page-home .home-metrics-grid .home-metric-copy small{display:block;overflow:hidden;font-size:10px;line-height:1.1;text-overflow:ellipsis;white-space:nowrap}#page-home .home-metrics-grid .home-metric-copy strong,#page-home .home-metrics-grid .home-metric-copy>span{display:block;margin-top:7px;overflow:hidden;font-size:24px;line-height:1;text-overflow:ellipsis;white-space:nowrap}#page-home .home-metrics-grid .home-metric-copy>span{font-size:9px;line-height:1.15}#page-home .home-metrics-grid .home-metric-progress{left:13px;right:13px;bottom:11px}#page-home .home-metrics-grid .metric-open-indicator{top:9px;right:9px}#page-home .home-metrics-grid .temperature-metric-open .home-metric-state{right:33px}@media (max-width:900px) and (min-width:701px){#page-home .home-metrics-grid,#page-home .home-metrics-panel{min-height:155px!important;height:155px}#page-home .home-metrics-grid>.home-metric-card{height:155px;min-height:155px;padding:13px 10px}#page-home .home-metrics-grid .home-metric-copy strong{font-size:20px}}@media (max-width:700px){#page-home .home-metrics-grid,#page-home .home-metrics-panel{min-height:138px!important;height:138px}#page-home .home-metrics-grid>.home-metric-card{height:138px;min-height:138px;padding:12px 10px}#page-home .home-metrics-grid .home-metric-copy strong{font-size:19px}}@media (max-width:430px){#page-home .home-metrics-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:minmax(0,1fr)!important;gap:6px}#page-home .home-metrics-grid>.home-metric-card{padding:10px 7px}#page-home .home-metrics-grid .home-metric-icon{width:32px;min-width:32px;height:32px}#page-home .home-metrics-grid .home-metric-icon svg{width:20px;height:20px}#page-home .home-metrics-grid .home-metric-copy small,#page-home .home-metrics-grid .home-metric-copy>span{font-size:8px}#page-home .home-metrics-grid .home-metric-copy strong{font-size:16px}}#page-home .home-dashboard-layout{gap:var(--home-section-gap)!important}@media (max-width:980px){.machine-icon-size-tools{grid-template-columns:repeat(2,minmax(210px,1fr))}.machine-icon-size-tools>button{grid-column:1/-1;width:100%}}@media (max-width:620px){.machine-icon-size-tools{grid-template-columns:minmax(0,1fr)}.machine-icon-size-tools>button{grid-column:auto}}#page-home .machine-status-copy>#shotStatus{font-family:var(--ha-font-family-body)!important;font-size:var(--zone-font-title,16px)!important;font-weight:var(--ha-font-weight-medium)!important;line-height:var(--ha-line-height-condensed)!important;letter-spacing:0!important;color:#d8dee7!important;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}@media (max-width:700px){#page-home .machine-status-copy>#shotStatus{font-size:var(--zone-font-title,16px)!important}}@media (min-width:701px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{width:100%;min-width:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-areas:none!important;gap:12px!important;align-items:stretch}#page-home .home-top-grid>.home-metrics-panel,#page-home .home-top-grid>.machine-panel{grid-area:auto!important;width:100%!important;min-width:0!important;max-width:none!important;align-self:stretch!important;justify-self:stretch!important}}@media (max-width:700px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{grid-template-columns:minmax(0,1fr)!important;grid-template-areas:none!important;gap:12px!important}}#page-home .home-top-panel-order-handle,#page-home .home-top-resize-handle{display:none!important;visibility:hidden!important;pointer-events:none!important}#page-home.home-layout-editing .home-top-grid>.home-metrics-panel,#page-home.home-layout-editing .home-top-grid>.machine-panel{outline:0!important;outline-offset:0!important;box-shadow:none}#page-home.home-layout-editing .home-overview.dashboard-block>.home-top-grid,#page-home.home-layout-editing .home-overview.dashboard-block>.home-top-grid>*{pointer-events:none!important}#page-home .home-metrics-grid>.home-metric-card{position:relative;display:grid;grid-template-rows:38px minmax(0,1fr) 26px;align-items:stretch;gap:7px;padding:13px 13px 12px;overflow:hidden;border:1px solid #303945;border-radius:14px;background:linear-gradient(155deg,#1b222a 0,#151a20 58%,#12171c 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 5px 15px rgba(0,0,0,.16)}#page-home .home-metric-head{justify-content:space-between}#page-home .home-metric-head,#page-home .home-metric-title{min-width:0;display:flex;align-items:center;gap:8px}#page-home .home-metric-title>small{overflow:hidden;color:#aeb8c4;font-size:var(--zone-font-small,10px)!important;font-weight:var(--ha-font-weight-medium);line-height:1.1;text-overflow:ellipsis;white-space:nowrap}#page-home .home-metric-title .home-metric-icon{width:34px;min-width:34px;height:34px;margin:0;display:grid;place-items:center;border-radius:10px}#page-home .home-metric-title .home-metric-icon svg{width:21px;height:21px}#page-home .home-metric-footer,#page-home .home-metric-main{min-width:0;display:flex;align-items:center;justify-content:flex-start}#page-home .home-metric-main{padding-left:2px}#page-home .home-metric-main strong{display:flex;align-items:baseline;gap:5px;margin:0;color:#eef2f6;font-size:clamp(27px,2.45vw,36px)!important;font-weight:var(--ha-font-weight-medium)!important;line-height:.95;letter-spacing:-.035em}#page-home .home-metric-main strong i{overflow:hidden;font-style:normal;text-overflow:ellipsis}#page-home .home-metric-main strong em{flex:0 0 auto;color:#8f9aa7;font-size:.42em;font-style:normal;font-weight:var(--ha-font-weight-medium);letter-spacing:0}#page-home .home-metric-footer{gap:7px;overflow:hidden;color:#87929f;font-size:var(--zone-font-small,10px);line-height:1;white-space:nowrap}#page-home .home-metric-footer span,#page-home .home-metric-main strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#page-home .home-metric-footer span+span::before{content:"·";margin-right:7px;color:#4f5a66}#page-home .home-metric-footer i{color:#cbd3dc;font-style:normal;font-weight:var(--ha-font-weight-medium)}#page-home .home-backflush-main strong{color:#72dda0;font-size:clamp(25px,2.15vw,32px)!important;letter-spacing:-.02em}#page-home .temperature-metric{border-color:#4d3c31;background:linear-gradient(155deg,#211c18 0,#181713 58%,#131512 100%)}#page-home .pressure-metric{border-color:#2d465b;background:linear-gradient(155deg,#17232d 0,#151b21 58%,#12171c 100%)}#page-home .cleaning-metric{border-color:#334b3e;background:linear-gradient(155deg,#17251d 0,#151c18 58%,#121713 100%)}#page-home .temperature-metric .home-metric-main strong{color:#f2d2b7}#page-home .pressure-metric .home-metric-main strong{color:#b9dcff}@media (max-width:900px){#page-home .home-metrics-grid>.home-metric-card{grid-template-rows:34px minmax(0,1fr) 24px;gap:5px;padding:11px 10px 10px}#page-home .home-metric-title .home-metric-icon{width:30px;min-width:30px;height:30px}#page-home .home-metric-title{gap:6px}#page-home .home-metric-footer{gap:4px}#page-home .home-metric-footer span+span::before{margin-right:4px}}@media (max-width:430px){#page-home .home-metrics-grid>.home-metric-card{grid-template-rows:28px minmax(0,1fr) 20px;padding:8px 7px}#page-home .home-metric-title .home-metric-icon{width:26px;min-width:26px;height:26px;border-radius:8px}#page-home .home-metric-title .home-metric-icon svg{width:17px;height:17px}#page-home .home-metric-main strong{font-size:21px!important}#page-home .home-backflush-main strong{font-size:19px!important}#page-home .home-metric-footer{font-size:7px}#page-home .metric-open-indicator{display:none}}#page-home .home-metrics-grid>.metric-tile{position:relative!important;display:grid!important;grid-template-rows:34px minmax(0,1fr) 22px!important;align-items:stretch!important;gap:7px!important;padding:12px 13px 11px!important;overflow:hidden!important;border:1px solid #34404c!important;border-radius:14px!important;background:linear-gradient(155deg,#1c232b,#151a20 72%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 5px 14px rgba(0,0,0,.15)!important}#page-home .metric-tile::before{position:absolute;top:0;left:18px;right:18px;height:2px;border-radius:0 0 999px 999px;opacity:.75}#page-home .temperature-metric::before{background:#d99054}#page-home .pressure-metric::before{background:#5da9ef}#page-home .cleaning-metric::before{background:#65c892}#page-home .metric-tile-head{display:flex;align-items:center;justify-content:space-between;gap:7px}#page-home .metric-tile-label{min-width:0;display:flex;align-items:center;gap:7px;color:#aeb8c4;font-family:var(--ha-font-family-body);font-size:var(--zone-font-small,10px);font-weight:var(--ha-font-weight-medium);line-height:1;white-space:nowrap}#page-home .metric-tile-label>span:last-child{overflow:visible;text-overflow:clip;white-space:nowrap}#page-home .metric-tile-label .home-metric-icon{width:30px!important;min-width:30px!important;height:30px!important;margin:0!important;display:grid!important;place-items:center!important;border-radius:9px!important}#page-home .metric-tile-label .home-metric-icon svg{width:19px!important;height:19px!important}#page-home .metric-tile-value{display:flex;align-items:center;justify-content:center;gap:5px;padding:0 2px;overflow:visible;color:#edf2f7;font-family:var(--ha-font-family-body);font-size:clamp(30px,2.65vw,38px)!important;font-weight:var(--ha-font-weight-medium);line-height:.95;letter-spacing:-.035em;white-space:nowrap}#page-home .metric-tile-value i{font-style:normal;font-weight:inherit}#page-home .metric-tile-value em{align-self:flex-end;margin-bottom:3px;color:#8e99a6;font-size:.36em;font-style:normal;font-weight:var(--ha-font-weight-medium);letter-spacing:0}#page-home .temperature-metric .metric-tile-value{color:#f1c9aa}#page-home .pressure-metric .metric-tile-value{color:#a8d4ff}#page-home .metric-tile-ratio{gap:7px;color:#dce4ec}#page-home .metric-tile-ratio b{color:#66727f;font-size:.65em;font-weight:var(--ha-font-weight-normal);letter-spacing:0}#page-home .metric-tile-meta{display:flex;align-items:center;justify-content:center;gap:5px;overflow:visible;color:#8f9aa7;font-size:9px!important;font-weight:var(--ha-font-weight-normal);line-height:1;white-space:nowrap}#page-home .metric-tile-meta i{color:#cbd4dd;font-style:normal;font-weight:var(--ha-font-weight-medium)}#page-home .metric-tile-meta b{color:#505b67;font-weight:var(--ha-font-weight-normal)}#page-home .metric-status-badge{flex:0 0 auto;min-width:28px;padding:4px 7px;border:1px solid #35694c;border-radius:999px;background:#183025;color:#72dda0;font-size:9px;font-weight:var(--ha-font-weight-bold);line-height:1;text-align:center;white-space:nowrap}#page-home .cleaning-metric.due .metric-status-badge{border-color:#75502f;background:#332419;color:#ffc27f}#page-home .cleaning-metric.due .metric-tile-value{color:#ffc27f}#page-home .metric-open-indicator{position:static!important;flex:0 0 auto;width:24px!important;min-width:24px!important;height:24px!important;display:grid!important;place-items:center!important;border-radius:8px!important;font-size:10px!important;transform:none!important}#page-home .home-metric-progress{left:13px!important;right:13px!important;bottom:7px!important;height:3px!important;opacity:.68}#page-home .temperature-metric-open .home-metric-state{display:none!important}@media (max-width:900px){#page-home .home-metrics-grid>.metric-tile{grid-template-rows:30px minmax(0,1fr) 20px!important;gap:5px!important;padding:10px 9px 9px!important}#page-home .metric-tile-label{gap:5px;font-size:9px}#page-home .metric-tile-label .home-metric-icon{width:27px!important;min-width:27px!important;height:27px!important}#page-home .metric-tile-value{font-size:clamp(25px,2.7vw,32px)!important}#page-home .metric-tile-meta{font-size:8px!important}}@media (max-width:430px){#page-home .home-metrics-grid>.metric-tile{grid-template-rows:26px minmax(0,1fr) 18px!important;padding:8px 6px!important}#page-home .metric-tile-label>span:last-child{display:none}#page-home .metric-tile-value{font-size:21px!important}#page-home .metric-tile-meta{font-size:7px!important}#page-home .metric-status-badge{padding:3px 5px;font-size:8px}#page-home .metric-open-indicator{display:none!important}}#page-home .home-metrics-grid>.metric-tile{grid-template-columns:minmax(0,1fr)!important;grid-auto-flow:row!important}#page-home .metric-tile-head,#page-home .metric-tile-meta,#page-home .metric-tile-value{position:relative!important;inset:auto!important;grid-column:1!important;grid-row:1!important;width:100%!important;min-width:0!important;box-sizing:border-box}#page-home .metric-tile-meta,#page-home .metric-tile-value{grid-row:2!important}#page-home .metric-tile-meta{grid-row:3!important}#page-home .metric-tile::before{content:none!important;display:none!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action::before{content:""!important;position:absolute!important;top:0!important;left:16px!important;right:16px!important;bottom:auto!important;width:auto!important;height:3px!important;display:block!important;border-radius:0 0 999px 999px!important;opacity:.78!important;transform:none!important;transition:opacity .18s ease,box-shadow .18s ease!important;pointer-events:none}#page-home .machine-actions-dock #shotAction::before{background:#e18b48!important}#page-home .machine-actions-dock #waterAction::before{background:#54a9ff!important}#page-home .machine-actions-dock #steamAction::before{background:#d9b85f!important}#page-home .machine-actions-dock #shotAction.danger::before{background:#ff806b!important;opacity:1!important;box-shadow:0 0 9px rgba(255,112,89,.42)!important}#page-home .machine-actions-dock #waterAction.active::before{background:#68bdff!important;opacity:1!important;box-shadow:0 0 9px rgba(84,169,255,.38)!important}#page-home .machine-actions-dock #steamAction.active::before{background:#ffd166!important;opacity:1!important;box-shadow:0 0 9px rgba(255,209,102,.35)!important}#page-home .machine-actions-dock .quick-action:disabled::before{opacity:.28!important;box-shadow:none!important}#page-home .home-top-grid{align-items:stretch!important}#page-home .machine-compact-status{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:22px minmax(0,1fr)!important;gap:6px!important}#page-home .machine-compact-head{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px}#page-home .machine-compact-head>#shotStatus{min-width:0;overflow:hidden;color:#dce3ea!important;font-family:var(--ha-font-family-body)!important;font-size:var(--zone-font-text,14px)!important;font-weight:var(--ha-font-weight-medium)!important;line-height:1;text-overflow:ellipsis;white-space:nowrap}#page-home .machine-compact-head .machine-auto-off{flex:0 0 auto;min-height:20px;padding:3px 6px;font-size:9px}#page-home .machine-mini-metrics{min-width:0;display:grid}#page-home .machine-mini-metric{position:relative;min-width:0;display:grid;align-items:center;overflow:hidden;border:1px solid #303a45;background:#151b21;box-sizing:border-box}#page-home .machine-mini-icon{display:grid;place-items:center;background:#202832;color:#8d99a6}#page-home .home-temperature-hero-icon svg{width:16px;height:16px}#page-home .home-temperature-hero-icon svg,#page-home .machine-mini-icon svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}#page-home .mini-pressure .machine-mini-icon{color:#76bfff}#page-home .mini-backflush .machine-mini-icon{color:#b29aeb}#page-home .machine-mini-copy{display:flex;flex-direction:column}#page-home .machine-mini-copy small,#page-home .machine-mini-copy strong{max-width:100%;overflow:hidden;font-weight:var(--ha-font-weight-medium);line-height:1;text-overflow:ellipsis;white-space:nowrap}#page-home .machine-mini-copy strong{display:flex;align-items:baseline;gap:3px}#page-home .home-temperature-hero-reading strong i,#page-home .machine-mini-copy strong em,#page-home .machine-mini-copy strong i{font-style:normal}#page-home .machine-mini-copy strong em{color:#7f8a97}#page-home .machine-mini-copy strong b{color:#697582;font-size:10px;font-weight:var(--ha-font-weight-normal)}#page-home .mini-water>#machineWaterIcon,#page-home .mini-water>#machineWaterText{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important}#page-home .water-state-dot{display:block;border-radius:50%;background:#68737f;box-shadow:0 0 0 3px rgba(104,115,127,.12)}#page-home .mini-water.ok{border-color:#315b44;background:#15251d}#page-home .mini-water.ok .machine-mini-icon{color:#62d595}#page-home .mini-water.ok .water-state-dot{background:#62d595;box-shadow:0 0 0 3px rgba(98,213,149,.13)}#page-home .mini-water.warn{border-color:#6a3d42;background:#2b1d20}#page-home .mini-water.warn .machine-mini-icon{color:#ef7b83}#page-home .mini-water.warn .water-state-dot{background:#ef7b83;box-shadow:0 0 0 3px rgba(239,123,131,.13)}#page-home .home-temperature-hero{position:relative;min-width:0;padding:0!important;overflow:hidden;border:1px solid #34404c!important;border-radius:14px!important;background:radial-gradient(circle at 82% -20%,rgba(225,139,72,.16),transparent 47%),linear-gradient(155deg,#1b222a,#13181e 72%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 6px 18px rgba(0,0,0,.18)!important;cursor:pointer}#page-home .home-temperature-hero:focus-visible,#page-home .home-temperature-hero:hover{border-color:#725039!important;outline:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 0 0 3px rgba(225,139,72,.08),0 7px 20px rgba(0,0,0,.2)!important}#page-home .home-temperature-hero-state{height:100%;display:grid;box-sizing:border-box}#page-home .home-temperature-hero-head{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:10px}#page-home .home-temperature-hero-title{min-width:0;display:flex;align-items:center;gap:7px;color:#b7c0ca;font-size:var(--zone-font-text,12px);font-weight:var(--ha-font-weight-medium);line-height:1;white-space:nowrap}#page-home .home-temperature-hero-icon{width:24px;min-width:24px;height:24px;display:grid;place-items:center;border-radius:7px;background:#29241f;color:#e7a06a}#page-home .home-temperature-hero-badges{min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:5px}#page-home .home-temperature-pid,#page-home .home-temperature-state-label{min-height:21px;display:inline-flex;align-items:center;padding:3px 7px;border:1px solid #394550;border-radius:999px;background:#1b2229;color:#9da8b4;font-size:8px;font-weight:var(--ha-font-weight-medium);line-height:1;white-space:nowrap}#page-home .home-temperature-pid{color:#d4dbe3}#page-home .home-temperature-pid i{margin:0 2px 0 4px;color:#efae7b;font-style:normal;font-weight:var(--ha-font-weight-bold)}#page-home .home-temperature-open{width:22px;height:22px;display:grid;place-items:center;border-radius:7px;background:#242c34;color:#8f9aa7;font-size:10px}#page-home .home-temperature-hero-reading strong{min-width:0;display:flex;align-items:baseline;gap:5px;color:#f0c5a4;font-weight:var(--ha-font-weight-medium);line-height:.95;letter-spacing:-.035em;white-space:nowrap}#page-home .home-temperature-hero-reading strong em{color:#8e99a6;font-size:12px;font-style:normal;font-weight:var(--ha-font-weight-medium);letter-spacing:0}#page-home .home-temperature-target{flex:0 0 auto;font-size:9px}#page-home .home-temperature-mini-chart{position:relative;min-width:0;overflow:hidden;border-top:1px solid rgba(255,255,255,.035);border-bottom:1px solid rgba(255,255,255,.035)}#page-home #homePressureGauge,#page-home #homeTempMiniChart{width:100%;height:100%;display:block}#page-home .home-temperature-hero-footer{min-width:0;display:grid;align-items:center;font-size:8px;line-height:1}#page-home .home-temperature-heat-track{background:#28313a}#page-home .home-temperature-heat-track>#homeHeatFill{width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#d97852,#e9b06e);transition:width .2s ease}#page-home .home-temperature-delta{min-width:0;overflow:hidden;text-align:right;text-overflow:ellipsis;white-space:nowrap}#page-home .home-temperature-hero-state.ready .home-temperature-state-label{border-color:#35664d;background:#182a21;color:#91eab5}#page-home .home-temperature-hero-state.heating .home-temperature-state-label{border-color:#70512f;background:#2b2118;color:#ffc27f}#page-home .home-temperature-hero-state.error .home-temperature-state-label{border-color:#743c43;background:#321f23;color:#ff9ba2}@media (max-width:900px) and (min-width:701px){#page-home .home-temperature-state-label,#page-home .machine-mini-copy small{display:none}#page-home .machine-mini-metric{grid-template-columns:22px minmax(0,1fr);gap:3px;padding:4px}#page-home .machine-mini-icon{width:22px;height:22px}#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;padding:0 2px}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:100%!important;min-width:0!important;max-width:none!important}}@media (max-width:700px){#page-home .home-top-grid>.home-temperature-hero,#page-home .home-top-grid>.machine-panel{height:153px!important}}@media (max-width:430px){#page-home .home-temperature-open,#page-home .home-temperature-state-label,#page-home .machine-mini-copy small{display:none}#page-home .machine-mini-metric{grid-template-columns:20px minmax(0,1fr);gap:3px;padding:3px 4px}#page-home .machine-mini-icon{width:20px;height:20px}#page-home .machine-mini-icon svg{width:14px;height:14px}#page-home .machine-mini-copy strong{font-size:11px!important}#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:100%!important;min-width:0!important;max-width:none!important}#page-home .home-temperature-hero-reading strong{font-size:27px!important}#page-home .home-temperature-delta{max-width:92px}}@media (min-width:701px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{gap:7px!important}}#page-home .machine-compact-status{position:relative;display:block!important;padding:6px!important}#page-home .machine-compact-head{display:none!important}#page-home .machine-mini-metrics{width:100%;height:100%;min-height:0;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}#page-home .machine-mini-metric{height:100%;min-height:0;grid-template-columns:minmax(0,1fr);grid-template-rows:31px minmax(0,1fr);place-items:center;align-content:center;gap:5px;padding:7px 5px;text-align:center;border-radius:10px}#page-home .machine-mini-icon{width:31px;height:31px;border-radius:9px}#page-home .machine-mini-icon svg{width:19px;height:19px}#page-home .machine-mini-copy{width:100%;min-width:0;align-items:center;justify-content:flex-start;gap:4px}#page-home .machine-mini-copy small{width:100%;color:#8d98a5;font-size:9px!important;text-align:center}#page-home .machine-mini-copy strong{width:100%;justify-content:center;color:#e0e7ee;font-size:16px!important;text-align:center}#page-home .machine-mini-copy strong em{font-size:9px}#page-home .water-state-dot{width:10px;height:10px}#page-home .machine-auto-off-overlay{position:absolute;top:5px;right:5px;z-index:5;min-height:20px;padding:3px 6px;border:1px solid #47515d;border-radius:999px;background:#222a32;box-shadow:0 3px 9px rgba(0,0,0,.25);font-size:8px}@media (max-width:900px) and (min-width:701px){#page-home .machine-mini-metric{grid-template-rows:28px minmax(0,1fr);gap:4px;padding:6px 3px}#page-home .machine-mini-icon{width:28px;height:28px}#page-home .machine-mini-copy small{display:block!important;font-size:8px!important}#page-home .machine-mini-copy strong{font-size:13px!important}}@media (max-width:700px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{gap:7px!important}}@media (max-width:430px){#page-home .machine-mini-metrics{gap:4px}#page-home .machine-mini-metric{grid-template-rows:25px minmax(0,1fr);gap:3px;padding:5px 2px}#page-home .machine-mini-icon{width:25px;height:25px}#page-home .machine-mini-icon svg{width:16px;height:16px}#page-home .machine-mini-copy small{display:block!important;font-size:7px!important}#page-home .machine-mini-copy strong{font-size:11px!important}}#page-home .home-top-grid>.home-temperature-hero,#page-home .home-top-grid>.machine-panel{min-height:165px!important;height:165px!important}#page-home .home-top-grid>.machine-panel>.machine-control-card{min-height:165px!important;height:165px!important;grid-template-rows:78px 80px!important;gap:7px!important}#page-home .machine-restored-status{position:relative;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;height:78px!important;min-height:78px!important;padding:11px 13px!important;overflow:hidden!important;box-sizing:border-box}#page-home .machine-restored-status .machine-status-copy{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px}#page-home .machine-restored-status .machine-status-copy>#shotStatus{display:block!important;max-width:100%;margin:0;padding:0;overflow:hidden;border:0!important;border-radius:0!important;background:0 0!important;box-shadow:none!important;color:#d8dee7!important;font-family:var(--ha-font-family-body)!important;font-size:var(--zone-font-title,16px)!important;font-weight:var(--ha-font-weight-medium)!important;line-height:var(--ha-line-height-condensed)!important;letter-spacing:0!important;text-overflow:ellipsis;white-space:nowrap}#page-home .machine-restored-status .machine-auto-off{min-height:0!important;margin:0!important;padding:0!important;border:0!important;background:0 0!important;color:#8f9aa7!important;box-shadow:none!important}#page-home .machine-restored-status .machine-water-indicator{position:relative;flex:0 0 auto;width:38px!important;min-width:38px!important;height:38px!important;min-height:38px!important;display:grid!important;place-items:center!important;padding:0!important;border:1px solid #35404c!important;border-radius:11px!important;background:#1c232b!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important}#page-home .machine-restored-status .machine-water-drop{width:24px;height:24px;display:grid;place-items:center;color:#74808d}#page-home .machine-restored-status .machine-water-drop svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}#page-home .machine-restored-status .machine-water-label,#page-home .machine-restored-status .machine-water-result{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important}#page-home .machine-restored-status .machine-water-indicator.ok{border-color:#35694c!important;background:#193126!important}#page-home .machine-restored-status .machine-water-indicator.ok .machine-water-drop{color:#63d493!important}#page-home .machine-restored-status .machine-water-indicator.warn{border-color:#774047!important;background:#352126!important}#page-home .machine-restored-status .machine-water-indicator.warn .machine-water-drop{color:#f27a82!important}#page-home .machine-restored-status .machine-water-indicator.unknown{border-color:#35404c!important;background:#1c232b!important}#page-home .machine-restored-status .machine-water-indicator.unknown .machine-water-drop{color:#74808d!important}#page-home .machine-actions-dock,#page-home .machine-actions-dock .machine-quick-actions{height:80px!important;min-height:80px!important}#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,123px)!important;grid-auto-rows:80px!important;justify-content:center!important;gap:10px!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:123px!important;min-width:123px!important;max-width:123px!important;height:80px!important;min-height:80px!important;max-height:80px!important}#page-home .machine-actions-dock .machine-quick-actions .quick-icon{width:58px!important;height:58px!important}@media (max-width:900px) and (min-width:701px){#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:100%!important;min-width:0!important;max-width:none!important}}@media (max-width:700px){#page-home .home-top-grid>.home-temperature-hero,#page-home .home-top-grid>.machine-panel{min-height:165px!important;height:165px!important}}@media (max-width:430px){#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:100%!important;min-width:0!important;max-width:none!important}#page-home .machine-restored-status{padding:9px 10px!important}#page-home .machine-restored-status .machine-water-indicator{width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important}}#page-home .home-top-grid>.home-temperature-hero,#page-home .home-top-grid>.machine-panel,#page-home .home-top-grid>.machine-panel>.machine-control-card{height:var(--home-temperature-card-height)!important;min-height:var(--home-temperature-card-height)!important}#page-home .home-top-grid>.machine-panel>.machine-control-card{grid-template-rows:78px minmax(80px,1fr)!important}#page-home .machine-actions-dock{align-items:center;justify-content:center}#page-home .home-temperature-hero-state{min-height:0}@media (max-width:1180px){.machine-icon-size-tools{grid-template-columns:repeat(2,minmax(210px,1fr))}.machine-icon-size-tools>button{grid-column:1/-1;width:100%}}@media (max-width:620px){.machine-icon-size-tools{grid-template-columns:minmax(0,1fr)}.machine-icon-size-tools>button{grid-column:auto}}@media (min-width:701px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{grid-template-columns:minmax(0,var(--home-left-column-share)) minmax(0,var(--home-right-column-share))!important}}.machine-icon-size-tools{grid-template-columns:repeat(5,minmax(170px,1fr)) auto}@media (max-width:1320px){.machine-icon-size-tools{grid-template-columns:repeat(3,minmax(190px,1fr))}.machine-icon-size-tools>button{grid-column:1/-1;width:100%}}@media (max-width:920px){.machine-icon-size-tools{grid-template-columns:repeat(2,minmax(210px,1fr))}}@media (max-width:620px){.machine-icon-size-tools{grid-template-columns:minmax(0,1fr)}.machine-icon-size-tools>button{grid-column:auto}}#page-settings [data-settings-panel=pressure]{width:100%;margin:0 auto}.pressure-parameter-grid,.pressure-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.pressure-settings-grid{gap:10px;margin-top:12px}.pressure-parameter-grid{gap:8px}#page-settings [data-settings-panel=pressure] .temperature-setting-control{grid-template-columns:minmax(82px,138px) auto;justify-content:end}#page-settings [data-settings-panel=pressure] .temperature-status-row>strong,#page-settings [data-settings-panel=pressure] .temperature-status-row>strong i{font-size:var(--zone-font-text)!important;font-weight:var(--ha-font-weight-medium);font-style:normal;font-variant-numeric:tabular-nums}.pressure-settings-save{margin-top:10px}@media (max-width:760px){#page-settings [data-settings-panel=pressure]{max-width:none}.pressure-parameter-grid,.pressure-settings-grid{grid-template-columns:minmax(0,1fr)}.pressure-settings-section-wide{grid-column:1}}@media (max-width:520px){#page-settings [data-settings-panel=pressure] .temperature-setting-control{grid-template-columns:minmax(0,1fr) auto;justify-content:stretch}}@media (max-width:760px){}@media (max-width:520px){}.machine-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.machine-settings-section-wide{grid-column:1/-1}.machine-setting-control,.settings-help-label-wrap>b,.settings-help-label-wrap>label{min-width:0}#page-settings .machine-setting-control select{width:100%;min-width:0;min-height:36px;padding:7px 9px;border-radius:8px;font-size:var(--zone-font-text)!important}.machine-autooff-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px}.machine-inline-actions{display:flex;justify-content:flex-end;padding-top:9px;border-top:1px solid #29313a}#page-settings .machine-inline-actions button,#page-settings .machine-primary-actions button,#page-settings .machine-settings-save button{min-height:36px;padding:7px 12px;font-size:var(--zone-font-text)!important;font-weight:var(--ha-font-weight-medium)}.machine-settings-save{margin-top:10px}#page-settings .temperature-status-row>strong i{font-style:normal;font-variant-numeric:tabular-nums}.settings-help-all-button{flex:0 0 auto;min-height:30px;padding:5px 9px;border:1px solid #343e49;border-radius:9px;background:#171d23;color:#aeb7c1;font-size:var(--zone-font-small)!important;font-weight:var(--ha-font-weight-medium);line-height:1}.settings-help-all-button.active,.settings-help-all-button:hover{border-color:#596676;background:#1c232a;color:#e2e7ec}.settings-help-label-wrap,.xdb-human-chips>span{min-width:0;display:inline-flex;align-items:center;gap:6px}.settings-info-button{flex:0 0 auto;width:19px;height:19px;display:inline-grid;place-items:center;padding:0;border:1px solid #3a4550;border-radius:50%;background:0 0;color:#82909e;font-size:11px!important;font-weight:700;line-height:1}.settings-info-button.active,.settings-info-button:hover{border-color:#687788;background:#202831;color:#e4e9ee}.settings-help-panel .settings-help-text{display:none!important}.settings-help-panel .settings-help-owner[data-help-open=true]>.settings-help-text,.settings-help-panel.help-all-open .settings-help-text{display:block!important}.settings-help-panel .settings-help-owner[data-help-open=true]>.settings-help-text{animation:settingsHelpReveal .14s ease-out}.temperature-settings-section-head>.settings-help-label-wrap{justify-self:start}.pid-parameter-main>.settings-help-label-wrap{flex:0 1 auto}@media (max-width:760px){#page-settings [data-settings-panel=machine]{max-width:none}.machine-autooff-grid,.machine-settings-grid{grid-template-columns:minmax(0,1fr)}.machine-settings-section-wide{grid-column:1}}@media (max-width:520px){.settings-panel-head{align-items:center}.settings-help-all-button{padding:5px 8px}.machine-inline-actions button{width:100%}}#page-settings [data-settings-panel=machine]{width:100%;margin:0 auto}.machine-primary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}.machine-primary-row{margin:0;padding:11px 12px;border:1px solid #303944!important;border-radius:12px;background:#12171c;grid-template-columns:minmax(0,1fr) 150px}.machine-primary-row .temperature-setting-copy{gap:3px}#page-settings .machine-primary-row .temperature-setting-copy>label{font-size:var(--zone-font-text)!important;font-weight:var(--ha-font-weight-medium)}.machine-live-meta{color:#84909d;font-size:var(--zone-font-small)!important;line-height:1.25}.machine-live-meta b{color:#b8c2cc;font-size:inherit!important;font-weight:var(--ha-font-weight-medium);font-variant-numeric:tabular-nums}.machine-primary-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}#page-settings [data-settings-panel=machine] .settings-panel-head{margin-bottom:0}@media (max-width:760px){#page-settings [data-settings-panel=machine]{max-width:none}.machine-primary-grid{grid-template-columns:minmax(0,1fr)}}@media (max-width:520px){.machine-primary-row{grid-template-columns:minmax(0,1fr) 132px;padding:10px}.machine-primary-actions{display:grid;grid-template-columns:minmax(0,1fr)}#page-settings .machine-primary-actions button{width:100%}}#page-settings [data-settings-panel=machine],#page-settings [data-settings-panel=pressure],#page-settings [data-settings-panel=temperature]{max-width:720px}.machine-primary-grid,.pid-parameter-grid,.pressure-parameter-grid,.pressure-settings-grid,.temperature-settings-grid{grid-template-columns:minmax(0,1fr)!important}.pressure-settings-section-wide,.temperature-settings-section-wide{grid-column:1!important}.machine-primary-row{min-height:54px}.settings-info-button{display:none!important}.settings-help-label-wrap{display:contents}@media (max-width:760px){#page-settings [data-settings-panel=machine],#page-settings [data-settings-panel=pressure],#page-settings [data-settings-panel=temperature]{max-width:none}}@media (min-width:980px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{grid-template-columns:minmax(350px,var(--home-left-column-share)) minmax(155px,var(--home-pressure-column-share)) minmax(290px,var(--home-right-column-share))!important;gap:7px!important}#page-home .machine-actions-dock .machine-quick-actions{grid-template-columns:repeat(3,minmax(0,123px))!important;justify-content:space-between!important}#page-home .machine-actions-dock .machine-quick-actions .quick-action,#page-home .machine-actions-dock .machine-quick-actions .quick-action.active,#page-home .machine-actions-dock .machine-quick-actions .quick-action.danger,#page-home .machine-actions-dock .machine-quick-actions .quick-action:active,#page-home .machine-actions-dock .machine-quick-actions .quick-action:disabled,#page-home .machine-actions-dock .machine-quick-actions .quick-action:hover{width:100%!important;min-width:0!important;max-width:123px!important}}#page-home .home-pressure-hero{position:relative;min-width:0;height:var(--home-temperature-card-height)!important;min-height:var(--home-temperature-card-height)!important;gap:3px;overflow:hidden;border:1px solid #344556;border-radius:14px;background:radial-gradient(circle at 50% 105%,rgba(69,143,201,.17),transparent 58%),linear-gradient(155deg,#19222b,#12181e 74%);box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 6px 18px rgba(0,0,0,.17);box-sizing:border-box}#page-home .home-pressure-hero::before{position:absolute;top:0;left:19px;right:19px;height:2px;border-radius:0 0 999px 999px;background:#5da9ef;opacity:.82}#page-home .home-pressure-hero.live{border-color:#3d6482}#page-home .home-pressure-head{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:6px}#page-home .home-pressure-reading strong,#page-home .home-pressure-title{font-family:var(--ha-font-family-body);font-weight:var(--ha-font-weight-medium)}#page-home .home-pressure-title{min-width:0;display:flex;align-items:center;gap:6px;color:#b7c3cf;font-size:10px;line-height:1;white-space:nowrap}#page-home .home-pressure-icon{width:24px;min-width:24px;height:24px;display:grid;place-items:center;border-radius:7px;background:#1f2d39;color:#70b9f5}#page-home .home-pressure-icon svg,.diagnostics-system-section-icon svg,.xdb-human-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}#page-home .home-pressure-range{flex:0 0 auto;color:#748392;font-size:7px;line-height:1;white-space:nowrap}#page-home .home-pressure-reading{z-index:2;display:flex;align-items:baseline;transform:translateX(-50%);white-space:nowrap;pointer-events:none}#page-home .home-pressure-reading strong{color:#b7dcfa}#page-home .home-pressure-reading em{color:#8593a1;font-style:normal;font-weight:var(--ha-font-weight-medium);font-size:10px!important}#page-home .home-pressure-footer{min-width:0;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:4px;color:#6f7d8b;font-size:7px;line-height:1}#page-home .home-pressure-target{overflow:hidden;color:#8593a1;text-align:center;text-overflow:ellipsis;white-space:nowrap}#page-home .home-pressure-target b,.diagnostics-section-label,.xdb-human-copy>b{color:#72dda0;font-size:9px;font-weight:var(--ha-font-weight-medium)}@media (min-width:701px) and (max-width:979px){#page-home .home-top-grid,#page-home .home-top-grid.metrics-first{grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr)!important;gap:7px!important}#page-home .home-top-grid>.machine-panel{grid-column:1/-1}#page-home .home-pressure-hero{grid-column:1}#page-home .home-temperature-hero{grid-column:2}}@media (max-width:700px){#page-home .home-pressure-hero{height:var(--home-temperature-card-height)!important;min-height:var(--home-temperature-card-height)!important}}@media (max-width:430px){#page-home .home-pressure-reading strong{font-size:26px}#page-home .home-pressure-title{font-size:9px}}#page-home .home-pressure-hero{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr)!important;place-items:center!important;padding:12px!important}#page-home .home-pressure-footer,#page-home .home-pressure-head,#page-home .home-temperature-heat-track>#homeHeatFill{display:none!important}#page-home .home-pressure-gauge{position:relative;min-width:0;align-self:center;justify-self:stretch;overflow:hidden}#page-home .home-pressure-reading{position:absolute!important}#page-home .home-pressure-reading strong{font-size:clamp(25px,2.15vw,34px)}@media (max-width:430px){#page-home .home-pressure-gauge{min-height:90px}#page-home .home-pressure-reading strong{font-size:28px}}#page-home .home-pressure-hero{background:radial-gradient(circle at 50% 48%,rgba(68,139,191,.13),transparent 54%),linear-gradient(155deg,#19222b,#12181e 74%)!important}#page-home .home-pressure-gauge{width:100%!important;height:calc(var(--home-temperature-card-height) - 18px)!important;min-height:112px;max-height:242px}#page-home .home-pressure-reading{top:74%!important;left:50%!important;bottom:auto!important;gap:4px!important;transform:translate(-50%,-50%)!important}#page-home .home-pressure-reading strong{font-size:31px!important;line-height:.9!important;letter-spacing:-.035em}@media (max-width:430px){#page-home .home-pressure-gauge{min-height:105px}#page-home .home-pressure-reading strong{font-size:31px!important}}#page-home .home-pressure-hero::before,#page-home .pressure-variant-a::before{content:none!important;display:none!important}#page-home .pressure-variant-a{padding:6px!important;background:radial-gradient(circle at 50% 46%,rgba(70,146,202,.16),transparent 58%),linear-gradient(155deg,#19222b,#12181e 74%)!important}#page-home .pressure-variant-a .home-pressure-gauge{width:100%!important;height:100%!important;min-height:122px;max-height:none}#page-home .pressure-variant-a .pressure-reading-stacked{top:76%!important;left:50%!important;bottom:auto!important;display:flex!important;flex-direction:column;align-items:center;gap:2px!important;transform:translate(-50%,-50%)!important}#page-home .pressure-variant-a .pressure-reading-stacked strong{font-size:36px!important;line-height:.82!important}#page-home .pressure-variant-a .pressure-reading-stacked em{font-size:9px!important;letter-spacing:.08em;text-transform:uppercase}.diagnostics-section-label{margin-top:13px;color:#7f8b97;font-size:10px;letter-spacing:.055em;text-transform:uppercase}.xdb-human-card{display:grid;grid-template-columns:42px minmax(0,1fr);align-items:start;gap:11px;margin-top:12px;padding:12px 13px;border:1px solid #35424e;border-radius:12px;background:#151b21;transition:border-color .18s ease,background .18s ease}.xdb-human-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:11px;background:#222b34;color:#91a0ae}.diagnostics-system-section-icon svg,.xdb-human-icon svg{width:23px;height:23px}.xdb-human-copy{min-width:0}.xdb-human-copy>b{display:block;color:#dce4ec;font-size:15px;line-height:1.2}.xdb-human-copy>p{margin:5px 0 0;color:#8e9aa6;font-size:11px;line-height:1.45}.xdb-human-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.xdb-human-chips>span{gap:4px;padding:5px 7px;border:1px solid #303b46;border-radius:8px;background:#11171c;color:#758390;font-size:9px;line-height:1}.xdb-human-chips b,.xdb-shot-head>div>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.xdb-human-chips b{max-width:240px;color:#abb7c2;font-weight:var(--ha-font-weight-medium)}.xdb-human-card.ok{border-color:rgba(76,184,127,.38);background:linear-gradient(135deg,rgba(54,139,96,.12),rgba(21,27,33,.96) 56%)}.xdb-human-card.ok .xdb-human-icon{background:rgba(54,139,96,.15);color:#68d49b}.xdb-human-card.warning{border-color:rgba(220,174,73,.43);background:linear-gradient(135deg,rgba(178,127,45,.13),rgba(21,27,33,.96) 58%)}.xdb-human-card.warning .xdb-human-icon{background:rgba(178,127,45,.16);color:#e6bd68}.xdb-human-card.critical{border-color:rgba(224,99,86,.5);background:linear-gradient(135deg,rgba(178,70,61,.16),rgba(21,27,33,.97) 58%)}.xdb-human-card.critical .xdb-human-icon{background:rgba(178,70,61,.18);color:#f08073}.xdb-shot-card{margin-top:13px;padding:12px 13px;border:1px solid #303b46;border-radius:12px;background:#12181e}.xdb-shot-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.xdb-shot-facts>div,.xdb-shot-head>div{min-width:0;display:flex;flex-direction:column;gap:3px}.xdb-shot-facts b,.xdb-shot-head>div>b{color:#cfd8e1;font-size:12px;font-weight:var(--ha-font-weight-medium)}.xdb-shot-head>div>span{color:#75828f;font-size:9px}.xdb-shot-head button{flex:0 0 auto}.xdb-shot-card>p{margin:10px 0 0;color:#929eaa;font-size:11px;line-height:1.5}.xdb-shot-card.problem{border-color:rgba(224,99,86,.38)}.xdb-shot-card.clear,.xdb-system-summary.ok{border-color:rgba(76,184,127,.32)}.xdb-shot-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:11px}.xdb-shot-facts>div{gap:4px;padding:8px 9px;border:1px solid #2d3741;border-radius:9px;background:#0f151a}.xdb-shot-facts span{color:#71808d;font-size:8px;line-height:1.2}.xdb-shot-facts b{overflow:hidden;color:#bcc7d1;font-size:11px;line-height:1.25;text-overflow:ellipsis}.xdb-system-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:11px 12px;border:1px solid #35404b;border-radius:11px;background:#141a20}.diagnostics-system-section-head>div,.xdb-system-summary>div{min-width:0}.xdb-system-summary b{color:#d2dbe3;font-size:12px;font-weight:var(--ha-font-weight-medium)}.xdb-system-summary p{margin:4px 0 0;color:#82909c;font-size:10px;line-height:1.4}.xdb-system-summary>span{flex:0 0 auto;max-width:180px;padding:6px 8px;overflow:hidden;border:1px solid #303b46;border-radius:8px;background:#10161b;color:#9eabb7;font-size:9px;text-align:right;text-overflow:ellipsis;white-space:nowrap}.xdb-system-summary.warning{border-color:rgba(220,174,73,.38)}.xdb-system-summary.critical{border-color:rgba(224,99,86,.45)}@media (max-width:620px){.xdb-shot-facts{grid-template-columns:minmax(0,1fr)}.xdb-shot-head,.xdb-system-summary{align-items:stretch;flex-direction:column}.xdb-shot-head button,.xdb-system-summary>span{width:100%;max-width:none}.xdb-system-summary>span{text-align:left}}@media (max-width:430px){.xdb-human-card{grid-template-columns:36px minmax(0,1fr);padding:11px}.xdb-human-icon{width:36px;height:36px}}.diagnostics-system-section{margin-top:12px;padding:12px;border:1px solid #303b46;border-radius:13px;background:#12181e}.diagnostics-system-section+.diagnostics-system-section{margin-top:10px}.diagnostics-system-section-head{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:10px}.diagnostics-system-section-head>div>b{display:block;color:#d7e0e8;font-size:13px;line-height:1.2}.diagnostics-system-section-head>div>p{margin:3px 0 0;color:#7f8c98;font-size:9px;line-height:1.35}.diagnostics-system-section-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:10px}.diagnostics-system-section-icon svg{width:21px;height:21px;stroke-width:1.7}.diagnostics-system-section-icon.sensor{background:rgba(70,139,192,.14);color:#70b9ee}.diagnostics-system-section-icon.esp{background:rgba(132,107,184,.14);color:#b19ae2}.diagnostics-section-health{min-width:0;padding:6px 8px;border:1px solid #303b46;border-radius:8px;background:#0f151a;color:#75828e;font-size:9px;white-space:nowrap}#page-home .home-temperature-target b,.diagnostics-section-health b,.diagnostics-system-section-head>div>b{font-weight:var(--ha-font-weight-medium)}.diagnostics-system-section .xdb-system-summary{margin-top:11px}.diagnostics-system-section .diagnostics-section-label{margin-top:12px}.diagnostics-esp-grid,.diagnostics-sensor-grid{margin-top:8px}.diagnostics-esp-grid>div,.diagnostics-sensor-grid>div{min-height:64px}.diagnostics-esp-note{margin:9px 1px 0;color:#74818d;font-size:9px;line-height:1.4}.diagnostics-system-actions{margin-top:11px}#shotChartCard .home-archive-summary{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0 0 7px}#shotChartCard .home-archive-summary .home-archive-metric{min-width:0;min-height:49px;padding:7px 8px;border:1px solid #3c4552;border-radius:10px;background:linear-gradient(145deg,#171c23,#11151a);color:var(--text);text-align:left;box-shadow:none}#shotChartCard .home-archive-summary .home-archive-metric b,#shotChartCard .home-archive-summary .home-archive-metric small{display:block;overflow:hidden;color:#9ca6b2;font-size:var(--zone-font-chart)!important;font-weight:var(--ha-font-weight-medium);line-height:1.1;text-overflow:ellipsis;white-space:nowrap}#shotChartCard .home-archive-summary .home-archive-metric b{margin-top:3px;color:#e7ebf0;font-size:var(--zone-font-value)!important;line-height:1}@media (max-width:620px){.diagnostics-system-section-head{grid-template-columns:38px minmax(0,1fr)}.diagnostics-section-health{grid-column:1/-1}#shotChartCard .home-archive-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (max-width:390px){#shotChartCard .home-archive-summary{grid-template-columns:minmax(0,1fr)}}@media (min-width:981px){.shot-profile-board,.shot-profile-board.line-settings-open{align-items:start!important}.shot-profile-board.line-settings-open>#shotChartCard,.shot-profile-board>#shotChartCard{align-self:start!important;height:auto!important;min-height:520px}.shot-profile-board.line-settings-open>#profileLibraryCard,.shot-profile-board>#profileLibraryCard{align-self:start!important;height:520px!important;min-height:520px!important;max-height:520px!important}#profileLibraryCard .home-shot-rail-pane{min-height:0}#profileLibraryCard .home-archive-list,#profileLibraryCard .user-profile-list{min-height:0;overflow:auto}}#page-home .home-temperature-hero-state{grid-template-rows:35px minmax(58px,1fr) 23px!important;gap:6px!important;padding:10px 12px!important}#page-home .home-temperature-hero-reading{min-width:0;display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:0 2px}#page-home .home-temperature-hero-reading strong{font-size:32px!important}#page-home .home-temperature-target{color:#98a3af;font-size:var(--zone-font-text,14px)!important;font-weight:var(--ha-font-weight-medium);line-height:1;white-space:nowrap}#page-home .home-temperature-target b{color:#a9e2be;font-size:32px!important;letter-spacing:-.02em}#page-home .home-temperature-mini-chart{min-height:58px}#page-home .home-temperature-hero-footer{grid-template-columns:auto minmax(72px,1fr) minmax(0,auto);gap:9px;color:#9aa5b1;font-size:var(--zone-font-small,10px)!important;font-weight:var(--ha-font-weight-medium)}#page-home .home-temperature-hero-footer>span:first-child{color:#b8c1cb}#page-home .home-temperature-heat-track{--heat-pct:0%;position:relative;height:6px;overflow:hidden;border-radius:999px;background:linear-gradient(90deg,#c9aa58 0,#df9a4e 52%,#e87c4f 78%,#ee6952 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.035)}#page-home .home-temperature-heat-track::after{content:"";position:absolute;top:0;right:0;bottom:0;width:calc(100% - var(--heat-pct));background:#29323b;transition:width .2s ease}#page-home .home-temperature-delta{max-width:160px;color:#aab4bf;font-size:inherit;font-weight:var(--ha-font-weight-medium)}@media (max-width:430px){#page-home .home-temperature-hero-state{grid-template-rows:32px minmax(54px,1fr) 21px!important;padding:9px!important}#page-home .home-temperature-hero-reading strong,#page-home .home-temperature-target b{font-size:28px!important}#page-home .home-temperature-target{font-size:12px!important}#page-home .home-temperature-hero-footer{grid-template-columns:auto minmax(48px,1fr) minmax(0,auto);gap:6px;font-size:9px!important}#page-home .home-temperature-delta{max-width:108px}}#page-home .machine-mascot{--mascot-accent:#73808d;position:relative;flex:0 0 auto;width:60px;height:42px;display:grid;grid-template-columns:1fr 1fr;align-items:center;justify-items:center;column-gap:8px;padding:7px 9px 11px;border:1px solid #35404c;border-radius:13px;background:radial-gradient(circle at 50% 15%,rgba(255,255,255,.035),transparent 48%),#171e26;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 0 0 1px rgba(0,0,0,.08);box-sizing:border-box;color:var(--mascot-accent);overflow:visible;transition:border-color .22s ease,background .22s ease,box-shadow .22s ease,color .22s ease}#page-home .machine-mascot::before{content:"";position:absolute;inset:5px;border-radius:9px;background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--mascot-accent) 10%,transparent),transparent 68%);opacity:.75;pointer-events:none;transition:opacity .22s ease}#page-home .machine-mascot-eye{position:relative;z-index:1;width:15px;height:12px;display:grid;place-items:center;border:1.5px solid currentColor;border-radius:50%;background:rgba(9,12,16,.62);box-shadow:0 0 8px color-mix(in srgb,currentColor 16%,transparent);transform-origin:center;animation:machineMascotBlink 6.8s ease-in-out infinite;transition:height .2s ease,border-radius .2s ease,transform .2s ease,opacity .2s ease,background .2s ease}#page-home .machine-mascot-eye:nth-of-type(2){animation-delay:.13s}#page-home .machine-mascot-pupil{width:4px;height:4px;border-radius:50%;background:currentColor;box-shadow:0 0 6px color-mix(in srgb,currentColor 55%,transparent);animation:machineMascotLook 5.2s ease-in-out infinite;transition:transform .2s ease,opacity .2s ease}#page-home .machine-mascot-mouth{position:absolute;z-index:1;left:50%;bottom:6px;width:13px;height:5px;border-bottom:1.5px solid currentColor;border-radius:0 0 10px 10px;transform:translateX(-50%);opacity:.75;transition:width .2s ease,height .2s ease,border .2s ease,border-radius .2s ease,transform .2s ease,opacity .2s ease}#page-home .machine-mascot-steam{position:absolute;top:-7px;right:8px;width:20px;height:12px;opacity:0;pointer-events:none;transition:opacity .2s ease}#page-home .machine-mascot-steam i{position:absolute;bottom:0;width:2px;height:8px;border-radius:999px;background:currentColor;opacity:0;animation:machineMascotSteam 1.45s ease-out infinite}#page-home .machine-mascot-steam i:nth-child(1){left:2px;animation-delay:0s}#page-home .machine-mascot-steam i:nth-child(2){left:9px;animation-delay:.34s}#page-home .machine-mascot-steam i:nth-child(3){left:16px;animation-delay:.68s}#page-home .machine-mascot.state-off{--mascot-accent:#66717d;border-color:#303842;background:#161b21;opacity:.72}#page-home .machine-mascot.state-off .machine-mascot-eye{height:4px;border-radius:999px;border-width:1.5px 0 0;background:0 0;box-shadow:none;animation:none;transform:translateY(2px)}#page-home .machine-mascot.state-off .machine-mascot-pupil{opacity:0;animation:none}#page-home .machine-mascot.state-off .machine-mascot-mouth{width:10px;height:1px;border:0;border-top:1.5px solid currentColor;border-radius:0;opacity:.5}#page-home .machine-mascot.state-heating{--mascot-accent:#e59a55;border-color:#5b4432;background:#211b18;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 0 15px rgba(225,139,72,.07);animation:machineMascotWarm 2.4s ease-in-out infinite}#page-home .machine-mascot.state-heating .machine-mascot-pupil{animation:machineMascotHeatLook 2.8s ease-in-out infinite}#page-home .machine-mascot.state-ready{--mascot-accent:#61d493;border-color:#37684d;background:#17251e}#page-home .machine-mascot.state-ready .machine-mascot-eye{height:10px}#page-home .machine-mascot.state-ready .machine-mascot-mouth{width:15px;height:7px;border-bottom-width:2px;opacity:1;animation:machineMascotSmile 3.2s ease-in-out infinite}#page-home .machine-mascot.state-shot{--mascot-accent:#ffd166;border-color:#6a592e;background:#241f16;animation:machineMascotFocus 1.25s ease-in-out infinite}#page-home .machine-mascot.state-shot .machine-mascot-eye{height:8px;border-radius:45%}#page-home .machine-mascot.state-shot .machine-mascot-pupil{animation:none;transform:translateY(1px) scale(.9)}#page-home .machine-mascot.state-shot .machine-mascot-mouth{width:8px;height:2px;border-radius:999px;opacity:.82}#page-home .machine-mascot.state-water{--mascot-accent:#62b9ff;border-color:#315b79;background:#17232c}#page-home .machine-mascot.state-water .machine-mascot-pupil{animation:machineMascotWaterLook 1.8s ease-in-out infinite}#page-home .machine-mascot.state-water .machine-mascot-mouth{width:6px;height:6px;border:1.5px solid currentColor;border-radius:50%;opacity:.85}#page-home .machine-mascot.state-steam{--mascot-accent:#b695ff;border-color:#574775;background:#201b2b}#page-home .machine-mascot.state-steam .machine-mascot-eye{width:16px;height:13px}#page-home .machine-mascot.state-steam .machine-mascot-steam{opacity:.9}#page-home .machine-mascot.state-steam .machine-mascot-steam i{opacity:.62}#page-home .machine-mascot.state-steam .machine-mascot-mouth{width:10px;height:6px;border-bottom-width:2px;opacity:1}#page-home .machine-mascot.state-warning{--mascot-accent:#f0a55f;border-color:#785139;background:#2a2119}#page-home .machine-mascot.state-warning .machine-mascot-eye:first-of-type{transform:rotate(-8deg)}#page-home .machine-mascot.state-warning .machine-mascot-eye:nth-of-type(2){transform:rotate(8deg)}#page-home .machine-mascot.state-warning .machine-mascot-mouth{width:14px;height:6px;border:0;border-top:1.8px solid currentColor;border-radius:10px 10px 0 0;transform:translateX(-50%) translateY(2px);opacity:1}#page-home .machine-mascot.state-error{--mascot-accent:#ff7777;border-color:#7c4247;background:#2b1b1f;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 0 14px rgba(255,104,104,.08)}#page-home .machine-mascot.state-error .machine-mascot-eye{width:17px;height:14px;animation-duration:3.6s}#page-home .machine-mascot.state-error .machine-mascot-pupil{animation:none;transform:scale(.72)}#page-home .machine-mascot.state-error .machine-mascot-mouth{width:14px;height:6px;border:0;border-top:1.8px solid currentColor;border-radius:10px 10px 0 0;transform:translateX(-50%) translateY(2px);opacity:1}@media (max-width:760px){#page-home .machine-mascot{width:52px;height:38px;padding:6px 7px 10px;column-gap:6px}#page-home .machine-mascot-eye{width:13px;height:10px}}@media (prefers-reduced-motion:reduce){#page-home .machine-mascot,#page-home .machine-mascot *,#page-home .machine-mascot::before{animation:none!important;transition:none!important}}#page-home .pressure-variant-a .home-pressure-backflush{position:absolute;left:9px;right:9px;bottom:6px;z-index:4;min-width:0;display:flex;align-items:center;justify-content:center;gap:5px;padding:4px 7px 2px;border-top:1px solid rgba(118,145,167,.18);color:#788896;font-size:9px;font-weight:600;line-height:1.05;white-space:nowrap;pointer-events:none}#page-home .pressure-variant-a .home-pressure-backflush-icon{color:#7299b7;font-size:11px;line-height:1}#page-home .pressure-variant-a .home-pressure-backflush.due{color:#efb37c;border-top-color:rgba(225,139,72,.32)}#page-home .pressure-variant-a .home-pressure-backflush.due .home-pressure-backflush-icon{color:#e18b48}#shotChartCard .target-weight-footer.shot-result b{color:#d8eadf}#page-settings .pressure-settings-grid,#page-settings .temperature-settings-grid{gap:14px}#page-settings .temperature-settings-section{padding:0;border:0;border-radius:0;background:0 0}#page-settings .temperature-settings-section-head{margin:0 3px 7px;padding:0 1px;gap:3px}#page-maintenance .service-setting-copy label,#page-maintenance .toggle-copy span,#page-settings .temperature-settings-section-head>.settings-help-label-wrap>b,#page-settings .temperature-settings-section-head>b{color:#dce2e9;font-size:var(--zone-font-text)!important;font-weight:var(--ha-font-weight-medium);line-height:1.25}#page-settings .temperature-settings-section>.temperature-autotune-row,#page-settings .temperature-settings-section>.temperature-setting-row{margin:0;padding:10px 12px;border:1px solid #303944!important;border-radius:11px;background:#12171c}#page-settings .temperature-settings-section>.pid-parameter-grid+.temperature-autotune-row,#page-settings .temperature-settings-section>.pressure-parameter-grid+.temperature-setting-row,#page-settings .temperature-settings-section>.temperature-autotune-row+.temperature-setting-row,#page-settings .temperature-settings-section>.temperature-setting-row+.temperature-autotune-row,#page-settings .temperature-settings-section>.temperature-setting-row+.temperature-setting-row{margin-top:7px}#page-settings .temperature-settings-section-head+.temperature-autotune-row,#page-settings .temperature-settings-section-head+.temperature-setting-row{border-top:1px solid #303944!important}#page-settings .temperature-settings-section>.pid-parameter-grid,#page-settings .temperature-settings-section>.pressure-parameter-grid{margin-top:0}#page-settings .temperature-settings-section .pid-parameter-card{background:#12171c;border-color:#303944}@media (max-width:520px){#page-settings .temperature-settings-section>.temperature-autotune-row,#page-settings .temperature-settings-section>.temperature-setting-row{padding:10px}}#page-maintenance .service-panel{width:100%;max-width:780px;margin:0 auto}#page-maintenance .service-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}#page-maintenance .service-subsection-title{margin:14px 3px 7px;padding:0 1px;color:#dce2e9;font-size:var(--zone-font-text)!important;font-weight:var(--ha-font-weight-medium);line-height:1.25}#page-maintenance .service-subsection-title:first-of-type{margin-top:12px}#page-maintenance .service-fields{grid-template-columns:minmax(0,1fr);gap:7px;margin-top:0}#page-maintenance .service-fields .setting,#page-maintenance .service-fields .toggle-setting{min-height:58px;margin:0;padding:10px 12px;border:1px solid #303944;border-radius:11px;background:#12171c}#page-maintenance .service-fields .setting{display:grid;grid-template-columns:minmax(0,1fr) minmax(116px,150px);align-items:center;gap:14px}#page-maintenance .service-fields .toggle-setting{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px}#page-maintenance .service-setting-copy,#page-maintenance .toggle-copy{min-width:0;display:grid;gap:3px}#page-maintenance .service-setting-control{min-width:0;display:grid;grid-template-columns:minmax(78px,1fr) auto;align-items:center;gap:7px}#page-maintenance .service-setting-control input,#page-maintenance .service-setting-control select{min-width:0;width:100%}#page-maintenance .service-setting-control>span{min-width:24px;color:#8995a2;font-size:var(--zone-font-small)!important;text-align:left;white-space:nowrap}#page-maintenance .service-status-grid{grid-template-columns:minmax(0,1fr);gap:7px;margin-top:0}#page-maintenance .service-status-grid>div{min-height:48px;padding:9px 11px;border-radius:11px;background:#12171c}#page-maintenance .service-status-wide{grid-column:1}#page-maintenance .service-status-single{max-width:none;margin-left:0}#page-maintenance .service-actions{justify-content:flex-start;margin-top:8px}#page-maintenance .service-actions-danger{padding-top:0;border-top:0}#page-maintenance .service-group-help{margin:-1px 3px 7px;color:#7f8995;font-size:var(--zone-font-small)!important;line-height:1.4}#page-maintenance .service-note{margin-top:8px}#page-maintenance .service-help-panel .service-help-text{display:none!important}#page-maintenance .service-help-panel.help-all-open .service-help-text{display:block!important;animation:settingsHelpReveal .14s ease-out}@media (max-width:520px){#page-maintenance .service-fields .setting,#page-maintenance .service-fields .toggle-setting{grid-template-columns:minmax(0,1fr);gap:8px;padding:10px}#page-maintenance .service-setting-control{grid-template-columns:minmax(0,1fr) auto}#page-maintenance .service-fields .toggle-setting .toggle-control{justify-self:end}}
   
-/* XDB401 diagnostics: flatter hierarchy, CSV-first layout */
+/* Home pressure gauge: clean arc with the reading centered inside it. */
+#page-home .pressure-variant-a{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:minmax(0,1fr) 25px!important;
+  place-items:stretch!important;
+  padding:6px 9px 5px!important;
+}
+#page-home .pressure-variant-a .home-pressure-gauge{
+  grid-area:1/1;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  align-self:stretch!important;
+  justify-self:stretch!important;
+}
+#page-home .pressure-variant-a .pressure-reading-stacked{
+  top:calc(50% + 3px)!important;
+  left:50%!important;
+  gap:4px!important;
+  transform:translate(-50%,-50%)!important;
+}
+#page-home .pressure-variant-a .pressure-reading-stacked strong{
+  font-size:38px!important;
+  line-height:.86!important;
+  font-weight:780;
+  color:#f1f5f8;
+  text-shadow:0 2px 9px rgba(0,0,0,.34);
+}
+#page-home .pressure-variant-a .pressure-reading-stacked em{
+  color:#8996a3;
+  font-size:9px!important;
+  line-height:1;
+  font-style:normal;
+  font-weight:760;
+  letter-spacing:.13em;
+}
+#page-home .pressure-variant-a .home-pressure-backflush{
+  position:relative!important;
+  grid-area:2/1;
+  inset:auto!important;
+  width:100%;
+  min-height:25px;
+  justify-self:stretch;
+  align-self:stretch;
+  gap:6px;
+  padding:6px 0 0;
+  color:#96a5b2;
+  font-size:10px;
+  font-weight:650;
+}
+#page-home .pressure-variant-a .home-pressure-backflush-icon{
+  width:13px;
+  height:13px;
+  display:inline-grid;
+  place-items:center;
+  flex:0 0 auto;
+  color:#76a9cc;
+}
+#page-home .pressure-variant-a .home-pressure-backflush-icon svg{
+  width:13px;
+  height:13px;
+  display:block;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+/* XDB401 diagnostics: incident-first layout */
 #page-diagnostics .diagnostics-sensor-clean{
   margin-top:12px;
   padding:0;
@@ -101,13 +172,6 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
   padding:4px 7px;
   background:#0f151a;
 }
-#page-diagnostics .diagnostics-sensor-clean .diagnostics-section-health{
-  flex:0 0 auto;
-  padding:5px 7px;
-  border:0;
-  background:transparent;
-  font-size:9px;
-}
 #page-diagnostics .diagnostics-sensor-clean .xdb-system-summary-compact{
   margin-top:10px;
   padding:8px 1px 0;
@@ -147,6 +211,12 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
 #page-diagnostics .diagnostics-sensor-clean .xdb-shot-card-primary .xdb-shot-head>div>b{
   font-size:13px;
 }
+#page-diagnostics .diagnostics-sensor-clean .xdb-shot-fact-wide{
+  grid-column:1/-1;
+}
+#page-diagnostics .diagnostics-sensor-clean .xdb-shot-facts[hidden]{
+  display:none;
+}
 #page-diagnostics .diagnostics-sensor-clean .diagnostics-csv-actions{
   margin-top:7px;
   justify-content:flex-start;
@@ -175,8 +245,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
   font-size:var(--zone-font-small)!important;
   line-height:1.45;
 }
-#page-diagnostics [data-diagnostics-panel="pressure"] .xdb-human-chips>span,
-#page-diagnostics [data-diagnostics-panel="pressure"] .diagnostics-section-health{
+#page-diagnostics [data-diagnostics-panel="pressure"] .xdb-human-chips>span{
   font-size:var(--zone-font-small)!important;
 }
 #page-diagnostics [data-diagnostics-panel="pressure"] .xdb-system-summary-compact>div>b{
@@ -213,14 +282,11 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     flex-direction:column;
     gap:6px;
   }
-  #page-diagnostics .diagnostics-sensor-clean .diagnostics-section-health{
-    align-self:flex-start;
-  }
   #page-diagnostics .diagnostics-sensor-clean .diagnostics-csv-actions .button{
     width:100%;
   }
 }
-</style>
+.advanced-phase-editor{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:14px;background:#12161c}.advanced-phase-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.advanced-phase-toggle{min-width:0;display:flex;align-items:center;gap:8px;margin-right:auto;padding:7px 9px;background:transparent;color:var(--text);text-align:left}.advanced-phase-toggle:hover{background:#202630}.advanced-phase-toggle-count{color:var(--muted);font-size:11px;font-weight:600}.advanced-phase-toggle-arrow{color:var(--muted);transition:transform .15s ease}.advanced-phase-editor.open .advanced-phase-toggle-arrow{transform:rotate(180deg)}.advanced-phase-actions{display:flex;gap:8px;flex-wrap:wrap}.advanced-phase-list{display:grid;gap:7px;margin-top:10px}.advanced-phase-row{display:grid;grid-template-columns:34px minmax(82px,1fr) repeat(3,minmax(66px,.7fr)) 34px;gap:6px;align-items:end;padding:8px;border:1px solid #2a303a;border-radius:11px;background:#181d24}.advanced-phase-row.pause{grid-template-columns:34px minmax(82px,1fr) 34px}.advanced-phase-row.selected{border-color:#d6a94d;box-shadow:0 0 0 1px #d6a94d55}.advanced-phase-index{align-self:center;text-align:center;color:#ffd166;font-weight:800}.advanced-phase-field{display:grid;gap:3px}.advanced-phase-field span{font-size:10px;color:var(--muted)}.advanced-phase-field input{width:100%;min-width:0;padding:7px 8px;border:1px solid #303844;border-radius:8px;background:#0f1318;color:var(--text)}.advanced-phase-remove{height:34px;padding:0;color:#ff9a9a;background:#3b2227}.advanced-phase-note{margin:8px 0 0;color:var(--muted);font-size:11px}.advanced-phase-empty{padding:12px;color:var(--muted);text-align:center}.phase-summary-only{cursor:default}.phase-summary-only small::after{display:none}@media(max-width:700px){.advanced-phase-row{grid-template-columns:30px repeat(2,minmax(0,1fr)) 30px}.advanced-phase-row .advanced-phase-field:nth-of-type(4),.advanced-phase-row .advanced-phase-field:nth-of-type(5){grid-column:2/3}.advanced-phase-row.pause{grid-template-columns:30px minmax(0,1fr) 30px}}</style>
   <style>
     .user-profile-actions { grid-template-columns: 34px; }
     .user-profile-actions button { width:34px; min-width:34px; }
@@ -240,6 +306,44 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     .archive-row-delete{align-self:stretch;width:34px;min-width:34px;padding:0;border:0;border-left:1px solid #303a46;border-radius:0;background:transparent;color:#e98282;font-size:13px;box-shadow:none}
     .archive-row-delete:hover:not(:disabled){background:#3b2227;color:#ffaaaa}
     .user-profile-apply .user-profile-date { margin-top:3px; color:#6f7c89; font-size:7px; }
+    .lab-grid{display:grid;grid-template-columns:minmax(300px,.82fr) minmax(360px,1.18fr);gap:12px;align-items:start}
+    .lab-overview,.lab-records{min-width:0}
+    .lab-collection-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;padding:12px;border:1px solid #303a46;border-radius:12px;background:#12171c}
+    .lab-collection-copy b,.lab-record-head b{display:block;color:#dce3ea;font-size:14px}
+    .lab-collection-copy small,.lab-record-head small{display:block;margin-top:3px;color:#7f8b97;font-size:11px;line-height:1.35}
+    .lab-readiness{margin-top:11px;padding:13px;border:1px solid #34404b;border-left:4px solid #677584;border-radius:12px;background:#11171c}
+    .lab-readiness.collecting{border-left-color:#5599cf}.lab-readiness.prototype{border-left-color:#d4a94d}.lab-readiness.high{border-left-color:#4bb77f}.lab-readiness.problem{border-left-color:#df6558}
+    .lab-readiness-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .lab-readiness-head small{display:block;color:#7e8a96;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+    .lab-readiness-head b{display:block;margin-top:3px;color:#dce4eb;font-size:17px}
+    .lab-readiness-score{flex:0 0 auto;color:#aeb9c4;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+    .lab-progress{height:7px;margin-top:11px;overflow:hidden;border-radius:999px;background:#252d35}
+    .lab-progress>i{display:block;width:0;height:100%;border-radius:inherit;background:#667887;transition:width .25s ease}
+    .lab-readiness.collecting .lab-progress>i{background:#5599cf}.lab-readiness.prototype .lab-progress>i{background:#d4a94d}.lab-readiness.high .lab-progress>i{background:#4bb77f}.lab-readiness.problem .lab-progress>i{background:#df6558}
+    .lab-readiness p{margin:9px 0 0;color:#8e9aa5;font-size:11px;line-height:1.45}
+    .lab-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:10px}
+    .lab-metric{min-width:0;padding:10px;border:1px solid #303a46;border-radius:10px;background:#12171c}
+    .lab-metric span,.lab-storage-label{display:block;color:#788591;font-size:10px}
+    .lab-metric b{display:block;margin-top:4px;color:#d5dde5;font-size:16px;font-variant-numeric:tabular-nums}
+    .lab-storage{margin-top:10px;padding:11px 12px;border:1px solid #303a46;border-radius:11px;background:#12171c}
+    .lab-storage-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .lab-storage-top b{color:#cfd7df;font-size:12px;font-variant-numeric:tabular-nums}
+    .lab-storage-bar{height:6px;margin-top:8px;overflow:hidden;border-radius:999px;background:#252d35}
+    .lab-storage-bar>i{display:block;width:0;height:100%;border-radius:inherit;background:#6f8395}
+    .lab-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}.lab-actions>*{flex:1 1 150px}
+    .lab-export-progress{min-height:17px;margin-top:8px;color:#7f8b97;font-size:10px;line-height:1.4}
+    .lab-records-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+    .lab-records-head button{min-width:36px;height:36px;padding:0}
+    .lab-record-list{display:grid;gap:7px;max-height:620px;overflow:auto}
+    .lab-record{display:grid;grid-template-columns:10px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px;border:1px solid #303a46;border-radius:11px;background:#12171c}
+    .lab-record-dot{width:9px;height:9px;border-radius:50%;background:#677584}.lab-record.clean .lab-record-dot{background:#4bb77f}.lab-record.partial .lab-record-dot{background:#d4a94d}.lab-record.rejected .lab-record-dot{background:#df6558}
+    .lab-record-copy{min-width:0}.lab-record-title{display:flex;align-items:center;gap:7px;min-width:0}.lab-record-title b{overflow:hidden;color:#d8e0e7;font-size:12px;text-overflow:ellipsis;white-space:nowrap}.lab-record-title span{flex:0 0 auto;padding:3px 6px;border-radius:999px;background:#252d35;color:#9ca8b3;font-size:8px;font-weight:750;text-transform:uppercase}
+    .lab-record.clean .lab-record-title span{background:#183326;color:#81dca6}.lab-record.partial .lab-record-title span{background:#352e1b;color:#e4c56f}.lab-record.rejected .lab-record-title span{background:#372126;color:#ed918a}
+    .lab-record-copy small{display:block;margin-top:4px;overflow:hidden;color:#778490;font-size:9px;line-height:1.3;text-overflow:ellipsis;white-space:nowrap}
+    .lab-pin{width:34px;min-width:34px;height:34px;padding:0;border:1px solid #38434e;background:#1c232a;color:#74808c;font-size:16px}.lab-pin.active{border-color:#725f31;background:#312918;color:#f0c864}
+    .lab-empty{padding:28px 14px;border:1px dashed #3a4651;border-radius:11px;color:#788591;text-align:center}
+    @media(max-width:820px){.lab-grid{grid-template-columns:minmax(0,1fr)}.lab-record-list{max-height:none}}
+    @media(max-width:430px){.lab-metrics{grid-template-columns:minmax(0,1fr)}.lab-actions>*{flex-basis:100%}}
   </style>
 </head>
 <body class="sidebar-collapsed" style="visibility:hidden" onload="this.style.visibility=''">
@@ -261,6 +365,15 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
             </svg>
           </span>
           <span class="nav-label">Главная</span>
+        </button>
+        <button class="nav-item" data-page="lab" title="Лаборатория">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M9 3h6"/><path d="M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/>
+              <path d="M7.5 15h9"/><circle cx="10" cy="17.5" r=".7"/><circle cx="14" cy="13" r=".7"/>
+            </svg>
+          </span>
+          <span class="nav-label">Лаборатория</span>
         </button>
         <button class="nav-item" data-page="settings" title="Настройки">
           <span class="nav-icon" aria-hidden="true">
@@ -855,7 +968,12 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
               </div>
 
               <div id="homePressureBackflush" class="home-pressure-backflush" aria-live="polite">
-                <span class="home-pressure-backflush-icon" aria-hidden="true">↻</span>
+                <span class="home-pressure-backflush-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M12 3.5s-5 5.4-5 9.4a5 5 0 0 0 10 0c0-4-5-9.4-5-9.4Z"/>
+                    <path d="M9.7 14.2c.4 1.2 1.2 1.8 2.4 1.9"/>
+                  </svg>
+                </span>
                 <span id="homePressureBackflushText">—</span>
               </div>
 
@@ -1254,7 +1372,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
           <aside class="card settings-nav-card">
             <div class="settings-nav-head">
               <b>Категории</b>
-              <small>4 раздела</small>
+              <small>3 раздела</small>
             </div>
 
             <div class="settings-nav-list" role="tablist" aria-label="Категории настроек">
@@ -1285,16 +1403,6 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                   <svg viewBox="0 0 24 24"><path d="M4 16a8 8 0 0 1 16 0"/><path d="M12 16l4-5"/><circle cx="12" cy="16" r="1.4"/><path d="M7 19h10"/></svg>
                 </span>
                 <span><b>Давление</b><small>Регулятор и наполнение</small></span>
-                <i>›</i>
-              </button>
-
-              <button class="settings-nav-item" type="button" role="tab"
-                data-settings-target="pump" aria-selected="false"
-                onclick="setSettingsPanel('pump')">
-                <span class="settings-nav-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24"><path d="M5 14h4l2-5 3 10 2-5h3"/><path d="M4 4h16v16H4z"/></svg>
-                </span>
-                <span><b>Помпа</b><small>Запуск и симистор</small></span>
                 <i>›</i>
               </button>
             </div>
@@ -1494,99 +1602,6 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
               </div>
             </section>
 
-            <section class="settings-panel" data-settings-panel="pump" hidden>
-              <div class="settings-panel-head">
-                <div>
-                  <div class="section-title">Помпа</div>
-                  <div class="section-subtitle">Аппаратный запуск, плавность изменения мощности и низкоуровневые параметры драйвера.</div>
-                </div>
-              </div>
-
-              <div class="pump-settings-grid">
-                <section class="temperature-settings-section">
-                  <div class="temperature-settings-section-head">
-                    <b>Плавность управления</b>
-                    <small>Параметры обычного управления диммером помпы вне активного pressure-профиля.</small>
-                  </div>
-
-                  <div class="temperature-setting-row">
-                    <div class="temperature-setting-copy">
-                      <label for="pumpRamp">Время плавного изменения мощности</label>
-                      <small>Сглаживает переход между уровнями мощности, чтобы команда на помпу не менялась ступенькой. Во время активного профиля пролива прошивка временно управляет разгоном сама.</small>
-                    </div>
-                    <div class="temperature-setting-control">
-                      <input id="pumpRamp" type="number" min="0" max="3000" step="50">
-                      <span>мс</span>
-                    </div>
-                  </div>
-                </section>
-
-                <section class="temperature-settings-section">
-                  <div class="temperature-settings-section-head">
-                    <b>Аппаратный запуск помпы</b>
-                    <small>Низкоуровневый стартовый импульс драйвера. Для pressure-фаз пролива он отключается, потому что там используется мягкий старт давления.</small>
-                  </div>
-
-                  <div class="temperature-setting-row pump-toggle-row">
-                    <div class="temperature-setting-copy">
-                      <b>Стартовый импульс</b>
-                      <small>Разрешает кратковременный boost при обычном запуске помпы и в фазах, где профиль явно допускает такой старт.</small>
-                    </div>
-                    <label class="toggle-control"><input id="pumpStartBoostEnabled" type="checkbox" onchange="updateSwitch(this,'Silvia Pump Start Boost')"><i></i></label>
-                  </div>
-
-                  <div class="temperature-setting-row">
-                    <div class="temperature-setting-copy">
-                      <label for="pumpStartBoostTime">Длительность стартового импульса</label>
-                      <small>Сколько времени драйвер удерживает стартовый boost перед переходом к обычной мощности.</small>
-                    </div>
-                    <div class="temperature-setting-control">
-                      <input id="pumpStartBoostTime" type="number" min="0" max="1000" step="10">
-                      <span>мс</span>
-                    </div>
-                  </div>
-                </section>
-
-                <section class="temperature-settings-section pump-settings-section-wide">
-                  <div class="temperature-settings-section-head">
-                    <b>Тайминги симистора</b>
-                    <small>Аппаратные параметры управления силовым ключом помпы. Они применяются напрямую к драйверу и обычно не требуют изменения после настройки железа.</small>
-                  </div>
-
-                  <div class="pressure-parameter-grid">
-                    <div class="pid-parameter-card">
-                      <div class="pid-parameter-main">
-                        <label for="pumpGateDelay">Задержка gate</label>
-                        <div class="temperature-setting-control">
-                          <input id="pumpGateDelay" type="number" min="10" max="1000" step="10">
-                          <span>мкс</span>
-                        </div>
-                      </div>
-                      <small>Задержка управляющего импульса симистора после обнаружения перехода сети через ноль.</small>
-                    </div>
-
-                    <div class="pid-parameter-card">
-                      <div class="pid-parameter-main">
-                        <label for="pumpGatePulse">Импульс gate</label>
-                        <div class="temperature-setting-control">
-                          <input id="pumpGatePulse" type="number" min="50" max="1000" step="10">
-                          <span>мкс</span>
-                        </div>
-                      </div>
-                      <small>Длительность управляющего импульса на затвор симистора после рассчитанной задержки.</small>
-                    </div>
-                  </div>
-                </section>
-
-              </div>
-
-              <div class="settings-actions pump-settings-save">
-                <button class="primary" onclick="saveNumberGroup(pumpNums,tr('Настройки помпы сохранены'))">Сохранить настройки помпы</button>
-              </div>
-
-              <div class="settings-note">Защитный переход pressure-профиля к PI по тайм-ауту задаётся самой прошивкой и отдельной настройкой не является.</div>
-            </section>
-
             <section class="settings-panel active" data-settings-panel="machine">
               <div class="settings-panel-head">
                 <div>
@@ -1738,12 +1753,12 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                 Сначала оставьте весы пустыми и нажмите «Тарировать», затем положите указанный вес и нажмите «Калибровать».
               </div>
 
-              <div class="service-subsection-title">Подготовка к проливу</div>
+              <div class="service-subsection-title">Автоматика весов</div>
               <div class="service-fields">
                 <div class="toggle-setting service-wide">
                   <div class="toggle-copy">
-                    <span>Автоматическая тара</span>
-                    <small class="service-help-text">Автоматически обнуляет стабильные весы перед следующим проливом.</small>
+                    <span>Тарировать перед проливом</span>
+                    <small class="service-help-text">Перед запуском пролива автоматически обнуляет весы, когда показания стабильны.</small>
                   </div>
                   <label class="toggle-control">
                     <input id="scaleAutoTare" type="checkbox" onchange="updateSwitch(this,'Silvia Scale Auto Tare')">
@@ -1863,6 +1878,81 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         </div>
       </section>
 
+      <section id="page-lab" class="page">
+        <div class="page-heading">
+          <h1>Лаборатория</h1>
+          <p>Сбор и строгая проверка данных для будущей модели давления</p>
+        </div>
+
+        <div class="lab-grid">
+          <article class="card lab-overview">
+            <div class="lab-collection-row">
+              <div class="lab-collection-copy">
+                <b>Сбор данных для модели</b>
+                <small>Сохраняет полный CSV каждого пролива и проверяет надёжность XDB401.</small>
+              </div>
+              <label class="toggle-control">
+                <input id="trainingCollectionToggle" type="checkbox"
+                  onchange="toggleTrainingCollection(this)">
+                <i></i>
+              </label>
+            </div>
+
+            <section id="trainingReadiness" class="lab-readiness">
+              <div class="lab-readiness-head">
+                <div>
+                  <small>Готовность набора</small>
+                  <b id="trainingReadinessTitle">Загрузка…</b>
+                </div>
+                <span id="trainingReadinessScore" class="lab-readiness-score">—</span>
+              </div>
+              <div class="lab-progress" aria-hidden="true"><i id="trainingReadinessBar"></i></div>
+              <p id="trainingReadinessCopy">Получаем оценки сохранённых проливов.</p>
+            </section>
+
+            <div class="lab-metrics">
+              <div class="lab-metric"><span>Чистые проливы</span><b id="trainingCleanCount">—</b></div>
+              <div class="lab-metric"><span>Пригодные окна</span><b id="trainingWindowCount">—</b></div>
+              <div class="lab-metric"><span>Частичные</span><b id="trainingPartialCount">—</b></div>
+              <div class="lab-metric"><span>Отклонены</span><b id="trainingRejectedCount">—</b></div>
+              <div class="lab-metric"><span>Профили</span><b id="trainingProfileCount">—</b></div>
+              <div class="lab-metric"><span>Ошибки XDB401</span><b id="trainingSensorRejectedCount">—</b></div>
+            </div>
+
+            <div class="lab-storage">
+              <div class="lab-storage-top">
+                <span class="lab-storage-label">Хранилище LittleFS</span>
+                <b id="trainingStorageText">—</b>
+              </div>
+              <div class="lab-storage-bar" aria-hidden="true"><i id="trainingStorageBar"></i></div>
+              <div id="trainingStorageEstimate" class="lab-export-progress"></div>
+            </div>
+
+            <div class="lab-actions">
+              <button id="trainingExportButton" class="primary" type="button"
+                onclick="exportTrainingDataset(false)">Выгрузить пригодные</button>
+              <button id="trainingExportAllButton" class="secondary" type="button"
+                onclick="exportTrainingDataset(true)">Выгрузить все собранные</button>
+            </div>
+            <div id="trainingExportProgress" class="lab-export-progress" aria-live="polite"></div>
+          </article>
+
+          <article class="card lab-records">
+            <div class="lab-records-head">
+              <div class="lab-record-head">
+                <b>Проверенные записи</b>
+                <small>Звезда защищает запись от автоматического удаления.</small>
+              </div>
+              <button type="button" onclick="loadTrainingDataset(true)"
+                aria-label="Обновить набор" title="Обновить набор">↻</button>
+            </div>
+            <div id="trainingRecordList" class="lab-record-list">
+              <div class="lab-empty">Загрузка записей…</div>
+            </div>
+          </article>
+        </div>
+      </section>
+
       <section id="page-diagnostics" class="page">
         <div class="service-page-head">
           <h1>Диагностика</h1>
@@ -1883,7 +1973,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                 <span class="service-nav-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24"><path d="M4 16a8 8 0 0 1 16 0"/><path d="M12 16l4-5"/><circle cx="12" cy="16" r="1.4"/><path d="M7 19h10"/></svg>
                 </span>
-                <span><b>Давление</b><small>Помпа и XDB401</small></span>
+                <span><b>XDB401</b><small>Связь, данные и защита</small></span>
                 <i>›</i>
               </button>
 
@@ -1923,57 +2013,12 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
             <section class="service-panel active" data-diagnostics-panel="pressure">
               <div class="service-panel-head">
                 <div>
-                  <div class="section-title">Давление и XDB401</div>
-                  <div class="section-subtitle">Диагностика регулятора давления и датчика XDB401.</div>
+                  <div class="section-title">Датчик давления XDB401</div>
+                  <div class="section-subtitle">Разбор ошибок обмена, качества данных и защитных остановок.</div>
                 </div>
-              </div>
-
-              <div class="diagnostics-section-label">Регулятор</div>
-              <p class="service-group-help">Эти значения имеют смысл во время pressure-профиля: коррекция показывает автоматическую добавку к команде помпы, скорость — фактическое изменение давления.</p>
-              <div class="diagnostics-metrics diagnostics-regulator-grid">
-                <div><span>Адаптивная коррекция помпы</span><b><i id="diagPressureFf">—</i> %</b></div>
-                <div><span>Рост давления</span><b><i id="diagPressureSlope">—</i> бар/с</b></div>
               </div>
 
               <section class="diagnostics-system-section diagnostics-sensor-section diagnostics-sensor-clean">
-                <div id="xdbHumanCard"
-                  class="xdb-human-card xdb-human-status checking" role="status"
-                  aria-live="polite">
-                  <div class="xdb-human-copy">
-                    <div class="xdb-human-status-top">
-                      <div class="xdb-human-status-title">
-                        <span>Датчик XDB401</span>
-                        <b id="xdbHumanTitle">Проверяем XDB401…</b>
-                      </div>
-                      <span class="diagnostics-section-health">
-                        Состояние: <b id="diagSensorHealth">—</b>
-                      </span>
-                    </div>
-                    <p id="xdbHumanText">Получаем состояние датчика и счётчики обмена.</p>
-                    <div class="xdb-human-chips">
-                      <span>Ошибок подряд: <b id="xdbHumanConsecutive">—</b></span>
-                      <span>Последняя: <b id="xdbHumanLastError">—</b></span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="diagnostics-section-label">Текущее состояние</div>
-                <div class="diagnostics-metrics diagnostics-system-grid diagnostics-sensor-grid">
-                  <div class="diagnostics-wide"><span>Температура XDB401</span><b><i id="pressureSensorTemp">—</i> °C</b></div>
-                  <div class="diagnostics-wide"><span>Возраст последнего значения давления</span><b><i id="pressureDataAge">—</i> с</b></div>
-                </div>
-
-                <div id="xdbSystemSummary"
-                  class="xdb-system-summary xdb-system-summary-compact checking">
-                  <div>
-                    <b id="xdbSystemSummaryTitle">Накопительная статистика XDB401</b>
-                    <p id="xdbSystemSummaryText">
-                      Загружаем общие счётчики ошибок с момента запуска контроллера.
-                    </p>
-                  </div>
-                  <span id="xdbSystemDominant">—</span>
-                </div>
-
                 <div class="diagnostics-section-label diagnostics-primary-label">Последний пролив</div>
                 <div id="xdbLastShotCard"
                   class="xdb-shot-card xdb-shot-card-primary loading">
@@ -1987,14 +2032,16 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                   </div>
 
                   <p id="xdbShotSummary">
-                    После анализа здесь появится понятное объяснение остановки помпы и ошибок XDB401.
+                    После анализа здесь появится вывод о связи XDB401 и работе защиты помпы.
                   </p>
 
                   <div id="xdbShotFacts" class="xdb-shot-facts" hidden>
-                    <div><span>Срабатывание защиты</span><b id="xdbShotEventTime">—</b></div>
-                    <div><span>Возраст данных</span><b id="xdbShotSensorAge">—</b></div>
+                    <div><span>Защита помпы</span><b id="xdbShotProtection">—</b></div>
+                    <div><span id="xdbShotEventLabel">Событие</span><b id="xdbShotEventValue">—</b></div>
+                    <div><span>Макс. возраст данных</span><b id="xdbShotSensorAge">—</b></div>
+                    <div><span>Макс. ошибок подряд</span><b id="xdbShotConsecutive">—</b></div>
                     <div><span>Восстановление связи</span><b id="xdbShotRecovery">—</b></div>
-                    <div><span>Причина</span><b id="xdbShotReason">—</b></div>
+                    <div class="xdb-shot-fact-wide"><span>Источник ошибки</span><b id="xdbShotReason">—</b></div>
                   </div>
                 </div>
 
@@ -2002,7 +2049,40 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                   <a class="button" href="/shot.csv">Скачать последний CSV</a>
                 </div>
 
-                <div class="diagnostics-section-label">Технические счётчики XDB401</div>
+                <div class="diagnostics-section-label">Состояние сейчас</div>
+                <div id="xdbHumanCard"
+                  class="xdb-human-card xdb-human-status checking" role="status"
+                  aria-live="polite">
+                  <div class="xdb-human-copy">
+                    <div class="xdb-human-status-top">
+                      <div class="xdb-human-status-title">
+                        <span>Связь с датчиком</span>
+                        <b id="xdbHumanTitle">Проверяем связь XDB401…</b>
+                      </div>
+                    </div>
+                    <p id="xdbHumanText">Получаем состояние датчика и счётчики обмена.</p>
+                    <div class="xdb-human-chips">
+                      <span>Возраст данных: <b id="pressureDataAge">—</b> с</span>
+                      <span>Ошибок подряд: <b id="xdbHumanConsecutive">—</b></span>
+                      <span>Температура: <b id="pressureSensorTemp">—</b> °C</span>
+                      <span>Последняя: <b id="xdbHumanLastError">—</b></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="diagnostics-section-label">Сводка после запуска ESP32</div>
+                <div id="xdbSystemSummary"
+                  class="xdb-system-summary xdb-system-summary-compact checking">
+                  <div>
+                    <b id="xdbSystemSummaryTitle">Накопительная статистика XDB401</b>
+                    <p id="xdbSystemSummaryText">
+                      Загружаем общие счётчики ошибок с момента запуска контроллера.
+                    </p>
+                  </div>
+                  <span id="xdbSystemDominant">—</span>
+                </div>
+
+                <div class="diagnostics-section-label">Счётчики ошибок XDB401</div>
                 <div class="diagnostics-metrics diagnostics-system-grid diagnostics-sensor-grid">
                   <div><span>Всего ошибок</span><b id="errTotal">—</b></div>
                   <div><span>Старт измерения</span><b id="errStart">—</b></div>
@@ -2359,6 +2439,11 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       font-variant-numeric:tabular-nums;
     }
 
+    /* Keep the pressure value in the visual center of the dial. */
+    #page-home .pressure-variant-a .pressure-reading-stacked {
+      top:56% !important;
+    }
+
 </style>
 
   <script>
@@ -2381,7 +2466,6 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       'silvia water level': ['waterLevelState', 'bool'],
       'silvia steam target': ['steamTargetLive', 'num'],
       'silvia backflush reminder shots': ['backflushReminderLive', 'num0'],
-      'silvia pump start boost': ['pumpStartBoostEnabled', 'toggle'],
       'silvia scale auto tare': ['scaleAutoTare', 'toggle'],
       'silvia stop brew by weight': ['stopByWeight', 'toggle'],
       'silvia shot diagnostics': ['shotDiagnostics', 'toggle'],
@@ -2459,13 +2543,6 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       pressureSoftInfusionStartPower: 'Silvia Soft Infusion Start Power'
     };
 
-    const pumpNums = {
-      pumpRamp: 'Silvia Pump Ramp Time',
-      pumpStartBoostTime: 'Silvia Pump Start Boost Time',
-      pumpGateDelay: 'Silvia Pump Gate Delay',
-      pumpGatePulse: 'Silvia Pump Gate Pulse'
-    };
-
     const scaleNums = {
       scaleCalibrationWeight: 'Silvia Scale Calibration Weight'
     };
@@ -2476,7 +2553,6 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     };
 
     const switchControls = {
-      pumpStartBoostEnabled: 'Silvia Pump Start Boost',
       scaleAutoTare: 'Silvia Scale Auto Tare',
       stopByWeight: 'Silvia Stop Brew By Weight',
       shotDiagnostics: 'Silvia Shot Diagnostics'
@@ -2527,7 +2603,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     const clean = id => (id || '').toLowerCase().replace(/[\/_-]+/g, ' ').replace(/^(sensor|number|select|switch|binary sensor) /, '').trim();
     const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-    const EN_TRANSLATIONS = {"Локальная панель":"Local dashboard","Главная":"Home","Рецепты":"Recipes","История":"History","Настройки":"Settings","Обслуживание":"Maintenance","Диагностика":"Diagnostics","Управление кофемашиной":"Espresso machine control","Включить":"Turn on","Выключить":"Turn off","подключение…":"connecting…","онлайн":"online","нет связи":"offline","Давление":"Pressure","бар":"bar","Основная цель профиля":"Main profile target","Цель сейчас":"Current target","— бар":"— bar","Ожидание":"Idle","Начать пролив":"Start shot","Остановить":"Stop","Температура":"Temperature","Цель":"Target","Факт":"Actual","Секунды":"Seconds","Вес":"Weight","г":"g","Поток":"Flow","г/с":"g/s","Помпа":"Pump","Датчик":"Sensor","Давление, поток и мощность помпы":"Pressure, flow and pump power","Профиль":"Selected profile","Последний пролив":"Last shot","Температурная стабильность":"Temperature stability","Температура воды и выход нагревателя":"Water temperature and heater output","Цель воды":"Water target","Нагрев":"Heat","Сценарий шота":"Shot sequence","Загрузка параметров…":"Loading parameters…","Выбор профиля и параметры напитка.":"Profile selection and drink parameters.","Рецепт":"Recipe","Активный профиль":"Active profile","Температура кофе, °C":"Brew temperature, °C","Доза, г":"Dose, g","Целевой вес, г":"Target weight, g","Время основного пролива, с":"Main extraction time, s","Профиль давления":"Pressure profile","Предсмачивание, с":"Preinfusion, s","Пауза, с":"Pause, s","Давление предсмачивания, бар":"Preinfusion pressure, bar","Основное давление, бар":"Main pressure, bar","Конечное давление, бар":"End pressure, bar","Сохранить как Custom":"Save as Custom","Автоматика веса":"Weight automation","Остановка по весу":"Stop by weight","Остановить пролив по целевому весу и прогнозу потока.":"Stop the shot using target weight and flow prediction.","Целевой вес задаётся в рецепте выше. Время пролива остаётся максимальным защитным ограничением.":"Target weight is set in the recipe above. Shot time remains the maximum safety limit.","История проливов":"Shot history","Локальный архив ESP32 и сохранённая цель каждого пролива.":"Local ESP32 archive with the stored target for each shot.","Архив проливов ESP32":"ESP32 shot archive","Сохранённый пролив":"Saved shot","Архив пуст":"Archive is empty","Обновить":"Refresh","Показать на главной":"Show on Home","После первого пролива здесь появится его локальный паспорт.":"A local shot summary will appear here after the first extraction.","Настройки управления":"Control settings","Температурный PID, регулирование давления и запуск помпы.":"Temperature PID, pressure control and pump startup.","Интерфейс":"Interface","Язык локальной панели сохраняется в этом браузере.":"The dashboard language is saved in this browser.","Язык":"Language","Температурный PID":"Temperature PID","Коэффициенты нагревателя и поведение при прогреве.":"Heater coefficients and warm-up behavior.","Диапазон прогрева, °C":"Warm-up range, °C","Поправка температуры, °C":"Temperature offset, °C","Feed-forward нагрева, максимум %":"Heat feed-forward maximum, %","Сохранить PID":"Save PID","Прогрев без интеграла":"Warm-up without integral","Автонастройка":"Autotune","Регулирование давления":"Pressure control","Коэффициенты замкнутого регулятора и мягкое начало фазы.":"Closed-loop coefficients and soft phase start.","Kp давления":"Pressure Kp","Ki давления":"Pressure Ki","Мягкое наполнение, с":"Soft infusion, s","Начальная мощность, %":"Starting power, %","Сохранить давление":"Save pressure settings","Адаптивный выход":"Adaptive output","Скорость давления":"Pressure rate","бар/с":"bar/s","Запуск профиля и помпа":"Profile startup and pump","Параметры перехода к регулированию и аппаратного управления помпой.":"Control handoff and hardware pump parameters.","Стартовый boost профиля":"Profile startup boost","Короткий импульс перед обычным регулированием давления.":"Short pulse before normal pressure control.","Мощность boost, %":"Boost power, %","Время boost, мс":"Boost time, ms","Стабилизация перед PI, мс":"Settling before PI, ms","Плавность помпы, мс":"Pump ramp time, ms","Аппаратный boost помпы":"Pump hardware boost","Импульс драйвера при запуске помпы.":"Driver pulse when the pump starts.","Время boost помпы, мс":"Pump boost time, ms","Аппаратные тайминги симистора":"Triac hardware timing","Задержка gate, мкс":"Gate delay, µs","Импульс gate, мкс":"Gate pulse, µs","Сохранить запуск":"Save startup settings","Двухсекундный защитный тайм-аут и длительность handoff сейчас не вынесены ESPHome в отдельные сущности, поэтому здесь не показываются.":"The two-second safety timeout and handoff duration are not exposed as separate ESPHome entities, so they are not shown here.","Режим машины":"Machine mode","Режим PID":"PID mode","Цель пара, °C":"Steam target, °C","Автовыключение, мин":"Auto-off, min","Сохранить":"Save","Сбросить таймер":"Reset timer","До автоотключения":"Until auto-off","мин":"min","Весы, обратная промывка, диагностическая запись и сервис устройства.":"Scale, backflush, diagnostic recording and device service.","Весы":"Scale","Калибровочный вес, г":"Calibration weight, g","Автоматическая тара":"Automatic tare","Тарировать стабильные весы перед следующим проливом.":"Tare stable scales before the next shot.","Тарировать":"Tare","Калибровать":"Calibrate","Калибровка: сначала пустые весы → «Тарировать», затем положить указанный вес → «Калибровать».":"Calibration: empty the scale → “Tare”, then place the specified weight → “Calibrate”.","Обратная промывка":"Backflush","Напоминание, проливов":"Reminder, shots","Пауза перед ополаскиванием, с":"Delay before rinse, s","Сохранить параметры":"Save parameters","Статус":"Status","После промывки":"Since backflush","Всего проливов":"Lifetime shots","Запустить":"Start","Сбросить счётчик":"Reset counter","Диагностика пролива":"Shot diagnostics","Записать следующий пролив":"Record next shot","Синхронный CSV внутренних данных регулятора.":"Synchronized CSV of internal controller data.","CSV готов":"CSV ready","Скачать CSV":"Download CSV","Очистить":"Clear","Устройство":"Device","Причина перезапуска":"Restart reason","Израсходовано кофе":"Coffee used","Перезапустить ESP32":"Restart ESP32","Живые показатели регуляторов, XDB401 и памяти ESP32.":"Live controller, XDB401 and ESP32 memory values.","Давление и помпа":"Pressure and pump","Давление и XDB401":"Pressure and XDB401","Диагностика регулятора давления и датчика XDB401.":"Pressure-controller and XDB401 diagnostics","Регулятор":"Controller","Температура, обмен, пакеты и состояние датчика давления.":"Temperature, communication, packets, and pressure-sensor status","Текущее состояние":"Current status","Рост давления":"Pressure rise","Температура XDB401":"XDB401 temperature","PID результат":"PID output","Прогрев":"Warm-up","XDB401, память и система":"XDB401, memory and system","Всего ошибок":"Total errors","Старт":"Start","Тайм-аут":"Timeout","Пакет":"Packet","Отбраковано":"Rejected","Подряд":"Consecutive","Последняя ошибка":"Last error","Свободно PSRAM":"Free PSRAM","Крупнейший блок PSRAM":"Largest PSRAM block","Внутренний heap":"Internal heap","Состояние датчика":"Sensor health","Скачать последний CSV":"Download latest CSV","Стандартная страница ESPHome":"Standard ESPHome page","Свернуть меню":"Collapse menu","Открыть меню":"Open menu","Разделы":"Sections","Текущий пролив · цель записывается вместе с данными":"Current shot · target is recorded with the data","Последний пролив · сохранённая цель этого пролива":"Last shot · this shot’s stored target","Архивный пролив · цель взята из CSV":"Archived shot · target loaded from CSV","помпа":"pump","нагрев":"heat","с":"s","Ошибка":"Error","Да":"Yes","Нет":"No","Активен":"Active","Пролив":"Brew","Предсмачивание":"Preinfusion","Пауза":"Pause","Готов":"Ready","Включено":"Enabled","Выключено":"Disabled","Команда не выполнена":"Command failed","Питание не изменено":"Power state was not changed","Профиль не применён":"Profile was not applied","Ручные настройки сохранены как Custom":"Manual settings saved as Custom","Ошибка сохранения":"Save failed","Настройки сохранены":"Settings saved","Переключатель не изменён":"Switch was not changed","Режим не изменён":"Mode was not changed","Команда отправлена":"Command sent","Калибровка запущена":"Calibration started","Калибровка не запущена":"Calibration did not start","Архив пока недоступен":"Archive is currently unavailable","профиль не указан":"profile not specified","цель из CSV":"target from CSV","пик":"peak","ошибки XDB401":"XDB401 errors","Не удалось открыть пролив":"Could not open shot","Пролив запущен":"Shot started","Пролив остановлен":"Shot stopped","Кофемашина включена":"Espresso machine turned on","Кофемашина выключена":"Espresso machine turned off","Температурный PID сохранён":"Temperature PID saved","Настройки давления сохранены":"Pressure settings saved","Настройки запуска сохранены":"Startup settings saved","Настройки машины сохранены":"Machine settings saved","Параметры обслуживания сохранены":"Maintenance settings saved","Запустить автонастройку PID? Машина должна быть включена и находиться под наблюдением.":"Start PID autotune? The machine must be powered on and supervised.","Запустить автоматическую обратную промывку? Установи глухую корзину и не оставляй машину без присмотра.":"Start automatic backflush? Install the blind basket and do not leave the machine unattended.","Сбросить счётчик проливов после промывки?":"Reset the shot counter after backflush?","Удалить диагностический CSV из памяти?":"Delete the diagnostic CSV from memory?","Перезапустить ESP32? Управление машиной временно отключится.":"Restart ESP32? Machine control will be temporarily unavailable.","Язык изменён":"Language changed","Питание":"Power","Выключена":"Off","Готова":"Ready","Нагрев пара":"Heating steam","Пар готов":"Steam ready","Подача воды":"Hot water","Ошибка датчика":"Sensor error","Бак воды":"Water tank","Вода есть":"Water available","Мало воды":"Low water","Нет данных":"No data","Промывка":"Backflush","До промывки":"Until cleaning","Проливов всего":"Total shots","Быстрые действия":"Quick actions","Остановить пролив":"Stop shot","Вода":"Water","Пар":"Steam","Вода включена":"Hot water enabled","Вода выключена":"Hot water disabled","Пар включён":"Steam enabled","Пар выключен":"Steam disabled","Напоминание выключено":"Reminder disabled","Настройка профиля с мгновенным предпросмотром.":"Profile editing with instant preview.","Редактор профиля":"Profile editor","Профиль синхронизирован":"Profile synchronized","Параметры пролива":"Shot parameters","Температура кофе":"Brew temperature","Время пролива":"Shot time","Мягкий старт":"Soft start","Стартовая мощность":"Starting power","Точки давления":"Pressure points","Начало":"Start","Основная":"Main","Финиш":"Finish","Напиток и весы":"Drink and scale","Вес напитка":"Beverage weight","Стоп по весу":"Stop by weight","Доза кофе":"Coffee dose","Целевой вес":"Target weight","Время пролива остаётся защитным ограничением.":"Shot time remains a safety limit.","Сбросить изменения":"Reset changes","Сохранить Custom":"Save Custom","Предпросмотр профиля":"Profile preview","Изменения отображаются сразу":"Changes appear instantly","Общее время":"Total time","Исходный профиль":"Original profile","Изменённый профиль":"Edited profile","Текущий профиль":"Current profile","Изменения не сохранены":"Unsaved changes","База":"Base","Базовый профиль":"Base profile","Основной пролив":"Main extraction","Старт помпы":"Pump start","Нет изменений для сброса":"No changes to reset","Изменения сброшены":"Changes reset","сохранено":"saved","Профиль загружен":"Profile loaded","Применение профиля…":"Applying profile…","Перетащите цветные точки давления вверх или вниз. Время меняется кнопками слева.":"Drag the colored pressure points up or down. Change timing with the controls on the left.","График пролива":"Shot graph","Температура и нагрев":"Temperature and heat","ОК":"OK","Пора":"Due","шотов":"shots","Останавливать по весу":"Stop at target weight","Пролив остановится при достижении целевого веса. Время остаётся защитным ограничением.":"The shot stops when the target weight is reached. Time remains a safety limit.","Выбрать профиль":"Select profile","Кривая":"Curve","Редактирование кривой":"Curve editing","Перетаскивайте цветные точки давления вверх или вниз.":"Drag the colored pressure points up or down.","Отмена":"Cancel","Увеличить график":"Expand chart","Уменьшить график":"Collapse chart","Изменения кривой отменены":"Curve changes canceled","Кривая сохранена как Custom":"Curve saved as Custom","Редактировать кривую":"Edit curve","Завершить редактирование":"Finish editing","Нет воды":"No water","Последние 10 минут · в реальном времени":"Last 10 minutes · live","Последние 5 минут · в реальном времени":"Last 5 minutes · live","5 мин":"5 min","10 мин":"10 min","Профиль и этапы выбранного пролива":"Profile and stages of the selected shot","Последние 3 минуты":"Last 3 minutes","Последние 5 минут":"Last 5 minutes","Последние 10 минут":"Last 10 minutes","3 мин":"3 min","Автоотключение":"Auto-off","Автоотключение через":"Auto-off in","Автоотключение выключено":"Auto-off disabled","через":"in","выключено":"disabled","Настроить экран":"Customize screen","Готово":"Done","Сбросить":"Reset","Перетаскивайте крупные блоки за ручку ⠿":"Drag large blocks using the ⠿ handle","Перетащить блок":"Drag block","Расположение сохранено":"Layout saved","Расположение сброшено":"Layout reset","Редактирование профиля":"Profile editing","Архивный пролив · профиль из CSV":"Archived shot · profile from CSV","Редактировать профиль":"Edit profile","Редактирование недоступно во время пролива":"Editing is unavailable during a shot","Профиль сохранён как Custom":"Profile saved as Custom","Изменения профиля отменены":"Profile changes canceled","Параметры и кривая обновляются сразу. Сохранение создаёт Custom.":"Parameters and curve update instantly. Saving creates Custom.","Точки давления также можно перетаскивать прямо на графике.":"Pressure points can also be dragged directly on the chart.","Редактировать точки давления":"Edit pressure points","Перетаскивайте цветные точки прямо на графике.":"Drag the colored points directly on the chart.","Изменение отменено":"Change canceled","Параметр":"Parameter","Перетаскивайте блоки за ⠿ или скрывайте кнопкой справа":"Drag blocks using ⠿ or hide them with the right button","Скрытые блоки":"Hidden blocks","Скрыть блок":"Hide block","Состояние машины":"Machine status","Температурный график":"Temperature chart","Температура и PID":"Temperature and PID","Состояние бойлера за последнюю минуту":"Boiler status over the last minute","Нагрев PID":"PID heating","PID активен":"PID active","Удержание":"Holding","Температура на цели":"Temperature on target","До цели":"To target","Выше цели":"Above target","Ожидание данных":"Waiting for data","Состояние":"Status","График":"Chart","Текущее состояние бойлера":"Current boiler status","Период":"Period","Открыть рецепты":"Open recipes","Готов к проливу":"Ready to brew","Машина выключена":"Machine is off","Стоп":"Stop","Состояние бака воды":"Water tank status","Режим":"Mode","Завершить настройку экрана":"Finish dashboard setup","Состояние и пролив":"Status and brew","Основные показатели машины":"Main machine metrics","Вес пролива":"Brew weight","Счётчик проливов":"Shot counter","Требуется промывка":"Cleaning required","Встроенные профили":"Built-in profiles","Профили кофемашины":"Machine profiles","Мои профили":"My profiles","Сохраняются в этом браузере":"Stored in this browser","Название профиля":"Profile name","Сохранить текущий профиль":"Save current profile","Сохранённых профилей пока нет":"No saved profiles yet","Пользовательские настройки":"Custom settings","Введите название профиля":"Enter a profile name","Профиль сохранён":"Profile saved","Профиль обновлён":"Profile updated","Переименовать профиль":"Rename profile","Новое название профиля":"New profile name","Профиль с таким названием уже существует":"A profile with this name already exists","Профиль переименован":"Profile renamed","Удалить профиль":"Delete profile","Профиль удалён":"Profile deleted","Не удалось сохранить профиль в браузере":"Could not save profile in the browser","Профиль применён":"Profile applied","Вкл":"On","Выкл":"Off","Остановка по весу включена":"Stop by weight is on","Остановка по весу выключена":"Stop by weight is off","Изменения профиля":"Profile changes","Проверьте форму кривой и сохраните её как «Свой».":"Check the curve shape and save it as Custom.","Перетаскивайте точки и границы стадий":"Drag points and stage boundaries","Двойной клик по основному проливу переносит точку «Основная»":"Double-click the main extraction to move the Main point","Набор":"Ramp","Двойной клик доступен в стадии основного пролива":"Double-click is available in the main extraction stage","Есть изменения — введите название и нажмите +":"Changes are ready — enter a name and press +","Профиль сохранён и применён":"Profile saved and applied","Профиль обновлён и применён":"Profile updated and applied","Профиль сохранён, но не применён":"Profile saved but not applied","Сначала измените профиль":"Change the profile first","Перетащить карточку":"Drag card","Время изменяется маркером на графике":"Time is changed with the chart marker","Изменить целевой вес":"Edit target weight","Тяните маркеры этапов вправо или влево":"Drag stage markers left or right","Нажмите «＋ Предсмачивание» или «＋ Пауза», чтобы быстро добавить этап":"Tap + Preinfusion or + Pause to add the stage","Настроить шрифты":"Adjust fonts","Размеры шрифтов":"Font sizes","Изменения применяются сразу и сохраняются в этом браузере":"Changes apply immediately and are saved in this browser","Обычный текст":"Regular text","Заголовки":"Headings","Крупные значения":"Large values","Подписи графиков":"Chart labels","Текст":"Text","Значения":"Values","Размеры шрифтов сброшены":"Font sizes reset","Добавить":"Add","Вернуть размеры Home Assistant":"Restore Home Assistant sizes","Общие размеры":"Global sizes","Базовая типографика всей панели":"Base typography for the whole dashboard","Отдельные окна":"Individual panels","Дополнительный масштаб поверх общих настроек":"Additional scale on top of global settings","Левое меню":"Left menu","Управление машиной":"Machine controls","Показатели":"Metrics","Перенос настроек":"Transfer settings","Скопируйте эту строку и отправьте её мне или вставьте в другом браузере":"Copy this line and send it to me or paste it in another browser","Копировать настройки":"Copy settings","Применить из поля":"Apply from field","Настройки шрифтов":"Font settings","Настройки шрифтов скопированы":"Font settings copied","Скопируйте строку из поля":"Copy the line from the field","Неверный формат настроек":"Invalid settings format","Настройки шрифтов применены":"Font settings applied","Общие размеры и отдельный масштаб каждого окна сохраняются в этом браузере":"Global sizes and each panel scale are saved in this browser","Независимые размеры шрифтов":"Independent font sizes","Каждый блок меняется отдельно. Размеры указаны прямо в пикселях.":"Each panel changes independently. Sizes are shown directly in pixels.","Изменение одного окна больше не влияет на остальные окна.":"Changing one panel no longer affects the other panels.","Настраивается независимо":"Adjusted independently","Заголовок":"Heading","График / мелкие подписи":"Chart / small labels","Сбросить это окно":"Reset this panel","Сбросить всё":"Reset all","Независимые размеры в пикселях":"Independent sizes in pixels","Размеры окна сброшены":"Panel font sizes reset","Скопируйте строку и отправьте её мне — эти размеры можно сделать значениями по умолчанию":"Copy the line and send it to me — these sizes can become the defaults","Изменение одного окна больше не влияет на остальные окна. Текущий набор сохранён как стандартный.":"Changing one panel no longer affects the others. The current set is saved as the default.","Встроенные":"Built-in","Мои":"Mine","Тяните влево или вправо для изменения цели":"Drag left or right to change the target","Тяните влево или вправо для изменения предсмачивания":"Drag left or right to change preinfusion","Тяните влево или вправо для изменения паузы":"Drag left or right to change the pause","Тяните влево или вправо для изменения времени пролива":"Drag left or right to change brew time","Тяните влево или вправо для изменения целевого веса":"Drag left or right to change target weight","Предсмач.":"Preinf.","Поток, г/с":"Flow, g/s","Сохранённые проливы":"Saved shots","Обновить историю":"Refresh history","Проливы":"Shots","Загрузка истории…":"Loading history…","Выберите пролив":"Select a shot","График и показатели появятся здесь.":"The chart and metrics will appear here.","Время":"Duration","Пик давления":"Peak pressure","Цель веса":"Target weight","История пока пуста":"History is empty","После первого пролива здесь появится запись.":"A record will appear here after the first shot.","Профиль не указан":"Profile not specified","Загрузка…":"Loading…","Данные пролива":"Shot data","Загрузка пролива…":"Loading shot…","Читаем график и показатели.":"Reading chart and metrics.","Файл архива недоступен.":"The archive file is unavailable.","Доза":"Dose","Ошибки XDB401":"XDB401 errors","Архив недоступен":"Archive unavailable","Не удалось получить список проливов.":"Could not load the shot list.","Профили и проливы":"Profiles and shots","Выберите запись":"Select a record","Обновить проливы":"Refresh shots","Параметры управления машиной":"Machine control parameters","Категории":"Categories","5 разделов":"5 sections","PID и прогрев":"PID and warmup","Регулятор и наполнение":"Control and infusion","Запуск и симистор":"Startup and triac","Машина":"Machine","Режим и автовыключение":"Mode and auto-off","Язык панели":"Dashboard language","Нагрев, прогрев и температурная компенсация.":"Heating, warmup and temperature compensation.","Feed-forward, максимум %":"Feed-forward, maximum %","Замкнутый регулятор и мягкое начало пролива.":"Closed-loop control and a gentle shot start.","Boost, плавный старт и аппаратные тайминги.":"Boost, soft start and hardware timing.","Защитный тайм-аут и длительность handoff не вынесены ESPHome в отдельные сущности.":"The safety timeout and handoff duration are not exposed as separate ESPHome entities.","Рабочий режим, температура пара и таймер питания.":"Operating mode, steam temperature and power timer.","Параметры локальной панели.":"Local dashboard settings.","Выбранный язык сохраняется только в этом браузере.":"The selected language is stored only in this browser.","Весы, промывка, запись пролива и устройство":"Scale, backflush, shot logging and device","4 раздела":"4 sections","Тара и калибровка":"Tare and calibration","Цикл и напоминание":"Cycle and reminder","Запись пролива":"Shot logging","Диагностический CSV":"Diagnostic CSV","Счётчики и перезапуск":"Counters and restart","Тара, автоматическая подготовка и калибровка.":"Tare, automatic preparation and calibration.","Сначала оставьте весы пустыми и нажмите «Тарировать», затем положите указанный вес и нажмите «Калибровать».":"First leave the scale empty and press Tare, then place the specified weight and press Calibrate.","Настройка напоминания и управление автоматическим циклом.":"Reminder settings and automatic cycle control.","Синхронная запись внутренних данных регулятора в CSV.":"Synchronous logging of internal controller data to CSV.","Запись активируется только для следующего запуска помпы.":"Logging is enabled only for the next pump start.","Состояние контроллера и сервисные действия.":"Controller status and service actions.","Регуляторы, датчик давления и память ESP32":"Controllers, pressure sensor and ESP32 memory","3 раздела":"3 sections","Помпа и XDB401":"Pump and XDB401","PID и нагрев":"PID and heating","Ошибки и память":"Errors and memory","Живые значения регулятора давления и датчика XDB401.":"Live pressure controller and XDB401 sensor values.","Текущая температура, составляющие PID и feed-forward.":"Current temperature, PID components and feed-forward.","Ошибки обмена, состояние датчика и память контроллера.":"Communication errors, sensor status and controller memory.","Язык интерфейса":"Interface language","Русский язык":"Russian language","Английский язык":"English language","Профиль пролива":"Shot profile","Профили":"Profiles","Расположение карточки":"Card position","Перетащить верхнюю карточку":"Drag upper card","Изменить ширину верхних карточек":"Resize upper cards","Двойной щелчок — стандартный размер":"Double-click for default size","Изменить ширину нижних карточек":"Resize lower cards","Иконки Пролив / Вода / Пар":"Brew / Water / Steam icons","Круглая кнопка питания":"Round power button","Размеры по умолчанию":"Default sizes","Добавить быстрый ярлык":"Add quick shortcut","Быстрый ярлык":"Quick shortcut","Выберите действие для четвёртой плитки":"Choose an action for the fourth tile","Действие":"Action","Удалить":"Remove","Закрыть":"Close","График температуры":"Temperature chart","Отступ между верхним и нижним блоками":"Gap between upper and lower blocks","из":"of","проливов":"shots","Счётчик":"Counter","Высота температурного графика":"Temperature chart height","Ширина левой / правой карточки":"Left / right card width","Ширина управление / давление / температура":"Controls / pressure / temperature width","Манометр давления от 0 до 12 бар":"Pressure gauge from 0 to 12 bar","Проверяем XDB401…":"Checking XDB401…","Получаем состояние датчика и счётчики обмена.":"Loading sensor state and communication counters.","Ошибок подряд:":"Consecutive errors:","Последняя:":"Latest:","Последний диагностический CSV":"Latest diagnostic CSV","Проверяем запись последнего пролива…":"Checking the latest recorded shot…","Обновить анализ":"Refresh analysis","После анализа здесь появится понятное объяснение остановки помпы и ошибок XDB401.":"A clear explanation of pump shutdown and XDB401 errors will appear here.","Срабатывание защиты":"Protection triggered","Возраст данных":"Data age","Восстановление связи":"Connection recovery","Причина":"Cause","Накопительная статистика XDB401":"Cumulative XDB401 statistics","Загружаем общие счётчики ошибок с момента запуска контроллера.":"Loading cumulative error counters since controller startup.","Технические счётчики":"Technical counters","Текущие значения":"Current values","XDB401 работает нормально":"XDB401 is working normally","Сейчас данные давления поступают. Накопленные ошибки были раньше и не образуют текущую серию.":"Pressure data is currently arriving. Accumulated errors happened earlier and do not form a current sequence.","Данные давления поступают, ошибок связи подряд нет.":"Pressure data is arriving and there are no consecutive communication errors.","XDB401 отвечает с ошибками":"XDB401 is responding with errors","Появилась короткая серия ошибок обмена. Контроллер пока продолжает работу, но связь с датчиком нестабильна.":"A short sequence of communication errors appeared. The controller is still operating, but the sensor link is unstable.","Связь с XDB401 потеряна":"Connection to XDB401 lost","Помпа остановлена защитой: контроллер не получает надёжные данные давления.":"The pump was stopped by protection because the controller is not receiving reliable pressure data.","Контроллер не получает надёжные данные давления. При проливе защита может остановить помпу.":"The controller is not receiving reliable pressure data. During a shot, protection may stop the pump.","Нет текущей ошибки":"No current error","запуск измерения":"measurement start","чтение статуса":"status read","тайм-аут измерения":"measurement timeout","чтение пакета":"packet read","отбракованные пакеты":"rejected packets","Сейчас идёт серия ошибок XDB401. Ниже показаны накопительные счётчики с момента запуска ESP32.":"An XDB401 error sequence is active. The counters below are cumulative since ESP32 startup.","Ошибки XDB401 уже фиксировались. Эти значения накопительные и относятся ко всему времени работы после запуска ESP32.":"XDB401 errors have been recorded. These values are cumulative for the entire uptime since ESP32 startup.","После запуска ESP32 ошибок обмена с XDB401 пока не зарегистрировано.":"No XDB401 communication errors have been recorded since ESP32 startup.","Чаще всего":"Most often","Ошибок нет":"No errors","ош. запуска":"start errors","ош. статуса":"status errors","тайм-аутов":"timeouts","ош. пакета":"packet errors","отбраковано":"rejected","свежие данные давления не поступали":"fresh pressure data was not received","CSV пуст или не распознан":"CSV is empty or unrecognized","В последнем файле нет строк, которые можно использовать для диагностики.":"The latest file contains no rows that can be used for diagnostics.","Защитное отключение не найдено":"No protective shutdown found","Во время последнего пролива XDB401 зарегистрировал ошибки, но данные восстановились до срабатывания защиты и помпа не была принудительно остановлена.":"XDB401 recorded errors during the latest shot, but data recovered before protection triggered and the pump was not forcibly stopped.","Последний записанный пролив прошёл без потери связи с XDB401 и без остановки помпы защитой.":"The latest recorded shot completed without losing XDB401 communication or a protective pump shutdown.","не зафиксировано":"not recorded","Обнаружено защитное отключение":"Protective shutdown detected","На":"At","контроллер потерял надёжные данные XDB401 и остановил помпу защитой SENSOR_FAIL. Максимальный возраст данных составил":"the controller lost reliable XDB401 data and stopped the pump with SENSOR_FAIL protection. Maximum data age was","Ошибок подряд":"Consecutive errors","В последнем CSV обнаружена потеря XDB401, но нулевой выход помпы в строках сбоя не найден.":"The latest CSV shows an XDB401 loss, but zero pump output was not found in the failure rows.","Последний CSV недоступен":"Latest CSV unavailable","Запишите диагностический пролив, после чего здесь появится автоматический разбор связи XDB401 и остановки помпы.":"Record a diagnostic shot and an automatic analysis of XDB401 communication and pump shutdown will appear here.","мс":"ms","Ошибки и состояние системы":"Errors and system status","Ошибки датчика отделены от памяти и состояния ESP32.":"Sensor errors are separated from ESP32 memory and status.","Ошибки датчика давления":"Pressure sensor errors","XDB401: обмен, пакеты и текущее состояние связи.":"XDB401 communication, packets, and current link status.","Состояние:":"Status:","Технические счётчики XDB401":"XDB401 technical counters","Старт измерения":"Measurement start","Чтение статуса":"Status read","Тайм-аут измерения":"Measurement timeout","Чтение пакета":"Packet read","Отбраковано пакетов":"Rejected packets","Последняя ошибка XDB401":"Latest XDB401 error","Система":"System","Память и сервисные данные ESP32.":"ESP32 memory and service data.","ESP32 и память":"ESP32 and memory","Ресурсы контроллера отдельно от ошибок датчика.":"Controller resources separated from sensor errors.","Свободный внутренний heap":"Free internal heap","Показатели памяти относятся к ESP32 и не являются ошибками XDB401.":"Memory values belong to the ESP32 and are not XDB401 errors.","Длительность пролива":"Shot duration","Линии графика":"Chart lines","Толщина и прозрачность":"Width and transparency","Толщина":"Width","Прозрачность":"Transparency","Линии по умолчанию":"Reset lines","Настройки линий графика сброшены":"Chart line settings reset","Настройки линий":"Line settings","Цвет":"Color","Цвет, толщина и прозрачность":"Color, width and transparency","По умолчанию":"Defaults","Настроить линии графика":"Configure chart lines","Границы этапов":"Stage boundaries","PI-регулятор управляет мощностью помпы по фактическому давлению и динамике его роста.":"The PI controller adjusts pump power from measured pressure and its rate of change.","PI-регулятор давления":"Pressure PI controller","Поддерживает давление профиля, изменяя мощность помпы по ошибке давления. Настройки действуют для всех профилей.":"Maintains profile pressure by adjusting pump power from pressure error. These settings apply to all profiles.","Определяет, насколько сильно помпа реагирует на текущую разницу между целью и фактическим давлением.":"Controls how strongly the pump reacts to the current difference between target and measured pressure.","Убирает устойчивое отклонение от цели и помогает регулятору подстроиться под сопротивление кофейной таблетки.":"Removes steady pressure error and helps the controller adapt to coffee-puck resistance.","Мягкое начало пролива":"Soft shot start","Общая плавная оболочка запуска помпы. Это не предсмачивание профиля, а ограничение резкого старта для любого профиля.":"A shared gentle pump-start envelope. This is not profile preinfusion; it limits abrupt startup for any profile.","Длительность плавного старта":"Soft-start duration","За это время допустимая мощность помпы увеличивается постепенно. Значение 0 с отключает мягкий старт.":"During this time the allowed pump power rises gradually. A value of 0 s disables soft start.","Начальная мощность помпы":"Initial pump power","Стартовая граница мощности, с которой начинается плавный разгон перед обычным регулированием давления.":"The starting power limit from which the smooth ramp begins before normal pressure control.","Состояние регулятора":"Controller status","Живые диагностические значения. Они рассчитываются автоматически и здесь не настраиваются.":"Live diagnostic values. They are calculated automatically and are not configured here.","Адаптивная коррекция помпы":"Adaptive pump correction","Текущая автоматическая добавка к управлению помпой с учётом поведения давления.":"Current automatic pump-control correction based on pressure behavior.","Насколько быстро прямо сейчас изменяется давление; регулятор использует динамику, чтобы заранее тормозить разгон.":"How quickly pressure is changing right now; the controller uses this trend to brake the rise early.","Сохранить настройки давления":"Save pressure settings","Аппаратный запуск, плавность изменения мощности и низкоуровневые параметры драйвера.":"Hardware startup, power ramping, and low-level driver parameters.","Плавность управления":"Control ramping","Параметры обычного управления диммером помпы вне активного pressure-профиля.":"Normal pump-dimmer settings outside an active pressure profile.","Время плавного изменения мощности":"Power ramp time","Сглаживает переход между уровнями мощности, чтобы команда на помпу не менялась ступенькой. Во время активного профиля пролива прошивка временно управляет разгоном сама.":"Smooths transitions between power levels so the pump command does not change abruptly. During an active shot profile, firmware temporarily controls the ramp itself.","Аппаратный запуск помпы":"Hardware pump startup","Низкоуровневый стартовый импульс драйвера. Для pressure-фаз пролива он отключается, потому что там используется мягкий старт давления.":"Low-level driver startup pulse. It is disabled for pressure-controlled shot phases because those use the pressure soft start.","Стартовый импульс":"Startup pulse","Разрешает кратковременный boost при обычном запуске помпы и в фазах, где профиль явно допускает такой старт.":"Allows a brief boost during normal pump startup and in phases where the profile explicitly allows it.","Длительность стартового импульса":"Startup pulse duration","Сколько времени драйвер удерживает стартовый boost перед переходом к обычной мощности.":"How long the driver holds the startup boost before switching to normal power.","Тайминги симистора":"Triac timing","Аппаратные параметры управления силовым ключом помпы. Они применяются напрямую к драйверу и обычно не требуют изменения после настройки железа.":"Hardware timing for the pump power switch. These values are applied directly to the driver and usually do not need changes after hardware setup.","Задержка gate":"Gate delay","Задержка управляющего импульса симистора после обнаружения перехода сети через ноль.":"Delay of the triac control pulse after the mains zero crossing is detected.","Импульс gate":"Gate pulse","Длительность управляющего импульса на затвор симистора после рассчитанной задержки.":"Duration of the triac gate pulse after the configured delay.","Параметры старого старта pressure-профиля":"Legacy pressure-profile startup parameters","Эти сущности всё ещё есть в ESPHome, но текущий алгоритм pressure-профиля принудительно отменяет timed boost и использует мягкий старт из раздела «Давление». Поэтому оставляем их доступными для совместимости, но не ставим в основной блок.":"These entities still exist in ESPHome, but the current pressure-profile algorithm cancels the timed boost and uses the soft start from the Pressure section. They remain available for compatibility but are kept out of the main controls.","Стартовый boost pressure-профиля":"Pressure-profile startup boost","Сохранённый переключатель старого алгоритма запуска.":"Stored switch from the previous startup algorithm.","Мощность boost":"Boost power","Сохранённая мощность стартового импульса старой схемы.":"Stored startup-pulse power from the previous scheme.","Время boost":"Boost time","Сохранённая длительность стартового импульса старой схемы.":"Stored startup-pulse duration from the previous scheme.","Стабилизация перед PI":"Settling before PI","Сущность старой схемы перехода к PI. В текущем алгоритме переход выполняется по реакции давления или по защитному тайм-ауту.":"Entity from the previous PI handoff scheme. The current algorithm transitions on pressure response or a safety timeout.","Сохранить настройки помпы":"Save pump settings","Настройки помпы сохранены":"Pump settings saved","Защитный переход pressure-профиля к PI по тайм-ауту задаётся самой прошивкой и отдельной настройкой не является.":"The pressure-profile safety handoff to PI on timeout is defined by firmware and is not a separate setting."};
+    const EN_TRANSLATIONS = {"Локальная панель":"Local dashboard","Главная":"Home","Рецепты":"Recipes","История":"History","Настройки":"Settings","Обслуживание":"Maintenance","Диагностика":"Diagnostics","Управление кофемашиной":"Espresso machine control","Включить":"Turn on","Выключить":"Turn off","подключение…":"connecting…","онлайн":"online","нет связи":"offline","Давление":"Pressure","бар":"bar","Основная цель профиля":"Main profile target","Цель сейчас":"Current target","— бар":"— bar","Ожидание":"Idle","Начать пролив":"Start shot","Остановить":"Stop","Температура":"Temperature","Цель":"Target","Факт":"Actual","Секунды":"Seconds","Вес":"Weight","г":"g","Поток":"Flow","г/с":"g/s","Помпа":"Pump","Датчик":"Sensor","Давление, поток и мощность помпы":"Pressure, flow and pump power","Профиль":"Selected profile","Последний пролив":"Last shot","Температурная стабильность":"Temperature stability","Температура воды и выход нагревателя":"Water temperature and heater output","Цель воды":"Water target","Нагрев":"Heat","Сценарий шота":"Shot sequence","Загрузка параметров…":"Loading parameters…","Выбор профиля и параметры напитка.":"Profile selection and drink parameters.","Рецепт":"Recipe","Активный профиль":"Active profile","Температура кофе, °C":"Brew temperature, °C","Доза, г":"Dose, g","Целевой вес, г":"Target weight, g","Время основного пролива, с":"Main extraction time, s","Профиль давления":"Pressure profile","Предсмачивание, с":"Preinfusion, s","Пауза, с":"Pause, s","Давление предсмачивания, бар":"Preinfusion pressure, bar","Основное давление, бар":"Main pressure, bar","Конечное давление, бар":"End pressure, bar","Сохранить как Custom":"Save as Custom","Автоматика веса":"Weight automation","Остановка по весу":"Stop by weight","Остановить пролив по целевому весу и прогнозу потока.":"Stop the shot using target weight and flow prediction.","Целевой вес задаётся в рецепте выше. Время пролива остаётся максимальным защитным ограничением.":"Target weight is set in the recipe above. Shot time remains the maximum safety limit.","История проливов":"Shot history","Локальный архив ESP32 и сохранённая цель каждого пролива.":"Local ESP32 archive with the stored target for each shot.","Архив проливов ESP32":"ESP32 shot archive","Сохранённый пролив":"Saved shot","Архив пуст":"Archive is empty","Обновить":"Refresh","Показать на главной":"Show on Home","После первого пролива здесь появится его локальный паспорт.":"A local shot summary will appear here after the first extraction.","Настройки управления":"Control settings","Температурный PID, регулирование давления и запуск помпы.":"Temperature PID, pressure control and pump startup.","Интерфейс":"Interface","Язык локальной панели сохраняется в этом браузере.":"The dashboard language is saved in this browser.","Язык":"Language","Температурный PID":"Temperature PID","Коэффициенты нагревателя и поведение при прогреве.":"Heater coefficients and warm-up behavior.","Диапазон прогрева, °C":"Warm-up range, °C","Поправка температуры, °C":"Temperature offset, °C","Feed-forward нагрева, максимум %":"Heat feed-forward maximum, %","Сохранить PID":"Save PID","Прогрев без интеграла":"Warm-up without integral","Автонастройка":"Autotune","Регулирование давления":"Pressure control","Коэффициенты замкнутого регулятора и мягкое начало фазы.":"Closed-loop coefficients and soft phase start.","Kp давления":"Pressure Kp","Ki давления":"Pressure Ki","Мягкое наполнение, с":"Soft infusion, s","Начальная мощность, %":"Starting power, %","Сохранить давление":"Save pressure settings","Адаптивный выход":"Adaptive output","Скорость давления":"Pressure rate","бар/с":"bar/s","Режим машины":"Machine mode","Режим PID":"PID mode","Цель пара, °C":"Steam target, °C","Автовыключение, мин":"Auto-off, min","Сохранить":"Save","Сбросить таймер":"Reset timer","До автоотключения":"Until auto-off","мин":"min","Весы, обратная промывка, диагностическая запись и сервис устройства.":"Scale, backflush, diagnostic recording and device service.","Весы":"Scale","Калибровочный вес, г":"Calibration weight, g","Автоматическая тара":"Automatic tare","Тарировать стабильные весы перед следующим проливом.":"Tare stable scales before the next shot.","Тарировать":"Tare","Калибровать":"Calibrate","Калибровка: сначала пустые весы → «Тарировать», затем положить указанный вес → «Калибровать».":"Calibration: empty the scale → “Tare”, then place the specified weight → “Calibrate”.","Обратная промывка":"Backflush","Напоминание, проливов":"Reminder, shots","Пауза перед ополаскиванием, с":"Delay before rinse, s","Сохранить параметры":"Save parameters","Статус":"Status","После промывки":"Since backflush","Всего проливов":"Lifetime shots","Запустить":"Start","Сбросить счётчик":"Reset counter","Диагностика пролива":"Shot diagnostics","Записать следующий пролив":"Record next shot","Синхронный CSV внутренних данных регулятора.":"Synchronized CSV of internal controller data.","CSV готов":"CSV ready","Скачать CSV":"Download CSV","Очистить":"Clear","Устройство":"Device","Причина перезапуска":"Restart reason","Израсходовано кофе":"Coffee used","Перезапустить ESP32":"Restart ESP32","Живые показатели регуляторов, XDB401 и памяти ESP32.":"Live controller, XDB401 and ESP32 memory values.","Давление и помпа":"Pressure and pump","Давление и XDB401":"Pressure and XDB401","Диагностика регулятора давления и датчика XDB401.":"Pressure-controller and XDB401 diagnostics","Регулятор":"Controller","Температура, обмен, пакеты и состояние датчика давления.":"Temperature, communication, packets, and pressure-sensor status","Текущее состояние":"Current status","Рост давления":"Pressure rise","Температура XDB401":"XDB401 temperature","PID результат":"PID output","Прогрев":"Warm-up","XDB401, память и система":"XDB401, memory and system","Всего ошибок":"Total errors","Старт":"Start","Тайм-аут":"Timeout","Пакет":"Packet","Отбраковано":"Rejected","Подряд":"Consecutive","Последняя ошибка":"Last error","Свободно PSRAM":"Free PSRAM","Крупнейший блок PSRAM":"Largest PSRAM block","Внутренний heap":"Internal heap","Состояние датчика":"Sensor health","Скачать последний CSV":"Download latest CSV","Стандартная страница ESPHome":"Standard ESPHome page","Свернуть меню":"Collapse menu","Открыть меню":"Open menu","Разделы":"Sections","Текущий пролив · цель записывается вместе с данными":"Current shot · target is recorded with the data","Последний пролив · сохранённая цель этого пролива":"Last shot · this shot’s stored target","Архивный пролив · цель взята из CSV":"Archived shot · target loaded from CSV","помпа":"pump","нагрев":"heat","с":"s","Ошибка":"Error","Да":"Yes","Нет":"No","Активен":"Active","Пролив":"Brew","Предсмачивание":"Preinfusion","Пауза":"Pause","Готов":"Ready","Включено":"Enabled","Выключено":"Disabled","Команда не выполнена":"Command failed","Питание не изменено":"Power state was not changed","Профиль не применён":"Profile was not applied","Ручные настройки сохранены как Custom":"Manual settings saved as Custom","Ошибка сохранения":"Save failed","Настройки сохранены":"Settings saved","Переключатель не изменён":"Switch was not changed","Режим не изменён":"Mode was not changed","Команда отправлена":"Command sent","Калибровка запущена":"Calibration started","Калибровка не запущена":"Calibration did not start","Архив пока недоступен":"Archive is currently unavailable","профиль не указан":"profile not specified","цель из CSV":"target from CSV","пик":"peak","ошибки XDB401":"XDB401 errors","Не удалось открыть пролив":"Could not open shot","Пролив запущен":"Shot started","Пролив остановлен":"Shot stopped","Кофемашина включена":"Espresso machine turned on","Кофемашина выключена":"Espresso machine turned off","Температурный PID сохранён":"Temperature PID saved","Настройки давления сохранены":"Pressure settings saved","Настройки машины сохранены":"Machine settings saved","Параметры обслуживания сохранены":"Maintenance settings saved","Запустить автонастройку PID? Машина должна быть включена и находиться под наблюдением.":"Start PID autotune? The machine must be powered on and supervised.","Запустить автоматическую обратную промывку? Установи глухую корзину и не оставляй машину без присмотра.":"Start automatic backflush? Install the blind basket and do not leave the machine unattended.","Сбросить счётчик проливов после промывки?":"Reset the shot counter after backflush?","Удалить диагностический CSV из памяти?":"Delete the diagnostic CSV from memory?","Перезапустить ESP32? Управление машиной временно отключится.":"Restart ESP32? Machine control will be temporarily unavailable.","Язык изменён":"Language changed","Питание":"Power","Выключена":"Off","Готова":"Ready","Нагрев пара":"Heating steam","Пар готов":"Steam ready","Подача воды":"Hot water","Ошибка датчика":"Sensor error","Бак воды":"Water tank","Вода есть":"Water available","Мало воды":"Low water","Нет данных":"No data","Промывка":"Backflush","До промывки":"Until cleaning","Проливов всего":"Total shots","Быстрые действия":"Quick actions","Остановить пролив":"Stop shot","Вода":"Water","Пар":"Steam","Вода включена":"Hot water enabled","Вода выключена":"Hot water disabled","Пар включён":"Steam enabled","Пар выключен":"Steam disabled","Напоминание выключено":"Reminder disabled","Настройка профиля с мгновенным предпросмотром.":"Profile editing with instant preview.","Редактор профиля":"Profile editor","Профиль синхронизирован":"Profile synchronized","Параметры пролива":"Shot parameters","Температура кофе":"Brew temperature","Время пролива":"Shot time","Мягкий старт":"Soft start","Стартовая мощность":"Starting power","Точки давления":"Pressure points","Начало":"Start","Основная":"Main","Финиш":"Finish","Напиток и весы":"Drink and scale","Вес напитка":"Beverage weight","Стоп по весу":"Stop by weight","Доза кофе":"Coffee dose","Целевой вес":"Target weight","Время пролива остаётся защитным ограничением.":"Shot time remains a safety limit.","Сбросить изменения":"Reset changes","Сохранить Custom":"Save Custom","Предпросмотр профиля":"Profile preview","Изменения отображаются сразу":"Changes appear instantly","Общее время":"Total time","Исходный профиль":"Original profile","Изменённый профиль":"Edited profile","Текущий профиль":"Current profile","Изменения не сохранены":"Unsaved changes","База":"Base","Базовый профиль":"Base profile","Основной пролив":"Main extraction","Старт помпы":"Pump start","Нет изменений для сброса":"No changes to reset","Изменения сброшены":"Changes reset","сохранено":"saved","Профиль загружен":"Profile loaded","Применение профиля…":"Applying profile…","Перетащите цветные точки давления вверх или вниз. Время меняется кнопками слева.":"Drag the colored pressure points up or down. Change timing with the controls on the left.","График пролива":"Shot graph","Температура и нагрев":"Temperature and heat","ОК":"OK","Пора":"Due","шотов":"shots","Останавливать по весу":"Stop at target weight","Пролив остановится при достижении целевого веса. Время остаётся защитным ограничением.":"The shot stops when the target weight is reached. Time remains a safety limit.","Выбрать профиль":"Select profile","Кривая":"Curve","Редактирование кривой":"Curve editing","Перетаскивайте цветные точки давления вверх или вниз.":"Drag the colored pressure points up or down.","Отмена":"Cancel","Увеличить график":"Expand chart","Уменьшить график":"Collapse chart","Изменения кривой отменены":"Curve changes canceled","Кривая сохранена как Custom":"Curve saved as Custom","Редактировать кривую":"Edit curve","Завершить редактирование":"Finish editing","Нет воды":"No water","Последние 10 минут · в реальном времени":"Last 10 minutes · live","Последние 5 минут · в реальном времени":"Last 5 minutes · live","5 мин":"5 min","10 мин":"10 min","Профиль и этапы выбранного пролива":"Profile and stages of the selected shot","Последние 3 минуты":"Last 3 minutes","Последние 5 минут":"Last 5 minutes","Последние 10 минут":"Last 10 minutes","3 мин":"3 min","Автоотключение":"Auto-off","Автоотключение через":"Auto-off in","Автоотключение выключено":"Auto-off disabled","через":"in","выключено":"disabled","Настроить экран":"Customize screen","Готово":"Done","Сбросить":"Reset","Перетаскивайте крупные блоки за ручку ⠿":"Drag large blocks using the ⠿ handle","Перетащить блок":"Drag block","Расположение сохранено":"Layout saved","Расположение сброшено":"Layout reset","Редактирование профиля":"Profile editing","Архивный пролив · профиль из CSV":"Archived shot · profile from CSV","Редактировать профиль":"Edit profile","Редактирование недоступно во время пролива":"Editing is unavailable during a shot","Профиль сохранён как Custom":"Profile saved as Custom","Изменения профиля отменены":"Profile changes canceled","Параметры и кривая обновляются сразу. Сохранение создаёт Custom.":"Parameters and curve update instantly. Saving creates Custom.","Точки давления также можно перетаскивать прямо на графике.":"Pressure points can also be dragged directly on the chart.","Редактировать точки давления":"Edit pressure points","Перетаскивайте цветные точки прямо на графике.":"Drag the colored points directly on the chart.","Изменение отменено":"Change canceled","Параметр":"Parameter","Перетаскивайте блоки за ⠿ или скрывайте кнопкой справа":"Drag blocks using ⠿ or hide them with the right button","Скрытые блоки":"Hidden blocks","Скрыть блок":"Hide block","Состояние машины":"Machine status","Температурный график":"Temperature chart","Температура и PID":"Temperature and PID","Состояние бойлера за последнюю минуту":"Boiler status over the last minute","Нагрев PID":"PID heating","PID активен":"PID active","Удержание":"Holding","Температура на цели":"Temperature on target","До цели":"To target","Выше цели":"Above target","Ожидание данных":"Waiting for data","Состояние":"Status","График":"Chart","Текущее состояние бойлера":"Current boiler status","Период":"Period","Открыть рецепты":"Open recipes","Готов к проливу":"Ready to brew","Машина выключена":"Machine is off","Стоп":"Stop","Состояние бака воды":"Water tank status","Режим":"Mode","Завершить настройку экрана":"Finish dashboard setup","Состояние и пролив":"Status and brew","Основные показатели машины":"Main machine metrics","Вес пролива":"Brew weight","Счётчик проливов":"Shot counter","Требуется промывка":"Cleaning required","Встроенные профили":"Built-in profiles","Профили кофемашины":"Machine profiles","Мои профили":"My profiles","Сохраняются в этом браузере":"Stored in this browser","Название профиля":"Profile name","Сохранить текущий профиль":"Save current profile","Сохранённых профилей пока нет":"No saved profiles yet","Пользовательские настройки":"Custom settings","Введите название профиля":"Enter a profile name","Профиль сохранён":"Profile saved","Профиль обновлён":"Profile updated","Переименовать профиль":"Rename profile","Новое название профиля":"New profile name","Профиль с таким названием уже существует":"A profile with this name already exists","Профиль переименован":"Profile renamed","Удалить профиль":"Delete profile","Профиль удалён":"Profile deleted","Не удалось сохранить профиль в браузере":"Could not save profile in the browser","Профиль применён":"Profile applied","Вкл":"On","Выкл":"Off","Остановка по весу включена":"Stop by weight is on","Остановка по весу выключена":"Stop by weight is off","Изменения профиля":"Profile changes","Проверьте форму кривой и сохраните её как «Свой».":"Check the curve shape and save it as Custom.","Перетаскивайте точки и границы стадий":"Drag points and stage boundaries","Двойной клик по основному проливу переносит точку «Основная»":"Double-click the main extraction to move the Main point","Набор":"Ramp","Двойной клик доступен в стадии основного пролива":"Double-click is available in the main extraction stage","Есть изменения — введите название и нажмите +":"Changes are ready — enter a name and press +","Профиль сохранён и применён":"Profile saved and applied","Профиль обновлён и применён":"Profile updated and applied","Профиль сохранён, но не применён":"Profile saved but not applied","Сначала измените профиль":"Change the profile first","Перетащить карточку":"Drag card","Время изменяется маркером на графике":"Time is changed with the chart marker","Изменить целевой вес":"Edit target weight","Тяните маркеры этапов вправо или влево":"Drag stage markers left or right","Нажмите «＋ Предсмачивание» или «＋ Пауза», чтобы быстро добавить этап":"Tap + Preinfusion or + Pause to add the stage","Настроить шрифты":"Adjust fonts","Размеры шрифтов":"Font sizes","Изменения применяются сразу и сохраняются в этом браузере":"Changes apply immediately and are saved in this browser","Обычный текст":"Regular text","Заголовки":"Headings","Крупные значения":"Large values","Подписи графиков":"Chart labels","Текст":"Text","Значения":"Values","Размеры шрифтов сброшены":"Font sizes reset","Добавить":"Add","Вернуть размеры Home Assistant":"Restore Home Assistant sizes","Общие размеры":"Global sizes","Базовая типографика всей панели":"Base typography for the whole dashboard","Отдельные окна":"Individual panels","Дополнительный масштаб поверх общих настроек":"Additional scale on top of global settings","Левое меню":"Left menu","Управление машиной":"Machine controls","Показатели":"Metrics","Перенос настроек":"Transfer settings","Скопируйте эту строку и отправьте её мне или вставьте в другом браузере":"Copy this line and send it to me or paste it in another browser","Копировать настройки":"Copy settings","Применить из поля":"Apply from field","Настройки шрифтов":"Font settings","Настройки шрифтов скопированы":"Font settings copied","Скопируйте строку из поля":"Copy the line from the field","Неверный формат настроек":"Invalid settings format","Настройки шрифтов применены":"Font settings applied","Общие размеры и отдельный масштаб каждого окна сохраняются в этом браузере":"Global sizes and each panel scale are saved in this browser","Независимые размеры шрифтов":"Independent font sizes","Каждый блок меняется отдельно. Размеры указаны прямо в пикселях.":"Each panel changes independently. Sizes are shown directly in pixels.","Изменение одного окна больше не влияет на остальные окна.":"Changing one panel no longer affects the other panels.","Настраивается независимо":"Adjusted independently","Заголовок":"Heading","График / мелкие подписи":"Chart / small labels","Сбросить это окно":"Reset this panel","Сбросить всё":"Reset all","Независимые размеры в пикселях":"Independent sizes in pixels","Размеры окна сброшены":"Panel font sizes reset","Скопируйте строку и отправьте её мне — эти размеры можно сделать значениями по умолчанию":"Copy the line and send it to me — these sizes can become the defaults","Изменение одного окна больше не влияет на остальные окна. Текущий набор сохранён как стандартный.":"Changing one panel no longer affects the others. The current set is saved as the default.","Встроенные":"Built-in","Мои":"Mine","Тяните влево или вправо для изменения цели":"Drag left or right to change the target","Тяните влево или вправо для изменения предсмачивания":"Drag left or right to change preinfusion","Тяните влево или вправо для изменения паузы":"Drag left or right to change the pause","Тяните влево или вправо для изменения времени пролива":"Drag left or right to change brew time","Тяните влево или вправо для изменения целевого веса":"Drag left or right to change target weight","Предсмач.":"Preinf.","Поток, г/с":"Flow, g/s","Сохранённые проливы":"Saved shots","Обновить историю":"Refresh history","Проливы":"Shots","Загрузка истории…":"Loading history…","Выберите пролив":"Select a shot","График и показатели появятся здесь.":"The chart and metrics will appear here.","Время":"Duration","Пик давления":"Peak pressure","Цель веса":"Target weight","История пока пуста":"History is empty","После первого пролива здесь появится запись.":"A record will appear here after the first shot.","Профиль не указан":"Profile not specified","Загрузка…":"Loading…","Данные пролива":"Shot data","Загрузка пролива…":"Loading shot…","Читаем график и показатели.":"Reading chart and metrics.","Файл архива недоступен.":"The archive file is unavailable.","Доза":"Dose","Ошибки XDB401":"XDB401 errors","Архив недоступен":"Archive unavailable","Не удалось получить список проливов.":"Could not load the shot list.","Профили и проливы":"Profiles and shots","Выберите запись":"Select a record","Обновить проливы":"Refresh shots","Параметры управления машиной":"Machine control parameters","Категории":"Categories","PID и прогрев":"PID and warmup","Регулятор и наполнение":"Control and infusion","Машина":"Machine","Режим и автовыключение":"Mode and auto-off","Язык панели":"Dashboard language","Нагрев, прогрев и температурная компенсация.":"Heating, warmup and temperature compensation.","Feed-forward, максимум %":"Feed-forward, maximum %","Замкнутый регулятор и мягкое начало пролива.":"Closed-loop control and a gentle shot start.","Рабочий режим, температура пара и таймер питания.":"Operating mode, steam temperature and power timer.","Параметры локальной панели.":"Local dashboard settings.","Выбранный язык сохраняется только в этом браузере.":"The selected language is stored only in this browser.","Весы, промывка, запись пролива и устройство":"Scale, backflush, shot logging and device","4 раздела":"4 sections","Тара и калибровка":"Tare and calibration","Цикл и напоминание":"Cycle and reminder","Запись пролива":"Shot logging","Диагностический CSV":"Diagnostic CSV","Счётчики и перезапуск":"Counters and restart","Тара, автоматическая подготовка и калибровка.":"Tare, automatic preparation and calibration.","Сначала оставьте весы пустыми и нажмите «Тарировать», затем положите указанный вес и нажмите «Калибровать».":"First leave the scale empty and press Tare, then place the specified weight and press Calibrate.","Настройка напоминания и управление автоматическим циклом.":"Reminder settings and automatic cycle control.","Синхронная запись внутренних данных регулятора в CSV.":"Synchronous logging of internal controller data to CSV.","Запись активируется только для следующего запуска помпы.":"Logging is enabled only for the next pump start.","Состояние контроллера и сервисные действия.":"Controller status and service actions.","Регуляторы, датчик давления и память ESP32":"Controllers, pressure sensor and ESP32 memory","3 раздела":"3 sections","Помпа и XDB401":"Pump and XDB401","PID и нагрев":"PID and heating","Ошибки и память":"Errors and memory","Живые значения регулятора давления и датчика XDB401.":"Live pressure controller and XDB401 sensor values.","Текущая температура, составляющие PID и feed-forward.":"Current temperature, PID components and feed-forward.","Ошибки обмена, состояние датчика и память контроллера.":"Communication errors, sensor status and controller memory.","Язык интерфейса":"Interface language","Русский язык":"Russian language","Английский язык":"English language","Профиль пролива":"Shot profile","Профили":"Profiles","Расположение карточки":"Card position","Перетащить верхнюю карточку":"Drag upper card","Изменить ширину верхних карточек":"Resize upper cards","Двойной щелчок — стандартный размер":"Double-click for default size","Изменить ширину нижних карточек":"Resize lower cards","Иконки Пролив / Вода / Пар":"Brew / Water / Steam icons","Круглая кнопка питания":"Round power button","Размеры по умолчанию":"Default sizes","Добавить быстрый ярлык":"Add quick shortcut","Быстрый ярлык":"Quick shortcut","Выберите действие для четвёртой плитки":"Choose an action for the fourth tile","Действие":"Action","Удалить":"Remove","Закрыть":"Close","График температуры":"Temperature chart","Отступ между верхним и нижним блоками":"Gap between upper and lower blocks","из":"of","проливов":"shots","Счётчик":"Counter","Высота температурного графика":"Temperature chart height","Ширина левой / правой карточки":"Left / right card width","Ширина управление / давление / температура":"Controls / pressure / temperature width","Манометр давления от 0 до 12 бар":"Pressure gauge from 0 to 12 bar","Проверяем XDB401…":"Checking XDB401…","Получаем состояние датчика и счётчики обмена.":"Loading sensor state and communication counters.","Ошибок подряд:":"Consecutive errors:","Последняя:":"Latest:","Последний диагностический CSV":"Latest diagnostic CSV","Проверяем запись последнего пролива…":"Checking the latest recorded shot…","Обновить анализ":"Refresh analysis","После анализа здесь появится понятное объяснение остановки помпы и ошибок XDB401.":"A clear explanation of pump shutdown and XDB401 errors will appear here.","Срабатывание защиты":"Protection triggered","Возраст данных":"Data age","Восстановление связи":"Connection recovery","Причина":"Cause","Накопительная статистика XDB401":"Cumulative XDB401 statistics","Загружаем общие счётчики ошибок с момента запуска контроллера.":"Loading cumulative error counters since controller startup.","Технические счётчики":"Technical counters","Текущие значения":"Current values","XDB401 работает нормально":"XDB401 is working normally","Сейчас данные давления поступают. Накопленные ошибки были раньше и не образуют текущую серию.":"Pressure data is currently arriving. Accumulated errors happened earlier and do not form a current sequence.","Данные давления поступают, ошибок связи подряд нет.":"Pressure data is arriving and there are no consecutive communication errors.","XDB401 отвечает с ошибками":"XDB401 is responding with errors","Появилась короткая серия ошибок обмена. Контроллер пока продолжает работу, но связь с датчиком нестабильна.":"A short sequence of communication errors appeared. The controller is still operating, but the sensor link is unstable.","Связь с XDB401 потеряна":"Connection to XDB401 lost","Помпа остановлена защитой: контроллер не получает надёжные данные давления.":"The pump was stopped by protection because the controller is not receiving reliable pressure data.","Контроллер не получает надёжные данные давления. При проливе защита может остановить помпу.":"The controller is not receiving reliable pressure data. During a shot, protection may stop the pump.","Нет текущей ошибки":"No current error","запуск измерения":"measurement start","чтение статуса":"status read","тайм-аут измерения":"measurement timeout","чтение пакета":"packet read","отбракованные пакеты":"rejected packets","Сейчас идёт серия ошибок XDB401. Ниже показаны накопительные счётчики с момента запуска ESP32.":"An XDB401 error sequence is active. The counters below are cumulative since ESP32 startup.","Ошибки XDB401 уже фиксировались. Эти значения накопительные и относятся ко всему времени работы после запуска ESP32.":"XDB401 errors have been recorded. These values are cumulative for the entire uptime since ESP32 startup.","После запуска ESP32 ошибок обмена с XDB401 пока не зарегистрировано.":"No XDB401 communication errors have been recorded since ESP32 startup.","Чаще всего":"Most often","Ошибок нет":"No errors","ош. запуска":"start errors","ош. статуса":"status errors","тайм-аутов":"timeouts","ош. пакета":"packet errors","отбраковано":"rejected","свежие данные давления не поступали":"fresh pressure data was not received","CSV пуст или не распознан":"CSV is empty or unrecognized","В последнем файле нет строк, которые можно использовать для диагностики.":"The latest file contains no rows that can be used for diagnostics.","Защитное отключение не найдено":"No protective shutdown found","Во время последнего пролива XDB401 зарегистрировал ошибки, но данные восстановились до срабатывания защиты и помпа не была принудительно остановлена.":"XDB401 recorded errors during the latest shot, but data recovered before protection triggered and the pump was not forcibly stopped.","Последний записанный пролив прошёл без потери связи с XDB401 и без остановки помпы защитой.":"The latest recorded shot completed without losing XDB401 communication or a protective pump shutdown.","не зафиксировано":"not recorded","Обнаружено защитное отключение":"Protective shutdown detected","На":"At","контроллер потерял надёжные данные XDB401 и остановил помпу защитой SENSOR_FAIL. Максимальный возраст данных составил":"the controller lost reliable XDB401 data and stopped the pump with SENSOR_FAIL protection. Maximum data age was","Ошибок подряд":"Consecutive errors","В последнем CSV обнаружена потеря XDB401, но нулевой выход помпы в строках сбоя не найден.":"The latest CSV shows an XDB401 loss, but zero pump output was not found in the failure rows.","Последний CSV недоступен":"Latest CSV unavailable","Запишите диагностический пролив, после чего здесь появится автоматический разбор связи XDB401 и остановки помпы.":"Record a diagnostic shot and an automatic analysis of XDB401 communication and pump shutdown will appear here.","мс":"ms","Ошибки и состояние системы":"Errors and system status","Ошибки датчика отделены от памяти и состояния ESP32.":"Sensor errors are separated from ESP32 memory and status.","Ошибки датчика давления":"Pressure sensor errors","XDB401: обмен, пакеты и текущее состояние связи.":"XDB401 communication, packets, and current link status.","Состояние:":"Status:","Технические счётчики XDB401":"XDB401 technical counters","Старт измерения":"Measurement start","Чтение статуса":"Status read","Тайм-аут измерения":"Measurement timeout","Чтение пакета":"Packet read","Отбраковано пакетов":"Rejected packets","Последняя ошибка XDB401":"Latest XDB401 error","Система":"System","Память и сервисные данные ESP32.":"ESP32 memory and service data.","ESP32 и память":"ESP32 and memory","Ресурсы контроллера отдельно от ошибок датчика.":"Controller resources separated from sensor errors.","Свободный внутренний heap":"Free internal heap","Показатели памяти относятся к ESP32 и не являются ошибками XDB401.":"Memory values belong to the ESP32 and are not XDB401 errors.","Длительность пролива":"Shot duration","Линии графика":"Chart lines","Толщина и прозрачность":"Width and transparency","Толщина":"Width","Прозрачность":"Transparency","Линии по умолчанию":"Reset lines","Настройки линий графика сброшены":"Chart line settings reset","Настройки линий":"Line settings","Цвет":"Color","Цвет, толщина и прозрачность":"Color, width and transparency","По умолчанию":"Defaults","Настроить линии графика":"Configure chart lines","Границы этапов":"Stage boundaries","PI-регулятор управляет мощностью помпы по фактическому давлению и динамике его роста.":"The PI controller adjusts pump power from measured pressure and its rate of change.","PI-регулятор давления":"Pressure PI controller","Поддерживает давление профиля, изменяя мощность помпы по ошибке давления. Настройки действуют для всех профилей.":"Maintains profile pressure by adjusting pump power from pressure error. These settings apply to all profiles.","Определяет, насколько сильно помпа реагирует на текущую разницу между целью и фактическим давлением.":"Controls how strongly the pump reacts to the current difference between target and measured pressure.","Убирает устойчивое отклонение от цели и помогает регулятору подстроиться под сопротивление кофейной таблетки.":"Removes steady pressure error and helps the controller adapt to coffee-puck resistance.","Мягкое начало пролива":"Soft shot start","Общая плавная оболочка запуска помпы. Это не предсмачивание профиля, а ограничение резкого старта для любого профиля.":"A shared gentle pump-start envelope. This is not profile preinfusion; it limits abrupt startup for any profile.","Длительность плавного старта":"Soft-start duration","За это время допустимая мощность помпы увеличивается постепенно. Значение 0 с отключает мягкий старт.":"During this time the allowed pump power rises gradually. A value of 0 s disables soft start.","Начальная мощность помпы":"Initial pump power","Стартовая граница мощности, с которой начинается плавный разгон перед обычным регулированием давления.":"The starting power limit from which the smooth ramp begins before normal pressure control.","Состояние регулятора":"Controller status","Живые диагностические значения. Они рассчитываются автоматически и здесь не настраиваются.":"Live diagnostic values. They are calculated automatically and are not configured here.","Адаптивная коррекция помпы":"Adaptive pump correction","Текущая автоматическая добавка к управлению помпой с учётом поведения давления.":"Current automatic pump-control correction based on pressure behavior.","Насколько быстро прямо сейчас изменяется давление; регулятор использует динамику, чтобы заранее тормозить разгон.":"How quickly pressure is changing right now; the controller uses this trend to brake the rise early.","Сохранить настройки давления":"Save pressure settings"};
 
     Object.assign(EN_TRANSLATIONS, {
       "Хранятся на кофемашине":"Stored on the espresso machine",
@@ -2608,6 +2684,106 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       "Средняя ошибка давления":"Mean pressure error",
       "Средний поток":"Average flow"
     });
+    Object.assign(EN_TRANSLATIONS, {
+      "Связь, данные и защита":"Communication, data, and protection",
+      "Датчик давления XDB401":"XDB401 pressure sensor",
+      "Разбор ошибок обмена, качества данных и защитных остановок.":"Communication errors, data quality, and protective shutdowns.",
+      "После анализа здесь появится вывод о связи XDB401 и работе защиты помпы.":"The analysis will explain XDB401 communication and pump protection behavior.",
+      "Защита помпы":"Pump protection",
+      "Событие":"Event",
+      "Макс. возраст данных":"Maximum data age",
+      "Макс. ошибок подряд":"Maximum consecutive errors",
+      "Источник ошибки":"Error source",
+      "Состояние сейчас":"Current status",
+      "Связь с датчиком":"Sensor communication",
+      "Проверяем связь XDB401…":"Checking XDB401 communication…",
+      "Возраст данных:":"Data age:",
+      "Температура:":"Temperature:",
+      "Сводка после запуска ESP32":"Summary since ESP32 startup",
+      "Счётчики ошибок XDB401":"XDB401 error counters",
+      "Связь стабильна":"Communication is stable",
+      "Сейчас датчик отвечает без ошибок. Накопленные сбои были раньше; их причина видна в последнем CSV и счётчиках ниже.":"The sensor is responding without errors now. Earlier failures are explained by the latest CSV and the counters below.",
+      "Данные давления свежие, ошибок обмена подряд нет.":"Pressure data is fresh and there are no consecutive communication errors.",
+      "Нет свежих данных XDB401":"No fresh XDB401 data",
+      "Последнее значение давления старше 1 секунды. Во время пролива защита SENSOR_FAIL должна обнулить выход помпы.":"The latest pressure value is older than one second. During a shot, SENSOR_FAIL protection should force pump output to zero.",
+      "Связь нестабильна":"Communication is unstable",
+      "Идёт короткая серия ошибок обмена. При четырёх ошибках подряд защита SENSOR_FAIL остановит помпу.":"A short communication-error sequence is active. Four consecutive errors will trigger SENSOR_FAIL pump protection.",
+      "Связь потеряна":"Communication is lost",
+      "Защита SENSOR_FAIL остановила помпу: контроллер не получает надёжные данные давления.":"SENSOR_FAIL protection stopped the pump because reliable pressure data is unavailable.",
+      "Контроллер не получает надёжные данные давления. Pressure-профиль нельзя безопасно продолжать.":"Reliable pressure data is unavailable, so the pressure profile cannot continue safely.",
+      "Защита SENSOR_FAIL не сработала":"SENSOR_FAIL protection was not triggered",
+      "Не сработала":"Not triggered",
+      "Ошибок за пролив":"Errors during shot",
+      "До порога защиты":"Before protection threshold",
+      "Не требовалось":"Not required",
+      "Ошибок не было":"No errors",
+      "Момент отключения":"Shutdown time",
+      "Автоматика весов":"Scale automation",
+      "Тарировать перед проливом":"Tare before shot",
+      "Перед запуском пролива автоматически обнуляет весы, когда показания стабильны.":"Automatically tares the scales before a shot starts once the reading is stable."
+    });
+    Object.assign(EN_TRANSLATIONS, {
+      "Лаборатория":"Lab",
+      "Сбор и строгая проверка данных для будущей модели давления":"Collection and strict validation of data for the future pressure model",
+      "Сбор данных для модели":"Model data collection",
+      "Сохраняет полный CSV каждого пролива и проверяет надёжность XDB401.":"Stores the full CSV for every shot and validates XDB401 reliability.",
+      "Готовность набора":"Dataset readiness",
+      "Получаем оценки сохранённых проливов.":"Loading saved-shot assessments.",
+      "Чистые проливы":"Clean shots",
+      "Пригодные окна":"Usable windows",
+      "Частичные":"Partial",
+      "Отклонены":"Rejected",
+      "Профили":"Profiles",
+      "Ошибки XDB401":"XDB401 failures",
+      "Хранилище LittleFS":"LittleFS storage",
+      "Выгрузить пригодные":"Export eligible",
+      "Выгрузить все собранные":"Export all collected",
+      "Проверенные записи":"Validated records",
+      "Звезда защищает запись от автоматического удаления.":"The star protects a record from automatic deletion.",
+      "Обновить набор":"Refresh dataset",
+      "Загрузка записей…":"Loading records…",
+      "Данных пока нет":"No data yet",
+      "Ни одного пролива для модели ещё не сохранено.":"No model-training shots have been saved yet.",
+      "Набор собирается":"Dataset is being collected",
+      "Данных достаточно для пробной модели":"Enough data for a prototype model",
+      "Высокая готовность":"High readiness",
+      "Проблемы с данными XDB401":"XDB401 data problems",
+      "Чистых проливов":"Clean shots",
+      "из 50":"of 50",
+      "Профилей в чистом наборе":"Profiles in clean dataset",
+      "Сбор включён":"Collection enabled",
+      "Сбор выключен":"Collection disabled",
+      "Не удалось изменить режим сбора":"Could not change collection mode",
+      "Чистый":"Clean",
+      "Частичный":"Partial",
+      "Брак данных":"Rejected",
+      "Не для набора":"Not in dataset",
+      "окон":"windows",
+      "Закрепить":"Pin",
+      "Открепить":"Unpin",
+      "Не удалось изменить закрепление":"Could not change pin state",
+      "Нет pressure-фазы":"No pressure phase",
+      "Слишком короткая запись":"Recording is too short",
+      "Ошибки обмена XDB401":"XDB401 communication errors",
+      "Некорректные отсчёты давления":"Invalid pressure samples",
+      "Устаревшие данные давления":"Stale pressure data",
+      "Сработал SENSOR_FAIL":"SENSOR_FAIL triggered",
+      "Ошибки XDB401 подряд":"Consecutive XDB401 errors",
+      "Пропуски временной шкалы":"Timeline gaps",
+      "Неправдоподобный скачок давления":"Implausible pressure jump",
+      "Нет полных обучающих окон":"No complete training windows",
+      "Запись прошла строгую проверку XDB401":"The recording passed strict XDB401 validation",
+      "Подходят только отдельные непрерывные окна":"Only isolated continuous windows are usable",
+      "Запись исключена из обучения":"The recording is excluded from training",
+      "свободно":"free",
+      "Примерно поместится ещё":"Estimated remaining capacity",
+      "полных проливов":"full shots",
+      "Готовим архив…":"Preparing archive…",
+      "Скачиваем":"Downloading",
+      "Архив готов":"Archive is ready",
+      "Нет подходящих записей для выгрузки":"No eligible records to export",
+      "Не удалось выгрузить набор":"Could not export dataset"
+    });
     const I18N_MESSAGES = {
       ru: {
         profileApplied: profile => 'Профиль ' + profile + ' применён',
@@ -2627,8 +2803,8 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       }
     };
     const PROFILE_LABELS = {
-      ru: { 'Classic': 'Классика', 'Lever': 'Рычаг', 'Slayer Style': 'Slayer', 'Bloom': 'Блум', 'Custom': 'Свой' },
-      en: { 'Classic': 'Classic', 'Lever': 'Lever', 'Slayer Style': 'Slayer Style', 'Bloom': 'Bloom', 'Custom': 'Custom' }
+      ru: { 'Classic': 'Классика', 'Lever': 'Рычаг', 'Slayer Style': 'Slayer', 'Bloom': 'Блум', 'Funnel': 'Воронка', 'Custom': 'Свой' },
+      en: { 'Classic': 'Classic', 'Lever': 'Lever', 'Slayer Style': 'Slayer Style', 'Bloom': 'Bloom', 'Funnel': 'Funnel', 'Custom': 'Custom' }
     };
     const PID_MODE_LABELS = {
       ru: { 'Brew': 'Кофе', 'Steam': 'Пар' },
@@ -2675,6 +2851,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
           .replace(/\bSlayer Style\b/g, profileLabel('Slayer Style'))
           .replace(/\bSlayer\b/g, profileLabel('Slayer Style'))
           .replace(/\bBloom\b/g, profileLabel('Bloom'))
+          .replace(/\bFunnel\b/g, profileLabel('Funnel'))
           .replace(/\bClassic\b/g, profileLabel('Classic'))
           .replace(/\bLever\b/g, profileLabel('Lever'))
           .replace(/\bCustom\b/g, profileLabel('Custom'));
@@ -2768,6 +2945,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       renderHomeArchiveSummary(
         archiveSelectedSummary
       );
+      renderTrainingDataset();
 
       if ($('homeProfilesTabLabel')) {
         $('homeProfilesTabLabel').textContent =
@@ -2827,8 +3005,8 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       brewTarget:{label:'Цель',unit:'°C',step:0.5,min:80,max:105,pixelsPerStep:8},
       prePump:{label:'Предсмачивание',unit:'с',step:0.5,min:0,max:30,pixelsPerStep:8},
       prePause:{label:'Пауза',unit:'с',step:0.5,min:0,max:30,pixelsPerStep:8},
-      shotSeconds:{label:'Время пролива',unit:'с',step:1,min:1,max:90,pixelsPerStep:7},
-      targetWeight:{label:'Целевой вес',unit:'г',step:0.5,min:0,max:200,pixelsPerStep:8}
+      shotSeconds:{label:'Время пролива',unit:'с',step:1,min:1,max:240,pixelsPerStep:7},
+      targetWeight:{label:'Целевой вес',unit:'г',step:0.5,min:0,max:300,pixelsPerStep:8}
     };
     let recipeBaselineCfg = null;
     let recipeBaseProfile = '';
@@ -2837,7 +3015,15 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     let recipeControlPoints = [];
     let recipeHoverKey = '';
     let recipeDragKey = '';
+    let recipeClassicLinkedDrag = false;
     let recipeDragPointerId = null;
+    let advancedPhaseDraft = null;
+    let advancedPhaseSelected = -1;
+    let advancedPhaseEditorOpen = false;
+    let activeCustomPhaseSpec = '';
+    let activeCustomPhaseBase = '';
+    localStorage.removeItem('silviaCustomPhaseSpec');
+    localStorage.removeItem('silviaCustomPhaseBase');
     let mainCurveEditing = false;
     let mainCurveDirty = false;
     let mainCurveBaselineCfg = null;
@@ -2850,6 +3036,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     let mainCurveDragStartY = 0;
     let mainCurveDragMoved = false;
     let mainCurveDragStartConfig = null;
+    let mainCurveClassicLinkedDrag = false;
     let mainCurveDragSecondsPerPixel = 0.1;
     const SHOT_LINE_SETTINGS_KEY =
       'silvia-shot-line-settings-v1';
@@ -4168,9 +4355,318 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       return Number.isFinite(value) ? value : 0;
     }
 
+    function phaseNumber(value, fallback = 0) {
+      const number = Number(value);
+      return Number.isFinite(number) ? number : fallback;
+    }
+
+    function normalizeAdvancedPhases(phases) {
+      if (!Array.isArray(phases)) return null;
+      const clean = phases.slice(0, 12).map(item => {
+        if (item?.type === 'pause') {
+          return { type:'pause', duration:Math.max(.5, Math.min(240, phaseNumber(item.duration, 10))) };
+        }
+        return {
+          type:'brew',
+          duration:Math.max(.5, Math.min(240, phaseNumber(item?.duration, 10))),
+          start:Math.max(0, Math.min(12, phaseNumber(item?.start, .8))),
+          end:Math.max(0, Math.min(12, phaseNumber(item?.end, phaseNumber(item?.start, .8)))),
+          weight:Math.max(0, Math.min(1, phaseNumber(item?.weight, 0)))
+        };
+      });
+      return clean.some(item => item.type === 'brew') ? clean : null;
+    }
+
+    function parseAdvancedPhaseSpec(spec) {
+      const text = String(spec || '').trim();
+      if (!text) return null;
+      const phases = text.split(';').map(record => {
+        const fields = record.split(',');
+        if (fields[0] === 'P' && fields.length === 2) {
+          return { type:'pause', duration:phaseNumber(fields[1], 10) };
+        }
+        if (fields[0] === 'B' && fields.length === 5) {
+          return {
+            type:'brew',
+            duration:phaseNumber(fields[1], 10),
+            start:phaseNumber(fields[2], .8),
+            end:phaseNumber(fields[3], .8),
+            weight:phaseNumber(fields[4], 0)
+          };
+        }
+        return null;
+      });
+      return phases.some(item => !item) ? null : normalizeAdvancedPhases(phases);
+    }
+
+    function advancedPhaseSpec(phases = advancedPhaseDraft) {
+      const clean = normalizeAdvancedPhases(phases);
+      if (!clean) return '';
+      return clean.map(item => item.type === 'pause'
+        ? ['P', fmt(item.duration, item.duration % 1 ? 1 : 0)].join(',')
+        : [
+            'B',
+            fmt(item.duration, item.duration % 1 ? 1 : 0),
+            fmt(item.start, 1),
+            fmt(item.end, 1),
+            Number(item.weight || 0).toFixed(3)
+          ].join(',')
+      ).join(';');
+    }
+
+    function funnelPhaseEditingEnabled(config = null) {
+      const base = String(config?.phaseBase || recipeBaseProfile || '');
+      const current = String(currentProfileName || '');
+      if (base === 'Funnel' || current === 'Funnel') return true;
+      if (base && base !== 'Custom') return false;
+      return current === 'Custom' && activeCustomPhaseBase === 'Funnel';
+    }
+
+    function defaultAdvancedPhases(profileName, config = recipeConfigFromInputs()) {
+      const profile = String(profileName || currentProfileName || 'Custom');
+      if (profile !== 'Funnel') return null;
+      return normalizeAdvancedPhases([
+        {type:'brew',duration:12,start:.5,end:.5,weight:0},
+        {type:'pause',duration:28},
+        {type:'brew',duration:30,start:.8,end:.8,weight:.35},
+        {type:'pause',duration:15},
+        {type:'brew',duration:30,start:.8,end:.8,weight:.68},
+        {type:'pause',duration:15},
+        {type:'brew',duration:30,start:.8,end:.8,weight:.92},
+        {type:'pause',duration:40}
+      ]);
+    }
+
+    function phaseDraftTotalSeconds(phases = advancedPhaseDraft) {
+      return (phases || []).reduce((total, item) => total + phaseNumber(item.duration), 0);
+    }
+
+    function displayedAdvancedPhases(profileName, config) {
+      if (advancedPhaseDraft) return normalizeAdvancedPhases(advancedPhaseDraft);
+      const profile = String(profileName || currentProfileName || '');
+      if (profile === 'Funnel') return defaultAdvancedPhases('Funnel', config);
+      if (profile === 'Custom' && funnelPhaseEditingEnabled(config) && activeCustomPhaseSpec) {
+        return parseAdvancedPhaseSpec(activeCustomPhaseSpec);
+      }
+      return null;
+    }
+
+    function advancedPhaseSeries(phases = advancedPhaseDraft) {
+      const clean = normalizeAdvancedPhases(phases);
+      if (!clean) return [];
+      const result = [];
+      let elapsed = 0;
+      clean.forEach(item => {
+        const duration = Math.max(.5, phaseNumber(item.duration));
+        const steps = Math.max(2, Math.ceil(duration * 5));
+        for (let index = 0; index <= steps; index++) {
+          const ratio = index / steps;
+          result.push({
+            x:elapsed + duration * ratio,
+            t:item.type === 'pause'
+              ? 0
+              : phaseNumber(item.start) + (phaseNumber(item.end) - phaseNumber(item.start)) * ratio
+          });
+        }
+        elapsed += duration;
+      });
+      return result;
+    }
+
+    function markAdvancedPhasesChanged() {
+      if (!funnelPhaseEditingEnabled()) return;
+      advancedPhaseDraft = normalizeAdvancedPhases(advancedPhaseDraft);
+      const totalInput = $('shotSeconds');
+      if (totalInput && advancedPhaseDraft) totalInput.value = Math.min(240, phaseDraftTotalSeconds()).toFixed(1);
+      recipeDirty = true;
+      mainCurveDirty = true;
+      mainCurveEditing = true;
+      currentProfileName = 'Custom';
+      if (activeUserProfileId) {
+        activeUserProfileId = '';
+        renderUserProfiles();
+      }
+      renderAdvancedPhaseEditor();
+      updateRecipeProfileUi();
+      updateRecipeDescription();
+      updateMainCurveEditor();
+      drawRecipePreview();
+      requestAnimationFrame(draw);
+    }
+
+    function ensureAdvancedPhaseDraft() {
+      if (!funnelPhaseEditingEnabled()) return null;
+      if (!advancedPhaseDraft) {
+        advancedPhaseDraft = defaultAdvancedPhases('Funnel', recipeConfigFromInputs());
+      }
+      if (!advancedPhaseDraft) return null;
+      if (advancedPhaseSelected < 0 || advancedPhaseSelected >= advancedPhaseDraft.length) {
+        advancedPhaseSelected = Math.max(0, advancedPhaseDraft.length - 1);
+      }
+      return advancedPhaseDraft;
+    }
+
+    function addAdvancedPressurePoint() {
+      if (shotRunning || !funnelPhaseEditingEnabled()) return;
+      advancedPhaseEditorOpen = true;
+      const phases = ensureAdvancedPhaseDraft();
+      if (!phases) return;
+      if (phases.length >= 12) return toast(tr('Достигнут предел этапов'), true);
+      let index = advancedPhaseSelected;
+      if (index < 0 || phases[index]?.type !== 'brew') {
+        index = phases.map(item => item.type).lastIndexOf('brew');
+      }
+      const source = phases[Math.max(0, index)] || {type:'brew',duration:20,start:.8,end:.8,weight:0};
+      const insertAt = Math.max(0, index) + 1;
+      const duration = Math.max(.5, phaseNumber(source.duration, 20) / 2);
+      const inheritedWeight = source.type === 'brew' ? phaseNumber(source.weight, 0) : 0;
+      if (source.type === 'brew') {
+        source.duration = duration;
+        source.weight = 0;
+      }
+      phases.splice(insertAt, 0, {
+        type:'brew', duration,
+        start:source.type === 'brew' ? phaseNumber(source.end, .8) : .8,
+        end:source.type === 'brew' ? phaseNumber(source.end, .8) : .8,
+        weight:inheritedWeight
+      });
+      advancedPhaseSelected = insertAt;
+      markAdvancedPhasesChanged();
+    }
+
+    function addAdvancedPause() {
+      if (shotRunning || !funnelPhaseEditingEnabled()) return;
+      advancedPhaseEditorOpen = true;
+      const phases = ensureAdvancedPhaseDraft();
+      if (!phases) return;
+      if (phases.length >= 12) return toast(tr('Достигнут предел этапов'), true);
+      const insertAt = Math.max(0, Math.min(phases.length, advancedPhaseSelected + 1));
+      phases.splice(insertAt, 0, {type:'pause',duration:10});
+      advancedPhaseSelected = insertAt;
+      markAdvancedPhasesChanged();
+    }
+
+    function removeAdvancedPhase(index) {
+      const phases = ensureAdvancedPhaseDraft();
+      if (!phases) return;
+      if (phases.length <= 1) return;
+      phases.splice(index, 1);
+      advancedPhaseSelected = Math.min(index, phases.length - 1);
+      markAdvancedPhasesChanged();
+    }
+
+    function setAdvancedPhaseValue(index, field, value) {
+      const phases = ensureAdvancedPhaseDraft();
+      if (!phases) return;
+      const phase = phases[index];
+      if (!phase) return;
+      const number = phaseNumber(value);
+      if (field === 'duration') phase.duration = Math.max(.5, Math.min(240, number));
+      if (phase.type === 'brew' && (field === 'start' || field === 'end')) phase[field] = Math.max(0, Math.min(12, number));
+      if (phase.type === 'brew' && field === 'weight') phase.weight = Math.max(0, Math.min(1, number / 100));
+      advancedPhaseSelected = index;
+      markAdvancedPhasesChanged();
+    }
+
+    function ensureAdvancedPhaseEditor() {
+      $('advancedPhaseEditor')?.remove();
+      return;
+      const card = $('shotChartCard');
+      if (!card || $('advancedPhaseEditor')) return;
+      const root = document.createElement('section');
+      root.id = 'advancedPhaseEditor';
+      root.className = 'advanced-phase-editor';
+      root.innerHTML = '<div class="advanced-phase-head">' +
+        '<button class="advanced-phase-toggle" type="button" onclick="toggleAdvancedPhaseEditor()"><b>' + tr('Этапы своего профиля') + '</b><span id="advancedPhaseToggleCount" class="advanced-phase-toggle-count"></span><span class="advanced-phase-toggle-arrow">⌄</span></button>' +
+        '<div id="advancedPhaseActions" class="advanced-phase-actions"><button class="small" type="button" onclick="addAdvancedPressurePoint()">＋ ' + tr('Точка') + '</button>' +
+        '<button class="small" type="button" onclick="addAdvancedPause()">＋ ' + tr('Пауза') + '</button></div></div>' +
+        '<div id="advancedPhaseList" class="advanced-phase-list"></div>' +
+        '<p id="advancedPhaseNote" class="advanced-phase-note">' + tr('Точки задают давление и длительность участка. Пауза выключает помпу, оставляя клапан открытым.') + '</p>';
+      card.appendChild(root);
+      renderAdvancedPhaseEditor();
+    }
+
+    function toggleAdvancedPhaseEditor(force) {
+      advancedPhaseEditorOpen = false;
+      return;
+      if (!funnelPhaseEditingEnabled()) return;
+      advancedPhaseEditorOpen = typeof force === 'boolean'
+        ? force
+        : !advancedPhaseEditorOpen;
+      renderAdvancedPhaseEditor();
+    }
+
+    function renderAdvancedPhaseEditor() {
+      advancedPhaseDraft = null;
+      advancedPhaseSelected = -1;
+      advancedPhaseEditorOpen = false;
+      ensureAdvancedPhaseEditor();
+      return;
+      const root = $('advancedPhaseEditor');
+      const list = $('advancedPhaseList');
+      if (!root || !list) return;
+      root.hidden = shotRunning || chartMode === 'archive' || !funnelPhaseEditingEnabled();
+      const phases = advancedPhaseDraft;
+      const open = advancedPhaseEditorOpen;
+      root.classList.toggle('open', open);
+      const actions = $('advancedPhaseActions');
+      const note = $('advancedPhaseNote');
+      if (actions) actions.hidden = !open;
+      if (note) note.hidden = !open;
+      list.hidden = !open;
+      const count = $('advancedPhaseToggleCount');
+      if (count) count.textContent = phases ? phases.length + ' ' + tr('этапов') : tr('нажмите, чтобы открыть');
+      if (!open) return;
+      if (!phases) {
+        list.innerHTML = '<button class="small" type="button" onclick="addAdvancedPressurePoint()">' + tr('Начать расширенное редактирование') + '</button>';
+        return;
+      }
+      list.innerHTML = '';
+      phases.forEach((phase, index) => {
+        const row = document.createElement('div');
+        row.className = 'advanced-phase-row ' + (phase.type === 'pause' ? 'pause ' : '') + (index === advancedPhaseSelected ? 'selected' : '');
+        row.onclick = event => {
+          if (event.target.closest('input,button')) return;
+          advancedPhaseSelected = index;
+          renderAdvancedPhaseEditor();
+        };
+        const indexNode = '<div class="advanced-phase-index">' + (index + 1) + '</div>';
+        const field = (label, name, value, min, max, step) => '<label class="advanced-phase-field"><span>' + tr(label) + '</span><input type="number" value="' + value + '" min="' + min + '" max="' + max + '" step="' + step + '" onchange="setAdvancedPhaseValue(' + index + ',\'' + name + '\',this.value)"></label>';
+        if (phase.type === 'pause') {
+          row.innerHTML = indexNode + field('Пауза, с','duration',fmt(phase.duration,1),.5,240,.5) + '<button class="advanced-phase-remove" type="button" onclick="removeAdvancedPhase(' + index + ')">×</button>';
+        } else {
+          row.innerHTML = indexNode +
+            field('Время, с','duration',fmt(phase.duration,1),.5,240,.5) +
+            field('От, бар','start',fmt(phase.start,1),0,12,.1) +
+            field('До, бар','end',fmt(phase.end,1),0,12,.1) +
+            field('Стоп, %','weight',fmt(phase.weight * 100,1),0,100,1) +
+            '<button class="advanced-phase-remove" type="button" onclick="removeAdvancedPhase(' + index + ')">×</button>';
+        }
+        list.appendChild(row);
+      });
+    }
+
+    async function applyAdvancedPhaseSpec(spec) {
+      const path = spec
+        ? '/custom-phases/apply?' + new URLSearchParams({spec})
+        : '/custom-phases/clear';
+      const response = await fetch(path, {method:'POST'});
+      if (!response.ok) throw new Error('custom_phases_' + response.status);
+      activeCustomPhaseSpec = spec;
+      activeCustomPhaseBase = spec ? 'Funnel' : '';
+      if (spec) {
+        localStorage.setItem('silviaCustomPhaseSpec', spec);
+        localStorage.setItem('silviaCustomPhaseBase', 'Funnel');
+      } else {
+        localStorage.removeItem('silviaCustomPhaseSpec');
+        localStorage.removeItem('silviaCustomPhaseBase');
+      }
+    }
+
     function recipeConfigFromInputs() {
       const config = {};
       recipeFieldIds.forEach(id => { config[id] = inputNumber(id); });
+      config.phases = '';
       return config;
     }
 
@@ -4206,7 +4702,11 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         const node = $(id);
         if (node && Number.isFinite(Number(config[id]))) node.value = config[id];
       });
+      advancedPhaseDraft = null;
+      advancedPhaseSelected = -1;
+      advancedPhaseEditorOpen = false;
       readProfileCfgFromInputs();
+      renderAdvancedPhaseEditor();
     }
 
     function captureRecipeBaseline(profileName) {
@@ -4398,7 +4898,21 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
 
       if (!source || !meta || !Number.isFinite(current)) return false;
 
-      if (mainCurveEditing) cancelMainCurveEditor(false);
+      if (mainCurveEditing) {
+        /*
+         * Switching from curve dragging to the quick duration editor must not
+         * call cancelMainCurveEditor(): cancel restores the built-in profile
+         * snapshot (for Classic that is 9 bar) and discards the pressure draft.
+         * End only the active interaction; keep the edited values and dirty
+         * state so the duration change continues from the visible curve.
+         */
+        mainCurveEditing = false;
+        mainCurveDragKey = '';
+        mainCurveHoverKey = '';
+        mainCurveDragPointerId = null;
+        mainCurveDragStartConfig = null;
+        updateMainCurveEditor();
+      }
 
       /*
        * Перед переходом к Custom синхронизируем скрытые поля с той
@@ -4676,10 +5190,14 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     let archiveSelectedId = 0;
     let archiveSelectedSummary = null;
     let latestShotSummary = null;
+    let shotCompletedThisSession = false;
     let archiveDetailSeries = [];
     let archiveListLoadToken = 0;
     const archiveSummaryCache = new Map();
     const archiveSeriesCache = new Map();
+    let trainingDataset = null;
+    let trainingDatasetBusy = false;
+    let trainingExportBusy = false;
 
     const HOME_SHOT_RAIL_MODE_KEY = 'silvia-home-shot-rail-mode-v1';
     let homeShotRailMode = 'profiles';
@@ -6944,7 +7462,6 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       const allowed = [
         'temperature',
         'pressure',
-        'pump',
         'machine'
       ];
 
@@ -7047,7 +7564,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     }
 
     function initSettingsHelp() {
-      document.querySelectorAll('[data-settings-panel="temperature"], [data-settings-panel="pressure"], [data-settings-panel="pump"], [data-settings-panel="machine"]').forEach(panel => {
+      document.querySelectorAll('[data-settings-panel="temperature"], [data-settings-panel="pressure"], [data-settings-panel="machine"]').forEach(panel => {
         if (panel.dataset.helpReady === 'true') return;
         panel.dataset.helpReady = 'true';
         panel.classList.add('settings-help-panel');
@@ -7326,6 +7843,10 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
 
       if (page === 'history') {
         loadArchiveList();
+      }
+
+      if (page === 'lab') {
+        void loadTrainingDataset(true);
       }
 
       if (page === 'home') {
@@ -7686,6 +8207,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         const value = Number(config?.[id]);
         if (Number.isFinite(value)) clean[id] = value;
       });
+      clean.phases = '';
       return clean;
     }
 
@@ -7725,6 +8247,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         updatedAt:String(Math.trunc(Number(item.updatedAt) || Date.now()))
       });
       recipeFieldIds.forEach(id => body.set(id, String(Number(item.config?.[id]))));
+      body.set('phases', '');
       return body;
     }
 
@@ -8018,6 +8541,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
           }
         }
 
+        await applyAdvancedPhaseSpec('');
         await post('select', 'Silvia Shot Profile', 'set', { option:'Custom' });
 
         clearMainCurveDraftState();
@@ -8186,12 +8710,36 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       const prePump = Math.max(0, Number(config.prePump) || 0);
       const prePause = Math.max(0, Number(config.prePause) || 0);
       const shotSeconds = Math.max(0, Number(config.shotSeconds) || 0);
-      const total = prePump + prePause + shotSeconds;
+      const phases = displayedAdvancedPhases(profile, config);
+      const total = phases ? phaseDraftTotalSeconds(phases) : prePump + prePause + shotSeconds;
+
+      const setStageChip = (field, valueId, label, value, summaryOnly) => {
+        const node = $(valueId);
+        const chip = node?.closest('button');
+        const small = chip?.querySelector('small');
+        if (small) small.textContent = tr(label);
+        if (node) node.textContent = value;
+        if (!chip) return;
+        chip.classList.toggle('phase-summary-only', summaryOnly);
+        if (summaryOnly) delete chip.dataset.homeScrub;
+        else chip.dataset.homeScrub = field;
+      };
 
       if ($('homeSummaryBrewTarget')) $('homeSummaryBrewTarget').textContent = fmt(config.brewTarget, config.brewTarget % 1 ? 1 : 0) + ' °C';
-      if ($('homeSummaryPrePump')) $('homeSummaryPrePump').textContent = fmt(prePump, prePump % 1 ? 1 : 0) + ' ' + tr('с');
-      if ($('homeSummaryPrePause')) $('homeSummaryPrePause').textContent = fmt(prePause, prePause % 1 ? 1 : 0) + ' ' + tr('с');
-      if ($('homeSummaryShotSeconds')) $('homeSummaryShotSeconds').textContent = fmt(shotSeconds, shotSeconds % 1 ? 1 : 0) + ' ' + tr('с');
+      if (phases) {
+        const brewPhases = phases.filter(item => item.type === 'brew');
+        const pausePhases = phases.filter(item => item.type === 'pause');
+        const brewSeconds = phaseDraftTotalSeconds(brewPhases);
+        const pauseSeconds = phaseDraftTotalSeconds(pausePhases);
+        const countAndTime = (count, seconds) => count + ' · ' + fmt(seconds, seconds % 1 ? 1 : 0) + ' ' + tr('с');
+        setStageChip('prePump', 'homeSummaryPrePump', 'Подачи', countAndTime(brewPhases.length, brewSeconds), true);
+        setStageChip('prePause', 'homeSummaryPrePause', 'Паузы', countAndTime(pausePhases.length, pauseSeconds), true);
+        setStageChip('shotSeconds', 'homeSummaryShotSeconds', 'Этапы', phases.length + '', true);
+      } else {
+        setStageChip('prePump', 'homeSummaryPrePump', 'Предсмачивание', fmt(prePump, prePump % 1 ? 1 : 0) + ' ' + tr('с'), false);
+        setStageChip('prePause', 'homeSummaryPrePause', 'Пауза', fmt(prePause, prePause % 1 ? 1 : 0) + ' ' + tr('с'), false);
+        setStageChip('shotSeconds', 'homeSummaryShotSeconds', 'Пролив', fmt(shotSeconds, shotSeconds % 1 ? 1 : 0) + ' ' + tr('с'), false);
+      }
       updateShotWeightFooter(config);
       if ($('homeSummaryTotalTime')) $('homeSummaryTotalTime').textContent = fmt(total, total % 1 ? 1 : 0) + ' ' + tr('с');
 
@@ -8315,11 +8863,14 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       mainCurveHoverKey = '';
       mainCurveDragPointerId = null;
       mainCurveDragStartConfig = null;
+      mainCurveClassicLinkedDrag = false;
       chartHoverIndex = -1;
       hideChartTooltip();
     }
 
     function updateMainCurveEditor() {
+      ensureAdvancedPhaseEditor();
+      renderAdvancedPhaseEditor();
       const card = $('shotChartCard');
       const profileHint = $('userProfileHint');
       const profileNameInput = $('userProfileName');
@@ -8380,6 +8931,7 @@ if (card) {
       mainCurveHoverKey = '';
       mainCurveDragPointerId = null;
       mainCurveDragStartConfig = null;
+      mainCurveClassicLinkedDrag = false;
       updateRecipeProfileUi();
       updateRecipeDescription();
       updateMainCurveEditor();
@@ -8404,6 +8956,7 @@ if (card) {
       mainCurveDragKey = '';
       mainCurveHoverKey = '';
       mainCurveDragStartConfig = null;
+      mainCurveClassicLinkedDrag = false;
       updateMainCurveEditor();
       updateShotScenario();
       toast(tr('Профиль сохранён как Custom'));
@@ -8844,10 +9397,12 @@ if (card) {
         liveStart = performance.now();
         lastPoint = 0;
         chartMode = 'auto';
+        shotCompletedThisSession = false;
         renderShotQuality(null);
 
         updateShotPhaseStatus();
       } else {
+        const completedWithData = shotRunning && liveSeries.length > 1;
         if (shotRunning && liveSeries.length) {
           lastShotSeries =
             liveSeries.map(
@@ -8861,6 +9416,7 @@ if (card) {
         }
 
         shotRunning = false;
+        shotCompletedThisSession = completedWithData;
         lastShotDrinkWeight = Number.isFinite(shotPeakWeight)
           ? Math.max(0, shotPeakWeight)
           : Number.isFinite(stopWeight)
@@ -8879,6 +9435,9 @@ if (card) {
           }
           if (homeShotRailMode === 'shots') {
             void loadArchiveList(true);
+          }
+          if ($('page-lab')?.classList.contains('active')) {
+            setTimeout(() => void loadTrainingDataset(true), 900);
           }
         }, 350);
       }
@@ -8970,7 +9529,7 @@ if (card) {
 
       let level = 'checking';
       let heading =
-        tr('Проверяем XDB401…');
+        tr('Проверяем связь XDB401…');
       let explanation =
         tr('Получаем состояние датчика и счётчики обмена.');
 
@@ -8982,17 +9541,17 @@ if (card) {
       ) {
         level = 'ok';
         heading =
-          tr('XDB401 работает нормально');
+          tr('Связь стабильна');
 
         if (
           Number.isFinite(total) &&
           total > 0
         ) {
           explanation =
-            tr('Сейчас данные давления поступают. Накопленные ошибки были раньше и не образуют текущую серию.');
+            tr('Сейчас датчик отвечает без ошибок. Накопленные сбои были раньше; их причина видна в последнем CSV и счётчиках ниже.');
         } else {
           explanation =
-            tr('Данные давления поступают, ошибок связи подряд нет.');
+            tr('Данные давления свежие, ошибок обмена подряд нет.');
         }
       } else if (
         Number.isFinite(dataAge) &&
@@ -9000,22 +9559,22 @@ if (card) {
       ) {
         level = 'critical';
         heading =
-          tr('Свежие данные XDB401 не поступают');
+          tr('Нет свежих данных XDB401');
         explanation =
-          tr('Возраст последнего значения давления превысил защитный предел 1 секунду. Во время пролива управление помпой будет остановлено.');
+          tr('Последнее значение давления старше 1 секунды. Во время пролива защита SENSOR_FAIL должна обнулить выход помпы.');
       } else if (
         known &&
         consecutive < 4
       ) {
         level = 'warning';
         heading =
-          tr('XDB401 отвечает с ошибками');
+          tr('Связь нестабильна');
         explanation =
-          tr('Появилась короткая серия ошибок обмена. Контроллер пока продолжает работу, но связь с датчиком нестабильна.');
+          tr('Идёт короткая серия ошибок обмена. При четырёх ошибках подряд защита SENSOR_FAIL остановит помпу.');
       } else if (known) {
         level = 'critical';
         heading =
-          tr('Связь с XDB401 потеряна');
+          tr('Связь потеряна');
 
         if (
           running &&
@@ -9023,10 +9582,10 @@ if (card) {
           pump <= .1
         ) {
           explanation =
-            tr('Помпа остановлена защитой: контроллер не получает надёжные данные давления.');
+            tr('Защита SENSOR_FAIL остановила помпу: контроллер не получает надёжные данные давления.');
         } else {
           explanation =
-            tr('Контроллер не получает надёжные данные давления. При проливе защита может остановить помпу.');
+            tr('Контроллер не получает надёжные данные давления. Pressure-профиль нельзя безопасно продолжать.');
         }
       }
 
@@ -9339,6 +9898,77 @@ if (card) {
       );
     }
 
+    function maxCsvValue(rows, field) {
+      let maximum = NaN;
+
+      rows.forEach(row => {
+        const value = csvNumber(
+          row,
+          field
+        );
+
+        if (
+          Number.isFinite(value) &&
+          (
+            !Number.isFinite(maximum) ||
+            value > maximum
+          )
+        ) {
+          maximum = value;
+        }
+      });
+
+      return maximum;
+    }
+
+    function formatSensorAge(ageMs) {
+      if (!Number.isFinite(ageMs)) {
+        return '—';
+      }
+
+      return ageMs >= 1000
+        ? (
+            (ageMs / 1000)
+              .toFixed(2)
+              .replace('.', ',') +
+            ' ' +
+            tr('с')
+          )
+        : (
+            fmt(ageMs, 0) +
+            ' ' +
+            tr('мс')
+          );
+    }
+
+    function setLatestShotFacts({
+      protection,
+      eventLabel,
+      eventValue,
+      sensorAge,
+      consecutive,
+      recovery,
+      reason
+    }) {
+      const values = {
+        xdbShotProtection:protection,
+        xdbShotEventLabel:eventLabel,
+        xdbShotEventValue:eventValue,
+        xdbShotSensorAge:sensorAge,
+        xdbShotConsecutive:consecutive,
+        xdbShotRecovery:recovery,
+        xdbShotReason:reason
+      };
+
+      Object.entries(values)
+        .forEach(([id, value]) => {
+          const node = $(id);
+          if (node) {
+            node.textContent = value || '—';
+          }
+        });
+    }
+
     function renderLatestShotAnalysis(rows) {
       const card = $('xdbLastShotCard');
       const state = $('xdbShotState');
@@ -9397,11 +10027,48 @@ if (card) {
           last,
           'xdb_total_errors'
         );
+      const shotMaxAge =
+        maxCsvValue(
+          rows,
+          'sensor_age_ms'
+        );
+      const shotMaxConsecutive =
+        maxCsvValue(
+          rows,
+          'xdb_consecutive_errors'
+        );
+      const shotDelta = {
+        start:counterDelta(
+          first,
+          last,
+          'xdb_start_errors'
+        ),
+        status:counterDelta(
+          first,
+          last,
+          'xdb_status_errors'
+        ),
+        timeout:counterDelta(
+          first,
+          last,
+          'xdb_measurement_timeouts'
+        ),
+        packet:counterDelta(
+          first,
+          last,
+          'xdb_packet_errors'
+        ),
+        rejected:counterDelta(
+          first,
+          last,
+          'xdb_rejected_packets'
+        )
+      };
 
       if (failIndex < 0) {
         card.classList.add('clear');
         state.textContent =
-          tr('Защитное отключение не найдено');
+          tr('Защита SENSOR_FAIL не сработала');
 
         if (
           Number.isFinite(totalDelta) &&
@@ -9414,7 +10081,40 @@ if (card) {
             tr('Последний записанный пролив прошёл без потери связи с XDB401 и без остановки помпы защитой.');
         }
 
-        facts.hidden = true;
+        setLatestShotFacts({
+          protection:tr('Не сработала'),
+          eventLabel:tr('Ошибок за пролив'),
+          eventValue:
+            Number.isFinite(totalDelta)
+              ? fmt(totalDelta, 0)
+              : '—',
+          sensorAge:
+            formatSensorAge(
+              shotMaxAge
+            ),
+          consecutive:
+            Number.isFinite(
+              shotMaxConsecutive
+            )
+              ? fmt(
+                  shotMaxConsecutive,
+                  0
+                )
+              : '—',
+          recovery:
+            Number.isFinite(totalDelta) &&
+            totalDelta > 0
+              ? tr('До порога защиты')
+              : tr('Не требовалось'),
+          reason:
+            Number.isFinite(totalDelta) &&
+            totalDelta > 0
+              ? formatXdbReason(
+                  shotDelta
+                )
+              : tr('Ошибок не было')
+        });
+        facts.hidden = false;
         return;
       }
 
@@ -9516,29 +10216,16 @@ if (card) {
           ) + 1
         );
 
-      const maxAge = Math.max(
-        ...incidentRows
-          .map(
-            row =>
-              csvNumber(
-                row,
-                'sensor_age_ms'
-              )
-          )
-          .filter(Number.isFinite)
+      const maxAge = maxCsvValue(
+        incidentRows,
+        'sensor_age_ms'
       );
 
-      const maxConsecutive = Math.max(
-        ...incidentRows
-          .map(
-            row =>
-              csvNumber(
-                row,
-                'xdb_consecutive_errors'
-              )
-          )
-          .filter(Number.isFinite)
-      );
+      const maxConsecutive =
+        maxCsvValue(
+          incidentRows,
+          'xdb_consecutive_errors'
+        );
 
       const pumpStopped =
         incidentRows.some(
@@ -9549,7 +10236,7 @@ if (card) {
             ) <= .01
         );
 
-      const delta = {
+      const incidentDelta = {
         start:counterDelta(
           before,
           failureEnd,
@@ -9578,7 +10265,9 @@ if (card) {
       };
 
       const reason =
-        formatXdbReason(delta);
+        formatXdbReason(
+          incidentDelta
+        );
       const eventTime =
         Number.isFinite(failureMs)
           ? (
@@ -9590,23 +10279,7 @@ if (card) {
             )
           : '—';
       const ageText =
-        Number.isFinite(maxAge)
-          ? (
-              maxAge >= 1000
-                ? (
-                    (maxAge / 1000)
-                      .toFixed(2)
-                      .replace('.', ',') +
-                    ' ' +
-                    tr('с')
-                  )
-                : (
-                    fmt(maxAge, 0) +
-                    ' ' +
-                    tr('мс')
-                  )
-            )
-          : '—';
+        formatSensorAge(maxAge);
       const recoveryText =
         Number.isFinite(
           recoveryMs
@@ -9661,14 +10334,20 @@ if (card) {
               tr('В последнем CSV обнаружена потеря XDB401, но нулевой выход помпы в строках сбоя не найден.')
             );
 
-      $('xdbShotEventTime').textContent =
-        eventTime;
-      $('xdbShotSensorAge').textContent =
-        ageText;
-      $('xdbShotRecovery').textContent =
-        recoveryText;
-      $('xdbShotReason').textContent =
-        reason;
+      setLatestShotFacts({
+        protection:'SENSOR_FAIL',
+        eventLabel:tr('Момент отключения'),
+        eventValue:eventTime,
+        sensorAge:ageText,
+        consecutive:
+          Number.isFinite(
+            maxConsecutive
+          )
+            ? fmt(maxConsecutive, 0)
+            : '—',
+        recovery:recoveryText,
+        reason
+      });
       facts.hidden = false;
     }
 
@@ -9748,7 +10427,7 @@ if (card) {
         consecutive === 0 &&
         Number.isFinite(dataAge) &&
         dataAge <= 1;
-      ['sensorHealth', 'diagSensorHealth'].forEach(id => {
+      ['sensorHealth'].forEach(id => {
         const node = $(id);
         if (!node) return;
         node.textContent = ok ? 'OK' : tr('Ошибка');
@@ -9850,8 +10529,6 @@ if (card) {
         pump: ['diagPump'],
         temp: ['diagTemp'],
         heat: ['diagHeat'],
-        pressureFeedForward: ['diagPressureFf'],
-        pressureRiseRate: ['diagPressureSlope'],
         weight: ['scaleDiagnosticWeight'],
         warmupStatus: ['diagWarmup'],
         autotuneStatus: ['diagAutotune']
@@ -10029,6 +10706,29 @@ if (card) {
       config = profileCfg,
       profileName = currentProfileName || 'Custom'
     ) {
+      if (advancedPhaseDraft) return advancedPhaseSeries(advancedPhaseDraft);
+      const editing = !!(
+        recipeDirty ||
+        mainCurveDirty ||
+        mainCurveEditing ||
+        mainCurveDragKey
+      );
+      if (String(profileName || '') === 'Funnel' && !editing) {
+        const total = 200;
+        const steps = 360;
+        const result = [];
+        for (let index = 0; index <= steps; index++) {
+          const x = total * index / steps;
+          let target = 0;
+          if (x < 12) target = 0.5;
+          else if (x >= 40 && x < 70) target = 0.8;
+          else if (x >= 85 && x < 115) target = 0.8;
+          else if (x >= 130 && x < 160) target = 0.8;
+          result.push({ x, t: target });
+        }
+        return result;
+      }
+
       const prePump = Math.max(0, Number(config.prePump) || 0);
       const prePause = Math.max(0, Number(config.prePause) || 0);
       const mainSeconds = Math.max(0, Number(config.shotSeconds) || 0);
@@ -10109,8 +10809,22 @@ if (card) {
     function chartSeries() {
       if (chartMode === 'archive') return archiveSeries;
 
-      const profileSeries = buildProfileSeries();
-      const factSeries = shotRunning ? liveSeries : lastShotSeries;
+      const displayConfig = profileDisplayConfig();
+      const displayProfile = (
+        recipeDirty ||
+        mainCurveDirty ||
+        mainCurveEditing ||
+        mainCurveDragKey
+      ) ? 'Custom' : (currentProfileName || 'Custom');
+      const profileSeries = buildProfileSeries(displayConfig, displayProfile);
+      /*
+       * Keep the profile editor independent from the previous extraction.
+       * A completed shot has its own view in the "Shots" tab; reusing its
+       * samples here stretches the time axis and leaves profile handles away
+       * from their curve after a page restore or a profile change.
+       * Live samples are still overlaid while an extraction is running.
+       */
+      const factSeries = shotRunning ? liveSeries : [];
 
       if (!factSeries.length) return profileSeries;
 
@@ -10252,7 +10966,22 @@ if (card) {
     function drawTimeAxis(frame, series) {
       const ctx = frame.ctx;
       const maxX = xRange(series);
-      const step = 5;
+      /*
+       * Five-second labels are useful for normal espresso profiles, but on a
+       * long recipe (Funnel is 200 s including pauses and drawdown) they turn
+       * into an unreadable row of overlapping numbers. Keep the familiar
+       * 5-second scale while it fits and select the next human-friendly step
+       * only when the available canvas width requires it.
+       */
+      const minimumTickSpacing = 48;
+      const maximumTickCount = Math.max(
+        2,
+        Math.floor(frame.plotW / minimumTickSpacing)
+      );
+      const minimumStep = maxX / maximumTickCount;
+      const friendlySteps = [5, 10, 15, 20, 30, 45, 60, 90, 120];
+      const step = friendlySteps.find(candidate => candidate >= minimumStep) ||
+        Math.ceil(minimumStep / 60) * 60;
       const ticks = [];
 
       for (let second = 0; second <= maxX + 0.001; second += step) {
@@ -10505,7 +11234,7 @@ if (card) {
       drawTimeAxis(frame, series);
     }
 
-    function drawRecipeBands(frame, config, series) {
+    function drawRecipeBands(frame, config, series, profilePhases = null) {
       if (!series.length) return;
 
       const ctx = frame.ctx;
@@ -10535,29 +11264,58 @@ if (card) {
           chartMax *
           frame.plotW;
 
-      const stages = [
-        {
-          label:'Предсмачивание',
-          shortLabel:'Предсмач.',
-          duration:preDuration,
-          from:0,
-          to:preEnd
-        },
-        {
-          label:'Пауза',
-          shortLabel:'Пауза',
-          duration:pauseDuration,
-          from:preEnd,
-          to:pauseEnd
-        },
-        {
-          label:'Пролив',
-          shortLabel:'Пролив',
-          duration:mainDuration,
-          from:pauseEnd,
-          to:profileTotal
-        }
-      ].filter(stage => stage.to > stage.from + .001);
+      let stages;
+      const detailedPhases = normalizeAdvancedPhases(profilePhases);
+      if (detailedPhases) {
+        let elapsed = 0;
+        let brewIndex = 0;
+        stages = detailedPhases.map(phase => {
+          const duration = Math.max(.5, phaseNumber(phase.duration));
+          const from = elapsed;
+          elapsed += duration;
+          if (phase.type === 'pause') {
+            return {
+              label:'Пауза',
+              shortLabel:'Пауза',
+              duration,
+              from,
+              to:elapsed
+            };
+          }
+          const firstBrew = brewIndex++ === 0;
+          return {
+            label:firstBrew ? 'Смачивание' : 'Подача',
+            shortLabel:firstBrew ? 'Смачив.' : 'Подача',
+            duration,
+            from,
+            to:elapsed
+          };
+        });
+      } else {
+        stages = [
+          {
+            label:'Предсмачивание',
+            shortLabel:'Предсмач.',
+            duration:preDuration,
+            from:0,
+            to:preEnd
+          },
+          {
+            label:'Пауза',
+            shortLabel:'Пауза',
+            duration:pauseDuration,
+            from:preEnd,
+            to:pauseEnd
+          },
+          {
+            label:'Пролив',
+            shortLabel:'Пролив',
+            duration:mainDuration,
+            from:pauseEnd,
+            to:profileTotal
+          }
+        ].filter(stage => stage.to > stage.from + .001);
+      }
 
       if (!stages.length) return;
 
@@ -10885,8 +11643,6 @@ if (card) {
       ctx.restore();
     }
 
-    const PRESSURE_HANDLE_EDGE_INSET = 18;
-
     function recipeControlPointDefinitions(
       frame,
       config,
@@ -10945,26 +11701,7 @@ if (card) {
 
         const anchorX =
           xFor(seconds);
-        let handleX =
-          anchorX;
-
-        if (key === 'prePower') {
-          handleX = Math.min(
-            frame.right -
-              PRESSURE_HANDLE_EDGE_INSET,
-            frame.left +
-              PRESSURE_HANDLE_EDGE_INSET
-          );
-        } else if (
-          key === 'endPressure'
-        ) {
-          handleX = Math.max(
-            frame.left +
-              PRESSURE_HANDLE_EDGE_INSET,
-            frame.right -
-              PRESSURE_HANDLE_EDGE_INSET
-          );
-        }
+        const handleX = anchorX;
 
         definitions.push({
           key,
@@ -11028,19 +11765,33 @@ if (card) {
        */
       const startSeconds = 0;
 
-      const mainSecondsAt =
-        pauseEnd +
-        Math.min(
-          mainSeconds,
-          Math.max(0, rampSeconds)
-        );
-
       const cleanClassic =
         profileName === 'Classic' &&
         !recipeDirty &&
         !mainCurveDirty &&
         !mainCurveEditing &&
         !mainCurveDragKey;
+
+      /*
+       * Classic shows its single linked pressure handle in the middle of the
+       * flat brew segment.  The first vertical drag turns the profile into a
+       * Custom draft and all three pressure values become independent. Keep
+       * the handle centered only during that first linked gesture; afterwards
+       * place it on the real curve bend. The second and later gestures may
+       * move the bend both vertically and horizontally without detaching it.
+       */
+      const centerClassicHandle =
+        cleanClassic ||
+        mainCurveClassicLinkedDrag ||
+        recipeClassicLinkedDrag;
+      const editablePressureBend = !centerClassicHandle;
+      const mainSecondsAt = centerClassicHandle
+        ? pauseEnd + mainSeconds * .5
+        : pauseEnd +
+          Math.min(
+            mainSeconds,
+            Math.max(0, rampSeconds)
+          );
       const startValue = cleanClassic
         ? profileTargetAt(series, startSeconds)
         : config.prePower;
@@ -11065,7 +11816,7 @@ if (card) {
         config.mainPressure,
         Math.min(profileTotal, mainSecondsAt),
         '#ffd166',
-        true,
+        editablePressureBend,
         'softInfusionTime',
         rampSeconds,
         'Набор'
@@ -11106,6 +11857,36 @@ if (card) {
         18,
         3
       );
+
+      if (
+        String(profileName || '') === 'Funnel' &&
+        !recipeDirty &&
+        !mainCurveDirty &&
+        !mainCurveEditing &&
+        !mainCurveDragKey
+      ) {
+        [70, 85, 115, 130, 160].forEach((seconds, index) => {
+          definitions.push({
+            key:'funnelStage' + index,
+            kind:'boundary',
+            label:'Этап Воронки',
+            value:seconds,
+            color:'#a87ce8',
+            field:'',
+            seconds,
+            x:xFor(seconds),
+            y:frame.bottom,
+            dragX:false,
+            dragY:false,
+            addState:false,
+            defaultValue:0,
+            hitLeft:0,
+            hitRight:0,
+            hitTop:0,
+            hitBottom:0
+          });
+        });
+      }
 
       return definitions;
     }
@@ -11302,6 +12083,9 @@ if (card) {
       const point = recipePointFromPointer(event);
       if (!canvas || !point) return;
 
+      recipeClassicLinkedDrag =
+        point.kind === 'pressure' &&
+        classicPressurePointsLinked();
       recipeDragKey = point.key;
       recipeHoverKey = point.key;
       recipeDragPointerId = event.pointerId;
@@ -11323,6 +12107,7 @@ if (card) {
         const raw = (bottom - y) / plotHeight * 12;
         const value = Math.max(0, Math.min(12, Math.round(raw * 10) / 10));
         const pressureKey = ['prePower', 'mainPressure', 'endPressure'].includes(recipeDragKey);
+        const point = recipeControlPoints.find(item => item.key === recipeDragKey);
 
         if (pressureKey && classicPressurePointsLinked()) {
           if (setClassicPressureInputs(value)) recipeFieldChanged();
@@ -11331,6 +12116,21 @@ if (card) {
           if (input && Math.abs((Number(input.value) || 0) - value) >= 0.049) {
             input.value = value.toFixed(1);
             recipeFieldChanged();
+          }
+          if (recipeDragKey === 'mainPressure' && point?.dragX) {
+            const left = 54;
+            const right = rect.width - 16;
+            const plotWidth = Math.max(1, right - left);
+            const config = recipeConfigFromInputs();
+            const total = Math.max(1, xRange(buildProfileSeries(config, 'Custom')));
+            const seconds = Math.max(0, Math.min(total, (event.clientX - rect.left - left) / plotWidth * total));
+            const pauseEnd = Math.max(0, Number(config.prePump) || 0) + Math.max(0, Number(config.prePause) || 0);
+            const ramp = Math.max(0, Math.min(Number(config.shotSeconds) || 0, seconds - pauseEnd));
+            const timeInput = $('softInfusionTime');
+            if (timeInput && Math.abs((Number(timeInput.value) || 0) - ramp) >= .049) {
+              timeInput.value = ramp.toFixed(1);
+              recipeFieldChanged();
+            }
           }
         }
         event.preventDefault();
@@ -11352,6 +12152,7 @@ if (card) {
           if (canvas && canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
         } catch (_) {}
         recipeDragKey = '';
+        recipeClassicLinkedDrag = false;
         recipeDragPointerId = null;
         const point = recipePointFromPointer(event);
         recipeHoverKey = point ? point.key : '';
@@ -11370,7 +12171,13 @@ if (card) {
       const baselineSeries = recipeBaselineCfg ? buildProfileSeries(recipeBaselineCfg, recipeBaseProfile || currentProfileName || 'Custom') : [];
       const frame = canvasFrame('recipeChart', { left: 54, right: 16, top: 22, bottom: 25 });
 
-      drawRecipeBands(frame, editedConfig, editedSeries);
+      if (advancedPhaseDraft) drawAdvancedPhaseBands(frame);
+      else drawRecipeBands(
+        frame,
+        editedConfig,
+        editedSeries,
+        displayedAdvancedPhases(editedProfile, editedConfig)
+      );
       drawRecipePressureAxes(frame, editedSeries);
       if (recipeDirty && baselineSeries.length) plotLine(frame, baselineSeries, 't', '#707986', 0, 12, 2.0, false);
       plotLine(frame, editedSeries, 't', '#ffd166', 0, 12, 2.8, true);
@@ -11378,70 +12185,99 @@ if (card) {
       updateRecipeDescription();
     }
 
+    function drawAdvancedPhaseBands(frame) {
+      if (!advancedPhaseDraft) return;
+      const ctx = frame.ctx;
+      const total = Math.max(.5, phaseDraftTotalSeconds());
+      let elapsed = 0;
+      advancedPhaseDraft.forEach((phase, index) => {
+        const duration = Math.max(.5, phaseNumber(phase.duration));
+        const left = frame.left + elapsed / total * frame.width;
+        const right = frame.left + (elapsed + duration) / total * frame.width;
+        if (phase.type === 'pause') {
+          ctx.save();
+          ctx.fillStyle = 'rgba(84,169,255,.07)';
+          ctx.fillRect(left, frame.top, Math.max(1, right-left), frame.height);
+          ctx.strokeStyle = '#54a9ff';
+          ctx.globalAlpha = .48;
+          ctx.setLineDash([4,5]);
+          [left,right].forEach(x => {
+            ctx.beginPath();
+            ctx.moveTo(x, frame.top);
+            ctx.lineTo(x, frame.bottom);
+            ctx.stroke();
+          });
+          ctx.restore();
+        }
+        elapsed += duration;
+      });
+    }
+
+    function drawAdvancedPhaseControlPoints(frame) {
+      const canvas = $('chart');
+      mainCurveControlPoints = [];
+      if (!advancedPhaseDraft) return;
+      const ctx = frame.ctx;
+      const total = Math.max(.5, phaseDraftTotalSeconds());
+      let elapsed = 0;
+      advancedPhaseDraft.forEach((phase, index) => {
+        const duration = Math.max(.5, phaseNumber(phase.duration));
+        elapsed += duration;
+        if (phase.type !== 'brew') return;
+        const x = frame.left + elapsed / total * frame.width;
+        const pressure = phaseNumber(phase.end);
+        const y = frame.bottom - pressure / 12 * frame.height;
+        const selected = index === advancedPhaseSelected;
+        ctx.save();
+        ctx.shadowColor = '#ffd166';
+        ctx.shadowBlur = selected ? 12 : 5;
+        ctx.fillStyle = selected ? '#ffd166' : '#171b22';
+        ctx.strokeStyle = '#ffd166';
+        ctx.lineWidth = selected ? 3 : 2;
+        ctx.beginPath();
+        ctx.arc(x, y, selected ? 8 : 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = selected ? '#171b22' : '#ffd166';
+        ctx.beginPath();
+        ctx.arc(x, y, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.font = chartFont(9);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillStyle = '#ffd166';
+        ctx.fillText(fmt(pressure,1), x, Math.max(frame.top + 18, y - 10));
+        ctx.restore();
+      });
+      if (canvas) canvas.style.cursor = 'default';
+    }
+
     function drawMainCurveControlPoints(frame, series) {
       const canvas = $('chart');
+
+      if (advancedPhaseDraft) {
+        drawAdvancedPhaseControlPoints(frame);
+        return;
+      }
 
       mainCurveControlPoints =
         recipeControlPointDefinitions(
           frame,
-          profileCfg,
-          currentProfileName || 'Custom',
+          profileDisplayConfig(),
+          (
+            recipeDirty ||
+            mainCurveDirty ||
+            mainCurveEditing ||
+            mainCurveDragKey
+          ) ? 'Custom' : (currentProfileName || 'Custom'),
           series
+        )
+        .filter(
+          point =>
+            point.kind === 'pressure' ||
+            point.kind === 'boundary'
         );
-
-      const config =
-        profileDisplayConfig();
-      const prePump = Math.max(
-        0,
-        Number(config.prePump) || 0
-      );
-      const prePause = Math.max(
-        0,
-        Number(config.prePause) || 0
-      );
-      const shotSeconds = Math.max(
-        1,
-        Number(config.shotSeconds) || 1
-      );
-      const chartMax = Math.max(
-        1,
-        xRange(series)
-      );
-      const profileTotal =
-        prePump +
-        prePause +
-        shotSeconds;
-      const durationX =
-        frame.left +
-        Math.max(
-          0,
-          Math.min(
-            chartMax,
-            profileTotal
-          )
-        ) /
-          chartMax *
-          frame.plotW;
-      const durationY =
-        frame.bottom - 31;
-
-      mainCurveControlPoints.push({
-        key:'shotDurationTime',
-        kind:'duration',
-        label:'Длительность пролива',
-        value:shotSeconds,
-        color:'#54a9ff',
-        field:'shotSeconds',
-        seconds:profileTotal,
-        x:durationX,
-        y:durationY,
-        dragX:true,
-        dragY:false,
-        hitLeft:durationX - 54,
-        hitRight:durationX + 12,
-        hitTop:durationY - 18,
-        hitBottom:durationY + 18
-      });
 
       const ctx = frame.ctx;
       const enabled =
@@ -11559,77 +12395,17 @@ if (card) {
         }
 
         if (point.kind === 'boundary') {
-          const size = active
-            ? 8
-            : hovered
-              ? 7
-              : 5.5;
-
           const stageGuide = shotLineStyle('stages');
           ctx.save();
-          ctx.globalAlpha = enabled ? 1 : .55;
-          ctx.strokeStyle =
-            active || hovered
-              ? point.color
-              : stageGuide.color;
-          ctx.lineWidth = active
-            ? Math.max(1.8, stageGuide.width)
-            : hovered
-              ? Math.max(1.35, stageGuide.width)
-              : stageGuide.width;
-          ctx.setLineDash(
-            active || hovered
-              ? [5, 4]
-              : [4, 5]
-          );
-
-          ctx.globalAlpha =
-            active || hovered
-              ? .78
-              : stageGuide.opacity;
+          ctx.strokeStyle = stageGuide.color;
+          ctx.lineWidth = stageGuide.width;
+          ctx.setLineDash([4, 5]);
+          ctx.globalAlpha = stageGuide.opacity;
           ctx.beginPath();
           ctx.moveTo(point.x, frame.top);
           ctx.lineTo(point.x, frame.bottom);
           ctx.stroke();
-
-          ctx.setLineDash([]);
-          ctx.globalAlpha = enabled ? 1 : .55;
-          ctx.translate(point.x, point.y);
-          ctx.rotate(Math.PI / 4);
-          ctx.fillStyle =
-            active || hovered
-              ? point.color
-              : '#171b22';
-          ctx.strokeStyle = point.color;
-          ctx.lineWidth = active ? 2.2 : 1.4;
-          ctx.fillRect(
-            -size / 2,
-            -size / 2,
-            size,
-            size
-          );
-          ctx.strokeRect(
-            -size / 2,
-            -size / 2,
-            size,
-            size
-          );
           ctx.restore();
-
-          if (point.addState) {
-            ctx.save();
-            ctx.font = chartFont(9);
-            ctx.fillStyle = point.color;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(
-              '+',
-              point.x,
-              point.y - 1
-            );
-            ctx.restore();
-          }
-
           return;
         }
 
@@ -11824,9 +12600,7 @@ if (card) {
 
       mainCurveControlPoints
         .filter(
-          point =>
-            point.kind === 'boundary' ||
-            point.kind === 'duration'
+          point => point.kind === 'duration'
         )
         .forEach(point => {
           const inside =
@@ -11883,11 +12657,23 @@ if (card) {
     }
 
     function classicPressurePointsLinked() {
-      return String(
+      const basedOnClassic = String(
         recipeBaseProfile ||
         currentProfileName ||
         ''
       ) === 'Classic';
+
+      /*
+       * A clean Classic keeps all pressure points linked. The gesture that
+       * first changes it also stays linked until pointer-up, so one smooth
+       * drag moves the complete flat line. Afterwards it is a Custom draft
+       * and the three pressure points can be edited independently.
+       */
+      return basedOnClassic && (
+        (!recipeDirty && !mainCurveDirty) ||
+        mainCurveClassicLinkedDrag ||
+        recipeClassicLinkedDrag
+      );
     }
 
     function setClassicPressureInputs(value) {
@@ -11958,6 +12744,9 @@ if (card) {
       }
 
       const pointKey = point.key;
+      const linkClassicForThisDrag =
+        point.kind === 'pressure' &&
+        classicPressurePointsLinked();
 
       if (!beginMainCurveEditSession()) return;
 
@@ -11981,6 +12770,8 @@ if (card) {
         {},
         config
       );
+      mainCurveClassicLinkedDrag =
+        linkClassicForThisDrag;
       mainCurveDragSecondsPerPixel = Math.max(
         .02,
         profileTotal /
@@ -12074,19 +12865,20 @@ if (card) {
               ) || changed;
           }
 
-          if (mainCurveDragKey === 'mainPressure') {
+          if (
+            mainCurveDragKey === 'mainPressure' &&
+            point?.dragX
+          ) {
             changed =
               setMainCurveInput(
                 'softInfusionTime',
                 Number(start.softInfusionTime) +
                   deltaSeconds,
                 0,
-                Math.max(
-                  0,
-                  Number(start.shotSeconds) || 0
-                )
+                Math.max(0, Number(start.shotSeconds) || 0)
               ) || changed;
           }
+
         }
 
         if (changed) {
@@ -12195,6 +12987,7 @@ if (card) {
         mainCurveDragPointerId = null;
         mainCurveDragStartConfig = null;
         mainCurveDragMoved = false;
+        mainCurveClassicLinkedDrag = false;
 
         if (!mainCurveDirty) {
           mainCurveEditing = false;
@@ -12235,7 +13028,16 @@ if (card) {
         : archiveStageConfig(archiveSelectedSummary, series);
 
       if (profileView) {
-        drawRecipeBands(frame, profileCfg, series);
+        if (advancedPhaseDraft) drawAdvancedPhaseBands(frame);
+        else {
+          const displayConfig = profileDisplayConfig();
+          drawRecipeBands(
+            frame,
+            displayConfig,
+            series,
+            displayedAdvancedPhases(currentProfileName, displayConfig)
+          );
+        }
       } else if (archiveStages) {
         drawRecipeBands(frame, archiveStages, series);
       }
@@ -12455,22 +13257,55 @@ if (card) {
       card?.classList.toggle('live', pressure > .15);
 
       const centerX = rect.width / 2;
-      const centerY = rect.height * .47;
+      /*
+       * The lower opening of the arc leaves room for the value and service
+       * footer. Move the circle down slightly and use the previously empty
+       * upper area so the indicator fills the compact card more confidently.
+       */
+      const centerY = rect.height * .55 - 4;
+      const provisionalRadius = Math.max(
+        36,
+        Math.min(
+          rect.width / 2 - 7,
+          centerY - 4,
+          (rect.height - centerY - 5) / .755
+        )
+      );
+      const ringWidth = Math.max(
+        10,
+        Math.min(14, provisionalRadius * .17)
+      );
       const radius = Math.max(
-        38,
-        Math.min(rect.width * .46, rect.height * .43)
+        30,
+        Math.min(
+          provisionalRadius,
+          centerY - ringWidth / 2 - 4,
+          (rect.height - centerY - ringWidth / 2 - 4) / .755
+        )
       );
       const startAngle = Math.PI * .73;
       const sweep = Math.PI * 1.54;
       const endAngle = startAngle + sweep;
       const activeAngle = startAngle + (pressure / 12) * sweep;
-      const ringWidth = Math.max(9, Math.min(13, radius * .17));
 
       ctx.lineCap = 'round';
-      ctx.strokeStyle = 'rgba(75,91,106,.48)';
+      ctx.strokeStyle = 'rgba(59,76,90,.54)';
       ctx.lineWidth = ringWidth;
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+      ctx.stroke();
+
+      ctx.lineCap = 'butt';
+      ctx.strokeStyle = 'rgba(91,122,145,.18)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(
+        centerX,
+        centerY,
+        radius - ringWidth * .95,
+        0,
+        Math.PI * 2
+      );
       ctx.stroke();
 
       if (pressure > 0) {
@@ -12480,74 +13315,17 @@ if (card) {
           centerX + radius,
           centerY
         );
-        activeGradient.addColorStop(0, '#3f86c1');
-        activeGradient.addColorStop(.55, '#66b5ec');
-        activeGradient.addColorStop(1, '#9ad9ff');
+        activeGradient.addColorStop(0, '#55b8ee');
+        activeGradient.addColorStop(.58, '#62c0f0');
+        activeGradient.addColorStop(1, '#74caf4');
 
+        ctx.lineCap = 'round';
         ctx.strokeStyle = activeGradient;
+        ctx.lineWidth = ringWidth;
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, startAngle, activeAngle);
         ctx.stroke();
       }
-
-      for (let tick = 0; tick <= 12; tick += 1) {
-        const angle = startAngle + (tick / 12) * sweep;
-        const major = tick % 2 === 0;
-        const inner = radius - ringWidth * (major ? 1.2 : .84);
-        const outer = radius + ringWidth * .17;
-
-        ctx.strokeStyle = major
-          ? 'rgba(194,208,220,.52)'
-          : 'rgba(137,152,166,.28)';
-        ctx.lineWidth = major ? 1.35 : .8;
-        ctx.beginPath();
-        ctx.moveTo(
-          centerX + Math.cos(angle) * inner,
-          centerY + Math.sin(angle) * inner
-        );
-        ctx.lineTo(
-          centerX + Math.cos(angle) * outer,
-          centerY + Math.sin(angle) * outer
-        );
-        ctx.stroke();
-      }
-
-      const needleLength = radius * .74;
-      const needleBack = radius * .12;
-
-      ctx.save();
-      ctx.translate(centerX, centerY);
-      ctx.rotate(activeAngle);
-
-      const needleGradient = ctx.createLinearGradient(
-        -needleBack,
-        0,
-        needleLength,
-        0
-      );
-      needleGradient.addColorStop(0, '#627483');
-      needleGradient.addColorStop(.4, '#b4def8');
-      needleGradient.addColorStop(1, '#f3fbff');
-
-      ctx.strokeStyle = needleGradient;
-      ctx.lineWidth = Math.max(2.5, radius * .038);
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(-needleBack, 0);
-      ctx.lineTo(needleLength, 0);
-      ctx.stroke();
-      ctx.restore();
-
-      ctx.fillStyle = '#17212a';
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, Math.max(8, radius * .12), 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.strokeStyle = pressure > .15 ? '#8dd4ff' : '#718291';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, Math.max(5.5, radius * .083), 0, Math.PI * 2);
-      ctx.stroke();
     }
 
     function drawHomeTemperatureMini() {
@@ -12780,8 +13558,20 @@ if (card) {
 
     async function shot(on) {
       try {
+        let draftApplied = false;
+        if (on && profileLocalDraftActive()) {
+          const applied = await saveSettings({ silent:true });
+          if (!applied) return;
+          clearMainCurveDraftState();
+          draftApplied = true;
+        }
+        if (on) await applyAdvancedPhaseSpec('');
         await post('switch', 'Silvia Brew Shot', on ? 'turn_on' : 'turn_off');
-        toast(tr(on ? 'Пролив запущен' : 'Пролив остановлен'));
+        toast(on
+          ? (draftApplied
+              ? tr('Ручные настройки сохранены как Custom') + '. ' + tr('Пролив запущен')
+              : tr('Пролив запущен'))
+          : tr('Пролив остановлен'));
       } catch (_) {
         toast(tr('Команда не выполнена'), true);
       }
@@ -12879,7 +13669,6 @@ if (card) {
       machineNums,
       temperatureNums,
       pressureNums,
-      pumpNums,
       scaleNums,
       backflushNums
     ];
@@ -13255,11 +14044,7 @@ if (card) {
         loadNumberControls([
           machineNums,
           temperatureNums,
-          pressureNums,
-          pumpNums
-        ]),
-        loadSwitchControls([
-          'pumpStartBoostEnabled'
+          pressureNums
         ])
       ]);
 
@@ -13301,6 +14086,10 @@ if (card) {
       // immediately, while the ESP-published states arrive asynchronously.
       currentProfileName = option;
       recipeBaseProfile = option;
+      advancedPhaseDraft = null;
+      advancedPhaseSelected = -1;
+      advancedPhaseEditorOpen = false;
+      renderAdvancedPhaseEditor();
       syncProfileControls(option);
       updateRecipeProfileUi();
       updateRecipeDescription();
@@ -13351,6 +14140,10 @@ if (card) {
       // coalesced frame. No waitForProfile(), sleeps or REST rereads.
       currentProfileName = option;
       recipeBaseProfile = option;
+      advancedPhaseDraft = null;
+      advancedPhaseSelected = -1;
+      advancedPhaseEditorOpen = false;
+      renderAdvancedPhaseEditor();
       syncProfileControls(option);
       chartMode = 'auto';
       updateRecipeProfileUi();
@@ -13381,7 +14174,8 @@ if (card) {
       }
     }
 
-    async function saveSettings() {
+    async function saveSettings(options = {}) {
+      const silent = !!options.silent;
       let saved = false;
       const saveButton = $('recipeSaveButton');
       const resetButton = $('recipeResetButton');
@@ -13395,6 +14189,8 @@ if (card) {
             setNumberEntityValue(name, node.value);
           }
         }
+        await applyAdvancedPhaseSpec('');
+        await post('select', 'Silvia Shot Profile', 'set', { option:'Custom' });
         recipeDirty = false;
         currentProfileName = 'Custom';
         recipeBaseProfile = 'Custom';
@@ -13403,7 +14199,7 @@ if (card) {
         captureRecipeBaseline('Custom');
         updateMainCurveEditor();
         saved = true;
-        toast(tr('Ручные настройки сохранены как Custom'));
+        if (!silent) toast(tr('Ручные настройки сохранены как Custom'));
       } catch (_) {
         toast(tr('Ошибка сохранения'), true);
         updateRecipeProfileUi();
@@ -13493,6 +14289,345 @@ if (card) {
         if (!eventStreamHealthy()) setTimeout(refreshStatus, 450);
       } catch (_) {
         toast(tr('Калибровка не запущена'), true);
+      }
+    }
+
+    const TRAINING_ISSUES = [
+      [1 << 0, 'Нет pressure-фазы'],
+      [1 << 1, 'Слишком короткая запись'],
+      [1 << 2, 'Ошибки обмена XDB401'],
+      [1 << 3, 'Некорректные отсчёты давления'],
+      [1 << 4, 'Устаревшие данные давления'],
+      [1 << 5, 'Сработал SENSOR_FAIL'],
+      [1 << 6, 'Ошибки XDB401 подряд'],
+      [1 << 7, 'Пропуски временной шкалы'],
+      [1 << 8, 'Неправдоподобный скачок давления'],
+      [1 << 9, 'Нет полных обучающих окон']
+    ];
+
+    function trainingRecords() {
+      const records = Array.isArray(trainingDataset?.records)
+        ? trainingDataset.records
+        : [];
+      return records
+        .map(item => ({ ...(item?.record || {}), pinned:!!item?.pinned }))
+        .filter(record => record.collected && Number(record.id) > 0)
+        .sort((left, right) => Number(right.id) - Number(left.id));
+    }
+
+    function trainingStats() {
+      const records = trainingRecords();
+      const clean = records.filter(record => record.status === 'clean');
+      const partial = records.filter(record => record.status === 'partial');
+      const rejected = records.filter(record => record.status === 'rejected');
+      const usableWindows = clean.reduce(
+        (total, record) => total + (Number(record.usable_windows) || 0),
+        0
+      );
+      const profiles = new Set(
+        clean.map(record => String(record.profile || '').trim()).filter(Boolean)
+      );
+      const sensorIssueMask =
+        (1 << 2) | (1 << 3) | (1 << 4) | (1 << 5) |
+        (1 << 6) | (1 << 7) | (1 << 8);
+      const sensorRejected = records.filter(
+        record => (Number(record.issues) & sensorIssueMask) !== 0
+      ).length;
+      const score = Math.min(100, Math.round(
+        Math.min(clean.length / 50, 1) * 65 +
+        Math.min(usableWindows / 3000, 1) * 20 +
+        Math.min(profiles.size / 3, 1) * 15
+      ));
+      let level = 'collecting';
+      let title = 'Набор собирается';
+      if (!records.length) {
+        title = 'Данных пока нет';
+      } else if (records.length >= 5 && rejected.length / records.length > .5) {
+        level = 'problem';
+        title = 'Проблемы с данными XDB401';
+      } else if (clean.length >= 50 && usableWindows >= 3000 && profiles.size >= 3) {
+        level = 'high';
+        title = 'Высокая готовность';
+      } else if (clean.length >= 20 && usableWindows >= 1000 && profiles.size >= 2) {
+        level = 'prototype';
+        title = 'Данных достаточно для пробной модели';
+      }
+      return {
+        records, clean, partial, rejected, usableWindows,
+        profiles:profiles.size, sensorRejected, score, level, title
+      };
+    }
+
+    function trainingIssueText(record) {
+      const issues = Number(record?.issues) || 0;
+      const parts = TRAINING_ISSUES
+        .filter(([mask]) => (issues & mask) !== 0)
+        .map(([, label]) => tr(label));
+      if (parts.length) return parts.join(' · ');
+      if (record?.status === 'clean') return tr('Запись прошла строгую проверку XDB401');
+      if (record?.status === 'partial') return tr('Подходят только отдельные непрерывные окна');
+      return tr('Запись исключена из обучения');
+    }
+
+    function trainingStatusLabel(status) {
+      if (status === 'clean') return tr('Чистый');
+      if (status === 'partial') return tr('Частичный');
+      return tr('Брак данных');
+    }
+
+    function trainingFormatBytes(bytes) {
+      const value = Math.max(0, Number(bytes) || 0);
+      if (value < 1024) return Math.round(value) + ' B';
+      if (value < 1024 * 1024) return fmt(value / 1024, 1) + ' KiB';
+      return fmt(value / (1024 * 1024), 2) + ' MiB';
+    }
+
+    function renderTrainingDataset() {
+      const list = $('trainingRecordList');
+      if (!list || !trainingDataset) return;
+      const stats = trainingStats();
+      const readiness = $('trainingReadiness');
+      readiness.className = 'lab-readiness ' + stats.level;
+      $('trainingReadinessTitle').textContent = tr(stats.title);
+      $('trainingReadinessScore').textContent = stats.score + '%';
+      $('trainingReadinessBar').style.width = stats.score + '%';
+      $('trainingReadinessCopy').textContent = stats.records.length
+        ? tr('Чистых проливов') + ': ' + stats.clean.length + ' ' + tr('из 50') +
+          ' · ' + tr('Профилей в чистом наборе') + ': ' + stats.profiles
+        : tr('Ни одного пролива для модели ещё не сохранено.');
+      $('trainingCleanCount').textContent = stats.clean.length;
+      $('trainingWindowCount').textContent = stats.usableWindows.toLocaleString(
+        currentLanguage === 'en' ? 'en-US' : 'ru-RU'
+      );
+      $('trainingPartialCount').textContent = stats.partial.length;
+      $('trainingRejectedCount').textContent = stats.rejected.length;
+      $('trainingProfileCount').textContent = stats.profiles;
+      $('trainingSensorRejectedCount').textContent = stats.sensorRejected;
+
+      const collectionToggle = $('trainingCollectionToggle');
+      collectionToggle.checked = !!trainingDataset.collection_enabled;
+      const storage = trainingDataset.storage || {};
+      const total = Number(storage.total_bytes) || 0;
+      const used = Number(storage.used_bytes) || 0;
+      const free = Math.max(0, Number(storage.free_bytes) || total - used);
+      const usedPercent = total > 0 ? Math.min(100, used / total * 100) : 0;
+      $('trainingStorageText').textContent =
+        trainingFormatBytes(used) + ' / ' + trainingFormatBytes(total) +
+        ' · ' + trainingFormatBytes(free) + ' ' + tr('свободно');
+      $('trainingStorageBar').style.width = usedPercent + '%';
+      const averageBytes = stats.records.length
+        ? stats.records.reduce(
+            (sum, record) => sum + (Number(record.csv_bytes) || 0) + 3072,
+            0
+          ) / stats.records.length
+        : 0;
+      $('trainingStorageEstimate').textContent = averageBytes > 0
+        ? tr('Примерно поместится ещё') + ': ' +
+          Math.max(0, Math.floor(Math.max(0, free - 65536) / averageBytes)) +
+          ' ' + tr('полных проливов')
+        : '';
+
+      if (!stats.records.length) {
+        list.innerHTML = '<div class="lab-empty">' +
+          archiveEscapeHtml(tr('Ни одного пролива для модели ещё не сохранено.')) +
+          '</div>';
+        return;
+      }
+      list.innerHTML = stats.records.map(record => {
+        const id = Number(record.id);
+        const status = ['clean','partial','rejected'].includes(record.status)
+          ? record.status
+          : 'rejected';
+        const time = archiveTimeLabel(record, record, id);
+        const windows = Number(record.usable_windows) || 0;
+        return '<div class="lab-record ' + status + '">' +
+          '<i class="lab-record-dot"></i>' +
+          '<div class="lab-record-copy">' +
+            '<div class="lab-record-title"><b>#' + id + ' · ' +
+              archiveEscapeHtml(profileLabel(record.profile || '')) + '</b>' +
+              '<span>' + archiveEscapeHtml(trainingStatusLabel(status)) + '</span></div>' +
+            '<small>' + archiveEscapeHtml(time) + ' · ' + windows + ' ' + tr('окон') +
+              ' · ' + archiveEscapeHtml(trainingIssueText(record)) + '</small>' +
+          '</div>' +
+          '<button type="button" class="lab-pin' + (record.pinned ? ' active' : '') +
+            '" onclick="toggleTrainingPin(' + id + ',' + (!record.pinned) + ')"' +
+            ' aria-label="' + archiveEscapeHtml(tr(record.pinned ? 'Открепить' : 'Закрепить')) +
+            '" title="' + archiveEscapeHtml(tr(record.pinned ? 'Открепить' : 'Закрепить')) +
+            '">' + (record.pinned ? '★' : '☆') + '</button>' +
+        '</div>';
+      }).join('');
+    }
+
+    async function loadTrainingDataset(force = false) {
+      if (trainingDatasetBusy || (trainingDataset && !force)) return;
+      trainingDatasetBusy = true;
+      try {
+        const response = await fetch('/training/index.json', { cache:'no-store' });
+        if (!response.ok) throw Error('training index unavailable');
+        trainingDataset = await response.json();
+        renderTrainingDataset();
+      } catch (_) {
+        const list = $('trainingRecordList');
+        if (list) list.innerHTML = '<div class="lab-empty">' +
+          archiveEscapeHtml(tr('Архив пока недоступен')) + '</div>';
+      } finally {
+        trainingDatasetBusy = false;
+      }
+    }
+
+    async function toggleTrainingCollection(input) {
+      const desired = !!input.checked;
+      input.disabled = true;
+      try {
+        const response = await fetch(
+          '/training/collection/' + (desired ? 'on' : 'off'),
+          { method:'POST', cache:'no-store' }
+        );
+        if (!response.ok) throw Error('collection update failed');
+        if (trainingDataset) trainingDataset.collection_enabled = desired;
+        toast(tr(desired ? 'Сбор включён' : 'Сбор выключен'));
+      } catch (_) {
+        input.checked = !desired;
+        toast(tr('Не удалось изменить режим сбора'), true);
+      } finally {
+        input.disabled = false;
+      }
+    }
+
+    async function toggleTrainingPin(id, pinned) {
+      try {
+        const response = await fetch(
+          '/training/' + (pinned ? 'pin/' : 'unpin/') + Number(id),
+          { method:'POST', cache:'no-store' }
+        );
+        if (!response.ok) throw Error('pin update failed');
+        await loadTrainingDataset(true);
+      } catch (_) {
+        toast(tr('Не удалось изменить закрепление'), true);
+      }
+    }
+
+    function trainingTarWrite(target, offset, text, length) {
+      const encoded = new TextEncoder().encode(String(text));
+      target.set(encoded.subarray(0, length), offset);
+    }
+
+    function trainingTarOctal(value, length) {
+      return Math.max(0, Number(value) || 0)
+        .toString(8)
+        .padStart(length - 1, '0')
+        .slice(-(length - 1)) + '\0';
+    }
+
+    function trainingTarHeader(name, size, modifiedSeconds) {
+      const header = new Uint8Array(512);
+      trainingTarWrite(header, 0, name, 100);
+      trainingTarWrite(header, 100, '0000644\0', 8);
+      trainingTarWrite(header, 108, '0000000\0', 8);
+      trainingTarWrite(header, 116, '0000000\0', 8);
+      trainingTarWrite(header, 124, trainingTarOctal(size, 12), 12);
+      trainingTarWrite(header, 136, trainingTarOctal(modifiedSeconds, 12), 12);
+      header.fill(32, 148, 156);
+      header[156] = '0'.charCodeAt(0);
+      trainingTarWrite(header, 257, 'ustar\0', 6);
+      trainingTarWrite(header, 263, '00', 2);
+      let checksum = 0;
+      header.forEach(byte => { checksum += byte; });
+      trainingTarWrite(
+        header,
+        148,
+        checksum.toString(8).padStart(6, '0').slice(-6) + '\0 ',
+        8
+      );
+      return header;
+    }
+
+    function trainingTarAdd(parts, name, blob, modifiedSeconds) {
+      parts.push(trainingTarHeader(name, blob.size, modifiedSeconds));
+      parts.push(blob);
+      const padding = (512 - blob.size % 512) % 512;
+      if (padding) parts.push(new Uint8Array(padding));
+    }
+
+    async function exportTrainingDataset(includeAll) {
+      if (trainingExportBusy) return;
+      if (!trainingDataset) await loadTrainingDataset(true);
+      const stats = trainingStats();
+      const records = includeAll
+        ? stats.records
+        : stats.clean.filter(record => record.eligible !== false);
+      if (!records.length) {
+        toast(tr('Нет подходящих записей для выгрузки'), true);
+        return;
+      }
+      trainingExportBusy = true;
+      const progress = $('trainingExportProgress');
+      const buttons = [$('trainingExportButton'), $('trainingExportAllButton')];
+      buttons.forEach(button => { if (button) button.disabled = true; });
+      progress.textContent = tr('Готовим архив…');
+      try {
+        const parts = [];
+        const exported = [];
+        const modified = Math.floor(Date.now() / 1000);
+        for (let index = 0; index < records.length; index++) {
+          const record = records[index];
+          const stem = archiveStem(Number(record.id));
+          progress.textContent = tr('Скачиваем') + ' ' + (index + 1) + ' / ' + records.length;
+          for (const extension of ['csv','json']) {
+            const response = await fetch(
+              '/shots/file/' + stem + '.' + extension,
+              { cache:'no-store' }
+            );
+            if (!response.ok) throw Error('training file unavailable');
+            trainingTarAdd(
+              parts,
+              'shots/' + stem + '.' + extension,
+              await response.blob(),
+              modified
+            );
+          }
+          exported.push(record);
+          await sleep(15);
+        }
+        const manifest = {
+          format:'rancilio-pressure-training-v1',
+          created_at:new Date().toISOString(),
+          filter:includeAll ? 'all_collected' : 'strict_clean',
+          readiness:{
+            score:stats.score,
+            level:stats.level,
+            clean_shots:stats.clean.length,
+            usable_windows:stats.usableWindows,
+            profiles:stats.profiles
+          },
+          records:exported
+        };
+        trainingTarAdd(
+          parts,
+          'manifest.json',
+          new Blob([JSON.stringify(manifest, null, 2) + '\n'], {type:'application/json'}),
+          modified
+        );
+        parts.push(new Uint8Array(1024));
+        const archive = new Blob(parts, {type:'application/x-tar'});
+        const link = document.createElement('a');
+        const now = new Date();
+        const stamp = now.getFullYear() +
+          String(now.getMonth() + 1).padStart(2, '0') +
+          String(now.getDate()).padStart(2, '0') + '-' +
+          String(now.getHours()).padStart(2, '0') +
+          String(now.getMinutes()).padStart(2, '0');
+        link.href = URL.createObjectURL(archive);
+        link.download = 'rancilio-training-' + stamp + '.tar';
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 10000);
+        progress.textContent = tr('Архив готов') + ': ' + records.length;
+      } catch (_) {
+        progress.textContent = '';
+        toast(tr('Не удалось выгрузить набор'), true);
+      } finally {
+        trainingExportBusy = false;
+        buttons.forEach(button => { if (button) button.disabled = false; });
       }
     }
 
@@ -13877,7 +15012,9 @@ if (card) {
         archiveSummaryCache.delete(id);
         const summary = await fetchArchiveSummary(id, raw);
         latestShotSummary = summary;
-        if (homeShotRailMode !== 'shots') renderShotQuality(summary);
+        if (homeShotRailMode !== 'shots') {
+          renderShotQuality(shotCompletedThisSession ? summary : null);
+        }
         return !!archiveAnalysis(summary);
       } catch (_) {
         return false;
@@ -14152,7 +15289,9 @@ if (card) {
       renderShotQuality(
         shotsMode
           ? archiveSelectedSummary
-          : latestShotSummary
+          : shotCompletedThisSession
+            ? latestShotSummary
+            : null
       );
 
       updateChartControls();

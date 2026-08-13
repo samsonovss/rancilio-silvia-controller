@@ -28,7 +28,7 @@ struct ShotPhase {
   float end_value;
   bool pump_enabled;
   bool valve_open;
-  bool start_boost;
+  float stop_weight_fraction;
   const char *status;
 };
 
@@ -38,6 +38,46 @@ struct ShotProfile {
 };
 
 inline std::vector<ShotPhase> active_shot_phases;
+inline std::vector<ShotPhase> custom_shot_phases;
+inline bool custom_shot_phases_active = false;
+
+inline bool set_custom_shot_phases(const std::vector<ShotPhase> &phases) {
+  if (phases.empty() || phases.size() > 12)
+    return false;
+  uint64_t total_ms = 0;
+  bool has_pump_phase = false;
+  float previous_weight = 0.0f;
+  for (const auto &phase : phases) {
+    if (phase.duration_ms == 0)
+      return false;
+    total_ms += phase.duration_ms;
+    if (total_ms > 240000U)
+      return false;
+    if (phase.pump_enabled) {
+      has_pump_phase = true;
+      if (phase.mode != ShotControlMode::PRESSURE ||
+          phase.start_value < 0.0f || phase.start_value > 12.0f ||
+          phase.end_value < 0.0f || phase.end_value > 12.0f)
+        return false;
+      if (phase.stop_weight_fraction > 0.0f) {
+        if (phase.stop_weight_fraction <= previous_weight ||
+            phase.stop_weight_fraction > 1.0f)
+          return false;
+        previous_weight = phase.stop_weight_fraction;
+      }
+    }
+  }
+  if (!has_pump_phase)
+    return false;
+  custom_shot_phases = phases;
+  custom_shot_phases_active = true;
+  return true;
+}
+
+inline void clear_custom_shot_phases() {
+  custom_shot_phases.clear();
+  custom_shot_phases_active = false;
+}
 
 inline float clamp_percent(float value) {
   return std::max(0.0f, std::min(100.0f, value));
@@ -60,7 +100,8 @@ inline uint32_t bounded_phase_ms(uint32_t preferred_ms, uint32_t available_ms) {
 inline void add_power_phase(std::vector<ShotPhase> &phases, ShotPhaseKind kind,
                             uint32_t duration_ms, float start_value,
                             float end_value, bool pump_enabled, bool valve_open,
-                            bool start_boost, const char *status) {
+                            const char *status,
+                            float stop_weight_fraction = 0.0f) {
   if (duration_ms == 0) return;
   phases.push_back(ShotPhase{
       ShotControlMode::POWER,
@@ -70,7 +111,7 @@ inline void add_power_phase(std::vector<ShotPhase> &phases, ShotPhaseKind kind,
       clamp_percent(end_value),
       pump_enabled,
       valve_open,
-      start_boost,
+      std::max(0.0f, std::min(1.0f, stop_weight_fraction)),
       status,
   });
 }
@@ -83,7 +124,8 @@ inline void add_pressure_phase(std::vector<ShotPhase> &phases,
                                ShotPhaseKind kind, uint32_t duration_ms,
                                float start_bar, float end_bar,
                                bool pump_enabled, bool valve_open,
-                               bool start_boost, const char *status) {
+                               const char *status,
+                               float stop_weight_fraction = 0.0f) {
   if (duration_ms == 0) return;
   phases.push_back(ShotPhase{
       ShotControlMode::PRESSURE,
@@ -93,7 +135,7 @@ inline void add_pressure_phase(std::vector<ShotPhase> &phases,
       clamp_pressure_bar(end_bar),
       pump_enabled,
       valve_open,
-      start_boost,
+      std::max(0.0f, std::min(1.0f, stop_weight_fraction)),
       status,
   });
 }
@@ -101,13 +143,12 @@ inline void add_pressure_phase(std::vector<ShotPhase> &phases,
 inline void add_profile_brew_phases(std::vector<ShotPhase> &phases,
                                     const std::string &profile,
                                     uint32_t brew_ms, float start_pressure,
-                                    float main_pressure, float end_pressure,
-                                    bool main_boost) {
+                                    float main_pressure, float end_pressure) {
   if (brew_ms == 0) return;
 
   if (profile == "Classic") {
     add_pressure_phase(phases, ShotPhaseKind::BREW, brew_ms, main_pressure,
-                       main_pressure, true, true, main_boost, "Пролив");
+                       main_pressure, true, true, "Пролив");
     return;
   }
 
@@ -121,9 +162,9 @@ inline void add_profile_brew_phases(std::vector<ShotPhase> &phases,
   const uint32_t finish_ms = brew_ms - ramp_ms;
 
   add_pressure_phase(phases, ShotPhaseKind::BREW, ramp_ms, start_pressure,
-                     main_pressure, true, true, main_boost, "Пролив");
+                     main_pressure, true, true, "Пролив");
   add_pressure_phase(phases, ShotPhaseKind::BREW, finish_ms, main_pressure,
-                     end_pressure, true, true, false, "Пролив");
+                     end_pressure, true, true, "Пролив");
 }
 
 inline ShotProfile build_shot_profile(const std::string &profile,
@@ -132,23 +173,48 @@ inline ShotProfile build_shot_profile(const std::string &profile,
                                       float brew_seconds,
                                       float start_pressure,
                                       float main_pressure,
-                                      float end_pressure,
-                                      bool preinfusion_boost,
-                                      bool main_boost) {
+                                      float end_pressure) {
   ShotProfile shot;
   shot.name = profile;
 
+  if (profile == "Custom" && custom_shot_phases_active) {
+    shot.phases = custom_shot_phases;
+    return shot;
+  }
+
+  // Automated pour-over for 15 g of coffee and about 220 g in the cup.
+  // Each pump portion stops by cup weight, while fixed phase durations keep
+  // the recipe close to three minutes. The hard limit is 3:20.
+  if (profile == "Funnel") {
+    add_pressure_phase(shot.phases, ShotPhaseKind::PREFUSION, 12000U,
+                       0.5f, 0.5f, true, true, "Смачивание");
+    add_power_phase(shot.phases, ShotPhaseKind::SOAK, 28000U,
+                    0.0f, 0.0f, false, true, "Набухание");
+    add_pressure_phase(shot.phases, ShotPhaseKind::BREW, 30000U,
+                       0.8f, 0.8f, true, true, "Пролив 1", 0.35f);
+    add_power_phase(shot.phases, ShotPhaseKind::SOAK, 15000U,
+                    0.0f, 0.0f, false, true, "Пауза 1");
+    add_pressure_phase(shot.phases, ShotPhaseKind::BREW, 30000U,
+                       0.8f, 0.8f, true, true, "Пролив 2", 0.68f);
+    add_power_phase(shot.phases, ShotPhaseKind::SOAK, 15000U,
+                    0.0f, 0.0f, false, true, "Пауза 2");
+    add_pressure_phase(shot.phases, ShotPhaseKind::BREW, 30000U,
+                       0.8f, 0.8f, true, true, "Пролив 3", 0.92f);
+    add_power_phase(shot.phases, ShotPhaseKind::SOAK, 40000U,
+                    0.0f, 0.0f, false, true, "Стекание");
+    return shot;
+  }
+
   add_pressure_phase(shot.phases, ShotPhaseKind::PREFUSION,
                      seconds_to_ms(preinfusion_seconds), start_pressure,
-                     start_pressure, true, true, preinfusion_boost,
+                     start_pressure, true, true,
                      "Предсмачивание");
 
   add_power_phase(shot.phases, ShotPhaseKind::SOAK, seconds_to_ms(pause_seconds),
-                  0.0f, 0.0f, false, true, false, "Пауза");
+                  0.0f, 0.0f, false, true, "Пауза");
 
   add_profile_brew_phases(shot.phases, profile, seconds_to_ms(brew_seconds),
-                          start_pressure, main_pressure, end_pressure,
-                          main_boost);
+                          start_pressure, main_pressure, end_pressure);
 
   return shot;
 }

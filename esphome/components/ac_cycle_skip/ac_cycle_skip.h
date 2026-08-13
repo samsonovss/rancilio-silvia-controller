@@ -23,10 +23,6 @@ struct ACCycleSkipDataStore {
 
   std::atomic<uint32_t> target_q16{0};
   std::atomic<uint32_t> requested_q16{0};
-  std::atomic<uint32_t> boost_until_us{0};
-  std::atomic<uint32_t> timed_override_q16{0};
-  std::atomic<uint32_t> timed_override_duration_ms{0};
-  std::atomic<uint32_t> timed_override_until_us{0};
   std::atomic<uint32_t> pulse_generation{0};
   std::atomic<uint32_t> scheduled_pulse_generation{0};
   uint32_t accumulator_q16{0};
@@ -37,7 +33,6 @@ struct ACCycleSkipDataStore {
   uint32_t max_zero_cross_interval_us{13000};
   std::atomic<uint32_t> gate_delay_us{100};
   std::atomic<uint32_t> gate_pulse_us{300};
-  std::atomic<uint32_t> start_boost_ms{0};
   std::atomic<uint32_t> ramp_ms{800};
   uint32_t rejected_crossings{0};
   uint32_t invalid_crossings{0};
@@ -52,7 +47,7 @@ struct ACCycleSkipDataStore {
   void force_off_();
   void schedule_gate_pulse_();
   void reset_sync_(uint32_t now);
-  uint32_t update_target_(uint32_t now);
+  uint32_t update_target_();
   static void s_gpio_intr(ACCycleSkipDataStore *store);
   static bool s_gate_timer_alarm(gptimer_handle_t timer, const gptimer_alarm_event_data_t *edata, void *user_ctx);
 };
@@ -75,12 +70,6 @@ class ACCycleSkipOutput final : public output::FloatOutput, public Component {
   void set_gate_pulse_us(uint32_t gate_pulse_us) {
     store_.gate_pulse_us.store(gate_pulse_us, std::memory_order_relaxed);
   }
-  void set_start_boost_ms(uint32_t start_boost_ms) {
-    store_.start_boost_ms.store(start_boost_ms, std::memory_order_relaxed);
-  }
-  void arm_timed_override(float state, uint32_t duration_ms);
-  void cancel_timed_override();
-  bool timed_override_engaged();
   void set_ramp_ms(uint32_t ramp_ms) { store_.ramp_ms.store(ramp_ms, std::memory_order_relaxed); }
 
  protected:

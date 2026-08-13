@@ -16,6 +16,8 @@ struct Sample {
   bool sensor_ok = true;
   uint32_t sensor_age_ms = 20;
   uint32_t xdb_total_errors = 0;
+  uint32_t xdb_consecutive_errors = 0;
+  uint8_t phase = 1;
   StartupState startup_state = StartupState::PI;
 };
 
@@ -40,6 +42,12 @@ int main() {
   assert(good.diagnosis == "normal");
   assert(good.grind == "none");
 
+  const auto clean_training =
+      silvia_analysis::assess_for_training(stable_shot(27.0f, 36.0f));
+  assert(clean_training.eligible);
+  assert(clean_training.status == "clean");
+  assert(clean_training.usable_windows > 0);
+
   const auto fast = silvia_analysis::analyze(stable_shot(16.0f, 36.0f), metadata);
   assert(fast.diagnosis == "too_free");
   assert(fast.grind == "finer");
@@ -53,9 +61,18 @@ int main() {
     faulty_samples[index].sensor_ok = false;
     faulty_samples[index].sensor_age_ms = 1400;
     faulty_samples[index].xdb_total_errors = static_cast<uint32_t>(index - 9);
+    faulty_samples[index].xdb_consecutive_errors =
+        static_cast<uint32_t>(index - 9);
   }
   const auto faulty = silvia_analysis::analyze(faulty_samples, metadata);
   assert(!faulty.reliable);
   assert(faulty.diagnosis == "sensor_fault");
   assert(faulty.grind == "unknown");
+
+  const auto rejected_training =
+      silvia_analysis::assess_for_training(faulty_samples);
+  assert(!rejected_training.eligible);
+  assert(rejected_training.status == "rejected");
+  assert((rejected_training.issues &
+          silvia_analysis::TRAINING_ISSUE_SENSOR_ERROR) != 0);
 }

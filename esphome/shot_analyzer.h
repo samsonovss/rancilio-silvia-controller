@@ -36,8 +36,193 @@ struct ShotAnalysis {
   size_t working_samples = 0;
 };
 
+enum TrainingIssue : uint32_t {
+  TRAINING_ISSUE_NONE = 0,
+  TRAINING_ISSUE_NO_PRESSURE_PHASE = 1U << 0,
+  TRAINING_ISSUE_TOO_SHORT = 1U << 1,
+  TRAINING_ISSUE_SENSOR_ERROR = 1U << 2,
+  TRAINING_ISSUE_SENSOR_INVALID = 1U << 3,
+  TRAINING_ISSUE_SENSOR_STALE = 1U << 4,
+  TRAINING_ISSUE_SENSOR_FAIL = 1U << 5,
+  TRAINING_ISSUE_CONSECUTIVE_ERRORS = 1U << 6,
+  TRAINING_ISSUE_TIMELINE_GAP = 1U << 7,
+  TRAINING_ISSUE_PRESSURE_JUMP = 1U << 8,
+  TRAINING_ISSUE_NO_USABLE_WINDOWS = 1U << 9,
+};
+
+struct TrainingAssessment {
+  // A 2 s input history and a 1 s prediction horizon at the current 5 Hz
+  // capture rate.  The computer-side trainer may later choose shorter
+  // horizons, but every exported window is guaranteed to cover the longest
+  // planned prediction.
+  static constexpr size_t HISTORY_SAMPLES = 10;
+  static constexpr size_t HORIZON_SAMPLES = 5;
+
+  std::string status = "rejected";
+  bool eligible = false;
+  uint32_t issues = TRAINING_ISSUE_NONE;
+  size_t total_samples = 0;
+  size_t working_samples = 0;
+  size_t valid_working_samples = 0;
+  size_t invalid_working_samples = 0;
+  size_t usable_windows = 0;
+  uint32_t sensor_errors = 0;
+  uint32_t maximum_sensor_age_ms = 0;
+  uint32_t maximum_consecutive_errors = 0;
+  uint32_t maximum_sample_gap_ms = 0;
+  uint32_t timeline_gap_events = 0;
+  uint32_t pressure_jump_events = 0;
+  uint32_t phase_mask = 0;
+};
+
 inline int clamp_percent(int value) {
   return std::max(0, std::min(100, value));
+}
+
+template<typename Samples>
+TrainingAssessment assess_for_training(const Samples &samples) {
+  TrainingAssessment result;
+  result.total_samples = samples.size();
+  if (samples.empty()) {
+    result.issues = TRAINING_ISSUE_NO_PRESSURE_PHASE |
+                    TRAINING_ISSUE_TOO_SHORT |
+                    TRAINING_ISSUE_NO_USABLE_WINDOWS;
+    return result;
+  }
+
+  const auto &first = samples.front();
+  const auto &last = samples.back();
+  if (last.xdb_total_errors >= first.xdb_total_errors)
+    result.sensor_errors = last.xdb_total_errors - first.xdb_total_errors;
+
+  bool have_previous_sample = false;
+  bool have_previous_pressure = false;
+  uint32_t previous_elapsed_ms = 0;
+  float previous_pressure_bar = 0.0f;
+  size_t contiguous_valid_samples = 0;
+
+  const auto finish_valid_run = [&]() {
+    const size_t required = TrainingAssessment::HISTORY_SAMPLES +
+                            TrainingAssessment::HORIZON_SAMPLES;
+    if (contiguous_valid_samples >= required)
+      result.usable_windows += contiguous_valid_samples - required + 1;
+    contiguous_valid_samples = 0;
+  };
+
+  for (const auto &sample : samples) {
+    const bool pressure_phase =
+        sample.startup_state != decltype(sample.startup_state)::WAIT_DROP &&
+        std::isfinite(sample.target_bar) && sample.target_bar > 0.5f;
+
+    if (sample.startup_state == decltype(sample.startup_state)::SENSOR_FAIL)
+      result.issues |= TRAINING_ISSUE_SENSOR_FAIL;
+
+    result.maximum_consecutive_errors =
+        std::max(result.maximum_consecutive_errors,
+                 sample.xdb_consecutive_errors);
+
+    if (!pressure_phase) {
+      finish_valid_run();
+      have_previous_sample = false;
+      have_previous_pressure = false;
+      continue;
+    }
+
+    result.working_samples++;
+    if (sample.phase < 32U)
+      result.phase_mask |= 1U << sample.phase;
+    result.maximum_sensor_age_ms =
+        std::max(result.maximum_sensor_age_ms, sample.sensor_age_ms);
+
+    uint32_t gap_ms = 0;
+    if (have_previous_sample) {
+      gap_ms = sample.elapsed_ms >= previous_elapsed_ms
+                   ? sample.elapsed_ms - previous_elapsed_ms
+                   : UINT32_MAX;
+      result.maximum_sample_gap_ms =
+          std::max(result.maximum_sample_gap_ms, gap_ms);
+      if (gap_ms > 350U)
+        result.timeline_gap_events++;
+    }
+    have_previous_sample = true;
+    previous_elapsed_ms = sample.elapsed_ms;
+
+    const bool valid = sample.sensor_ok &&
+                       std::isfinite(sample.pressure_bar) &&
+                       sample.pressure_bar >= -0.5f &&
+                       sample.pressure_bar <= 13.0f &&
+                       sample.sensor_age_ms <= 300U &&
+                       sample.xdb_consecutive_errors == 0U &&
+                       gap_ms != UINT32_MAX &&
+                       (!have_previous_pressure || gap_ms <= 350U);
+
+    if (!valid) {
+      result.invalid_working_samples++;
+      finish_valid_run();
+      have_previous_pressure = false;
+      continue;
+    }
+
+    result.valid_working_samples++;
+    contiguous_valid_samples++;
+
+    if (have_previous_pressure && gap_ms >= 100U && gap_ms <= 350U &&
+        std::fabs(sample.pressure_bar - previous_pressure_bar) > 2.5f) {
+      result.pressure_jump_events++;
+      finish_valid_run();
+      contiguous_valid_samples = 1;
+    }
+    previous_pressure_bar = sample.pressure_bar;
+    have_previous_pressure = true;
+  }
+  finish_valid_run();
+
+  if (result.working_samples == 0)
+    result.issues |= TRAINING_ISSUE_NO_PRESSURE_PHASE;
+  if (result.valid_working_samples < 25)
+    result.issues |= TRAINING_ISSUE_TOO_SHORT;
+  if (result.sensor_errors > 0)
+    result.issues |= TRAINING_ISSUE_SENSOR_ERROR;
+  if (result.invalid_working_samples > 0)
+    result.issues |= TRAINING_ISSUE_SENSOR_INVALID;
+  if (result.maximum_sensor_age_ms > 300U)
+    result.issues |= TRAINING_ISSUE_SENSOR_STALE;
+  if (result.maximum_consecutive_errors > 0)
+    result.issues |= TRAINING_ISSUE_CONSECUTIVE_ERRORS;
+  if (result.timeline_gap_events > 0)
+    result.issues |= TRAINING_ISSUE_TIMELINE_GAP;
+  if (result.pressure_jump_events > 0)
+    result.issues |= TRAINING_ISSUE_PRESSURE_JUMP;
+  if (result.usable_windows == 0)
+    result.issues |= TRAINING_ISSUE_NO_USABLE_WINDOWS;
+
+  const uint32_t strict_issues =
+      TRAINING_ISSUE_NO_PRESSURE_PHASE |
+      TRAINING_ISSUE_TOO_SHORT |
+      TRAINING_ISSUE_SENSOR_ERROR |
+      TRAINING_ISSUE_SENSOR_INVALID |
+      TRAINING_ISSUE_SENSOR_STALE |
+      TRAINING_ISSUE_SENSOR_FAIL |
+      TRAINING_ISSUE_CONSECUTIVE_ERRORS |
+      TRAINING_ISSUE_TIMELINE_GAP |
+      TRAINING_ISSUE_PRESSURE_JUMP |
+      TRAINING_ISSUE_NO_USABLE_WINDOWS;
+  result.eligible = (result.issues & strict_issues) == 0;
+  if (result.eligible) {
+    result.status = "clean";
+  } else {
+    const float valid_ratio = result.working_samples > 0
+                                  ? static_cast<float>(result.valid_working_samples) /
+                                        static_cast<float>(result.working_samples)
+                                  : 0.0f;
+    const bool recoverable =
+        (result.issues & TRAINING_ISSUE_SENSOR_FAIL) == 0 &&
+        result.valid_working_samples >= 25 &&
+        result.usable_windows > 0 &&
+        valid_ratio >= 0.90f;
+    result.status = recoverable ? "partial" : "rejected";
+  }
+  return result;
 }
 
 template<typename Samples>
