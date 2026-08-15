@@ -7,6 +7,7 @@ esphome:
     - shot_analyzer.h
     - shot_archive.h
     - user_profiles.h
+    - custom_phases.h
     - coffee_dashboard.h
   on_boot:
     - priority: 800
@@ -33,6 +34,7 @@ esphome:
             silvia_diag::register_web_handler();
             silvia_archive::register_web_handler();
             silvia_profiles::register_web_handler();
+            silvia_custom_phases::register_web_handler();
             silvia_web::register_web_handler();
   on_shutdown:
     - priority: 700
@@ -87,6 +89,8 @@ time:
 
 web_server:
   port: 80
+  js_url: ""
+  js_include: coffee_root_router.js
 
 api:
   reboot_timeout: 0s
@@ -120,7 +124,7 @@ i2c:
   sda: ${xdb401_sda_pin}
   scl: ${xdb401_scl_pin}
   scan: true
-  # frequency: 10kHz
+  frequency: 400kHz
   # timeout: 5ms
 
 # -------------------------
@@ -445,6 +449,24 @@ globals:
     restore_value: no
     initial_value: 'false'
 
+  # Funnel temporarily needs a 220 g target and weight-based stopping. Keep
+  # the user's ordinary espresso settings so leaving Funnel restores exactly
+  # the values that were active before it was selected.
+  - id: funnel_previous_target_weight
+    type: float
+    restore_value: yes
+    initial_value: '36.0'
+
+  - id: funnel_previous_stop_by_weight
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+
+  - id: funnel_weight_override_active
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+
   - id: brew_shot_running
     type: bool
     restore_value: no
@@ -520,6 +542,36 @@ globals:
     restore_value: no
     initial_value: '0'
 
+  - id: pressure_start_initial_bar
+    type: float
+    restore_value: no
+    initial_value: '0.0f'
+
+  - id: pressure_start_previous_bar
+    type: float
+    restore_value: no
+    initial_value: '0.0f'
+
+  - id: pressure_start_wait_started_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: pressure_start_wait_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: pressure_start_wait_active
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+  - id: pressure_start_stable_samples
+    type: int
+    restore_value: no
+    initial_value: '0'
+
   - id: hot_water_running
     type: bool
     restore_value: no
@@ -534,6 +586,21 @@ globals:
     type: int
     restore_value: yes
     initial_value: '0'
+
+  - id: monthly_stats_key
+    type: int
+    restore_value: yes
+    initial_value: '0'
+
+  - id: monthly_shots
+    type: int
+    restore_value: yes
+    initial_value: '0'
+
+  - id: monthly_drink_weight_g
+    type: float
+    restore_value: yes
+    initial_value: '0.0f'
 
   - id: backflush_running
     type: bool
@@ -697,7 +764,7 @@ number:
     restore_value: true
     initial_value: 36
     min_value: 5
-    max_value: 100
+    max_value: 300
     step: 0.5
     unit_of_measurement: "g"
     mode: box
@@ -798,7 +865,7 @@ number:
     restore_value: true
     initial_value: 25
     min_value: 1
-    max_value: 90
+    max_value: 240
     step: 0.5
     unit_of_measurement: "s"
     mode: box
@@ -820,7 +887,7 @@ number:
     restore_value: true
     initial_value: 0
     min_value: 0
-    max_value: 10
+    max_value: 30
     step: 0.5
     unit_of_measurement: "s"
     mode: box
@@ -842,7 +909,7 @@ number:
     restore_value: true
     initial_value: 0
     min_value: 0
-    max_value: 20
+    max_value: 40
     step: 0.5
     unit_of_measurement: "s"
     mode: box
@@ -1488,12 +1555,100 @@ script:
             - lambda: 'id(pump_dimmer_output_value) = 0.0f;'
             - switch.turn_off: silvia_pump_relay
 
+  - id: prepare_pressure_profile_start
+    mode: restart
+    then:
+      - lambda: |-
+          const uint32_t now = millis();
+          const float pressure = id(silvia_brew_pressure).state;
+          const uint32_t sensor_age = now - id(pressure_sensor_last_update_ms);
+          const bool sensor_ok = id(silvia_brew_pressure).has_state() &&
+              std::isfinite(pressure) && pressure >= -0.5f &&
+              pressure <= 13.0f && sensor_age <= 1000U;
+          id(pressure_start_initial_bar) = sensor_ok ? pressure : NAN;
+          id(pressure_start_previous_bar) = sensor_ok ? pressure : 0.0f;
+          id(pressure_start_wait_started_ms) = now;
+          id(pressure_start_wait_ms) = 0U;
+          id(pressure_start_stable_samples) = 0;
+          id(pressure_start_wait_active) = sensor_ok && pressure > 0.5f;
+          silvia_diag::last_transition_reason = !sensor_ok
+              ? silvia_diag::TransitionReason::START_SENSOR_INVALID
+              : (pressure <= 0.5f
+                    ? silvia_diag::TransitionReason::START_PRESSURE_LOW
+                    : silvia_diag::TransitionReason::NONE);
+      - while:
+          condition:
+            lambda: |-
+              return id(brew_shot_running) && id(silvia_power_state) &&
+                  id(pressure_start_wait_active) &&
+                  (millis() - id(pressure_start_wait_started_ms)) < 1500U;
+          then:
+            - delay: 100ms
+            - lambda: |-
+                const float pressure = id(silvia_brew_pressure).state;
+                const uint32_t now = millis();
+                const uint32_t sensor_age = now - id(pressure_sensor_last_update_ms);
+                id(pressure_start_wait_ms) = now - id(pressure_start_wait_started_ms);
+                if (!id(silvia_brew_pressure).has_state() ||
+                    !std::isfinite(pressure) || pressure < -0.5f ||
+                    pressure > 13.0f || sensor_age > 1000U) {
+                  id(pressure_start_wait_active) = false;
+                  silvia_diag::last_transition_reason =
+                      silvia_diag::TransitionReason::START_SENSOR_INVALID;
+                  return;
+                }
+                if (pressure <= 0.5f) {
+                  id(pressure_start_wait_active) = false;
+                  silvia_diag::last_transition_reason =
+                      silvia_diag::TransitionReason::RESIDUAL_PRESSURE_CLEARED;
+                  return;
+                }
+                const float delta = pressure - id(pressure_start_previous_bar);
+                id(pressure_start_previous_bar) = pressure;
+                if (delta < -0.06f) {
+                  id(pressure_start_stable_samples) = 0;
+                } else {
+                  id(pressure_start_stable_samples)++;
+                }
+                if (id(pressure_start_stable_samples) >= 3) {
+                  id(pressure_start_wait_active) = false;
+                  silvia_diag::last_transition_reason =
+                      silvia_diag::TransitionReason::RESIDUAL_PRESSURE_STALLED;
+                }
+      - lambda: |-
+          id(pressure_start_wait_ms) = millis() - id(pressure_start_wait_started_ms);
+          if (id(pressure_start_wait_active)) {
+            id(pressure_start_wait_active) = false;
+            silvia_diag::last_transition_reason =
+                silvia_diag::TransitionReason::RESIDUAL_PRESSURE_TIMEOUT;
+          }
+          // The recipe clock starts here, after the residual-pressure preflight.
+          silvia_diag::shot_started_ms = millis();
+          id(soft_infusion_started_ms) = millis();
+          id(pressure_profile_startup_active) = false;
+          id(pressure_profile_pressure_dropped) = false;
+          id(pressure_profile_drop_samples) = 0;
+          id(pressure_profile_rise_samples) = 0;
+
   - id: run_active_shot_phase
     mode: restart
     then:
       - lambda: |-
           const auto &phase = silvia::active_shot_phases[id(active_shot_phase_index)];
           id(pressure_control_integral) = 0.0f;
+          if (id(silvia_shot_profile).current_option() == "Funnel" &&
+              phase.pump_enabled) {
+            // Every pour starts from the low-pressure fallback. Reusing the
+            // previous PI output would kick the vibration pump too hard after
+            // a pause and defeat the 0.8 bar ceiling.
+            id(pressure_profile_startup_active) = false;
+            id(pressure_control_adaptive_feed_forward) = 0.0f;
+            id(pressure_control_incremental_drive) = 0.0f;
+            id(pressure_control_previous_predicted_error) = 0.0f;
+            id(pressure_control_incremental_initialized) = false;
+            id(pressure_control_last_update_ms) = 0U;
+            id(pressure_control_filtered_slope) = 0.0f;
+          }
           if (phase.kind == silvia::ShotPhaseKind::PREFUSION) {
             id(brew_shot_phase) = 1;
           } else if (phase.kind == silvia::ShotPhaseKind::SOAK) {
@@ -1546,6 +1701,41 @@ script:
                                     float diag_desired_pressure_slope = 0.0f;
                                     float diag_rise_rate_brake = 0.0f;
                                     float diag_pressure_recovery_boost = 0.0f;
+                                    const size_t phase_index =
+                                        static_cast<size_t>(id(active_shot_phase_index));
+                                    const uint32_t phase_start_ms =
+                                        id(brew_shot_phase_end_ms) - phase.duration_ms;
+                                    const uint32_t phase_elapsed_ms = std::min(
+                                        phase.duration_ms,
+                                        static_cast<uint32_t>(now - phase_start_ms));
+                                    const uint32_t phase_remaining_ms =
+                                        phase.duration_ms - phase_elapsed_ms;
+                                    const float phase_progress = phase.duration_ms > 0U
+                                        ? static_cast<float>(phase_elapsed_ms) /
+                                              static_cast<float>(phase.duration_ms)
+                                        : 1.0f;
+                                    const float diag_target_plus_025 =
+                                        silvia::trajectory_target_from(
+                                            silvia::active_shot_phases,
+                                            phase_index,
+                                            phase_elapsed_ms,
+                                            250U);
+                                    const float diag_target_plus_05 =
+                                        silvia::trajectory_target_from(
+                                            silvia::active_shot_phases,
+                                            phase_index,
+                                            phase_elapsed_ms,
+                                            500U);
+                                    const float diag_target_plus_1 =
+                                        silvia::trajectory_target_from(
+                                            silvia::active_shot_phases,
+                                            phase_index,
+                                            phase_elapsed_ms,
+                                            1000U);
+                                    float diag_target_slope = 0.0f;
+                                    float diag_predicted_target = 0.0f;
+                                    const float diag_previous_output =
+                                        id(pump_dimmer_output_value) * 100.0f;
                                     bool diag_sensor_ok = id(silvia_brew_pressure).has_state() &&
                                         std::isfinite(pressure) && pressure >= -0.5f &&
                                         pressure <= 13.0f && sensor_age <= 1000U;
@@ -1556,10 +1746,13 @@ script:
                                       id(active_target_brew_pressure) = 0.0f;
                                       drive = silvia::phase_value(phase, iteration, steps);
                                     } else if (phase.mode == silvia::ShotControlMode::PRESSURE) {
-                                      const float target = silvia::phase_target(
-                                          phase, iteration, steps);
+                                      const float target =
+                                          silvia::phase_target_at_elapsed(
+                                              phase, phase_elapsed_ms);
                                       diag_target = target;
                                       diag_error = target - pressure;
+                                      diag_target_slope =
+                                          (diag_target_plus_05 - target) / 0.5f;
                                       id(active_target_brew_pressure) = target;
                                       const bool sensor_ok = diag_sensor_ok;
                                       float pressure_dt = 0.2f;
@@ -1640,8 +1833,16 @@ script:
                                               pressure +
                                                   diag_pressure_slope *
                                                       prediction_horizon));
+                                      diag_predicted_target =
+                                          silvia::trajectory_target_from(
+                                              silvia::active_shot_phases,
+                                              phase_index,
+                                              phase_elapsed_ms,
+                                              static_cast<uint32_t>(
+                                                  prediction_horizon * 1000.0f));
                                       const float predicted_error =
-                                          target - diag_predicted_pressure;
+                                          diag_predicted_target -
+                                          diag_predicted_pressure;
                                       bool start_pi = false;
                                       if (id(pressure_profile_startup_active)) {
                                         const bool timed_out =
@@ -1722,12 +1923,15 @@ script:
                                                   0.0f,
                                                   std::min(
                                                       3.0f,
-                                                      diag_error / 0.55f));
+                                                      diag_target_slope +
+                                                          std::max(
+                                                              0.0f,
+                                                              predicted_error / 0.55f)));
                                           const float predicted_excess =
                                               std::max(
                                                   0.0f,
                                                   diag_predicted_pressure -
-                                                      target);
+                                                      diag_predicted_target);
                                           float rise_rate_brake = 0.0f;
                                           // Keep braking while hydraulic inertia is
                                           // still raising pressure, even after the
@@ -1758,8 +1962,8 @@ script:
                                               diag_pressure_slope <=
                                                   desired_pressure_slope) {
                                             pressure_recovery_boost = std::min(
-                                                0.003f,
-                                                0.03f * (predicted_error - 0.15f) *
+                                                0.020f,
+                                                0.04f * (predicted_error - 0.15f) *
                                                     pressure_dt);
                                           }
                                           float candidate_drive =
@@ -1817,6 +2021,57 @@ script:
                                         diag_startup_state = silvia_diag::StartupState::PI;
                                       }
                                     }
+                                    if (phase.stop_weight_fraction > 0.0f) {
+                                      const float target_weight = std::max(
+                                          5.0f,
+                                          id(silvia_brew_target_weight).state);
+                                      const float current_weight =
+                                          id(silvia_weight_fast).state;
+                                      const float stage_weight =
+                                          target_weight * phase.stop_weight_fraction;
+                                      if (std::isfinite(current_weight) &&
+                                          current_weight >= stage_weight) {
+                                        // Keep the brew valve open, but stop the
+                                        // pump until the scheduled pause begins.
+                                        // This emulates a measured pour rather
+                                        // than forcing every pulse to last 30 s.
+                                        drive = 0.0f;
+                                        diag_target = 0.0f;
+                                        diag_error = -pressure;
+                                        diag_feed_forward = 0.0f;
+                                        diag_p_term = 0.0f;
+                                        diag_i_term = 0.0f;
+                                        diag_pi_output = 0.0f;
+                                        diag_pi_enabled = false;
+                                        diag_startup_state =
+                                            silvia_diag::StartupState::PUMP_OFF;
+                                        id(active_target_brew_pressure) = 0.0f;
+                                        id(pressure_control_integral) = 0.0f;
+                                        id(pressure_control_adaptive_feed_forward) = 0.0f;
+                                        id(pressure_control_incremental_drive) = 0.0f;
+                                        id(pressure_control_previous_predicted_error) = 0.0f;
+                                        id(pressure_control_incremental_initialized) = false;
+                                      }
+                                    }
+                                    const float diag_weight = id(silvia_weight).state;
+                                    const float diag_flow = id(silvia_scale_flow).state;
+                                    const bool diag_scale_data_valid =
+                                        id(silvia_scale_tare_valid) &&
+                                        id(silvia_scale_calibration_valid) &&
+                                        (!id(silvia_scale_auto_tare).state ||
+                                         id(silvia_scale_auto_tare_success)) &&
+                                        std::isfinite(diag_weight) &&
+                                        std::isfinite(diag_flow) &&
+                                        diag_weight >= -5.0f && diag_weight <= 500.0f &&
+                                        std::fabs(diag_flow) <= 20.0f;
+                                    const std::string diag_profile =
+                                        id(silvia_shot_profile).current_option();
+                                    const uint8_t diag_profile_code =
+                                        diag_profile == "Classic" ? 0U :
+                                        diag_profile == "Lever" ? 1U :
+                                        diag_profile == "Slayer Style" ? 2U :
+                                        diag_profile == "Bloom" ? 3U :
+                                        diag_profile == "Funnel" ? 4U : 5U;
                                     silvia_diag::record(silvia_diag::ShotSample{
                                         now - silvia_diag::shot_started_ms,
                                         static_cast<uint8_t>(id(brew_shot_phase)),
@@ -1846,15 +2101,39 @@ script:
                                         id(brew_temperature_feed_forward_value) * 100.0f,
                                         id(silvia_pressure_sensor_temperature).state,
                                         id(silvia_boiler_temp_pt100).state,
-                                        id(silvia_weight).state,
-                                        id(silvia_scale_flow).state,
+                                        diag_weight,
+                                        diag_flow,
                                         static_cast<uint32_t>(id(silvia_xdb401_start_errors).state),
                                         static_cast<uint32_t>(id(silvia_xdb401_status_errors).state),
                                         static_cast<uint32_t>(id(silvia_xdb401_measurement_timeouts).state),
                                         static_cast<uint32_t>(id(silvia_xdb401_packet_errors).state),
                                         static_cast<uint32_t>(id(silvia_xdb401_rejected_packets).state),
                                         static_cast<uint32_t>(id(silvia_xdb401_total_errors).state),
-                                        static_cast<uint32_t>(id(silvia_xdb401_consecutive_errors).state)});
+                                        static_cast<uint32_t>(id(silvia_xdb401_consecutive_errors).state),
+                                        static_cast<uint8_t>(phase_index),
+                                        static_cast<uint8_t>(phase.kind),
+                                        phase.pump_enabled,
+                                        phase_progress,
+                                        phase_elapsed_ms / 1000.0f,
+                                        phase_remaining_ms / 1000.0f,
+                                        phase.mode == silvia::ShotControlMode::PRESSURE
+                                            ? phase.start_value : 0.0f,
+                                        phase.mode == silvia::ShotControlMode::PRESSURE
+                                            ? phase.end_value : 0.0f,
+                                        diag_target_plus_025,
+                                        diag_target_plus_05,
+                                        diag_target_plus_1,
+                                        diag_target_slope,
+                                        diag_predicted_target,
+                                        diag_previous_output,
+                                        diag_scale_data_valid,
+                                        diag_profile_code,
+                                        id(silvia_brew_target).state,
+                                        id(silvia_coffee_dose_grams).state,
+                                        id(silvia_brew_target_weight).state,
+                                        id(silvia_stop_brew_by_weight).state,
+                                        id(pressure_start_initial_bar),
+                                        id(pressure_start_wait_ms)});
                                     id(pump_dimmer_output_value) = drive;
                                     return drive;
                             else:
@@ -1891,11 +2170,43 @@ script:
                 then:
                   - lambda: |-
                       const uint32_t now = millis();
+                      const size_t phase_index =
+                          static_cast<size_t>(id(active_shot_phase_index));
+                      const auto &phase = silvia::active_shot_phases[phase_index];
+                      const uint32_t phase_start_ms =
+                          id(brew_shot_phase_end_ms) - phase.duration_ms;
+                      const uint32_t phase_elapsed_ms = std::min(
+                          phase.duration_ms,
+                          static_cast<uint32_t>(now - phase_start_ms));
+                      const uint32_t phase_remaining_ms =
+                          phase.duration_ms - phase_elapsed_ms;
+                      const float phase_progress = phase.duration_ms > 0U
+                          ? static_cast<float>(phase_elapsed_ms) /
+                                static_cast<float>(phase.duration_ms)
+                          : 1.0f;
                       const float pressure = id(silvia_brew_pressure).state;
                       const uint32_t sensor_age = now - id(pressure_sensor_last_update_ms);
                       const bool sensor_ok = id(silvia_brew_pressure).has_state() &&
                           std::isfinite(pressure) && pressure >= -0.5f &&
                           pressure <= 13.0f && sensor_age <= 1000U;
+                      const float weight = id(silvia_weight).state;
+                      const float flow = id(silvia_scale_flow).state;
+                      const bool scale_data_valid =
+                          id(silvia_scale_tare_valid) &&
+                          id(silvia_scale_calibration_valid) &&
+                          (!id(silvia_scale_auto_tare).state ||
+                           id(silvia_scale_auto_tare_success)) &&
+                          std::isfinite(weight) && std::isfinite(flow) &&
+                          weight >= -5.0f && weight <= 500.0f &&
+                          std::fabs(flow) <= 20.0f;
+                      const std::string profile_name =
+                          id(silvia_shot_profile).current_option();
+                      const uint8_t profile_code =
+                          profile_name == "Classic" ? 0U :
+                          profile_name == "Lever" ? 1U :
+                          profile_name == "Slayer Style" ? 2U :
+                          profile_name == "Bloom" ? 3U :
+                          profile_name == "Funnel" ? 4U : 5U;
                       silvia_diag::record(silvia_diag::ShotSample{
                           now - silvia_diag::shot_started_ms,
                           static_cast<uint8_t>(id(brew_shot_phase)),
@@ -1910,15 +2221,45 @@ script:
                           id(brew_temperature_feed_forward_value) * 100.0f,
                           id(silvia_pressure_sensor_temperature).state,
                           id(silvia_boiler_temp_pt100).state,
-                          id(silvia_weight).state,
-                          id(silvia_scale_flow).state,
+                          weight,
+                          flow,
                           static_cast<uint32_t>(id(silvia_xdb401_start_errors).state),
                           static_cast<uint32_t>(id(silvia_xdb401_status_errors).state),
                           static_cast<uint32_t>(id(silvia_xdb401_measurement_timeouts).state),
                           static_cast<uint32_t>(id(silvia_xdb401_packet_errors).state),
                           static_cast<uint32_t>(id(silvia_xdb401_rejected_packets).state),
                           static_cast<uint32_t>(id(silvia_xdb401_total_errors).state),
-                          static_cast<uint32_t>(id(silvia_xdb401_consecutive_errors).state)});
+                          static_cast<uint32_t>(id(silvia_xdb401_consecutive_errors).state),
+                          static_cast<uint8_t>(phase_index),
+                          static_cast<uint8_t>(phase.kind),
+                          phase.pump_enabled,
+                          phase_progress,
+                          phase_elapsed_ms / 1000.0f,
+                          phase_remaining_ms / 1000.0f,
+                          0.0f,
+                          0.0f,
+                          silvia::trajectory_target_from(
+                              silvia::active_shot_phases, phase_index,
+                              phase_elapsed_ms, 250U),
+                          silvia::trajectory_target_from(
+                              silvia::active_shot_phases, phase_index,
+                              phase_elapsed_ms, 500U),
+                          silvia::trajectory_target_from(
+                              silvia::active_shot_phases, phase_index,
+                              phase_elapsed_ms, 1000U),
+                          0.0f,
+                          silvia::trajectory_target_from(
+                              silvia::active_shot_phases, phase_index,
+                              phase_elapsed_ms, 500U),
+                          0.0f,
+                          scale_data_valid,
+                          profile_code,
+                          id(silvia_brew_target).state,
+                          id(silvia_coffee_dose_grams).state,
+                          id(silvia_brew_target_weight).state,
+                          id(silvia_stop_brew_by_weight).state,
+                          id(pressure_start_initial_bar),
+                          id(pressure_start_wait_ms)});
                   - delay: 200ms
 
   - id: brew_shot_timer
@@ -1936,8 +2277,9 @@ script:
                 id(active_preinfusion_pump_power) = id(silvia_preinfusion_pump_power).state;
                 id(active_main_brew_pump_power) = id(silvia_main_brew_pump_power).state;
                 id(active_end_brew_pump_power) = id(silvia_end_brew_pump_power).state;
-                id(active_soft_infusion_seconds) =
-                    id(silvia_soft_infusion_seconds).state;
+                id(active_soft_infusion_seconds) = profile == "Funnel"
+                    ? 0.0f
+                    : id(silvia_soft_infusion_seconds).state;
                 id(active_soft_infusion_start_power) =
                     id(silvia_soft_infusion_start_power).state;
                 auto shot_profile = silvia::build_shot_profile(
@@ -1989,7 +2331,9 @@ script:
                 id(pressure_control_incremental_initialized) = false;
                 id(soft_infusion_started_ms) = millis();
                 id(brew_temperature_feed_forward_value) = 0.0f;
-                id(pressure_profile_startup_active) = true;
+                // Residual pressure is handled before the recipe clock starts.
+                // The normal controller then performs the soft capture.
+                id(pressure_profile_startup_active) = false;
                 id(pressure_profile_pressure_dropped) = false;
                 id(pressure_profile_drop_samples) = 0;
                 id(pressure_profile_rise_samples) = 0;
@@ -2000,6 +2344,8 @@ script:
                 then:
                   - lambda: |-
                       id(silvia_pump_dimmer).set_ramp_ms(0);
+            - script.execute: prepare_pressure_profile_start
+            - script.wait: prepare_pressure_profile_start
             - repeat:
                 count: !lambda |-
                   return (int) silvia::active_shot_phases.size();
@@ -2028,8 +2374,26 @@ script:
                 id(silvia_scale_post_shot_tare_last_weight) = NAN;
                 id(backflush_shots)++;
                 id(lifetime_shots)++;
+                const auto now = id(silvia_time).now();
+                if (now.is_valid()) {
+                  const int month_key = now.year * 100 + now.month;
+                  if (id(monthly_stats_key) != month_key) {
+                    id(monthly_stats_key) = month_key;
+                    id(monthly_shots) = 0;
+                    id(monthly_drink_weight_g) = 0.0f;
+                  }
+                  id(monthly_shots)++;
+                  const float drink_weight = id(silvia_weight_fast).state;
+                  if (id(silvia_scale_tare_valid) && id(silvia_scale_calibration_valid) &&
+                      (!id(silvia_scale_auto_tare).state || id(silvia_scale_auto_tare_success)) &&
+                      std::isfinite(drink_weight) && drink_weight >= 0.0f && drink_weight <= 500.0f) {
+                    id(monthly_drink_weight_g) += drink_weight;
+                  }
+                }
                 id(silvia_backflush_shots_sensor).publish_state(id(backflush_shots));
                 id(silvia_lifetime_shots_sensor).publish_state(id(lifetime_shots));
+                id(silvia_monthly_shots_sensor).publish_state(id(monthly_shots));
+                id(silvia_monthly_drink_weight_sensor).publish_state(id(monthly_drink_weight_g));
                 id(silvia_backflush_status).update();
           else:
             - lambda: |-
@@ -2075,8 +2439,26 @@ script:
           id(silvia_scale_post_shot_tare_last_weight) = NAN;
           id(backflush_shots)++;
           id(lifetime_shots)++;
+          const auto now = id(silvia_time).now();
+          if (now.is_valid()) {
+            const int month_key = now.year * 100 + now.month;
+            if (id(monthly_stats_key) != month_key) {
+              id(monthly_stats_key) = month_key;
+              id(monthly_shots) = 0;
+              id(monthly_drink_weight_g) = 0.0f;
+            }
+            id(monthly_shots)++;
+            const float drink_weight = id(silvia_weight_fast).state;
+            if (id(silvia_scale_tare_valid) && id(silvia_scale_calibration_valid) &&
+                (!id(silvia_scale_auto_tare).state || id(silvia_scale_auto_tare_success)) &&
+                std::isfinite(drink_weight) && drink_weight >= 0.0f && drink_weight <= 500.0f) {
+              id(monthly_drink_weight_g) += drink_weight;
+            }
+          }
           id(silvia_backflush_shots_sensor).publish_state(id(backflush_shots));
           id(silvia_lifetime_shots_sensor).publish_state(id(lifetime_shots));
+          id(silvia_monthly_shots_sensor).publish_state(id(monthly_shots));
+          id(silvia_monthly_drink_weight_sensor).publish_state(id(monthly_drink_weight_g));
           id(silvia_backflush_status).update();
 
   - id: backflush_program
@@ -2718,8 +3100,8 @@ sensor:
 
   - platform: xdb401
     address: 0x7F
-    pressure_range_bar: 10
-    # Local driver waits 100 ms for a coherent conversion, then starts the
+    pressure_range_bar: 12
+    # Local driver waits 50 ms for a coherent conversion, then starts the
     # next conversion on a 200 ms cadence (5 pressure samples per second).
     update_interval: 200ms
     pressure:
@@ -2728,8 +3110,8 @@ sensor:
       unit_of_measurement: "bar"
       accuracy_decimals: 1
       filters:
-        # XDB301/XDB401 0-1.2 MPa: Pa -> bar with 12 bar full scale.
-        - multiply: 0.000012
+        # XDB301/XDB401 0-1.2 MPa: convert pressure from Pa to bar.
+        - multiply: 0.00001
         - exponential_moving_average:
             alpha: 0.35
             send_every: 1
@@ -2909,6 +3291,32 @@ sensor:
     update_interval: 60s
     lambda: |-
       return id(lifetime_shots);
+
+  - platform: template
+    name: "Silvia Monthly Shots"
+    id: silvia_monthly_shots_sensor
+    accuracy_decimals: 0
+    update_interval: 30s
+    lambda: |-
+      const auto now = id(silvia_time).now();
+      if (now.is_valid()) {
+        const int month_key = now.year * 100 + now.month;
+        if (id(monthly_stats_key) != month_key) {
+          id(monthly_stats_key) = month_key;
+          id(monthly_shots) = 0;
+          id(monthly_drink_weight_g) = 0.0f;
+        }
+      }
+      return id(monthly_shots);
+
+  - platform: template
+    name: "Silvia Monthly Drink Weight"
+    id: silvia_monthly_drink_weight_sensor
+    unit_of_measurement: "g"
+    accuracy_decimals: 0
+    update_interval: 30s
+    lambda: |-
+      return id(monthly_drink_weight_g);
 
   - platform: template
     name: "Silvia Coffee Grounds Used"
@@ -3145,6 +3553,9 @@ text_sensor:
             id(silvia_preinfusion_pause_seconds).state,
             id(silvia_main_brew_pump_power).state,
             id(silvia_end_brew_pump_power).state)};
+      }
+      if (profile == "Funnel") {
+        return {"Воронка | 15 g -> 220 g | 0.5/0.8 bar | около 3 мин"};
       }
       return {str_sprintf(
           "Custom | %.0fs %.1f bar | %.0fs soak | %.0fs: %.1f -> %.1f bar",
@@ -3464,14 +3875,62 @@ select:
       - "Lever"
       - "Slayer Style"
       - "Bloom"
+      - "Funnel"
       - "Custom"
     initial_option: "Classic"
     set_action:
       - lambda: 'id(shot_profile_applying) = true;'
       - if:
           condition:
+            lambda: 'return x == "Funnel";'
+          then:
+            - lambda: |-
+                if (!id(funnel_weight_override_active)) {
+                  id(funnel_previous_target_weight) =
+                      id(silvia_brew_target_weight).state;
+                  id(funnel_previous_stop_by_weight) =
+                      id(silvia_stop_brew_by_weight).state;
+                  id(funnel_weight_override_active) = true;
+                }
+          else:
+            - if:
+                condition:
+                  lambda: |-
+                    // The active flag is normally set when entering Funnel.
+                    // The 220 g fallback also handles the first boot after
+                    // installing this fix while Funnel was already selected.
+                    // Custom created from Funnel must inherit its current
+                    // target and stop-by-weight mode. Restore ordinary
+                    // espresso settings only when another preset is chosen.
+                    return x != "Custom" &&
+                           (id(funnel_weight_override_active) ||
+                            fabsf(id(silvia_brew_target_weight).state - 220.0f) < 0.01f);
+                then:
+                  - number.set:
+                      id: silvia_brew_target_weight
+                      value: !lambda |-
+                        const float saved = id(funnel_previous_target_weight);
+                        return std::isfinite(saved) && saved >= 5.0f && saved <= 300.0f
+                            ? saved
+                            : 36.0f;
+                  - if:
+                      condition:
+                        lambda: 'return id(funnel_previous_stop_by_weight);'
+                      then:
+                        - switch.turn_on: silvia_stop_brew_by_weight
+                      else:
+                        - switch.turn_off: silvia_stop_brew_by_weight
+                  - lambda: 'id(funnel_weight_override_active) = false;'
+      - if:
+          condition:
             lambda: 'return x == "Classic";'
           then:
+            - number.set:
+                id: silvia_brew_target
+                value: 93
+            - number.set:
+                id: silvia_brew_target_weight
+                value: 36
             - number.set:
                 id: silvia_preinfusion_pump_seconds
                 value: 0
@@ -3495,6 +3954,12 @@ select:
             lambda: 'return x == "Lever";'
           then:
             - number.set:
+                id: silvia_brew_target
+                value: 93
+            - number.set:
+                id: silvia_brew_target_weight
+                value: 36
+            - number.set:
                 id: silvia_preinfusion_pump_seconds
                 value: 4
             - number.set:
@@ -3516,6 +3981,12 @@ select:
           condition:
             lambda: 'return x == "Slayer Style";'
           then:
+            - number.set:
+                id: silvia_brew_target
+                value: 93
+            - number.set:
+                id: silvia_brew_target_weight
+                value: 36
             - number.set:
                 id: silvia_preinfusion_pump_seconds
                 value: 8
@@ -3539,6 +4010,12 @@ select:
             lambda: 'return x == "Bloom";'
           then:
             - number.set:
+                id: silvia_brew_target
+                value: 93
+            - number.set:
+                id: silvia_brew_target_weight
+                value: 36
+            - number.set:
                 id: silvia_preinfusion_pump_seconds
                 value: 5
             - number.set:
@@ -3556,6 +4033,38 @@ select:
             - number.set:
                 id: silvia_end_brew_pump_power
                 value: 8.0
+      - if:
+          condition:
+            lambda: 'return x == "Funnel";'
+          then:
+            - number.set:
+                id: silvia_brew_target
+                value: 94
+            - number.set:
+                id: silvia_coffee_dose_grams
+                value: 15
+            - number.set:
+                id: silvia_brew_target_weight
+                value: 220
+            - number.set:
+                id: silvia_preinfusion_pump_seconds
+                value: 12
+            - number.set:
+                id: silvia_preinfusion_pause_seconds
+                value: 28
+            - number.set:
+                id: silvia_brew_shot_seconds
+                value: 160
+            - number.set:
+                id: silvia_preinfusion_pump_power
+                value: 0.5
+            - number.set:
+                id: silvia_main_brew_pump_power
+                value: 0.8
+            - number.set:
+                id: silvia_end_brew_pump_power
+                value: 0.0
+            - switch.turn_on: silvia_stop_brew_by_weight
       # number.set publishes its on_value actions asynchronously. Keep the
       # guard active until those callbacks have completed, otherwise they
       # immediately turn a freshly selected preset back into Custom.

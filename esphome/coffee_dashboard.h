@@ -4,6 +4,9 @@
 
 #include "esphome/components/web_server_base/web_server_base.h"
 
+#include "shot_profiles.h"
+#include "user_profiles.h"
+
 namespace silvia_web {
 
 static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
@@ -36,9 +39,9 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
 #page-home .pressure-variant-a{
   display:grid!important;
   grid-template-columns:minmax(0,1fr)!important;
-  grid-template-rows:minmax(0,1fr) 25px!important;
+  grid-template-rows:minmax(0,1fr)!important;
   place-items:stretch!important;
-  padding:6px 9px 5px!important;
+  padding:3px!important;
 }
 #page-home .pressure-variant-a .home-pressure-gauge{
   grid-area:1/1;
@@ -286,7 +289,72 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     width:100%;
   }
 }
-.advanced-phase-editor{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:14px;background:#12161c}.advanced-phase-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.advanced-phase-toggle{min-width:0;display:flex;align-items:center;gap:8px;margin-right:auto;padding:7px 9px;background:transparent;color:var(--text);text-align:left}.advanced-phase-toggle:hover{background:#202630}.advanced-phase-toggle-count{color:var(--muted);font-size:11px;font-weight:600}.advanced-phase-toggle-arrow{color:var(--muted);transition:transform .15s ease}.advanced-phase-editor.open .advanced-phase-toggle-arrow{transform:rotate(180deg)}.advanced-phase-actions{display:flex;gap:8px;flex-wrap:wrap}.advanced-phase-list{display:grid;gap:7px;margin-top:10px}.advanced-phase-row{display:grid;grid-template-columns:34px minmax(82px,1fr) repeat(3,minmax(66px,.7fr)) 34px;gap:6px;align-items:end;padding:8px;border:1px solid #2a303a;border-radius:11px;background:#181d24}.advanced-phase-row.pause{grid-template-columns:34px minmax(82px,1fr) 34px}.advanced-phase-row.selected{border-color:#d6a94d;box-shadow:0 0 0 1px #d6a94d55}.advanced-phase-index{align-self:center;text-align:center;color:#ffd166;font-weight:800}.advanced-phase-field{display:grid;gap:3px}.advanced-phase-field span{font-size:10px;color:var(--muted)}.advanced-phase-field input{width:100%;min-width:0;padding:7px 8px;border:1px solid #303844;border-radius:8px;background:#0f1318;color:var(--text)}.advanced-phase-remove{height:34px;padding:0;color:#ff9a9a;background:#3b2227}.advanced-phase-note{margin:8px 0 0;color:var(--muted);font-size:11px}.advanced-phase-empty{padding:12px;color:var(--muted);text-align:center}.phase-summary-only{cursor:default}.phase-summary-only small::after{display:none}@media(max-width:700px){.advanced-phase-row{grid-template-columns:30px repeat(2,minmax(0,1fr)) 30px}.advanced-phase-row .advanced-phase-field:nth-of-type(4),.advanced-phase-row .advanced-phase-field:nth-of-type(5){grid-column:2/3}.advanced-phase-row.pause{grid-template-columns:30px minmax(0,1fr) 30px}}</style>
+
+.profile-phase-edit-button{width:34px;min-width:34px;height:34px;padding:0;display:grid;place-items:center;border:1px solid #3d4855;background:#20262e;color:#cbd3dd;font-size:16px;line-height:1}
+.profile-phase-edit-button:hover{border-color:#8a633f;background:#2d251e;color:#ffd1aa}
+.profile-phase-edit-button.active{border-color:#a87547;background:#3a2b20;color:#ffd1aa;box-shadow:0 0 0 2px rgba(225,139,72,.09)}
+.profile-phase-edit-button:disabled{opacity:.4}
+.profile-phase-view-strip{display:flex;gap:6px;min-height:48px;margin:0 0 7px;overflow-x:auto;padding:1px 0 4px;scrollbar-width:thin}
+.profile-phase-view-item{position:relative;min-width:88px;flex:1 0 88px;padding:8px 9px;border:1px solid #34404b;border-radius:10px;background:linear-gradient(145deg,#171c22,#11161b);overflow:hidden}
+.profile-phase-view-item::before{content:"";position:absolute;top:0;left:11px;right:11px;height:2px;border-radius:0 0 999px 999px;background:#d9aa50;opacity:.8}
+.profile-phase-view-item.pause::before{background:#8a72ad}
+.profile-phase-view-item small,.profile-phase-view-item b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profile-phase-view-item small{color:#84909d;font-size:8px}
+.profile-phase-view-item b{margin-top:3px;color:#e2e7ed;font-size:11px;font-weight:650}
+.profile-phase-view-item.pause{border-color:#443a54;background:linear-gradient(145deg,#1c1822,#131118)}
+.profile-phase-view-empty{width:100%;display:grid;place-items:center;min-height:44px;color:#7f8995;font-size:10px}
+.profile-phase-view-strip{display:none!important}
+#profilePhaseEditorHost:empty{display:none}
+.advanced-phase-editor{margin:8px 0 7px;padding:10px;border:1px solid #5e4932;border-radius:12px;background:linear-gradient(145deg,#1d1916,#12161b)}
+.advanced-phase-editor[hidden]{display:none!important}
+.advanced-phase-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.advanced-phase-toolbar-main{min-width:0}
+.advanced-phase-toolbar-main b{display:block;color:#f0f2f5;font-size:13px}
+.advanced-phase-toolbar-main small{display:block;margin-top:2px;color:#8d97a3;font-size:9px}
+.advanced-phase-toolbar-actions{display:flex;gap:6px;flex:0 0 auto}
+.advanced-phase-toolbar-actions button{min-height:31px;padding:6px 9px;font-size:10px}
+.advanced-phase-done{border:1px solid #896136!important;background:#e18b48!important;color:#1a120d!important}
+.advanced-phase-list{display:flex!important;gap:6px;margin:0!important;padding:1px 0 5px;overflow-x:auto;scrollbar-width:thin}
+.advanced-phase-card{position:relative;min-width:104px;flex:1 0 104px;padding:8px 9px;border:1px solid #35404c;border-radius:10px;background:#151a20;color:#dce2e9;text-align:left;box-shadow:none}
+.advanced-phase-card:hover{border-color:#586574;background:#1c2229}
+.advanced-phase-card.selected{border-color:#d6a94d;background:#2b2519;box-shadow:inset 0 0 0 1px rgba(214,169,77,.12)}
+.advanced-phase-card.pause{border-color:#4b405b;background:#19161e}
+.advanced-phase-card.preinfusion{border-color:#4e725f;background:#16221c}
+.advanced-phase-card small,.advanced-phase-card b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.advanced-phase-card small{color:#87929f;font-size:8px}
+.advanced-phase-card b{margin-top:3px;font-size:10px}
+.advanced-phase-card-index{position:absolute;top:5px;right:6px;color:#687481;font-size:8px}
+.advanced-phase-add{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+.advanced-phase-add button{min-height:31px;padding:6px 9px;border:1px solid #3b4652;background:#20262e;color:#d7dde5;font-size:10px}
+.advanced-phase-add button:first-child{border-color:#6e5832;color:#f0ce79}
+.advanced-phase-detail{margin-top:8px;padding:9px;border:1px solid #303a45;border-radius:10px;background:#10151a}
+.advanced-phase-detail-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.advanced-phase-detail-head b{font-size:11px}
+.advanced-phase-type-buttons{display:flex;gap:5px}
+.advanced-phase-type-buttons button{min-height:28px;padding:5px 8px;font-size:9px}
+.advanced-phase-type-buttons button.active{border:1px solid #896d35;background:#342b19;color:#f0cf77}
+.advanced-phase-fields{display:grid;grid-template-columns:repeat(4,minmax(90px,1fr));gap:7px}
+.advanced-phase-field{min-width:0;display:grid;gap:4px}
+.advanced-phase-field span{color:#8994a1;font-size:8px}
+.advanced-phase-field input{width:100%;min-width:0;min-height:32px;padding:6px 7px;border:1px solid #34404b;border-radius:8px;background:#0d1216;color:#e8edf2;font-size:10px}
+.advanced-phase-detail-actions{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.advanced-phase-detail-actions button{min-height:29px;padding:5px 8px;font-size:9px}
+.advanced-phase-detail-actions .danger{margin-left:auto}
+.shot-chart-card.phase-editing #chart{touch-action:none;user-select:none}
+.shot-chart-card.phase-editing .profile-phase-view-strip{display:none}
+.shot-chart-card:not(.phase-editing) #profilePhaseEditorHost{display:none}
+@media(max-width:620px){
+  .advanced-phase-toolbar{align-items:flex-start}
+  .advanced-phase-toolbar-actions{flex-wrap:wrap;justify-content:flex-end}
+  .advanced-phase-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:430px){
+  .advanced-phase-toolbar{display:block}
+  .advanced-phase-toolbar-actions{justify-content:flex-start;margin-top:7px}
+  .advanced-phase-fields{grid-template-columns:minmax(0,1fr)}
+  .advanced-phase-detail-actions .danger{margin-left:0}
+}
+</style>
   <style>
     .user-profile-actions { grid-template-columns: 34px; }
     .user-profile-actions button { width:34px; min-width:34px; }
@@ -344,6 +412,20 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     .lab-empty{padding:28px 14px;border:1px dashed #3a4651;border-radius:11px;color:#788591;text-align:center}
     @media(max-width:820px){.lab-grid{grid-template-columns:minmax(0,1fr)}.lab-record-list{max-height:none}}
     @media(max-width:430px){.lab-metrics{grid-template-columns:minmax(0,1fr)}.lab-actions>*{flex-basis:100%}}
+    .profile-library .home-profile-buttons button:last-child{grid-column:auto!important}
+    .profile-library .home-profile-buttons button.custom-unavailable{display:grid;gap:1px;align-content:center}
+    .profile-library .home-profile-buttons button.custom-unavailable small{display:block;color:#697480;font-size:7px;font-weight:650;line-height:1}
+    .shot-line-quick-grid{grid-template-columns:minmax(0,1fr)!important}
+    .shot-line-quick-row{grid-template-columns:minmax(92px,.55fr) 48px minmax(110px,1fr) minmax(110px,1fr)}
+    .shot-line-quick-actions{min-width:0;flex-wrap:wrap}
+    @media (max-width:680px){
+      .shot-line-quick-head{display:block}
+      .shot-line-quick-actions{justify-content:flex-start;margin-top:7px}
+    }
+    @media (max-width:520px){
+      .shot-line-quick-row{grid-template-columns:minmax(78px,.55fr) 42px minmax(0,1fr)}
+      .shot-line-quick-control:last-child{grid-column:3}
+    }
   </style>
 </head>
 <body class="sidebar-collapsed" style="visibility:hidden" onload="this.style.visibility=''">
@@ -823,8 +905,8 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
             </label>
 
             <label for="homeTopColumnSplit">
-              <span>Ширина управление / давление / температура</span>
-              <output id="homeTopColumnSplitValue">38 / 18 / 44</output>
+              <span>Ширина управление / давление / статистика / температура</span>
+              <output id="homeTopColumnSplitValue">38 / 18 / 18 / 26</output>
               <input id="homeTopColumnSplit" type="range"
                 min="34" max="48" step="1" value="38"
                 oninput="setHomeTopColumnSplit(this.value)">
@@ -955,7 +1037,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
               </div>
             </div>
 
-            <div id="homePressureCard"
+            <div id="homePressureCard" data-home-info-card="pressure"
               class="card home-pressure-hero pressure-variant-a"
               role="status" aria-label="Давление">
               <div class="home-pressure-gauge">
@@ -980,7 +1062,21 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
               <span id="homePressureTarget" hidden>—</span>
             </div>
 
-            <div id="temperatureMetricOpen"
+            <div id="homeCoffeeStatsCard" data-home-info-card="stats" class="card home-coffee-stats-card"
+              role="status" aria-label="Кофе и обслуживание">
+              <div class="home-coffee-stat home-coffee-stat-month">
+                <span class="home-coffee-stat-label">Кофе за месяц</span>
+                <strong id="homeMonthlyShots">—</strong>
+                <small><span id="homeMonthlyWeight">—</span> г напитка</small>
+              </div>
+              <div id="homeBackflushStat" class="home-coffee-stat home-coffee-stat-backflush">
+                <span class="home-coffee-stat-label">До промывки</span>
+                <strong id="homeBackflushRemaining">—</strong>
+                <small id="homeBackflushStatCaption">проливов</small>
+              </div>
+            </div>
+
+            <div id="temperatureMetricOpen" data-home-info-card="temperature"
               class="card home-metrics-panel home-temperature-hero"
               role="button" tabindex="0" aria-expanded="false"
               aria-controls="temperatureDetailsCard"
@@ -1048,6 +1144,10 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                 <div id="chartContext" class="section-subtitle shot-chart-context">Профиль · —</div>
               </div>
               <div class="chart-head-actions">
+                <button id="profilePhaseEditButton" class="small profile-phase-edit-button" type="button"
+                  onclick="toggleProfilePhaseEdit()" aria-label="Редактировать профиль"
+                  title="Редактировать профиль" aria-controls="profilePhaseEditorHost"
+                  aria-expanded="false">✎</button>
                 <button id="shotLineSettingsButton" class="small chart-line-settings-button" type="button"
                   onclick="toggleShotLineQuickSettings()" aria-label="Настроить линии графика"
                   title="Настроить линии графика" aria-controls="shotLineQuickSettings" aria-expanded="false">⚙</button>
@@ -1055,29 +1155,36 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
               </div>
             </div>
 
+            <div class="shot-chart-footer shot-profile-controls">
+              <label id="stopByWeightChip" class="stop-weight-chip stop-weight-footer" title="Остановка по весу">
+                <span class="stop-weight-copy">
+                  <small>Стоп по весу</small>
+                  <b id="homeStopByWeightState" hidden>Выкл</b>
+                </span>
+                <span class="stop-weight-switch" aria-hidden="true">
+                  <input id="stopByWeight" type="checkbox" onchange="updateSwitch(this,'Silvia Stop Brew By Weight')">
+                  <i></i>
+                </span>
+              </label>
+              <button class="target-weight-footer home-value-scrub" type="button"
+                data-home-scrub="brewTarget"
+                aria-label="Изменить температуру кофе"
+                title="Тяните влево или вправо для изменения температуры кофе">
+                <small>Температура кофе</small>
+                <b id="homeSummaryBrewTarget">—</b>
+              </button>
+              <button class="target-weight-footer home-value-scrub" type="button"
+                data-home-scrub="targetWeight"
+                aria-label="Изменить целевой вес"
+                title="Тяните влево или вправо для изменения целевого веса">
+                <small id="homeSummaryTargetWeightLabel">Целевой вес</small>
+                <b id="homeSummaryTargetWeight">—</b>
+              </button>
+            </div>
+
             <div class="shot-chart-plot">
-                <div id="shotProfileSummary" class="shot-profile-summary shot-profile-summary-in-chart">
-                  <button class="shot-profile-chip profile-chip-temperature home-value-scrub"
-                    type="button" data-home-scrub="brewTarget"
-                    title="Тяните влево или вправо для изменения цели">
-                    <small>Цель</small><b id="homeSummaryBrewTarget">—</b>
-                  </button>
-                  <button class="shot-profile-chip profile-chip-preinfusion stage-direct-chip home-value-scrub"
-                    type="button" data-home-scrub="prePump"
-                    title="Тяните влево или вправо для изменения предсмачивания">
-                    <small>Предсмачивание</small><b id="homeSummaryPrePump">—</b>
-                  </button>
-                  <button class="shot-profile-chip profile-chip-pause stage-direct-chip home-value-scrub"
-                    type="button" data-home-scrub="prePause"
-                    title="Тяните влево или вправо для изменения паузы">
-                    <small>Пауза</small><b id="homeSummaryPrePause">—</b>
-                  </button>
-                  <button class="shot-profile-chip profile-chip-main home-value-scrub"
-                    type="button" data-home-scrub="shotSeconds"
-                    title="Тяните влево или вправо для изменения времени пролива">
-                    <small>Пролив</small><b id="homeSummaryShotSeconds">—</b>
-                  </button>
-                </div>
+                <div id="shotProfileSummary" class="profile-phase-view-strip"
+                  aria-label="Этапы выбранного профиля"></div>
 
                 <div id="homeArchiveSummary"
                   class="shot-profile-summary shot-profile-summary-in-chart home-archive-summary"
@@ -1100,6 +1207,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                   <canvas id="chart"></canvas>
                   <div id="chartTooltip" class="chart-tooltip" hidden></div>
                 </div>
+                <div id="profilePhaseEditorHost"></div>
                 <div id="shotLineQuickSettings" class="shot-line-quick-panel" hidden>
                   <div class="shot-line-quick-head">
                     <div>
@@ -1217,32 +1325,6 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                   <div class="legend-group legend-group-right">
                     <button class="shot-legend-toggle" type="button" data-shot-line-visibility="flow" onclick="toggleShotLineVisibility('flow')" aria-pressed="true" title="Скрыть или показать линию потока"><i data-shot-line-indicator="flow" style="background:#4bd18b"></i>Поток, г/с</button>
                     <button class="shot-legend-toggle" type="button" data-shot-line-visibility="pump" onclick="toggleShotLineVisibility('pump')" aria-pressed="true" title="Скрыть или показать линию помпы"><i data-shot-line-indicator="pump" style="background:#9a72ef;opacity:.35"></i>Помпа</button>
-                  </div>
-                </div>
-
-                <div class="shot-chart-footer">
-                  <label id="stopByWeightChip" class="stop-weight-chip stop-weight-footer" title="Остановка по весу">
-                    <span class="stop-weight-copy">
-                      <small>Стоп по весу</small>
-                      <b id="homeStopByWeightState" hidden>Выкл</b>
-                    </span>
-                    <span class="stop-weight-switch" aria-hidden="true">
-                      <input id="stopByWeight" type="checkbox" onchange="updateSwitch(this,'Silvia Stop Brew By Weight')">
-                      <i></i>
-                    </span>
-                  </label>
-
-                  <button class="target-weight-footer home-value-scrub" type="button"
-                    data-home-scrub="targetWeight"
-                    aria-label="Изменить целевой вес"
-                    title="Тяните влево или вправо для изменения целевого веса">
-                    <small id="homeSummaryTargetWeightLabel">Целевой вес</small>
-                    <b id="homeSummaryTargetWeight">—</b>
-                  </button>
-
-                  <div class="shot-total-time">
-                    <small>Общее время</small>
-                    <b id="homeSummaryTotalTime">—</b>
                   </div>
                 </div>
 
@@ -2190,7 +2272,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
               </section>
 
               <div class="service-actions diagnostics-system-actions">
-                <a class="button secondary" href="/">Стандартная страница ESPHome</a>
+                <a class="button secondary" href="/?native=1">Стандартная страница ESPHome</a>
               </div>
             </section>
           </article>
@@ -2444,9 +2526,68 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       top:56% !important;
     }
 
+    /* Recipe controls belong with the profile, above its timeline. */
+    .shot-profile-controls {
+      display:grid;
+      grid-template-columns:minmax(132px,.9fr) repeat(2,minmax(120px,1fr));
+      align-items:stretch;
+      gap:7px;
+      min-height:0;
+      margin:8px 0 7px;
+      padding:6px;
+    }
+    .shot-profile-controls .stop-weight-footer,
+    .shot-profile-controls .target-weight-footer {
+      width:100%;
+      min-width:0;
+      grid-column:auto;
+      grid-row:auto;
+      margin:0;
+    }
+    .shot-profile-controls .target-weight-footer {
+      justify-content:center;
+      padding:5px 6px;
+    }
+    @media (max-width:600px) {
+      .shot-profile-controls {
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+      .shot-profile-controls .target-weight-footer {
+        grid-column:auto;
+        grid-row:auto;
+        justify-content:center;
+      }
+    }
+
+    #page-home .home-top-grid{grid-template-columns:var(--home-top-grid-columns,minmax(360px,var(--home-left-column-share,38fr)) minmax(145px,var(--home-pressure-column-share,18fr)) minmax(145px,var(--home-stats-column-share,18fr)) minmax(210px,var(--home-right-column-share,26fr)))!important;gap:12px;align-items:stretch}
+    #page-home [data-home-info-card]{position:relative;transition:opacity .15s ease,outline-color .15s ease,transform .15s ease}
+    #page-home .home-info-order-handle{display:none;position:absolute;top:-11px;left:50%;z-index:16;min-width:42px;height:25px;padding:0 10px;transform:translateX(-50%);border:1px solid #596574;border-radius:999px;background:#262d36;box-shadow:0 5px 16px rgba(0,0,0,.35);color:#d8dee7;font-size:17px;line-height:1;cursor:grab;touch-action:none;user-select:none}
+    #page-home.home-layout-editing [data-home-info-card]{margin-top:8px!important;outline:1px dashed #596574;outline-offset:3px}
+    #page-home.home-layout-editing .home-info-order-handle{display:inline-grid;place-items:center;pointer-events:auto!important}
+    #page-home .home-info-order-handle:active{cursor:grabbing;transform:translateX(-50%) scale(.96)}
+    #page-home [data-home-info-card].home-info-card-dragging{opacity:.38;transform:scale(.98)}
+    #page-home [data-home-info-card].home-info-card-drop-target{outline-color:#e18b48}
+    body.home-info-card-layout-dragging{cursor:grabbing;user-select:none}
+    #page-home .home-coffee-stats-card{min-width:0;height:var(--home-temperature-card-height)!important;min-height:var(--home-temperature-card-height)!important;display:grid;grid-template-rows:1fr 1fr;padding:0;overflow:hidden;box-sizing:border-box}
+    #page-home .home-coffee-stat{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 9px;text-align:center}
+    #page-home .home-coffee-stat+.home-coffee-stat{border-top:1px solid rgba(118,145,167,.18)}
+    #page-home .home-coffee-stat-label{color:#8f9aa6;font-size:10px;font-weight:700;line-height:1.15}
+    #page-home .home-coffee-stat strong{margin-top:3px;color:#eef2f5;font-size:30px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+    #page-home .home-coffee-stat small{min-width:0;margin-top:4px;overflow:hidden;color:#75818d;font-size:9px;line-height:1.15;text-overflow:ellipsis;white-space:nowrap}
+    #page-home .home-coffee-stat-month strong{color:#e8bd78}
+    #page-home .home-coffee-stat-backflush strong{color:#83c9f4}
+    #page-home .home-coffee-stat-backflush.due{background:linear-gradient(145deg,rgba(111,48,38,.42),rgba(63,33,29,.3))}
+    #page-home .home-coffee-stat-backflush.due strong,#page-home .home-coffee-stat-backflush.due .home-coffee-stat-label{color:#efaa78}
+    #page-home .pressure-variant-a .home-pressure-backflush{display:none}
+    @media(max-width:900px){#page-home .home-top-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}#page-home .machine-panel,#page-home .home-temperature-hero{grid-column:1/-1}#page-home .home-pressure-hero,#page-home .home-coffee-stats-card{min-height:180px}}
+    @media(max-width:430px){#page-home .home-pressure-hero,#page-home .home-coffee-stats-card{min-height:165px}#page-home .home-coffee-stat{padding:9px 6px}#page-home .home-coffee-stat strong{font-size:27px}#page-home .home-coffee-stat-label{font-size:9px}}
 </style>
 
   <script>
+    if (location.pathname === '/coffee' || location.pathname === '/coffee/') {
+      history.replaceState(null, '', '/' + location.search + location.hash);
+    }
+
     const E = {
       'silvia brew pressure': ['pressure', 'num'],
       'silvia target brew pressure': ['target', 'num'],
@@ -2492,6 +2633,8 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       'silvia backflush status': ['backflushStatus', 'text'],
       'silvia backflush shots': ['backflushShots', 'num0'],
       'silvia lifetime shots': ['lifetimeShots', 'num0'],
+      'silvia monthly shots': ['monthlyShots', 'num0'],
+      'silvia monthly drink weight': ['monthlyDrinkWeight', 'num0'],
       'silvia coffee grounds used': ['groundsUsed', 'num'],
       'silvia auto off remaining': ['autoOffRemaining', 'num'],
       'silvia reset reason': ['resetReason', 'text'],
@@ -2584,6 +2727,8 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       ['text_sensor', 'Silvia Reset Reason', 'resetReason', 'text'],
       ['sensor', 'Silvia Backflush Shots', 'backflushShots', 'num0'],
       ['sensor', 'Silvia Lifetime Shots', 'lifetimeShots', 'num0'],
+      ['sensor', 'Silvia Monthly Shots', 'monthlyShots', 'num0'],
+      ['sensor', 'Silvia Monthly Drink Weight', 'monthlyDrinkWeight', 'num0'],
       ['sensor', 'Silvia Coffee Grounds Used', 'groundsUsed', 'num'],
       ['sensor', 'Silvia Auto Off Remaining', 'autoOffRemaining', 'num'],
       ['sensor', 'Silvia XDB401 Total Errors', 'errTotal', 'num0'],
@@ -2784,6 +2929,11 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       "Нет подходящих записей для выгрузки":"No eligible records to export",
       "Не удалось выгрузить набор":"Could not export dataset"
     });
+    Object.assign(EN_TRANSLATIONS, {
+      'Не создан':'Not created',
+      'Измените любой профиль и нажмите «Применить»':'Edit any profile and press Apply'
+    });
+
     const I18N_MESSAGES = {
       ru: {
         profileApplied: profile => 'Профиль ' + profile + ' применён',
@@ -3020,10 +3170,23 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     let advancedPhaseDraft = null;
     let advancedPhaseSelected = -1;
     let advancedPhaseEditorOpen = false;
+    let advancedPreinfusionRampMode = false;
+    let profilePhaseEditMode = false;
+    let profilePhaseBaseline = null;
     let activeCustomPhaseSpec = '';
     let activeCustomPhaseBase = '';
-    localStorage.removeItem('silviaCustomPhaseSpec');
-    localStorage.removeItem('silviaCustomPhaseBase');
+    let customProfileAvailable = false;
+
+    function customDraftIsAvailable() {
+      return !!(
+        mainCurveDirty ||
+        recipeDirty ||
+        profilePhaseEditMode ||
+        mainCurveEditing ||
+        currentProfileName === 'Custom'
+      );
+    }
+
     let mainCurveEditing = false;
     let mainCurveDirty = false;
     let mainCurveBaselineCfg = null;
@@ -3629,6 +3792,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     let homeQuickBaselineCfg = null;
     let homeQuickBaselineDirty = false;
     let homeQuickBaselineUserProfileId = '';
+    let homeQuickPhaseSpec = '';
     let homeQuickDirty = false;
     let homeQuickSaving = false;
     let homeQuickPointerId = null;
@@ -4360,38 +4524,64 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       return Number.isFinite(number) ? number : fallback;
     }
 
+    function cloneAdvancedPhases(phases) {
+      return Array.isArray(phases)
+        ? phases.map(item => ({...item}))
+        : null;
+    }
+
+    function isAdvancedPressurePhase(phase) {
+      return !!phase && phase.type !== 'pause';
+    }
+
+    function linkAdvancedPressurePhases(phases) {
+      if (!Array.isArray(phases)) return phases;
+      for (let index=1;index<phases.length;index++) {
+        if (
+          isAdvancedPressurePhase(phases[index-1]) &&
+          isAdvancedPressurePhase(phases[index])
+        ) {
+          phases[index].start = phaseNumber(phases[index-1].end);
+        }
+      }
+      return phases;
+    }
+
     function normalizeAdvancedPhases(phases) {
       if (!Array.isArray(phases)) return null;
       const clean = phases.slice(0, 12).map(item => {
         if (item?.type === 'pause') {
-          return { type:'pause', duration:Math.max(.5, Math.min(240, phaseNumber(item.duration, 10))) };
+          return {
+            type:'pause',
+            duration:Math.max(.5, Math.min(240, phaseNumber(item.duration, 10)))
+          };
         }
         return {
-          type:'brew',
+          type:item?.type === 'preinfusion' ? 'preinfusion' : 'brew',
           duration:Math.max(.5, Math.min(240, phaseNumber(item?.duration, 10))),
           start:Math.max(0, Math.min(12, phaseNumber(item?.start, .8))),
           end:Math.max(0, Math.min(12, phaseNumber(item?.end, phaseNumber(item?.start, .8)))),
           weight:Math.max(0, Math.min(1, phaseNumber(item?.weight, 0)))
         };
       });
-      return clean.some(item => item.type === 'brew') ? clean : null;
+      return clean.length && clean.some(item => item.type !== 'pause') ? clean : null;
     }
 
     function parseAdvancedPhaseSpec(spec) {
-      const text = String(spec || '').trim();
-      if (!text) return null;
-      const phases = text.split(';').map(record => {
+      const value = String(spec || '').trim();
+      if (!value) return null;
+      const phases = value.split(';').map(record => {
         const fields = record.split(',');
         if (fields[0] === 'P' && fields.length === 2) {
-          return { type:'pause', duration:phaseNumber(fields[1], 10) };
+          return {type:'pause',duration:phaseNumber(fields[1],10)};
         }
-        if (fields[0] === 'B' && fields.length === 5) {
+        if ((fields[0] === 'B' || fields[0] === 'I') && fields.length === 5) {
           return {
-            type:'brew',
-            duration:phaseNumber(fields[1], 10),
-            start:phaseNumber(fields[2], .8),
-            end:phaseNumber(fields[3], .8),
-            weight:phaseNumber(fields[4], 0)
+            type:fields[0] === 'I' ? 'preinfusion' : 'brew',
+            duration:phaseNumber(fields[1],10),
+            start:phaseNumber(fields[2],.8),
+            end:phaseNumber(fields[3],.8),
+            weight:phaseNumber(fields[4],0)
           };
         }
         return null;
@@ -4405,50 +4595,117 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       return clean.map(item => item.type === 'pause'
         ? ['P', fmt(item.duration, item.duration % 1 ? 1 : 0)].join(',')
         : [
-            'B',
+            item.type === 'preinfusion' ? 'I' : 'B',
             fmt(item.duration, item.duration % 1 ? 1 : 0),
-            fmt(item.start, 1),
-            fmt(item.end, 1),
+            fmt(item.start,1),
+            fmt(item.end,1),
             Number(item.weight || 0).toFixed(3)
           ].join(',')
       ).join(';');
     }
 
-    function funnelPhaseEditingEnabled(config = null) {
-      const base = String(config?.phaseBase || recipeBaseProfile || '');
-      const current = String(currentProfileName || '');
-      if (base === 'Funnel' || current === 'Funnel') return true;
-      if (base && base !== 'Custom') return false;
-      return current === 'Custom' && activeCustomPhaseBase === 'Funnel';
-    }
-
     function defaultAdvancedPhases(profileName, config = recipeConfigFromInputs()) {
       const profile = String(profileName || currentProfileName || 'Custom');
-      if (profile !== 'Funnel') return null;
-      return normalizeAdvancedPhases([
-        {type:'brew',duration:12,start:.5,end:.5,weight:0},
-        {type:'pause',duration:28},
-        {type:'brew',duration:30,start:.8,end:.8,weight:.35},
-        {type:'pause',duration:15},
-        {type:'brew',duration:30,start:.8,end:.8,weight:.68},
-        {type:'pause',duration:15},
-        {type:'brew',duration:30,start:.8,end:.8,weight:.92},
-        {type:'pause',duration:40}
-      ]);
+      if (profile === 'Funnel') {
+        return normalizeAdvancedPhases([
+          {type:'preinfusion',duration:12,start:.5,end:.5,weight:0},
+          {type:'pause',duration:28},
+          {type:'brew',duration:30,start:.8,end:.8,weight:.35},
+          {type:'pause',duration:15},
+          {type:'brew',duration:30,start:.8,end:.8,weight:.68},
+          {type:'pause',duration:15},
+          {type:'brew',duration:30,start:.8,end:.8,weight:.92},
+          {type:'pause',duration:40}
+        ]);
+      }
+
+      if (profile === 'Custom' && String(config?.phases || activeCustomPhaseSpec || '').trim()) {
+        return parseAdvancedPhaseSpec(config?.phases || activeCustomPhaseSpec);
+      }
+
+      const pre = Math.max(0, phaseNumber(config?.prePump));
+      const pause = Math.max(0, phaseNumber(config?.prePause));
+      const shot = Math.max(.5, phaseNumber(config?.shotSeconds, 30));
+      const prePressure = Math.max(0, Math.min(12, phaseNumber(config?.prePower, .8)));
+      const mainPressure = Math.max(0, Math.min(12, phaseNumber(config?.mainPressure, 9)));
+      const endPressure = Math.max(0, Math.min(12, phaseNumber(config?.endPressure, mainPressure)));
+      const phases = [];
+
+      if (pre > .05) {
+        phases.push({type:'preinfusion',duration:pre,start:prePressure,end:prePressure,weight:0});
+      }
+      if (pause > .05) {
+        phases.push({type:'pause',duration:pause});
+      }
+
+      const ramp = Math.max(
+        0,
+        Math.min(
+          shot,
+          phaseNumber(
+            builtInProfileRampSeconds(profile, shot),
+            phaseNumber(config?.softInfusionTime, 0)
+          )
+        )
+      );
+
+      if (profile !== 'Classic' && ramp > .05 && ramp < shot - .05) {
+        phases.push({
+          type:'brew',
+          duration:ramp,
+          start:prePressure,
+          end:mainPressure,
+          weight:0
+        });
+        phases.push({
+          type:'brew',
+          duration:shot-ramp,
+          start:mainPressure,
+          end:endPressure,
+          weight:0
+        });
+      } else {
+        phases.push({
+          type:'brew',
+          duration:shot,
+          start:profile === 'Classic' ? mainPressure : mainPressure,
+          end:profile === 'Classic' ? mainPressure : endPressure,
+          weight:0
+        });
+      }
+
+      return normalizeAdvancedPhases(phases);
+    }
+
+    function funnelPhaseEditingEnabled() {
+      return true;
     }
 
     function phaseDraftTotalSeconds(phases = advancedPhaseDraft) {
-      return (phases || []).reduce((total, item) => total + phaseNumber(item.duration), 0);
+      return (phases || []).reduce(
+        (total,item) => total + Math.max(0, phaseNumber(item.duration)),
+        0
+      );
     }
 
-    function displayedAdvancedPhases(profileName, config) {
-      if (advancedPhaseDraft) return normalizeAdvancedPhases(advancedPhaseDraft);
-      const profile = String(profileName || currentProfileName || '');
-      if (profile === 'Funnel') return defaultAdvancedPhases('Funnel', config);
-      if (profile === 'Custom' && funnelPhaseEditingEnabled(config) && activeCustomPhaseSpec) {
-        return parseAdvancedPhaseSpec(activeCustomPhaseSpec);
+    function displayedAdvancedPhases(profileName, config = profileDisplayConfig()) {
+      if (profilePhaseEditMode && advancedPhaseDraft) {
+        return normalizeAdvancedPhases(advancedPhaseDraft);
       }
-      return null;
+
+      const configSpec = String(config?.phases || '').trim();
+      if (configSpec) {
+        const stored = parseAdvancedPhaseSpec(configSpec);
+        if (stored) return stored;
+      }
+
+      const profile = String(profileName || currentProfileName || '');
+      if (profile === 'Custom' && activeCustomPhaseSpec) {
+        const active = parseAdvancedPhaseSpec(activeCustomPhaseSpec);
+        if (active) return active;
+      }
+
+      return defaultAdvancedPhases(profile, config);
     }
 
     function advancedPhaseSeries(phases = advancedPhaseDraft) {
@@ -4461,11 +4718,13 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         const steps = Math.max(2, Math.ceil(duration * 5));
         for (let index = 0; index <= steps; index++) {
           const ratio = index / steps;
+          const eased = ratio * ratio * (3 - 2 * ratio);
           result.push({
             x:elapsed + duration * ratio,
             t:item.type === 'pause'
               ? 0
-              : phaseNumber(item.start) + (phaseNumber(item.end) - phaseNumber(item.start)) * ratio
+              : phaseNumber(item.start) +
+                (phaseNumber(item.end) - phaseNumber(item.start)) * eased
           });
         }
         elapsed += duration;
@@ -4473,200 +4732,578 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       return result;
     }
 
+    function phaseDisplayName(phase, index, phases = advancedPhaseDraft) {
+      if (phase?.type === 'pause') {
+        let number = 0;
+        for (let i=0;i<=index;i++) if (phases?.[i]?.type === 'pause') number += 1;
+        return tr('Пауза') + ' ' + number;
+      }
+      if (phase?.type === 'preinfusion') return tr('Предсмачивание');
+      let number = 0;
+      let total = 0;
+      for (let i=0;i<(phases?.length || 0);i++) {
+        if (phases[i]?.type === 'brew') {
+          total += 1;
+          if (i <= index) number += 1;
+        }
+      }
+      return tr('Подача') + (total > 1 ? ' ' + number : '');
+    }
+
+    function renderPhaseStripView() {
+      const root = $('shotProfileSummary');
+      if (!root) return;
+      root.innerHTML = '';
+      if (chartMode === 'archive') return;
+
+      const phases = displayedAdvancedPhases(
+        currentProfileName,
+        profileDisplayConfig()
+      );
+      if (!phases?.length) {
+        const empty = document.createElement('div');
+        empty.className = 'profile-phase-view-empty';
+        empty.textContent = tr('Нет этапов профиля');
+        root.appendChild(empty);
+        return;
+      }
+
+      phases.forEach((phase,index) => {
+        const item = document.createElement('div');
+        item.className = 'profile-phase-view-item' + (phase.type === 'pause' ? ' pause' : '');
+        const small = document.createElement('small');
+        small.textContent = phaseDisplayName(phase,index,phases);
+        const value = document.createElement('b');
+        value.textContent =
+          fmt(phase.duration, phase.duration % 1 ? 1 : 0) + ' ' + tr('с') +
+          (phase.type !== 'pause'
+            ? ' · ' + fmt(phase.start,1) +
+              (Math.abs(phase.end-phase.start) > .04 ? '→' + fmt(phase.end,1) : '') +
+              ' bar'
+            : '');
+        item.append(small,value);
+        root.appendChild(item);
+      });
+    }
+
     function markAdvancedPhasesChanged() {
-      if (!funnelPhaseEditingEnabled()) return;
-      advancedPhaseDraft = normalizeAdvancedPhases(advancedPhaseDraft);
+      advancedPhaseDraft = linkAdvancedPressurePhases(
+        normalizeAdvancedPhases(advancedPhaseDraft)
+      );
+      if (!advancedPhaseDraft) return;
+
       const totalInput = $('shotSeconds');
-      if (totalInput && advancedPhaseDraft) totalInput.value = Math.min(240, phaseDraftTotalSeconds()).toFixed(1);
+      if (totalInput) totalInput.value = Math.min(240, phaseDraftTotalSeconds()).toFixed(1);
+
       recipeDirty = true;
       mainCurveDirty = true;
       mainCurveEditing = true;
-      currentProfileName = 'Custom';
+      advancedPhaseEditorOpen = true;
+
       if (activeUserProfileId) {
         activeUserProfileId = '';
         renderUserProfiles();
       }
+
       renderAdvancedPhaseEditor();
       updateRecipeProfileUi();
       updateRecipeDescription();
-      updateMainCurveEditor();
+      updateShotScenario();
+      fillHomeProfileSelect(availableProfileOptions,'Custom');
       drawRecipePreview();
       requestAnimationFrame(draw);
     }
 
     function ensureAdvancedPhaseDraft() {
-      if (!funnelPhaseEditingEnabled()) return null;
       if (!advancedPhaseDraft) {
-        advancedPhaseDraft = defaultAdvancedPhases('Funnel', recipeConfigFromInputs());
+        advancedPhaseDraft = cloneAdvancedPhases(
+          displayedAdvancedPhases(currentProfileName, profileDisplayConfig())
+        );
       }
+      advancedPhaseDraft = normalizeAdvancedPhases(advancedPhaseDraft);
       if (!advancedPhaseDraft) return null;
+
       if (advancedPhaseSelected < 0 || advancedPhaseSelected >= advancedPhaseDraft.length) {
-        advancedPhaseSelected = Math.max(0, advancedPhaseDraft.length - 1);
+        advancedPhaseSelected = 0;
       }
       return advancedPhaseDraft;
     }
 
-    function addAdvancedPressurePoint() {
-      if (shotRunning || !funnelPhaseEditingEnabled()) return;
+    function beginProfilePhaseEdit() {
+      if (!mainCurveCanEdit()) {
+        if (shotRunning) toast(tr('Редактирование недоступно во время пролива'), true);
+        return;
+      }
+      if (profilePhaseEditMode) return;
+
+      const phases = linkAdvancedPressurePhases(cloneAdvancedPhases(
+        displayedAdvancedPhases(currentProfileName, profileDisplayConfig())
+      ));
+      if (!phases?.length) return toast(tr('Не удалось подготовить профиль для редактирования'), true);
+
+      const preinfusion = phases.find(item => item.type === 'preinfusion');
+      advancedPreinfusionRampMode = !!(
+        preinfusion &&
+        Math.abs(phaseNumber(preinfusion.end)-phaseNumber(preinfusion.start)) > .04
+      );
+
+      profilePhaseBaseline = {
+        profile:currentProfileName,
+        recipeBaseProfile,
+        activeCustomPhaseSpec,
+        activeCustomPhaseBase,
+        recipeDirty,
+        mainCurveDirty
+      };
+      advancedPhaseDraft = phases;
+      advancedPhaseSelected = 0;
       advancedPhaseEditorOpen = true;
+      profilePhaseEditMode = true;
+      mainCurveEditing = true;
+      mainCurveDirty = false;
+      chartMode = 'auto';
+      hideChartTooltip();
+      updateMainCurveEditor();
+      renderAdvancedPhaseEditor();
+      fillHomeProfileSelect(availableProfileOptions,'Custom');
+      requestAnimationFrame(draw);
+    }
+
+    function toggleProfilePhaseEdit() {
+      if (profilePhaseEditMode) {
+        cancelProfilePhaseEdit(false);
+        return;
+      }
+      beginProfilePhaseEdit();
+    }
+
+    function cancelProfilePhaseEdit(showMessage = true) {
+      if (!profilePhaseEditMode) return;
+      const baseline = profilePhaseBaseline;
+      advancedPhaseDraft = null;
+      advancedPhaseSelected = -1;
+      advancedPreinfusionRampMode = false;
+      advancedPhaseEditorOpen = false;
+      profilePhaseEditMode = false;
+      mainCurveEditing = false;
+      mainCurveDirty = baseline?.mainCurveDirty || false;
+      recipeDirty = baseline?.recipeDirty || false;
+      currentProfileName = baseline?.profile || currentProfileName;
+      recipeBaseProfile = baseline?.recipeBaseProfile || recipeBaseProfile;
+      activeCustomPhaseSpec = baseline?.activeCustomPhaseSpec || activeCustomPhaseSpec;
+      activeCustomPhaseBase = baseline?.activeCustomPhaseBase || activeCustomPhaseBase;
+      profilePhaseBaseline = null;
+      mainCurveDragKey = '';
+      mainCurveDragPointerId = null;
+      mainCurveDragStartConfig = null;
+      syncProfileControls(currentProfileName);
+      updateMainCurveEditor();
+      updateShotScenario();
+      if (showMessage) toast(tr('Изменения профиля отменены'));
+    }
+
+    async function saveProfilePhaseEdit() {
+      if (!profilePhaseEditMode) return;
+      const phases = normalizeAdvancedPhases(advancedPhaseDraft);
+      const spec = advancedPhaseSpec(phases);
+      if (!spec) return toast(tr('Профиль должен содержать хотя бы одну подачу'), true);
+
+      const total = phaseDraftTotalSeconds(phases);
+      if (total > 240.001) {
+        return toast(tr('Общее время профиля не должно превышать 240 секунд'), true);
+      }
+      let previousWeight = 0;
+      for (const phase of phases) {
+        if (phase.type === 'pause' || !(phase.weight > 0)) continue;
+        if (phase.weight <= previousWeight) {
+          return toast(tr('Пороги остановки по весу должны возрастать'), true);
+        }
+        previousWeight = phase.weight;
+      }
+
+      const button = $('advancedPhaseDone');
+      if (button) button.disabled = true;
+      try {
+        await applyAdvancedPhaseSpec(spec);
+        await post('select','Silvia Shot Profile','set',{option:'Custom'});
+        currentProfileName = 'Custom';
+        recipeBaseProfile = 'Custom';
+        recipeDirty = false;
+        mainCurveDirty = false;
+        mainCurveEditing = false;
+        profilePhaseEditMode = false;
+        advancedPhaseEditorOpen = false;
+        advancedPhaseDraft = null;
+        advancedPhaseSelected = -1;
+        advancedPreinfusionRampMode = false;
+        profilePhaseBaseline = null;
+        syncProfileControls('Custom');
+        readProfileCfgFromInputs();
+        captureRecipeBaseline('Custom');
+        updateMainCurveEditor();
+        updateShotScenario();
+        toast(tr('Профиль применён как Custom'));
+      } catch (error) {
+        const reason = String(error?.message || '');
+        const detail = reason && !reason.startsWith('custom_phases_')
+          ? ': ' + reason.replaceAll('_',' ')
+          : '';
+        toast(tr('Не удалось применить этапы профиля') + detail, true);
+      } finally {
+        if (button) button.disabled = false;
+      }
+    }
+
+    function addAdvancedPressurePoint() {
+      if (shotRunning || !profilePhaseEditMode) return;
       const phases = ensureAdvancedPhaseDraft();
       if (!phases) return;
       if (phases.length >= 12) return toast(tr('Достигнут предел этапов'), true);
-      let index = advancedPhaseSelected;
-      if (index < 0 || phases[index]?.type !== 'brew') {
-        index = phases.map(item => item.type).lastIndexOf('brew');
-      }
-      const source = phases[Math.max(0, index)] || {type:'brew',duration:20,start:.8,end:.8,weight:0};
-      const insertAt = Math.max(0, index) + 1;
-      const duration = Math.max(.5, phaseNumber(source.duration, 20) / 2);
-      const inheritedWeight = source.type === 'brew' ? phaseNumber(source.weight, 0) : 0;
-      if (source.type === 'brew') {
-        source.duration = duration;
-        source.weight = 0;
-      }
-      phases.splice(insertAt, 0, {
-        type:'brew', duration,
-        start:source.type === 'brew' ? phaseNumber(source.end, .8) : .8,
-        end:source.type === 'brew' ? phaseNumber(source.end, .8) : .8,
-        weight:inheritedWeight
+      const source = phases[advancedPhaseSelected];
+      const pressure = source?.type !== 'pause'
+        ? phaseNumber(source.end,.8)
+        : .8;
+      const insertAt = Math.max(0,Math.min(phases.length,advancedPhaseSelected+1));
+      phases.splice(insertAt,0,{
+        type:'brew',
+        duration:20,
+        start:pressure,
+        end:pressure,
+        weight:0
       });
       advancedPhaseSelected = insertAt;
       markAdvancedPhasesChanged();
     }
 
+    function addAdvancedPreinfusion() {
+      const phases = ensureAdvancedPhaseDraft();
+      if (!phases) return;
+      if (phases.some(item => item.type === 'preinfusion')) {
+        return toast(tr('Предсмачивание уже добавлено'), true);
+      }
+      if (phases.length >= 12) return toast(tr('Достигнут предел этапов'), true);
+      if (phaseDraftTotalSeconds(phases) + 4 > 240.001) {
+        return toast(tr('Общее время профиля не должно превышать 240 секунд'), true);
+      }
+      const firstBrew = phases.find(item => item.type === 'brew');
+      const pressure = firstBrew ? phaseNumber(firstBrew.start,.8) : .8;
+      phases.unshift({
+        type:'preinfusion',
+        duration:4,
+        start:pressure,
+        end:pressure,
+        weight:0
+      });
+      advancedPreinfusionRampMode = false;
+      advancedPhaseSelected = 0;
+      markAdvancedPhasesChanged();
+    }
+
     function addAdvancedPause() {
-      if (shotRunning || !funnelPhaseEditingEnabled()) return;
-      advancedPhaseEditorOpen = true;
+      if (shotRunning || !profilePhaseEditMode) return;
       const phases = ensureAdvancedPhaseDraft();
       if (!phases) return;
       if (phases.length >= 12) return toast(tr('Достигнут предел этапов'), true);
-      const insertAt = Math.max(0, Math.min(phases.length, advancedPhaseSelected + 1));
-      phases.splice(insertAt, 0, {type:'pause',duration:10});
+      const insertAt = Math.max(0,Math.min(phases.length,advancedPhaseSelected+1));
+      phases.splice(insertAt,0,{type:'pause',duration:10});
       advancedPhaseSelected = insertAt;
       markAdvancedPhasesChanged();
     }
 
     function removeAdvancedPhase(index) {
       const phases = ensureAdvancedPhaseDraft();
+      if (!phases || phases.length <= 1) return;
+      const removed = phases.splice(index,1)[0];
+      if (removed?.type !== 'pause' && !phases.some(item => item.type !== 'pause')) {
+        phases.splice(index,0,removed);
+        return toast(tr('Нельзя удалить последнюю подачу'), true);
+      }
+      advancedPhaseSelected = Math.max(0,Math.min(index,phases.length-1));
+      markAdvancedPhasesChanged();
+    }
+
+    function duplicateAdvancedPhase(index) {
+      const phases = ensureAdvancedPhaseDraft();
+      if (!phases || !phases[index]) return;
+      if (phases.length >= 12) return toast(tr('Достигнут предел этапов'), true);
+      phases.splice(index+1,0,{...phases[index]});
+      advancedPhaseSelected = index+1;
+      markAdvancedPhasesChanged();
+    }
+
+    function moveAdvancedPhase(index,direction) {
+      const phases = ensureAdvancedPhaseDraft();
       if (!phases) return;
-      if (phases.length <= 1) return;
-      phases.splice(index, 1);
-      advancedPhaseSelected = Math.min(index, phases.length - 1);
+      const target = index + direction;
+      if (target < 0 || target >= phases.length) return;
+      [phases[index],phases[target]] = [phases[target],phases[index]];
+      advancedPhaseSelected = target;
+      markAdvancedPhasesChanged();
+    }
+
+    function convertAdvancedPhase(index,type) {
+      const phases = ensureAdvancedPhaseDraft();
+      const phase = phases?.[index];
+      if (!phase || phase.type === type) return;
+      if (
+        type === 'preinfusion' &&
+        phases.some((item,itemIndex) =>
+          itemIndex !== index && item.type === 'preinfusion'
+        )
+      ) {
+        return toast(tr('Предсмачивание уже добавлено'), true);
+      }
+      if (phase.type !== 'pause' && type !== 'pause') {
+        phases[index] = {...phase,type:type === 'preinfusion' ? 'preinfusion' : 'brew'};
+        if (type === 'preinfusion' && index > 0) {
+          const [preinfusion] = phases.splice(index,1);
+          phases.unshift(preinfusion);
+          advancedPhaseSelected = 0;
+        } else {
+          advancedPhaseSelected = index;
+        }
+        markAdvancedPhasesChanged();
+        return;
+      }
+      if (type === 'pause') {
+        if (phase.type !== 'pause' && phases.filter(item => item.type !== 'pause').length <= 1) {
+          return toast(tr('В профиле должна остаться подача'), true);
+        }
+        phases[index] = {type:'pause',duration:phase.duration};
+      } else {
+        phases[index] = {
+          type:type === 'preinfusion' ? 'preinfusion' : 'brew',
+          duration:phase.duration,
+          start:.8,
+          end:.8,
+          weight:0
+        };
+      }
+      if (type === 'preinfusion' && index > 0) {
+        const [preinfusion] = phases.splice(index,1);
+        phases.unshift(preinfusion);
+        advancedPhaseSelected = 0;
+      } else {
+        advancedPhaseSelected = index;
+      }
       markAdvancedPhasesChanged();
     }
 
     function setAdvancedPhaseValue(index, field, value) {
       const phases = ensureAdvancedPhaseDraft();
-      if (!phases) return;
-      const phase = phases[index];
+      const phase = phases?.[index];
       if (!phase) return;
       const number = phaseNumber(value);
-      if (field === 'duration') phase.duration = Math.max(.5, Math.min(240, number));
-      if (phase.type === 'brew' && (field === 'start' || field === 'end')) phase[field] = Math.max(0, Math.min(12, number));
-      if (phase.type === 'brew' && field === 'weight') phase.weight = Math.max(0, Math.min(1, number / 100));
+      if (field === 'duration') phase.duration = Math.max(.5,Math.min(240,number));
+      if (phase.type === 'preinfusion' && field === 'pressure') {
+        const pressure = Math.max(0,Math.min(12,number));
+        phase.start = pressure;
+        phase.end = pressure;
+        if (isAdvancedPressurePhase(phases[index+1])) {
+          phases[index+1].start = pressure;
+        }
+      }
+      if (phase.type !== 'pause' && (field === 'start' || field === 'end')) {
+        const pressure = Math.max(0,Math.min(12,number));
+        phase[field] = pressure;
+        if (field === 'start' && isAdvancedPressurePhase(phases[index-1])) {
+          phases[index-1].end = pressure;
+        }
+        if (field === 'end' && isAdvancedPressurePhase(phases[index+1])) {
+          phases[index+1].start = pressure;
+        }
+      }
+      if (phase.type !== 'pause' && field === 'weight') {
+        phase.weight = Math.max(0,Math.min(1,number/100));
+      }
       advancedPhaseSelected = index;
       markAdvancedPhasesChanged();
     }
 
+    function setAdvancedPreinfusionMode(index,ramp) {
+      const phases = ensureAdvancedPhaseDraft();
+      const phase = phases?.[index];
+      if (!phase || phase.type !== 'preinfusion') return;
+      advancedPreinfusionRampMode = !!ramp;
+      if (!advancedPreinfusionRampMode) {
+        phase.end = phaseNumber(phase.start,.8);
+        if (isAdvancedPressurePhase(phases[index+1])) {
+          phases[index+1].start = phase.end;
+        }
+        markAdvancedPhasesChanged();
+      } else {
+        renderAdvancedPhaseEditor();
+        requestAnimationFrame(draw);
+      }
+    }
+
     function ensureAdvancedPhaseEditor() {
-      $('advancedPhaseEditor')?.remove();
-      return;
-      const card = $('shotChartCard');
-      if (!card || $('advancedPhaseEditor')) return;
-      const root = document.createElement('section');
+      const host = $('profilePhaseEditorHost');
+      if (!host) return;
+      let root = $('advancedPhaseEditor');
+      if (root) return;
+      root = document.createElement('section');
       root.id = 'advancedPhaseEditor';
       root.className = 'advanced-phase-editor';
-      root.innerHTML = '<div class="advanced-phase-head">' +
-        '<button class="advanced-phase-toggle" type="button" onclick="toggleAdvancedPhaseEditor()"><b>' + tr('Этапы своего профиля') + '</b><span id="advancedPhaseToggleCount" class="advanced-phase-toggle-count"></span><span class="advanced-phase-toggle-arrow">⌄</span></button>' +
-        '<div id="advancedPhaseActions" class="advanced-phase-actions"><button class="small" type="button" onclick="addAdvancedPressurePoint()">＋ ' + tr('Точка') + '</button>' +
-        '<button class="small" type="button" onclick="addAdvancedPause()">＋ ' + tr('Пауза') + '</button></div></div>' +
+      root.innerHTML =
+        '<div class="advanced-phase-toolbar">' +
+          '<div class="advanced-phase-toolbar-main"><b>' + tr('Редактирование профиля') + '</b>' +
+          '<small>' + tr('Точки вверх/вниз — давление, границы влево/вправо — время') + '</small></div>' +
+          '<div class="advanced-phase-toolbar-actions">' +
+            '<button type="button" onclick="cancelProfilePhaseEdit()">Отмена</button>' +
+            '<button id="advancedPhaseDone" class="advanced-phase-done" type="button" onclick="saveProfilePhaseEdit()">✓ Готово</button>' +
+          '</div>' +
+        '</div>' +
         '<div id="advancedPhaseList" class="advanced-phase-list"></div>' +
-        '<p id="advancedPhaseNote" class="advanced-phase-note">' + tr('Точки задают давление и длительность участка. Пауза выключает помпу, оставляя клапан открытым.') + '</p>';
-      card.appendChild(root);
-      renderAdvancedPhaseEditor();
+        '<div class="advanced-phase-add">' +
+          '<button id="advancedPhaseAddPreinfusion" type="button" onclick="addAdvancedPreinfusion()">＋ ' + tr('Предсмачивание') + '</button>' +
+          '<button type="button" onclick="addAdvancedPressurePoint()">＋ ' + tr('Подача') + '</button>' +
+          '<button type="button" onclick="addAdvancedPause()">＋ ' + tr('Пауза') + '</button>' +
+        '</div>' +
+        '<div id="advancedPhaseDetail" class="advanced-phase-detail"></div>';
+      host.appendChild(root);
     }
 
     function toggleAdvancedPhaseEditor(force) {
-      advancedPhaseEditorOpen = false;
-      return;
-      if (!funnelPhaseEditingEnabled()) return;
-      advancedPhaseEditorOpen = typeof force === 'boolean'
-        ? force
-        : !advancedPhaseEditorOpen;
-      renderAdvancedPhaseEditor();
+      if (force === false) cancelProfilePhaseEdit(false);
+      else if (!profilePhaseEditMode) beginProfilePhaseEdit();
     }
 
     function renderAdvancedPhaseEditor() {
-      advancedPhaseDraft = null;
-      advancedPhaseSelected = -1;
-      advancedPhaseEditorOpen = false;
       ensureAdvancedPhaseEditor();
-      return;
       const root = $('advancedPhaseEditor');
       const list = $('advancedPhaseList');
-      if (!root || !list) return;
-      root.hidden = shotRunning || chartMode === 'archive' || !funnelPhaseEditingEnabled();
-      const phases = advancedPhaseDraft;
-      const open = advancedPhaseEditorOpen;
-      root.classList.toggle('open', open);
-      const actions = $('advancedPhaseActions');
-      const note = $('advancedPhaseNote');
-      if (actions) actions.hidden = !open;
-      if (note) note.hidden = !open;
-      list.hidden = !open;
-      const count = $('advancedPhaseToggleCount');
-      if (count) count.textContent = phases ? phases.length + ' ' + tr('этапов') : tr('нажмите, чтобы открыть');
-      if (!open) return;
-      if (!phases) {
-        list.innerHTML = '<button class="small" type="button" onclick="addAdvancedPressurePoint()">' + tr('Начать расширенное редактирование') + '</button>';
-        return;
+      const detail = $('advancedPhaseDetail');
+      const card = $('shotChartCard');
+      const pencil = $('profilePhaseEditButton');
+
+      if (card) card.classList.toggle('phase-editing',profilePhaseEditMode);
+      if (pencil) {
+        pencil.classList.toggle('active',profilePhaseEditMode);
+        pencil.disabled = shotRunning || chartMode === 'archive';
+        pencil.title = tr(profilePhaseEditMode ? 'Редактирование профиля' : 'Редактировать профиль');
+        pencil.setAttribute('aria-expanded',profilePhaseEditMode ? 'true' : 'false');
+      }
+
+      renderPhaseStripView();
+
+      if (!root || !list || !detail) return;
+      root.hidden = !profilePhaseEditMode;
+      if (!profilePhaseEditMode) return;
+
+      const phases = ensureAdvancedPhaseDraft();
+      if (!phases) return;
+      const addPreinfusion = $('advancedPhaseAddPreinfusion');
+      if (addPreinfusion) {
+        const exists = phases.some(item => item.type === 'preinfusion');
+        addPreinfusion.disabled = exists || phases.length >= 12;
+        addPreinfusion.title = tr(exists
+          ? 'Предсмачивание уже добавлено'
+          : 'Добавить предсмачивание в начало профиля');
       }
       list.innerHTML = '';
-      phases.forEach((phase, index) => {
-        const row = document.createElement('div');
-        row.className = 'advanced-phase-row ' + (phase.type === 'pause' ? 'pause ' : '') + (index === advancedPhaseSelected ? 'selected' : '');
-        row.onclick = event => {
-          if (event.target.closest('input,button')) return;
+
+      phases.forEach((phase,index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className =
+          'advanced-phase-card' +
+          (phase.type === 'pause' ? ' pause' : '') +
+          (phase.type === 'preinfusion' ? ' preinfusion' : '') +
+          (index === advancedPhaseSelected ? ' selected' : '');
+        button.onclick = () => {
           advancedPhaseSelected = index;
           renderAdvancedPhaseEditor();
+          requestAnimationFrame(draw);
         };
-        const indexNode = '<div class="advanced-phase-index">' + (index + 1) + '</div>';
-        const field = (label, name, value, min, max, step) => '<label class="advanced-phase-field"><span>' + tr(label) + '</span><input type="number" value="' + value + '" min="' + min + '" max="' + max + '" step="' + step + '" onchange="setAdvancedPhaseValue(' + index + ',\'' + name + '\',this.value)"></label>';
-        if (phase.type === 'pause') {
-          row.innerHTML = indexNode + field('Пауза, с','duration',fmt(phase.duration,1),.5,240,.5) + '<button class="advanced-phase-remove" type="button" onclick="removeAdvancedPhase(' + index + ')">×</button>';
-        } else {
-          row.innerHTML = indexNode +
-            field('Время, с','duration',fmt(phase.duration,1),.5,240,.5) +
-            field('От, бар','start',fmt(phase.start,1),0,12,.1) +
-            field('До, бар','end',fmt(phase.end,1),0,12,.1) +
-            field('Стоп, %','weight',fmt(phase.weight * 100,1),0,100,1) +
-            '<button class="advanced-phase-remove" type="button" onclick="removeAdvancedPhase(' + index + ')">×</button>';
-        }
-        list.appendChild(row);
+        button.innerHTML =
+          '<span class="advanced-phase-card-index">' + (index+1) + '</span>' +
+          '<small>' + phaseDisplayName(phase,index,phases) + '</small>' +
+          '<b>' +
+            fmt(phase.duration,phase.duration%1?1:0) + ' ' + tr('с') +
+            (phase.type !== 'pause'
+              ? ' · ' + fmt(phase.start,1) +
+                (Math.abs(phase.end-phase.start)>.04?'→'+fmt(phase.end,1):'') +
+                ' bar'
+              : '') +
+          '</b>';
+        list.appendChild(button);
       });
+
+      const index = Math.max(0,Math.min(advancedPhaseSelected,phases.length-1));
+      advancedPhaseSelected = index;
+      const phase = phases[index];
+      const field = (label,name,value,min,max,step) =>
+        '<label class="advanced-phase-field"><span>' + tr(label) + '</span>' +
+        '<input type="number" value="' + value + '" min="' + min + '" max="' + max +
+        '" step="' + step + '" onchange="setAdvancedPhaseValue(' + index + ',\'' + name + '\',this.value)"></label>';
+      const preinfusionMode = phase.type === 'preinfusion'
+        ? '<div class="advanced-phase-type-buttons">' +
+            '<button type="button" class="' + (!advancedPreinfusionRampMode?'active':'') +
+              '" onclick="setAdvancedPreinfusionMode(' + index + ',false)">' + tr('Постоянное давление') + '</button>' +
+            '<button type="button" class="' + (advancedPreinfusionRampMode?'active':'') +
+              '" onclick="setAdvancedPreinfusionMode(' + index + ',true)">' + tr('Изменение давления') + '</button>' +
+          '</div>'
+        : '';
+      const pressureFields = phase.type === 'pause'
+        ? ''
+        : phase.type === 'preinfusion' && !advancedPreinfusionRampMode
+          ? field('Давление, bar','pressure',fmt(phase.start,1),0,12,.1) +
+            field('Стоп по весу, %','weight',fmt(phase.weight*100,0),0,100,1)
+          : field('От, bar','start',fmt(phase.start,1),0,12,.1) +
+            field('До, bar','end',fmt(phase.end,1),0,12,.1) +
+            field('Стоп по весу, %','weight',fmt(phase.weight*100,0),0,100,1);
+
+      detail.innerHTML =
+        '<div class="advanced-phase-detail-head">' +
+          '<b>' + phaseDisplayName(phase,index,phases) + '</b>' +
+          '<div class="advanced-phase-type-buttons">' +
+            '<button type="button" class="' + (phase.type==='preinfusion'?'active':'') +
+              '" onclick="convertAdvancedPhase(' + index + ',\'preinfusion\')">' + tr('Предсмачивание') + '</button>' +
+            '<button type="button" class="' + (phase.type==='brew'?'active':'') +
+              '" onclick="convertAdvancedPhase(' + index + ',\'brew\')">' + tr('Подача') + '</button>' +
+            '<button type="button" class="' + (phase.type==='pause'?'active':'') +
+              '" onclick="convertAdvancedPhase(' + index + ',\'pause\')">' + tr('Пауза') + '</button>' +
+          '</div>' +
+        '</div>' +
+        preinfusionMode +
+        '<div class="advanced-phase-fields">' +
+          field('Время, с','duration',fmt(phase.duration,1),.5,240,.5) +
+          pressureFields +
+        '</div>' +
+        '<div class="advanced-phase-detail-actions">' +
+          '<button type="button" onclick="moveAdvancedPhase(' + index + ',-1)">← ' + tr('Раньше') + '</button>' +
+          '<button type="button" onclick="moveAdvancedPhase(' + index + ',1)">' + tr('Позже') + ' →</button>' +
+          '<button type="button" onclick="duplicateAdvancedPhase(' + index + ')">⧉ ' + tr('Дублировать') + '</button>' +
+          '<button type="button" class="danger" onclick="removeAdvancedPhase(' + index + ')">' + tr('Удалить') + '</button>' +
+        '</div>';
     }
 
     async function applyAdvancedPhaseSpec(spec) {
       const path = spec
         ? '/custom-phases/apply?' + new URLSearchParams({spec})
         : '/custom-phases/clear';
-      const response = await fetch(path, {method:'POST'});
-      if (!response.ok) throw new Error('custom_phases_' + response.status);
-      activeCustomPhaseSpec = spec;
-      activeCustomPhaseBase = spec ? 'Funnel' : '';
-      if (spec) {
-        localStorage.setItem('silviaCustomPhaseSpec', spec);
-        localStorage.setItem('silviaCustomPhaseBase', 'Funnel');
-      } else {
-        localStorage.removeItem('silviaCustomPhaseSpec');
-        localStorage.removeItem('silviaCustomPhaseBase');
+      const response = await fetch(path,{method:'POST'});
+      if (!response.ok) {
+        let reason = 'custom_phases_' + response.status;
+        try {
+          const payload = await response.json();
+          if (payload?.error) reason = String(payload.error);
+        } catch (_) {}
+        throw new Error(reason);
       }
+      activeCustomPhaseSpec = String(spec || '');
+      activeCustomPhaseBase = spec ? 'Custom' : '';
     }
 
-    function recipeConfigFromInputs() {
+        function recipeConfigFromInputs() {
       const config = {};
       recipeFieldIds.forEach(id => { config[id] = inputNumber(id); });
-      config.phases = '';
+      config.phases = profilePhaseEditMode && advancedPhaseDraft
+        ? advancedPhaseSpec(advancedPhaseDraft)
+        : homeQuickPhaseSpec
+          ? String(homeQuickPhaseSpec)
+          : (currentProfileName === 'Custom' ? String(activeCustomPhaseSpec || '') : '');
       return config;
     }
 
@@ -4705,6 +5342,11 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       advancedPhaseDraft = null;
       advancedPhaseSelected = -1;
       advancedPhaseEditorOpen = false;
+      profilePhaseEditMode = false;
+      if (String(config.phases || '').trim()) {
+        activeCustomPhaseSpec = String(config.phases).trim();
+        activeCustomPhaseBase = 'Custom';
+      }
       readProfileCfgFromInputs();
       renderAdvancedPhaseEditor();
     }
@@ -4878,6 +5520,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       homeQuickBaselineCfg = null;
       homeQuickBaselineDirty = false;
       homeQuickBaselineUserProfileId = '';
+      homeQuickPhaseSpec = '';
       homeQuickDirty = false;
       homeQuickSaving = false;
       homeQuickChip = null;
@@ -4925,6 +5568,14 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       homeQuickBaselineCfg = recipeConfigFromInputs();
       homeQuickBaselineDirty = recipeDirty;
       homeQuickBaselineUserProfileId = activeUserProfileId;
+      homeQuickPhaseSpec = (field === 'brewTarget' || field === 'targetWeight')
+        ? advancedPhaseSpec(
+            displayedAdvancedPhases(
+              currentProfileName,
+              profileDisplayConfig()
+            )
+          )
+        : '';
       homeQuickDirty = false;
       homeQuickSaving = false;
       homeQuickStartValue = normalizeHomeScrubValue(field, current);
@@ -5018,6 +5669,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       document.body.classList.remove('home-value-scrubbing');
 
       const editedConfig = recipeConfigFromInputs();
+      if (homeQuickPhaseSpec) editedConfig.phases = homeQuickPhaseSpec;
       const baseline = homeQuickBaselineCfg;
       const baselineDirty = homeQuickBaselineDirty;
       const baselineProfileId = homeQuickBaselineUserProfileId;
@@ -5032,6 +5684,10 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
           if (Number.isFinite(value)) {
             await post('number', entityName, 'set', { value });
           }
+        }
+
+        if (homeQuickPhaseSpec) {
+          await applyAdvancedPhaseSpec(homeQuickPhaseSpec);
         }
 
         await post(
@@ -5167,7 +5823,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     }
 
 
-    let values = { pressure: 0, target: 0, flow: 0, pump: 0, temp: 0, tempTarget: 0, heat: 0, autoOffRemaining: NaN };
+    let values = { pressure: 0, target: 0, flow: 0, pump: 0, temp: 0, tempTarget: 0, heat: 0, autoOffRemaining: NaN, monthlyShots: NaN, monthlyDrinkWeight: NaN };
     let profileCfg = {
       prePump:0,
       prePause:0,
@@ -5298,6 +5954,11 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       'machine',
       'metrics'
     ];
+    const HOME_INFO_CARD_ORDER_KEY = 'silvia-home-info-card-order-v1';
+    const HOME_INFO_CARD_DEFAULT_ORDER = ['pressure', 'stats', 'temperature'];
+    let homeInfoCardDrag = null;
+    let homeInfoCardHandle = null;
+    let homeInfoCardPointerId = null;
     const HOME_TOP_MACHINE_SHARE_DEFAULT = 56;
     let homeTopPanelDragPanel = null;
     let homeTopPanelDragHandle = null;
@@ -5364,9 +6025,11 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       const input = $('homeTopColumnSplit');
       const output = $('homeTopColumnSplitValue');
       const pressureShare = 18;
+      const statsShare = 18;
       const rightShare =
         100 -
         pressureShare -
+        statsShare -
         homeTopColumnSplit;
 
       if (input) {
@@ -5378,6 +6041,8 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
           homeTopColumnSplit +
           ' / ' +
           pressureShare +
+          ' / ' +
+          statsShare +
           ' / ' +
           rightShare;
       }
@@ -5391,9 +6056,11 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         clampHomeTopColumnSplit(value);
 
       const pressureShare = 18;
+      const statsShare = 18;
       const rightShare =
         100 -
         pressureShare -
+        statsShare -
         homeTopColumnSplit;
       const page = $('page-home');
 
@@ -5405,6 +6072,10 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         page.style.setProperty(
           '--home-pressure-column-share',
           pressureShare + 'fr'
+        );
+        page.style.setProperty(
+          '--home-stats-column-share',
+          statsShare + 'fr'
         );
         page.style.setProperty(
           '--home-right-column-share',
@@ -6465,6 +7136,128 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       );
     }
 
+    function homeInfoCards() {
+      const grid = document.querySelector('.home-top-grid');
+      return grid ? [...grid.querySelectorAll(':scope > [data-home-info-card]')] : [];
+    }
+
+    function saveHomeInfoCardOrder() {
+      try {
+        localStorage.setItem(HOME_INFO_CARD_ORDER_KEY,
+          JSON.stringify(homeInfoCards().map(card => card.dataset.homeInfoCard)));
+      } catch (_) {}
+    }
+
+    function updateHomeInfoCardTracks() {
+      const grid = document.querySelector('.home-top-grid');
+      if (!grid) return;
+      const tracks = {
+        pressure:'minmax(145px,var(--home-pressure-column-share,18fr))',
+        stats:'minmax(145px,var(--home-stats-column-share,18fr))',
+        temperature:'minmax(210px,var(--home-right-column-share,26fr))'
+      };
+      const infoTracks = homeInfoCards()
+        .map(card => tracks[card.dataset.homeInfoCard])
+        .filter(Boolean);
+      grid.style.setProperty(
+        '--home-top-grid-columns',
+        ['minmax(360px,var(--home-left-column-share,38fr))', ...infoTracks].join(' ')
+      );
+    }
+
+    function applyHomeInfoCardOrder(order) {
+      const grid = document.querySelector('.home-top-grid');
+      if (!grid) return;
+      const valid = Array.isArray(order)
+        ? order.filter((id, index, list) =>
+            HOME_INFO_CARD_DEFAULT_ORDER.includes(id) && list.indexOf(id) === index)
+        : [];
+      [...valid, ...HOME_INFO_CARD_DEFAULT_ORDER.filter(id => !valid.includes(id))]
+        .forEach(id => {
+          const card = grid.querySelector(':scope > [data-home-info-card="' + id + '"]');
+          if (card) grid.appendChild(card);
+        });
+      updateHomeInfoCardTracks();
+      requestAnimationFrame(() => { drawHomePressureGauge(); drawHomeTemperatureMini(); drawTemp(); });
+    }
+
+    function beginHomeInfoCardDrag(event) {
+      if (!homeDashboardEditing || event.button > 0) return;
+      const handle = event.currentTarget;
+      const card = handle.closest('[data-home-info-card]');
+      if (!card) return;
+      homeInfoCardDrag = card;
+      homeInfoCardHandle = handle;
+      homeInfoCardPointerId = event.pointerId;
+      card.classList.add('home-info-card-dragging');
+      document.body.classList.add('home-info-card-layout-dragging');
+      try { handle.setPointerCapture(event.pointerId); } catch (_) {}
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    function moveHomeInfoCardDrag(event) {
+      if (!homeInfoCardDrag || homeInfoCardPointerId !== event.pointerId) return;
+      event.preventDefault();
+      const grid = document.querySelector('.home-top-grid');
+      const target = document.elementFromPoint(event.clientX, event.clientY)
+        ?.closest?.('[data-home-info-card]');
+      document.querySelectorAll('.home-info-card-drop-target')
+        .forEach(node => node.classList.remove('home-info-card-drop-target'));
+      if (!grid || !target || target === homeInfoCardDrag || target.parentElement !== grid) return;
+      target.classList.add('home-info-card-drop-target');
+      const rect = target.getBoundingClientRect();
+      const after = matchMedia('(max-width:900px)').matches
+        ? event.clientY > rect.top + rect.height / 2
+        : event.clientX > rect.left + rect.width / 2;
+      grid.insertBefore(homeInfoCardDrag, after ? target.nextSibling : target);
+      updateHomeInfoCardTracks();
+    }
+
+    function finishHomeInfoCardDrag(event) {
+      if (!homeInfoCardDrag ||
+          (event && homeInfoCardPointerId !== null && event.pointerId !== homeInfoCardPointerId)) return;
+      const handle = homeInfoCardHandle;
+      const pointerId = homeInfoCardPointerId;
+      homeInfoCardDrag.classList.remove('home-info-card-dragging');
+      document.querySelectorAll('.home-info-card-drop-target')
+        .forEach(node => node.classList.remove('home-info-card-drop-target'));
+      document.body.classList.remove('home-info-card-layout-dragging');
+      if (handle && pointerId !== null && handle.hasPointerCapture?.(pointerId)) {
+        try { handle.releasePointerCapture(pointerId); } catch (_) {}
+      }
+      homeInfoCardDrag = null;
+      homeInfoCardHandle = null;
+      homeInfoCardPointerId = null;
+      saveHomeInfoCardOrder();
+      requestAnimationFrame(() => { drawHomePressureGauge(); drawHomeTemperatureMini(); drawTemp(); });
+    }
+
+    function initHomeInfoCardOrder() {
+      let order = HOME_INFO_CARD_DEFAULT_ORDER;
+      try {
+        const saved = JSON.parse(localStorage.getItem(HOME_INFO_CARD_ORDER_KEY) || 'null');
+        if (Array.isArray(saved)) order = saved;
+      } catch (_) {}
+      applyHomeInfoCardOrder(order);
+      homeInfoCards().forEach(card => {
+        let handle = card.querySelector(':scope > .home-info-order-handle');
+        if (!handle) {
+          handle = document.createElement('button');
+          handle.type = 'button';
+          handle.className = 'home-info-order-handle';
+          handle.textContent = '⠿';
+          handle.addEventListener('pointerdown', beginHomeInfoCardDrag);
+          card.insertBefore(handle, card.firstChild);
+        }
+        const label = tr('Перетащить верхнюю карточку');
+        handle.title = label;
+        handle.setAttribute('aria-label', label);
+      });
+      document.addEventListener('pointermove', moveHomeInfoCardDrag, {passive:false});
+      document.addEventListener('pointerup', finishHomeInfoCardDrag);
+      document.addEventListener('pointercancel', finishHomeInfoCardDrag);
+    }
 
     function shotProfileShareBounds(board) {
       const usableWidth = Math.max(
@@ -7311,6 +8104,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         localStorage.removeItem(HOME_DASHBOARD_VISIBILITY_KEY);
         localStorage.removeItem(HOME_TOP_PANEL_ORDER_KEY);
         localStorage.removeItem(HOME_TOP_PANEL_SIZE_KEY);
+        localStorage.removeItem(HOME_INFO_CARD_ORDER_KEY);
         localStorage.removeItem(SHOT_PROFILE_PANEL_ORDER_KEY);
         localStorage.removeItem(SHOT_PROFILE_PANEL_SIZE_KEY);
         localStorage.removeItem(HOME_SECTION_GAP_KEY);
@@ -7328,6 +8122,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       resetHomeSectionGap();
       resetHomeTemperatureCardHeight();
       resetHomeTopColumnSplit();
+      applyHomeInfoCardOrder(HOME_INFO_CARD_DEFAULT_ORDER);
       toast(tr('Расположение сброшено'));
     }
 
@@ -8108,6 +8903,28 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
           backflushDue
         );
       }
+      if($('homeMonthlyShots')){
+        const monthlyShots=Number(values.monthlyShots);
+        $('homeMonthlyShots').textContent=Number.isFinite(monthlyShots)?fmt(monthlyShots,0):'—';
+      }
+      if($('homeMonthlyWeight')){
+        const monthlyWeight=Number(values.monthlyDrinkWeight);
+        $('homeMonthlyWeight').textContent=Number.isFinite(monthlyWeight)?fmt(monthlyWeight,0):'—';
+      }
+      const backflushRemaining=$('homeBackflushRemaining');
+      const backflushStat=$('homeBackflushStat');
+      const backflushCaption=$('homeBackflushStatCaption');
+      if(backflushRemaining&&backflushStat&&backflushCaption){
+        if(Number.isFinite(limit)&&limit>0&&Number.isFinite(shots)){
+          backflushRemaining.textContent=backflushDue?tr('Пора'):fmt(Math.max(0,limit-shots),0);
+          backflushCaption.textContent=backflushDue?tr('нужна промывка'):tr('проливов');
+          backflushStat.classList.toggle('due',backflushDue);
+        }else{
+          backflushRemaining.textContent='—';
+          backflushCaption.textContent=tr('проливов');
+          backflushStat.classList.remove('due');
+        }
+      }
       if($('homeBackflushHint')){
         if(Number.isFinite(limit)&&limit>0&&Number.isFinite(shots)) $('homeBackflushHint').textContent=shots>=limit?tr('Требуется промывка'):tr('До промывки')+' '+fmt(Math.max(0,limit-shots),0);
         else $('homeBackflushHint').textContent=tr('Счётчик проливов');
@@ -8145,8 +8962,14 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       const list = Array.isArray(options) && options.length
         ? options
         : availableProfileOptions;
-      const dirty = !!(mainCurveDirty || recipeDirty);
+      const dirty = !!(
+        mainCurveDirty ||
+        recipeDirty ||
+        profilePhaseEditMode ||
+        mainCurveEditing
+      );
       const current = dirty ? 'Custom' : (value || currentProfileName);
+      customProfileAvailable = customDraftIsAvailable();
       const railCurrent = $('homeProfileRailCurrent');
 
       if (railCurrent) {
@@ -8183,15 +9006,20 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         !!mainCurveDragKey;
 
       root.querySelectorAll('button').forEach(button => {
-        button.textContent =
-          profileLabel(
-            button.dataset.profile
-          );
+        const profile = button.dataset.profile;
+        const unavailableCustom =
+          profile === 'Custom' &&
+          !customProfileAvailable;
+        button.classList.remove('custom-unavailable');
+        button.textContent = profileLabel(profile);
+        button.title = unavailableCustom
+          ? tr('Измените любой профиль и нажмите «Применить»')
+          : profileLabel(profile);
         button.classList.toggle(
           'active',
-          button.dataset.profile === current
+          profile === current && !unavailableCustom
         );
-        button.disabled = disabled;
+        button.disabled = disabled || unavailableCustom;
       });
     }
 
@@ -8207,7 +9035,8 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         const value = Number(config?.[id]);
         if (Number.isFinite(value)) clean[id] = value;
       });
-      clean.phases = '';
+      const spec = String(config?.phases || '').trim();
+      clean.phases = parseAdvancedPhaseSpec(spec) ? spec : '';
       return clean;
     }
 
@@ -8247,7 +9076,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         updatedAt:String(Math.trunc(Number(item.updatedAt) || Date.now()))
       });
       recipeFieldIds.forEach(id => body.set(id, String(Number(item.config?.[id]))));
-      body.set('phases', '');
+      body.set('phases', String(item.config?.phases || ''));
       return body;
     }
 
@@ -8301,6 +9130,14 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     }
 
     function renderUserProfiles() {
+      const profileSelect = $('homeProfileSelect');
+      if (profileSelect) {
+        [...profileSelect.options].forEach(option => {
+          option.disabled = option.value === 'Custom' && !customProfileAvailable;
+        });
+      }
+      updateHomeProfileRail(availableProfileOptions,currentProfileName);
+
       const root = $('userProfileList');
       const count = $('userProfileCount');
       if (count) count.textContent = String(userProfiles.length);
@@ -8369,7 +9206,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     async function saveCurrentUserProfile() {
       if (userProfileApplying || userProfileStorageBusy || shotRunning) return;
 
-      const hasDraft = !!(mainCurveDirty || recipeDirty);
+      const hasDraft = !!(mainCurveDirty || recipeDirty || activeCustomPhaseSpec);
       if (!hasDraft) {
         toast(tr('Сначала измените профиль'), true);
         return;
@@ -8485,6 +9322,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       if (userProfileApplying || userProfileStorageBusy || shotRunning) return;
       const item = userProfiles.find(profile => profile.id === id);
       if (!item) return;
+      const deletingActiveProfile = activeUserProfileId === id;
       if (!confirm(tr('Удалить профиль') + ' «' + item.name + '»?')) return;
       userProfileStorageBusy = true;
       renderUserProfiles();
@@ -8495,6 +9333,10 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         userProfiles = userProfiles.filter(profile => profile.id !== id);
         if (activeUserProfileId === id) activeUserProfileId = '';
         renderUserProfiles();
+        if (deletingActiveProfile && currentProfileName === 'Custom') {
+          const fallback = availableProfileOptions.find(option => option !== 'Custom') || 'Classic';
+          await applyHomeProfile({ value:fallback });
+        }
         toast(tr('Профиль удалён'));
       } catch (_) {
         userProfileStorageBusy = false;
@@ -8541,7 +9383,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
           }
         }
 
-        await applyAdvancedPhaseSpec('');
+        await applyAdvancedPhaseSpec(String(item.config.phases || ''));
         await post('select', 'Silvia Shot Profile', 'set', { option:'Custom' });
 
         clearMainCurveDraftState();
@@ -8580,6 +9422,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     function fillHomeProfileSelect(options = availableProfileOptions, value = currentProfileName) {
       const select = $('homeProfileSelect');
       const list = Array.isArray(options) && options.length ? options : availableProfileOptions;
+      customProfileAvailable = customDraftIsAvailable();
       if (select) {
         const existing = [...select.options].map(option => option.value);
         if (existing.length !== list.length || existing.some((item,index) => item !== list[index])) {
@@ -8588,6 +9431,9 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         } else {
           [...select.options].forEach(option => { option.textContent = profileLabel(option.value); });
         }
+        [...select.options].forEach(option => {
+          option.disabled = option.value === 'Custom' && !customProfileAvailable;
+        });
         if (value && [...select.options].some(option => option.value === value)) select.value = value;
       }
       updateHomeProfileRail(list, value);
@@ -8727,7 +9573,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
 
       if ($('homeSummaryBrewTarget')) $('homeSummaryBrewTarget').textContent = fmt(config.brewTarget, config.brewTarget % 1 ? 1 : 0) + ' °C';
       if (phases) {
-        const brewPhases = phases.filter(item => item.type === 'brew');
+        const brewPhases = phases.filter(item => item.type !== 'pause');
         const pausePhases = phases.filter(item => item.type === 'pause');
         const brewSeconds = phaseDraftTotalSeconds(brewPhases);
         const pauseSeconds = phaseDraftTotalSeconds(pausePhases);
@@ -8740,8 +9586,8 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
         setStageChip('prePause', 'homeSummaryPrePause', 'Пауза', fmt(prePause, prePause % 1 ? 1 : 0) + ' ' + tr('с'), false);
         setStageChip('shotSeconds', 'homeSummaryShotSeconds', 'Пролив', fmt(shotSeconds, shotSeconds % 1 ? 1 : 0) + ' ' + tr('с'), false);
       }
+      renderPhaseStripView();
       updateShotWeightFooter(config);
-      if ($('homeSummaryTotalTime')) $('homeSummaryTotalTime').textContent = fmt(total, total % 1 ? 1 : 0) + ' ' + tr('с');
 
       const badge = $('homeProfileEditBadge');
       if (badge) {
@@ -8875,7 +9721,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       const profileHint = $('userProfileHint');
       const profileNameInput = $('userProfileName');
       const profileSaveButton = $('userProfileSaveButton');
-      const hasDraft = !!(mainCurveDirty || recipeDirty);
+      const hasDraft = !!(mainCurveDirty || recipeDirty || (currentProfileName === 'Custom' && activeCustomPhaseSpec));
       const saveBusy = userProfileApplying || userProfileStorageBusy || shotRunning;
 if (card) {
         card.classList.toggle('curve-ready', mainCurveCanEdit());
@@ -8984,91 +9830,47 @@ if (card) {
         typeof profileDisplayConfig === 'function'
           ? profileDisplayConfig()
           : profileCfg;
-
+      const phases = displayedAdvancedPhases(currentProfileName,config);
       return {
-        prePump:Math.max(
-          0,
-          Number(config?.prePump) || 0
-        ),
-        prePause:Math.max(
-          0,
-          Number(config?.prePause) || 0
-        ),
-        shotSeconds:Math.max(
-          0,
-          Number(config?.shotSeconds) || 0
-        )
+        phases:cloneAdvancedPhases(phases) || [],
+        prePump:Math.max(0,Number(config?.prePump)||0),
+        prePause:Math.max(0,Number(config?.prePause)||0),
+        shotSeconds:Math.max(0,Number(config?.shotSeconds)||0)
       };
     }
 
     function shotPhaseAtElapsed(elapsedSeconds) {
-      const config =
-        shotPhaseConfig ||
-        captureShotPhaseConfig();
+      const config = shotPhaseConfig || captureShotPhaseConfig();
+      const phaseList = Array.isArray(config?.phases) && config.phases.length
+        ? config.phases.map((phase,index,all) => ({
+            label:phaseDisplayName(phase,index,all),
+            duration:Math.max(0,phaseNumber(phase.duration))
+          }))
+        : [
+            {label:'Предсмачивание',duration:config.prePump},
+            {label:'Пауза',duration:config.prePause},
+            {label:'Пролив',duration:config.shotSeconds}
+          ].filter(phase => phase.duration > .001);
 
-      const phases = [
-        {
-          label:'Предсмачивание',
-          duration:config.prePump
-        },
-        {
-          label:'Пауза',
-          duration:config.prePause
-        },
-        {
-          label:'Пролив',
-          duration:config.shotSeconds
-        }
-      ].filter(
-        phase => phase.duration > .001
-      );
-
-      if (!phases.length) {
-        return {
-          label:'Пролив',
-          elapsed:Math.max(
-            0,
-            elapsedSeconds
-          ),
-          duration:0
-        };
+      if (!phaseList.length) {
+        return {label:'Пролив',elapsed:Math.max(0,elapsedSeconds),duration:0};
       }
 
       let phaseStart = 0;
-
-      for (
-        let index = 0;
-        index < phases.length;
-        index += 1
-      ) {
-        const phase = phases[index];
-        const phaseEnd =
-          phaseStart +
-          phase.duration;
-        const last =
-          index === phases.length - 1;
-
-        if (
-          elapsedSeconds < phaseEnd ||
-          last
-        ) {
+      for (let index=0;index<phaseList.length;index++) {
+        const phase = phaseList[index];
+        const phaseEnd = phaseStart + phase.duration;
+        const last = index === phaseList.length-1;
+        if (elapsedSeconds < phaseEnd || last) {
           return {
             label:phase.label,
-            elapsed:Math.max(
-              0,
-              elapsedSeconds -
-                phaseStart
-            ),
+            elapsed:Math.max(0,elapsedSeconds-phaseStart),
             duration:phase.duration
           };
         }
-
         phaseStart = phaseEnd;
       }
-
-      return phases[
-        phases.length - 1
-      ];
+      return phaseList[phaseList.length-1];
     }
 
     function updateShotPhaseStatus() {
@@ -10706,7 +11508,8 @@ if (card) {
       config = profileCfg,
       profileName = currentProfileName || 'Custom'
     ) {
-      if (advancedPhaseDraft) return advancedPhaseSeries(advancedPhaseDraft);
+      const phaseModel = displayedAdvancedPhases(profileName, config);
+      if (phaseModel) return advancedPhaseSeries(phaseModel);
       const editing = !!(
         recipeDirty ||
         mainCurveDirty ||
@@ -10824,7 +11627,9 @@ if (card) {
        * from their curve after a page restore or a profile change.
        * Live samples are still overlaid while an extraction is running.
        */
-      const factSeries = shotRunning ? liveSeries : [];
+      const factSeries = shotRunning
+        ? liveSeries
+        : (shotCompletedThisSession ? lastShotSeries : []);
 
       if (!factSeries.length) return profileSeries;
 
@@ -10984,13 +11789,37 @@ if (card) {
         Math.ceil(minimumStep / 60) * 60;
       const ticks = [];
 
-      for (let second = 0; second <= maxX + 0.001; second += step) {
+      for (let second = 0; second < maxX - 0.001; second += step) {
         ticks.push(second);
       }
 
-      if (ticks.length === 1 && maxX > 0) ticks.push(maxX);
+      /*
+       * The exact recipe duration belongs to the time axis, even when it is
+       * not a multiple of the friendly step. Its label has priority, but the
+       * regular grid lines remain visible even if a nearby label must hide.
+       */
+      if (maxX > 0) ticks.push(maxX);
 
       ctx.save();
+      ctx.font = chartFont(11);
+      const tickText = second => fmt(second, 0) + ' ' + tr('с');
+      const hiddenTickLabels = new Set();
+
+      if (ticks.length > 1 && maxX > 0) {
+        const labelGap = 10;
+        const finalLabelLeft = frame.right -
+          ctx.measureText(tickText(maxX)).width;
+
+        for (let index = ticks.length - 2; index > 0; index -= 1) {
+          const second = ticks[index];
+          const x = frame.left + second / maxX * frame.plotW;
+          const labelRight = x +
+            ctx.measureText(tickText(second)).width / 2;
+          if (labelRight + labelGap <= finalLabelLeft) break;
+          hiddenTickLabels.add(index);
+        }
+      }
+
       ticks.forEach((second, index) => {
         const ratio = maxX > 0 ? second / maxX : 0;
         const x = frame.left + ratio * frame.plotW;
@@ -11002,11 +11831,13 @@ if (card) {
         ctx.lineTo(x, frame.bottom);
         ctx.stroke();
 
-        ctx.font = chartFont(11);
-        ctx.fillStyle = '#7f8793';
+        const isFinal = maxX > 0 && Math.abs(second - maxX) < 0.01;
+        ctx.fillStyle = isFinal ? '#e6a064' : '#7f8793';
         ctx.textBaseline = 'top';
-        ctx.textAlign = index === 0 ? 'left' : index === ticks.length - 1 && Math.abs(second - maxX) < 0.01 ? 'right' : 'center';
-        ctx.fillText(fmt(second, 0) + ' ' + tr('с'), x, frame.bottom + 5);
+        ctx.textAlign = index === 0 ? 'left' : isFinal ? 'right' : 'center';
+        if (!hiddenTickLabels.has(index)) {
+          ctx.fillText(tickText(second), x, frame.bottom + 5);
+        }
       });
       ctx.restore();
     }
@@ -11268,8 +12099,7 @@ if (card) {
       const detailedPhases = normalizeAdvancedPhases(profilePhases);
       if (detailedPhases) {
         let elapsed = 0;
-        let brewIndex = 0;
-        stages = detailedPhases.map(phase => {
+        stages = detailedPhases.map((phase, index, all) => {
           const duration = Math.max(.5, phaseNumber(phase.duration));
           const from = elapsed;
           elapsed += duration;
@@ -11282,10 +12112,13 @@ if (card) {
               to:elapsed
             };
           }
-          const firstBrew = brewIndex++ === 0;
+          const explicitPreinfusion = phase.type === 'preinfusion';
+          const phaseLabel = explicitPreinfusion
+            ? 'Предсмачивание'
+            : phaseDisplayName(phase, index, all);
           return {
-            label:firstBrew ? 'Смачивание' : 'Подача',
-            shortLabel:firstBrew ? 'Смачив.' : 'Подача',
+            label:phaseLabel,
+            shortLabel:explicitPreinfusion ? 'Смачив.' : 'Подача',
             duration,
             from,
             to:elapsed
@@ -11369,7 +12202,7 @@ if (card) {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
 
-      stages.forEach(stage => {
+      stages.forEach((stage, stageIndex) => {
         const left = xFor(stage.from);
         const right = xFor(stage.to);
         const width = right - left;
@@ -11425,6 +12258,20 @@ if (card) {
             ctx.fillText(label, left + width / 2, labelY);
             ctx.restore();
           }
+        }
+
+        if (stageIndex > 0) {
+          const stageGuide = shotLineStyle('stages');
+          ctx.save();
+          ctx.strokeStyle = stageGuide.color;
+          ctx.lineWidth = stageGuide.width;
+          ctx.globalAlpha = stageGuide.opacity;
+          ctx.setLineDash([4, 5]);
+          ctx.beginPath();
+          ctx.moveTo(left, frame.top);
+          ctx.lineTo(left, frame.bottom);
+          ctx.stroke();
+          ctx.restore();
         }
       });
 
@@ -12192,23 +13039,95 @@ if (card) {
       let elapsed = 0;
       advancedPhaseDraft.forEach((phase, index) => {
         const duration = Math.max(.5, phaseNumber(phase.duration));
-        const left = frame.left + elapsed / total * frame.width;
-        const right = frame.left + (elapsed + duration) / total * frame.width;
-        if (phase.type === 'pause') {
-          ctx.save();
-          ctx.fillStyle = 'rgba(84,169,255,.07)';
-          ctx.fillRect(left, frame.top, Math.max(1, right-left), frame.height);
-          ctx.strokeStyle = '#54a9ff';
-          ctx.globalAlpha = .48;
-          ctx.setLineDash([4,5]);
-          [left,right].forEach(x => {
-            ctx.beginPath();
-            ctx.moveTo(x, frame.top);
-            ctx.lineTo(x, frame.bottom);
-            ctx.stroke();
-          });
-          ctx.restore();
+        const left = frame.left + elapsed / total * frame.plotW;
+        const right = frame.left + (elapsed + duration) / total * frame.plotW;
+        const selected = index === advancedPhaseSelected;
+        const pause = phase.type === 'pause';
+        const preinfusion = phase.type === 'preinfusion';
+        ctx.save();
+        ctx.fillStyle = selected
+          ? 'rgba(255,209,102,.12)'
+          : pause
+            ? 'rgba(84,169,255,.075)'
+            : preinfusion
+              ? 'rgba(75,209,139,.06)'
+              : index % 2
+                ? 'rgba(225,139,72,.035)'
+                : 'rgba(255,255,255,.018)';
+        ctx.fillRect(left, frame.top, Math.max(1, right-left), frame.plotH);
+
+        const phaseLabel = phaseDisplayName(phase, index, advancedPhaseDraft);
+        const durationLabel = fmt(duration, duration % 1 ? 1 : 0) + ' ' + tr('с');
+        const fullLabel = phaseLabel + ' · ' + durationLabel;
+        const availableWidth = Math.max(0, right - left - 8);
+        ctx.globalAlpha = selected ? 1 : .86;
+        ctx.fillStyle = selected ? '#ffd166' : '#cbd3dc';
+        ctx.font = chartFont(9, selected ? 700 : 600);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        const shortLabel = phase.type === 'preinfusion'
+          ? tr('Смачив.')
+          : phase.type === 'pause'
+            ? tr('Пауза')
+            : tr('Подача');
+        const label = [
+          fullLabel,
+          shortLabel + ' · ' + durationLabel,
+          shortLabel,
+          durationLabel
+        ].find(value => ctx.measureText(value).width <= availableWidth) || '';
+        if (label) {
+          ctx.fillText(label, left + (right - left) / 2, 7);
         }
+
+        const arrowY = Math.max(25, frame.top - 13);
+        const width = right - left;
+        const innerLeft = Math.min(right, left + Math.min(8, width * .22));
+        const innerRight = Math.max(left, right - Math.min(8, width * .22));
+        const arrow = Math.min(4, Math.max(2, width * .08));
+        ctx.strokeStyle = selected ? '#ffd166' : 'rgba(151,162,175,.70)';
+        ctx.lineWidth = selected ? 1.4 : 1;
+        ctx.globalAlpha = selected ? 1 : .86;
+        ctx.beginPath();
+        ctx.moveTo(left + .5, arrowY - 7);
+        ctx.lineTo(left + .5, arrowY + 7);
+        ctx.moveTo(right - .5, arrowY - 7);
+        ctx.lineTo(right - .5, arrowY + 7);
+        ctx.stroke();
+        if (width >= 14) {
+          ctx.beginPath();
+          ctx.moveTo(innerLeft, arrowY);
+          ctx.lineTo(innerRight, arrowY);
+          ctx.moveTo(innerLeft, arrowY);
+          ctx.lineTo(innerLeft + arrow, arrowY - arrow);
+          ctx.moveTo(innerLeft, arrowY);
+          ctx.lineTo(innerLeft + arrow, arrowY + arrow);
+          ctx.moveTo(innerRight, arrowY);
+          ctx.lineTo(innerRight - arrow, arrowY - arrow);
+          ctx.moveTo(innerRight, arrowY);
+          ctx.lineTo(innerRight - arrow, arrowY + arrow);
+          ctx.stroke();
+        }
+
+        if (index > 0) {
+          ctx.strokeStyle = '#8aa0b6';
+          ctx.lineWidth = 1.25;
+          ctx.globalAlpha = .72;
+          ctx.setLineDash([5,4]);
+          ctx.beginPath();
+          ctx.moveTo(left, frame.top);
+          ctx.lineTo(left, frame.bottom);
+          ctx.stroke();
+
+          ctx.setLineDash([]);
+          ctx.globalAlpha = .92;
+          ctx.fillStyle = selected ? '#ffd166' : '#aab7c4';
+          ctx.font = chartFont(9, 650);
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
+          ctx.fillText(fmt(elapsed, elapsed % 1 ? 1 : 0) + ' c', left, frame.top + 3);
+        }
+        ctx.restore();
         elapsed += duration;
       });
     }
@@ -12216,41 +13135,178 @@ if (card) {
     function drawAdvancedPhaseControlPoints(frame) {
       const canvas = $('chart');
       mainCurveControlPoints = [];
-      if (!advancedPhaseDraft) return;
+      const phases = normalizeAdvancedPhases(advancedPhaseDraft);
+      if (!phases) return;
+
       const ctx = frame.ctx;
-      const total = Math.max(.5, phaseDraftTotalSeconds());
+      const total = Math.max(.5,phaseDraftTotalSeconds(phases));
       let elapsed = 0;
-      advancedPhaseDraft.forEach((phase, index) => {
-        const duration = Math.max(.5, phaseNumber(phase.duration));
-        elapsed += duration;
-        if (phase.type !== 'brew') return;
-        const x = frame.left + elapsed / total * frame.width;
-        const pressure = phaseNumber(phase.end);
-        const y = frame.bottom - pressure / 12 * frame.height;
-        const selected = index === advancedPhaseSelected;
+
+      phases.forEach((phase,index) => {
+        const duration = Math.max(.5,phaseNumber(phase.duration));
+        const startX = frame.left + elapsed / total * frame.plotW;
+        const endX = frame.left + (elapsed + duration) / total * frame.plotW;
+
+        if (isAdvancedPressurePhase(phase)) {
+          const previousLinked = isAdvancedPressurePhase(phases[index-1]);
+          const nextLinked = isAdvancedPressurePhase(phases[index+1]);
+          const flatPreinfusion =
+            phase.type === 'preinfusion' &&
+            !advancedPreinfusionRampMode;
+          const points = [];
+
+          if (flatPreinfusion) {
+            points.push({
+              field:'both',
+              x:(startX+endX)/2,
+              value:phaseNumber(phase.start),
+              nextPhaseIndex:nextLinked ? index+1 : -1,
+              label:'Давление предсмачивания'
+            });
+          } else {
+            if (!previousLinked) {
+              points.push({
+                field:'start',
+                x:startX,
+                value:phaseNumber(phase.start),
+                nextPhaseIndex:-1,
+                label:'Начало'
+              });
+            }
+            points.push({
+              field:'end',
+              x:endX,
+              value:phaseNumber(phase.end),
+              nextPhaseIndex:nextLinked ? index+1 : -1,
+              label:nextLinked ? 'Общий переход' : 'Финиш'
+            });
+          }
+
+          points.forEach(point => {
+            const y = frame.bottom - point.value / 12 * frame.plotH;
+            const key = 'ap:' + index + ':' + point.field;
+            const active = mainCurveDragKey === key;
+            const hovered = mainCurveHoverKey === key;
+            mainCurveControlPoints.push({
+              key,
+              kind:'pressure',
+              phaseIndex:index,
+              phaseField:point.field,
+              nextPhaseIndex:point.nextPhaseIndex,
+              label:point.label,
+              x:point.x,
+              y,
+              value:point.value,
+              color:'#ffd166'
+            });
+
+            ctx.save();
+            ctx.shadowColor = '#ffd166';
+            ctx.shadowBlur = active || hovered ? 11 : 4;
+            ctx.fillStyle = active ? '#ffd166' : '#171b22';
+            ctx.strokeStyle = '#ffd166';
+            ctx.lineWidth = active ? 3 : 2;
+            ctx.beginPath();
+            ctx.arc(point.x,y,active?8:hovered?7:6,0,Math.PI*2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = active ? '#171b22' : '#ffd166';
+            ctx.beginPath();
+            ctx.arc(point.x,y,2.1,0,Math.PI*2);
+            ctx.fill();
+
+            const pressureText = fmt(point.value,1) + ' ' + tr('бар');
+            ctx.font = chartFont(9,700);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const textWidth = Math.ceil(ctx.measureText(pressureText).width);
+            const pillWidth = textWidth + 10;
+            const pillHeight = 17;
+            const radius = active ? 8 : hovered ? 7 : 6;
+            const aboveTop = y - radius - pillHeight - 5;
+            const pillTop = aboveTop >= frame.top + 2
+              ? aboveTop
+              : Math.min(frame.bottom-pillHeight-2,y+radius+5);
+            const pillLeft = Math.max(
+              frame.left,
+              Math.min(frame.right-pillWidth,point.x-pillWidth/2)
+            );
+            ctx.shadowBlur = 0;
+            ctx.globalAlpha = active || hovered ? 1 : .88;
+            ctx.fillStyle = active ? '#ffd166' : 'rgba(23,27,34,.92)';
+            ctx.strokeStyle = '#ffd166';
+            ctx.lineWidth = active ? 1.6 : 1;
+            if (ctx.roundRect) {
+              ctx.beginPath();
+              ctx.roundRect(pillLeft,pillTop,pillWidth,pillHeight,5);
+              ctx.fill();
+              ctx.stroke();
+            } else {
+              ctx.fillRect(pillLeft,pillTop,pillWidth,pillHeight);
+              ctx.strokeRect(pillLeft,pillTop,pillWidth,pillHeight);
+            }
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = active ? '#171b22' : '#ffd166';
+            ctx.fillText(
+              pressureText,
+              pillLeft+pillWidth/2,
+              pillTop+pillHeight/2+.2
+            );
+            ctx.restore();
+          });
+        }
+
+        const key = 'ab:' + index;
+        const stageGuide = shotLineStyle('stages');
+        const active = mainCurveDragKey === key;
+        const selected = advancedPhaseSelected === index;
+        mainCurveControlPoints.push({
+          key,
+          kind:'duration',
+          phaseIndex:index,
+          x:endX,
+          y:(frame.top+frame.bottom)/2,
+          value:duration,
+          color:selected ? '#ffd166' : '#8aa0b6',
+          hitLeft:endX-12,
+          hitRight:endX+12,
+          hitTop:frame.top,
+          hitBottom:frame.bottom
+        });
         ctx.save();
-        ctx.shadowColor = '#ffd166';
-        ctx.shadowBlur = selected ? 12 : 5;
-        ctx.fillStyle = selected ? '#ffd166' : '#171b22';
-        ctx.strokeStyle = '#ffd166';
-        ctx.lineWidth = selected ? 3 : 2;
+        ctx.strokeStyle = active || selected ? '#ffd166' : stageGuide.color;
+        ctx.lineWidth = active || selected
+          ? Math.max(2,stageGuide.width)
+          : stageGuide.width;
+        ctx.globalAlpha = active || selected
+          ? .9
+          : Math.max(.35,stageGuide.opacity);
+        ctx.setLineDash([4,5]);
         ctx.beginPath();
-        ctx.arc(x, y, selected ? 8 : 6, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.moveTo(endX,frame.top);
+        ctx.lineTo(endX,frame.bottom);
         ctx.stroke();
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = selected ? '#171b22' : '#ffd166';
-        ctx.beginPath();
-        ctx.arc(x, y, 2.2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.font = chartFont(9);
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
-        ctx.fillStyle = '#ffd166';
-        ctx.fillText(fmt(pressure,1), x, Math.max(frame.top + 18, y - 10));
         ctx.restore();
+
+        elapsed += duration;
       });
-      if (canvas) canvas.style.cursor = 'default';
+
+      const highlighted = mainCurveControlPoints.find(
+        point =>
+          point.kind === 'pressure' &&
+          point.key === (mainCurveDragKey || mainCurveHoverKey)
+      );
+      if (highlighted) {
+        drawRecipePointTooltip(frame, highlighted);
+      }
+
+      if (canvas) {
+        const point = mainCurveControlPoints.find(item => item.key === (mainCurveDragKey || mainCurveHoverKey));
+        canvas.style.cursor = !point ? 'default' :
+          mainCurveDragKey ? 'grabbing' :
+          point.kind === 'duration' ? 'ew-resize' : 'ns-resize';
+      }
     }
 
     function drawMainCurveControlPoints(frame, series) {
@@ -12698,6 +13754,7 @@ if (card) {
     }
 
     function handleMainChartDoubleClick(event) {
+      if (profilePhaseEditMode) return;
       if (!mainCurveCanEdit()) return;
       const canvas = $('chart');
       if (!canvas) return;
@@ -12753,12 +13810,14 @@ if (card) {
       const canvas = $('chart');
       const rect = canvas.getBoundingClientRect();
       const config = recipeConfigFromInputs();
-      const profileTotal = Math.max(
-        1,
-        Math.max(0, Number(config.prePump) || 0) +
-        Math.max(0, Number(config.prePause) || 0) +
-        Math.max(0, Number(config.shotSeconds) || 0)
-      );
+      const profileTotal = advancedPhaseDraft
+        ? Math.max(1,phaseDraftTotalSeconds(advancedPhaseDraft))
+        : Math.max(
+            1,
+            Math.max(0, Number(config.prePump) || 0) +
+            Math.max(0, Number(config.prePause) || 0) +
+            Math.max(0, Number(config.shotSeconds) || 0)
+          );
 
       mainCurveDragKey = pointKey;
       mainCurveHoverKey = pointKey;
@@ -12766,10 +13825,9 @@ if (card) {
       mainCurveDragStartX = event.clientX;
       mainCurveDragStartY = event.clientY;
       mainCurveDragMoved = false;
-      mainCurveDragStartConfig = Object.assign(
-        {},
-        config
-      );
+      mainCurveDragStartConfig = advancedPhaseDraft
+        ? { phases:cloneAdvancedPhases(advancedPhaseDraft) }
+        : Object.assign({},config);
       mainCurveClassicLinkedDrag =
         linkClassicForThisDrag;
       mainCurveDragSecondsPerPixel = Math.max(
@@ -12813,6 +13871,89 @@ if (card) {
         const pressure =
           mainCurvePressureFromPointer(event);
         let changed = false;
+
+        if (advancedPhaseDraft && Number.isInteger(point?.phaseIndex)) {
+          const phaseIndex = point.phaseIndex;
+          const startPhases = start?.phases;
+          if (!Array.isArray(startPhases) || !startPhases[phaseIndex]) {
+            event.preventDefault();
+            return;
+          }
+
+          if (point.kind === 'pressure') {
+            const phase = advancedPhaseDraft[phaseIndex];
+            if (phase?.type !== 'pause') {
+              const next = Math.max(0,Math.min(12,pressure));
+              if (point.phaseField === 'both') {
+                if (
+                  Math.abs(phaseNumber(phase.start)-next) > .049 ||
+                  Math.abs(phaseNumber(phase.end)-next) > .049
+                ) {
+                  phase.start = next;
+                  phase.end = next;
+                  changed = true;
+                }
+              } else if (
+                point.phaseField === 'start' ||
+                point.phaseField === 'end'
+              ) {
+                if (Math.abs(phaseNumber(phase[point.phaseField])-next) > .049) {
+                  phase[point.phaseField] = next;
+                  changed = true;
+                }
+              }
+
+              const linkedIndex = Number(point.nextPhaseIndex);
+              const linkedPhase = Number.isInteger(linkedIndex)
+                ? advancedPhaseDraft[linkedIndex]
+                : null;
+              if (
+                linkedPhase &&
+                isAdvancedPressurePhase(linkedPhase) &&
+                Math.abs(phaseNumber(linkedPhase.start)-next) > .049
+              ) {
+                linkedPhase.start = next;
+                changed = true;
+              }
+            }
+          } else if (point.kind === 'duration') {
+            const original = Math.max(
+              .5,
+              phaseNumber(startPhases[phaseIndex].duration)
+            );
+            const otherTotal = startPhases.reduce(
+              (sum,phase,index) => index === phaseIndex
+                ? sum
+                : sum + Math.max(.5,phaseNumber(phase.duration)),
+              0
+            );
+            const maximum = Math.max(.5,240-otherTotal);
+            const next = Math.max(
+              .5,
+              Math.min(maximum,original+deltaSeconds)
+            );
+            const rounded = Math.round(next*10)/10;
+            if (
+              Math.abs(
+                phaseNumber(advancedPhaseDraft[phaseIndex].duration)-rounded
+              ) > .049
+            ) {
+              advancedPhaseDraft[phaseIndex].duration = rounded;
+              changed = true;
+            }
+          }
+
+          if (changed) {
+            advancedPhaseSelected = phaseIndex;
+            recipeDirty = true;
+            mainCurveDirty = true;
+            renderAdvancedPhaseEditor();
+            updateShotScenario();
+            requestAnimationFrame(draw);
+          }
+          event.preventDefault();
+          return;
+        }
 
         if (
           point?.kind === 'boundary' ||
@@ -13082,13 +14223,10 @@ if (card) {
         }
       }
 
-      if (profileView && !shotRunning) {
+      if (profileView && !shotRunning && profilePhaseEditMode) {
         const editingFocus = !!(mainCurveDragKey || mainCurveHoverKey);
-        if (editingFocus) {
-          hideChartTooltip();
-        } else {
-          drawChartHover(frame, series);
-        }
+        if (editingFocus) hideChartTooltip();
+        else drawChartHover(frame, series);
         drawMainCurveControlPoints(frame, series);
       } else {
         mainCurveControlPoints = [];
@@ -13257,19 +14395,10 @@ if (card) {
       card?.classList.toggle('live', pressure > .15);
 
       const centerX = rect.width / 2;
-      /*
-       * The lower opening of the arc leaves room for the value and service
-       * footer. Move the circle down slightly and use the previously empty
-       * upper area so the indicator fills the compact card more confidently.
-       */
-      const centerY = rect.height * .55 - 4;
+      const centerY = rect.height / 2;
       const provisionalRadius = Math.max(
         36,
-        Math.min(
-          rect.width / 2 - 7,
-          centerY - 4,
-          (rect.height - centerY - 5) / .755
-        )
+        Math.min(rect.width, rect.height) / 2 - 3
       );
       const ringWidth = Math.max(
         10,
@@ -13277,11 +14406,7 @@ if (card) {
       );
       const radius = Math.max(
         30,
-        Math.min(
-          provisionalRadius,
-          centerY - ringWidth / 2 - 4,
-          (rect.height - centerY - ringWidth / 2 - 4) / .755
-        )
+        provisionalRadius - ringWidth / 2
       );
       const startAngle = Math.PI * .73;
       const sweep = Math.PI * 1.54;
@@ -14078,6 +15203,11 @@ if (card) {
       if (!option || recipeApplying) return;
 
       const previous = currentProfileName;
+      if (option === 'Custom' && !customProfileAvailable) {
+        toast(tr('Измените любой профиль и нажмите «Применить»'),true);
+        select.value = previous;
+        return;
+      }
       recipeApplying = true;
       recipeDirty = false;
       clearMainCurveDraftState();
@@ -14089,6 +15219,9 @@ if (card) {
       advancedPhaseDraft = null;
       advancedPhaseSelected = -1;
       advancedPhaseEditorOpen = false;
+      profilePhaseEditMode = false;
+      activeCustomPhaseSpec = option === 'Custom' ? activeCustomPhaseSpec : '';
+      activeCustomPhaseBase = option === 'Custom' ? activeCustomPhaseBase : '';
       renderAdvancedPhaseEditor();
       syncProfileControls(option);
       updateRecipeProfileUi();
@@ -14122,9 +15255,19 @@ if (card) {
 
     async function applyHomeProfile(select) {
       const option = select?.value;
-      const hasDraft = !!(mainCurveDirty || recipeDirty);
+      const hasDraft = !!(
+        mainCurveDirty ||
+        recipeDirty ||
+        profilePhaseEditMode ||
+        mainCurveEditing
+      );
 
       if (!option || homeProfileApplying) return;
+      if (option === 'Custom' && !customProfileAvailable) {
+        toast(tr('Измените любой профиль и нажмите «Применить»'),true);
+        return;
+      }
+      if (option === 'Custom' && hasDraft) return;
       if (option === currentProfileName && !hasDraft) return;
 
       activeUserProfileId = '';
@@ -14143,6 +15286,9 @@ if (card) {
       advancedPhaseDraft = null;
       advancedPhaseSelected = -1;
       advancedPhaseEditorOpen = false;
+      profilePhaseEditMode = false;
+      activeCustomPhaseSpec = option === 'Custom' ? activeCustomPhaseSpec : '';
+      activeCustomPhaseBase = option === 'Custom' ? activeCustomPhaseBase : '';
       renderAdvancedPhaseEditor();
       syncProfileControls(option);
       chartMode = 'auto';
@@ -14189,7 +15335,7 @@ if (card) {
             setNumberEntityValue(name, node.value);
           }
         }
-        await applyAdvancedPhaseSpec('');
+        await applyAdvancedPhaseSpec(profilePhaseEditMode && advancedPhaseDraft ? advancedPhaseSpec(advancedPhaseDraft) : String(activeCustomPhaseSpec || ''));
         await post('select', 'Silvia Shot Profile', 'set', { option:'Custom' });
         recipeDirty = false;
         currentProfileName = 'Custom';
@@ -15714,7 +16860,7 @@ if (card) {
     async function loadHomeStatus(){
       const items=[
         ['switch','Silvia Hot Water',v=>setHotWater(stateOn(v.value??v.state))],['switch','Silvia Steam Mode',v=>setSteamMode(stateOn(v.value??v.state))],['binary_sensor','Silvia Water Level',v=>showWaterLevel(stateOn(v.value??v.state))],
-        ['sensor','Silvia Backflush Shots',v=>values.backflushShots=Number(v.value)],['sensor','Silvia Auto Off Remaining',v=>values.autoOffRemaining=Number(v.value)],['number','Silvia Backflush Reminder Shots',v=>values.backflushReminderLive=Number(v.value)],['number','Silvia Steam Target',v=>values.steamTargetLive=Number(v.value)],['switch','Silvia Stop Brew By Weight',v=>{const node=$('stopByWeight');if(node)node.checked=stateOn(v.value??v.state);updateStopByWeightControl();}]
+        ['sensor','Silvia Backflush Shots',v=>values.backflushShots=Number(v.value)],['sensor','Silvia Monthly Shots',v=>values.monthlyShots=Number(v.value)],['sensor','Silvia Monthly Drink Weight',v=>values.monthlyDrinkWeight=Number(v.value)],['sensor','Silvia Auto Off Remaining',v=>values.autoOffRemaining=Number(v.value)],['number','Silvia Backflush Reminder Shots',v=>values.backflushReminderLive=Number(v.value)],['number','Silvia Steam Target',v=>values.steamTargetLive=Number(v.value)],['switch','Silvia Stop Brew By Weight',v=>{const node=$('stopByWeight');if(node)node.checked=stateOn(v.value??v.state);updateStopByWeightControl();}]
       ];
       await Promise.all(items.map(async([d,n,a])=>{try{a(await get(d,n));}catch(_){}})); updateHomeDashboard(); updateQuickActions();
     }
@@ -15865,6 +17011,7 @@ if (card) {
     loadShotLineSettings();
     loadUserProfiles({ silent:true });
     initHomeDashboardLayout();
+    initHomeInfoCardOrder();
     connectionLastOkAt = Date.now();
     scheduleDashboardOffline();
 
@@ -15931,14 +17078,65 @@ if (card) {
 class CoffeeDashboardHandler : public AsyncWebHandler {
  public:
   bool canHandle(AsyncWebServerRequest *request) const override {
-    if (request->method() != HTTP_GET)
-      return false;
     char buffer[AsyncWebServerRequest::URL_BUF_SIZE];
     const std::string url = request->url_to(buffer);
-    return url == "/coffee" || url == "/coffee/";
+
+    if (request->method() == HTTP_GET)
+      return url == "/coffee" || url == "/coffee/";
+
+    if (request->method() == HTTP_POST)
+      return url == "/custom-phases/apply" ||
+             url == "/custom-phases/clear";
+
+    return false;
   }
 
   void handleRequest(AsyncWebServerRequest *request) override {
+    char buffer[AsyncWebServerRequest::URL_BUF_SIZE];
+    const std::string url = request->url_to(buffer);
+
+    if (request->method() == HTTP_POST) {
+      if (url == "/custom-phases/clear") {
+        silvia::clear_custom_shot_phases();
+        auto *response = request->beginResponse(
+            200,
+            "application/json; charset=utf-8",
+            "{\"ok\":true}");
+        response->addHeader("Cache-Control","no-store");
+        request->send(response);
+        return;
+      }
+
+      if (url == "/custom-phases/apply") {
+        if (!request->hasParam("spec")) {
+          request->send(400,"application/json","{\"ok\":false,\"error\":\"missing_spec\"}");
+          return;
+        }
+
+        std::vector<silvia::ShotPhase> phases;
+        std::string error;
+        const std::string spec = request->getParam("spec")->value();
+
+        if (!silvia_profiles::parse_phase_spec(spec,phases,&error) ||
+            !silvia::set_custom_shot_phases(phases,&error)) {
+          const std::string body =
+              std::string("{\"ok\":false,\"error\":\"") +
+              silvia_profiles::json_escape(error.empty() ? "invalid_phases" : error) +
+              "\"}";
+          request->send(400,"application/json",body.c_str());
+          return;
+        }
+
+        auto *response = request->beginResponse(
+            200,
+            "application/json; charset=utf-8",
+            "{\"ok\":true}");
+        response->addHeader("Cache-Control","no-store");
+        request->send(response);
+        return;
+      }
+    }
+
     auto *response = request->beginResponse(
         200,
         "text/html; charset=utf-8",

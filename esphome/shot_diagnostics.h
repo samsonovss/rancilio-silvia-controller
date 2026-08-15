@@ -59,6 +59,11 @@ enum class TransitionReason : uint8_t {
   NONE,
   PRESSURE_RESPONSE,
   TIMEOUT_2S,
+  START_PRESSURE_LOW,
+  RESIDUAL_PRESSURE_CLEARED,
+  RESIDUAL_PRESSURE_STALLED,
+  RESIDUAL_PRESSURE_TIMEOUT,
+  START_SENSOR_INVALID,
 };
 
 struct ShotSample {
@@ -99,6 +104,28 @@ struct ShotSample {
   uint32_t xdb_rejected_packets;
   uint32_t xdb_total_errors;
   uint32_t xdb_consecutive_errors;
+  uint8_t phase_index;
+  uint8_t phase_kind;
+  bool phase_pump_enabled;
+  float phase_progress;
+  float phase_elapsed_s;
+  float phase_remaining_s;
+  float phase_start_target_bar;
+  float phase_end_target_bar;
+  float target_plus_025s_bar;
+  float target_plus_05s_bar;
+  float target_plus_1s_bar;
+  float target_slope_bar_s;
+  float predicted_target_bar;
+  float previous_output_percent;
+  bool scale_data_valid;
+  uint8_t profile_code;
+  float brew_target_temperature_c;
+  float coffee_dose_g;
+  float target_weight_g;
+  bool stop_by_weight_enabled;
+  float startup_initial_pressure_bar;
+  uint32_t startup_wait_ms;
 };
 
 inline std::vector<ShotSample, PsramAllocator<ShotSample>> last_shot;
@@ -131,6 +158,16 @@ inline const char *transition_reason_name(TransitionReason reason) {
       return "pressure_response";
     case TransitionReason::TIMEOUT_2S:
       return "timeout_2s";
+    case TransitionReason::START_PRESSURE_LOW:
+      return "start_pressure_low";
+    case TransitionReason::RESIDUAL_PRESSURE_CLEARED:
+      return "residual_pressure_cleared";
+    case TransitionReason::RESIDUAL_PRESSURE_STALLED:
+      return "residual_pressure_stalled";
+    case TransitionReason::RESIDUAL_PRESSURE_TIMEOUT:
+      return "residual_pressure_timeout";
+    case TransitionReason::START_SENSOR_INVALID:
+      return "start_sensor_invalid";
     case TransitionReason::NONE:
       return "";
   }
@@ -172,7 +209,7 @@ using PsramString = std::basic_string<char, std::char_traits<char>, PsramAllocat
 
 inline PsramString make_csv() {
   PsramString csv;
-  csv.reserve(512 + last_shot.size() * 260);
+  csv.reserve(768 + last_shot.size() * 380);
   csv += "elapsed_ms,phase,target_bar,pressure_bar,pressure_slope_bar_s,predicted_pressure_bar,";
   csv += "time_to_target_s,soft_start_limit_percent,";
   csv += "desired_pressure_slope_bar_s,rise_rate_brake,pressure_recovery_boost,";
@@ -181,13 +218,20 @@ inline PsramString make_csv() {
   csv += "p_term,i_term,pi_output,final_output_percent,";
   csv += "temperature_feed_forward_percent,pressure_sensor_temperature_c,boiler_temperature_c,";
   csv += "weight_g,flow_g_s,xdb_start_errors,xdb_status_errors,xdb_measurement_timeouts,";
-  csv += "xdb_packet_errors,xdb_rejected_packets,xdb_total_errors,xdb_consecutive_errors\n";
-  char line[512];
+  csv += "xdb_packet_errors,xdb_rejected_packets,xdb_total_errors,xdb_consecutive_errors,";
+  csv += "phase_index,phase_kind,phase_pump_enabled,phase_progress,phase_elapsed_s,phase_remaining_s,";
+  csv += "phase_start_target_bar,phase_end_target_bar,target_plus_025s_bar,target_plus_05s_bar,";
+  csv += "target_plus_1s_bar,target_slope_bar_s,predicted_target_bar,previous_output_percent,scale_data_valid,";
+  csv += "profile_code,brew_target_temperature_c,coffee_dose_g,target_weight_g,stop_by_weight_enabled,";
+  csv += "startup_initial_pressure_bar,startup_wait_ms\n";
+  char line[768];
   for (const auto &sample : last_shot) {
     const int length = snprintf(
         line, sizeof(line),
         "%lu,%u,%.4f,%.4f,%.4f,%.4f,%.4f,%.2f,%.4f,%.5f,%.5f,%.4f,%u,%lu,%u,%s,%s,%d,%d,%u,"
-        "%.5f,%.5f,%.5f,%.5f,%.2f,%.2f,%.2f,%.2f,%.3f,%.3f,%lu,%lu,%lu,%lu,%lu,%lu,%lu\n",
+        "%.5f,%.5f,%.5f,%.5f,%.2f,%.2f,%.2f,%.2f,%.3f,%.3f,%lu,%lu,%lu,%lu,%lu,%lu,%lu,"
+        "%u,%u,%u,%.5f,%.3f,%.3f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.2f,%u,"
+        "%u,%.2f,%.2f,%.2f,%u,%.4f,%lu\n",
         static_cast<unsigned long>(sample.elapsed_ms), sample.phase,
         sample.target_bar, sample.pressure_bar, sample.pressure_slope_bar_s,
         sample.predicted_pressure_bar, sample.time_to_target_s,
@@ -210,7 +254,19 @@ inline PsramString make_csv() {
         static_cast<unsigned long>(sample.xdb_packet_errors),
         static_cast<unsigned long>(sample.xdb_rejected_packets),
         static_cast<unsigned long>(sample.xdb_total_errors),
-        static_cast<unsigned long>(sample.xdb_consecutive_errors));
+        static_cast<unsigned long>(sample.xdb_consecutive_errors),
+        sample.phase_index, sample.phase_kind,
+        sample.phase_pump_enabled ? 1 : 0, sample.phase_progress,
+        sample.phase_elapsed_s, sample.phase_remaining_s,
+        sample.phase_start_target_bar, sample.phase_end_target_bar,
+        sample.target_plus_025s_bar, sample.target_plus_05s_bar,
+        sample.target_plus_1s_bar, sample.target_slope_bar_s,
+        sample.predicted_target_bar, sample.previous_output_percent,
+        sample.scale_data_valid ? 1 : 0, sample.profile_code,
+        sample.brew_target_temperature_c, sample.coffee_dose_g,
+        sample.target_weight_g, sample.stop_by_weight_enabled ? 1 : 0,
+        sample.startup_initial_pressure_bar,
+        static_cast<unsigned long>(sample.startup_wait_ms));
     if (length > 0)
       csv.append(line, std::min<int>(length, sizeof(line) - 1));
   }
