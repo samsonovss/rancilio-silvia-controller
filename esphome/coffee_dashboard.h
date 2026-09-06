@@ -947,6 +947,21 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
 
 
 
+                    
+
+                    <div class="machine-status-hidden" aria-hidden="true">
+                      <div class="machine-control-title">Rancilio Silvia</div>
+                      <strong id="machineState" class="machine-state">Выключена</strong>
+
+                      <span id="backflushCard">
+                        <span id="backflushMain">—</span>
+                        <span id="backflushCount">—</span>
+                        <span id="backflushLimit">—</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="machine-power-tile machine-mascot-tile">
                     <div id="machineWaterStatus"
                       class="machine-water-status machine-water-indicator mascot-water-slot unknown"
                       title="Состояние бака воды" role="status">
@@ -968,17 +983,6 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                       <span id="machineWaterIcon" class="machine-water-result"
                         aria-hidden="true">?</span>
                       <b id="machineWaterText" class="machine-water-label">Нет данных</b>
-                    </div>
-
-                    <div class="machine-status-hidden" aria-hidden="true">
-                      <div class="machine-control-title">Rancilio Silvia</div>
-                      <strong id="machineState" class="machine-state">Выключена</strong>
-
-                      <span id="backflushCard">
-                        <span id="backflushMain">—</span>
-                        <span id="backflushCount">—</span>
-                        <span id="backflushLimit">—</span>
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -1487,6 +1491,16 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                 <span><b>Давление</b><small>Регулятор и наполнение</small></span>
                 <i>›</i>
               </button>
+
+              <button class="settings-nav-item" type="button" role="tab"
+                data-settings-target="power" aria-selected="false"
+                onclick="setSettingsPanel('power')">
+                <span class="settings-nav-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>
+                </span>
+                <span><b>Питание</b><small>Автовключение и автоотключение</small></span>
+                <i>›</i>
+              </button>
             </div>
           </aside>
 
@@ -1715,17 +1729,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                   </div>
                 </div>
 
-                <div class="temperature-setting-row machine-primary-row">
-                  <div class="temperature-setting-copy">
-                    <label for="autoOff">Автоотключение</label>
-                    <small>Время бездействия до автоматического выключения кофемашины.</small>
-                    <span class="machine-live-meta">Осталось: <b id="autoOffRemaining">—</b> мин</span>
-                  </div>
-                  <div class="temperature-setting-control">
-                    <input id="autoOff" type="number" min="0" max="180" step="5">
-                    <span>мин</span>
-                  </div>
-                </div>
+
 
                 <div class="temperature-setting-row machine-primary-row">
                   <div class="temperature-setting-copy">
@@ -1740,8 +1744,54 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
               </div>
 
               <div class="machine-primary-actions">
-                <button class="secondary" onclick="pressButton('Silvia Reset Auto Off Timer')">Сбросить таймер</button>
                 <button class="primary" onclick="saveNumberGroup(machineNums,tr('Настройки машины сохранены'))">Сохранить настройки машины</button>
+              </div>
+            </section>
+
+            <section class="settings-panel" data-settings-panel="power">
+              <div class="settings-panel-head">
+                <div>
+                  <div class="section-title">Питание</div>
+                  <div class="section-subtitle">Когда кофемашина включается сама и когда гаснет без дела.</div>
+                </div>
+              </div>
+
+              <div class="machine-primary-grid">
+                <div class="temperature-setting-row machine-primary-row">
+                  <div class="temperature-setting-copy">
+                    <label for="autoOnHour">Автовключение</label>
+                    <small>Кофемашина включится сама в это время, каждый день. Автоотключение продолжит работать как обычно.</small>
+                    <label class="machine-auto-on-toggle">
+                      <span class="toggle-control">
+                        <input id="autoOnEnabled" type="checkbox"
+                          onchange="updateSwitch(this,'Silvia Auto On Enabled')">
+                        <i></i>
+                      </span>
+                      <span>Включено</span>
+                    </label>
+                  </div>
+                  <div class="temperature-setting-control machine-auto-on-time">
+                    <input id="autoOnHour" type="number" min="0" max="23" step="1" aria-label="Час">
+                    <span>:</span>
+                    <input id="autoOnMinute" type="number" min="0" max="59" step="1" aria-label="Минуты">
+                  </div>
+                </div>
+                <div class="temperature-setting-row machine-primary-row">
+                  <div class="temperature-setting-copy">
+                    <label for="autoOff">Автоотключение</label>
+                    <small>Время бездействия до автоматического выключения кофемашины.</small>
+                    <span class="machine-live-meta">Осталось: <b id="autoOffRemaining">—</b> мин</span>
+                  </div>
+                  <div class="temperature-setting-control">
+                    <input id="autoOff" type="number" min="0" max="180" step="5">
+                    <span>мин</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="machine-primary-actions">
+                <button class="secondary" onclick="pressButton('Silvia Reset Auto Off Timer')">Сбросить таймер</button>
+                <button class="primary" onclick="saveNumberGroup(powerNums,tr('Настройки питания сохранены'))">Сохранить настройки питания</button>
               </div>
             </section>
 
@@ -1999,6 +2049,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
               <div class="lab-metric"><span>Отклонены</span><b id="trainingRejectedCount">—</b></div>
               <div class="lab-metric"><span>Профили</span><b id="trainingProfileCount">—</b></div>
               <div class="lab-metric"><span>Ошибки XDB401</span><b id="trainingSensorRejectedCount">—</b></div>
+              <div class="lab-metric"><span>Отклонение от профиля, бар</span><b id="trainingTrackingRmse">—</b></div>
             </div>
 
             <div class="lab-storage">
@@ -2164,16 +2215,42 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                   <span id="xdbSystemDominant">—</span>
                 </div>
 
-                <div class="diagnostics-section-label">Счётчики ошибок XDB401</div>
+                <div class="diagnostics-section-label">Состояние датчика</div>
                 <div class="diagnostics-metrics diagnostics-system-grid diagnostics-sensor-grid">
-                  <div><span>Всего ошибок</span><b id="errTotal">—</b></div>
+                  <div class="diagnostics-wide"><span>Датчик и связь</span><b id="xdbHealth">—</b></div>
+                </div>
+
+                <div class="diagnostics-section-label">Сбои связи &mdash; это неисправность</div>
+                <p class="section-subtitle">
+                  Датчик не ответил или пакет не дошёл. Только эти счётчики означают
+                  физическую проблему: шина, провода, питание или сам датчик.
+                  Два сбоя подряд снимают помпу.
+                </p>
+                <div class="diagnostics-metrics diagnostics-system-grid diagnostics-sensor-grid">
+                  <div><span>Сбоев связи</span><b id="errLink">—</b></div>
                   <div><span>Старт измерения</span><b id="errStart">—</b></div>
                   <div><span>Чтение статуса</span><b id="errStatus">—</b></div>
                   <div><span>Тайм-аут измерения</span><b id="errTimeout">—</b></div>
                   <div><span>Чтение пакета</span><b id="errPacket">—</b></div>
-                  <div><span>Отбраковано пакетов</span><b id="errRejected">—</b></div>
-                  <div><span>Ошибок подряд</span><b id="errConsecutive">—</b></div>
-                  <div class="diagnostics-wide"><span>Последняя ошибка XDB401</span><b id="errLast">—</b></div>
+                  <div><span>Сбоев подряд</span><b id="errConsecutive">—</b></div>
+                  <div class="diagnostics-wide"><span>Последний сбой связи</span><b id="errLast">—</b></div>
+                </div>
+
+                <div class="diagnostics-section-label">Отбраковка &mdash; это не неисправность</div>
+                <p class="section-subtitle">
+                  Датчик ответил нормально, но значение не прошло проверку правдоподобности
+                  и было отброшено. Помпу не снимает. Растёт обычно на резких рампах давления.
+                </p>
+                <div class="diagnostics-metrics diagnostics-system-grid diagnostics-sensor-grid">
+                  <div><span>Отбраковано всего</span><b id="errRejected">—</b></div>
+                  <div><span>По давлению</span><b id="errPressureRejected">—</b></div>
+                  <div><span>По температуре</span><b id="errTemperatureRejected">—</b></div>
+                  <div class="diagnostics-wide"><span>Последняя отбраковка</span><b id="errLastRejection">—</b></div>
+                </div>
+
+                <div class="diagnostics-section-label">Всего событий</div>
+                <div class="diagnostics-metrics diagnostics-system-grid diagnostics-sensor-grid">
+                  <div><span>Сбои связи + отбраковка</span><b id="errTotal">—</b></div>
                 </div>
               </section>
             </section>
@@ -2192,6 +2269,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                 <div><span>Состояние данных</span><b id="pt100Status">—</b></div>
                 <div><span>Возраст последнего значения</span><b><i id="pt100DataAge">—</i> с</b></div>
                 <div><span>Сбоев после запуска ESP32</span><b id="pt100FaultCount">—</b></div>
+                <div><span>Аварий по перегреву</span><b id="overtempTripCount">—</b></div>
               </div>
 
               <div class="diagnostics-section-label">Регулятор нагрева</div>
@@ -2271,6 +2349,40 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
                 </p>
               </section>
 
+              <section class="diagnostics-system-section diagnostics-esp-section">
+                <div class="diagnostics-system-section-head">
+                  <span class="diagnostics-system-section-icon esp" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M3 12h3l2-6 4 12 3-8 2 2h4"/>
+                    </svg>
+                  </span>
+                  <div>
+                    <b>Такт управления</b>
+                    <p>Насколько ровно контроллер успевает читать давление.</p>
+                  </div>
+                </div>
+
+                <div class="diagnostics-metrics diagnostics-system-grid diagnostics-esp-grid">
+                  <div>
+                    <span>Худшая итерация цикла</span>
+                    <b><i id="loopTime">—</i> мс</b>
+                  </div>
+                  <div>
+                    <span>Средний интервал давления</span>
+                    <b><i id="pressureIntervalAvg">—</i> мс</b>
+                  </div>
+                  <div>
+                    <span>Худший интервал давления</span>
+                    <b><i id="pressureIntervalMax">—</i> мс</b>
+                  </div>
+                </div>
+
+                <p class="diagnostics-esp-note">
+                  Целевой такт опроса давления — 100 мс. Защита помпы считает данные
+                  устаревшими после 350 мс, поэтому одиночные провалы до 200 мс безопасны.
+                </p>
+              </section>
+
               <div class="service-actions diagnostics-system-actions">
                 <a class="button secondary" href="/?native=1">Стандартная страница ESPHome</a>
               </div>
@@ -2285,6 +2397,163 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
 
 
   <style>
+    /*
+     * The mascot is now its own tile at the right end of the top strip, a
+     * sibling of the power tile rather than a passenger inside the status card.
+     *
+     * The three-column layout already existed for narrow viewports
+     * (70px 1fr 70px and friends) — only the desktop rule had collapsed it to
+     * two, so the third cell is restored rather than invented. Reusing the
+     * .machine-power-tile class means the tile inherits the same chrome and the
+     * same responsive widths as the power button opposite it.
+     */
+    @media (min-width:901px) {
+      #page-home .machine-top-strip {
+        grid-template-columns:78px minmax(0,1fr) 78px!important;
+      }
+    }
+
+    /*
+     * Moving the block out of .machine-restored-status also moved it out of the
+     * rules that used to cancel the water-tank chrome — the same trap that put a
+     * green box behind the face this morning. Cancelled again here.
+     */
+    #page-home .machine-mascot-tile .machine-water-indicator,
+    #page-home .machine-mascot-tile .machine-water-indicator.ok,
+    #page-home .machine-mascot-tile .machine-water-indicator.warn,
+    #page-home .machine-mascot-tile .machine-water-indicator.unknown {
+      border:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+    }
+    /*
+     * The outer tile carries no chrome of its own. The mascot has a plate
+     * already — radial gradient, border, and a colour per state — and that
+     * plate is the point. Stacking the generic tile frame around it produced
+     * the box-in-box; stripping the mascot instead threw away the very thing
+     * that made it look like a character. So the tile becomes an invisible
+     * grid cell and the mascot's native plate fills it.
+     */
+    #page-home .machine-mascot-tile {
+      padding:0!important;
+      border:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      /* .machine-power-tile pins itself with aspect-ratio:1 and place-self:start,
+         which is right for a round button but leaves this cell shorter than the
+         row. Stretching it to the row height lines the plate up with the tile on
+         the left. */
+      aspect-ratio:auto!important;
+      place-self:stretch!important;
+      height:100%!important;
+      min-height:0!important;
+    }
+    #page-home .machine-mascot-tile .mascot-water-slot {
+      width:100%!important;
+      min-width:0!important;
+      height:100%!important;
+      min-height:0!important;
+    }
+    /*
+     * The tile IS the mascot. The plate the face used to sit on is gone —
+     * keeping both produced a box inside a box, which is exactly what it looked
+     * like. Its border, fill and shadow are cancelled with !important because
+     * every state-* rule sets its own, and all of them have to lose to this.
+     */
+    /*
+     * Native look kept; only the box is resized to the cell. place-content
+     * centres the eye row explicitly instead of letting it land wherever the
+     * leftover space put it — that was what kept the face sitting off-centre.
+     */
+    #page-home .machine-mascot-tile .machine-mascot {
+      width:100%;
+      height:100%;
+      place-content:center;
+      grid-template-rows:auto;
+      padding:0 10px 15px;
+      border-radius:13px;
+    }
+
+    /*
+     * The tank badge was showing its "unknown" question mark as a bright orange
+     * disc next to the face. An idle machine has nothing to say about its tank,
+     * so the badge is now reserved for the one case that matters — low water —
+     * and shrunk into the corner instead of competing with the face.
+     */
+    #page-home .machine-mascot-tile .machine-mascot-water-alert {
+      opacity:0;
+      width:15px;
+      height:15px;
+      top:1px;
+      right:1px;
+      font-size:10px;
+    }
+    #page-home .machine-mascot-tile.warn .machine-mascot-water-alert {
+      opacity:1;
+    }
+    /* The mouth was pinned to the bottom edge; in a taller plate it would tear
+       away from the eyes, so it follows the height instead. */
+    #page-home .machine-mascot-tile .machine-mascot-mouth {
+      bottom:auto;
+      top:60%;
+    }
+
+
+    /*
+     * Specificity, not source order.
+     *
+     * The rules that keep the power tile square (aspect-ratio:1, place-self:start)
+     * live further down the same stylesheet, so an equally specific override
+     * placed above them simply lost. Adding the tile's own class to the selector
+     * raises it above those rules wherever they sit.
+     */
+    #page-home .machine-top-strip .machine-power-tile.machine-mascot-tile {
+      aspect-ratio:auto!important;
+      place-self:stretch!important;
+      align-self:stretch!important;
+      height:100%!important;
+      min-height:100%!important;
+      padding:0!important;
+      border:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+    }
+    #page-home .machine-top-strip .machine-mascot-tile .mascot-water-slot {
+      width:100%!important;
+      min-width:0!important;
+      height:100%!important;
+      min-height:100%!important;
+    }
+    #page-home .machine-top-strip .machine-mascot-tile .machine-mascot {
+      width:100%!important;
+      height:100%!important;
+    }
+
+    /* Hour and minute sit as one control, so the colon between them reads as a
+       clock rather than as two unrelated numbers. */
+    #page-settings .machine-auto-on-time {
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    #page-settings .machine-auto-on-time input {
+      width:64px;
+      text-align:center;
+    }
+    #page-settings .machine-auto-on-time span {
+      opacity:.7;
+      font-weight:700;
+    }
+    #page-settings .machine-auto-on-toggle {
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      margin-top:6px;
+      font-size:12px;
+      color:#9aa4b1;
+      cursor:pointer;
+    }
+
     /* Stage 90: horizontal drag editing for shot summary values */
     .home-value-scrub {
       position:relative;
@@ -2610,6 +2879,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       'silvia scale auto tare': ['scaleAutoTare', 'toggle'],
       'silvia stop brew by weight': ['stopByWeight', 'toggle'],
       'silvia shot diagnostics': ['shotDiagnostics', 'toggle'],
+      'silvia auto on enabled': ['autoOnEnabled', 'toggle'],
       'silvia pid warmup active': ['warmupStatus', 'status_bool'],
       'silvia shot diagnostic csv ready': ['csvReady', 'status_bool'],
       'silvia adaptive pressure feed forward': ['pressureFeedForward', 'num'],
@@ -2620,6 +2890,10 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       'silvia pt100 data age': ['pt100DataAge', 'num'],
       'silvia pt100 fault count': ['pt100FaultCount', 'num0'],
       'silvia pt100 diagnostic status': ['pt100Status', 'text'],
+      'silvia overtemp trip count': ['overtempTripCount', 'num0'],
+      'silvia loop time': ['loopTime', 'num0'],
+      'silvia pressure interval avg': ['pressureIntervalAvg', 'num0'],
+      'silvia pressure interval max': ['pressureIntervalMax', 'num0'],
       'silvia scale data age': ['scaleDataAge', 'num'],
       'silvia scale fault count': ['scaleFaultCount', 'num0'],
       'silvia scale raw diagnostic': ['scaleRawDiagnostic', 'num0'],
@@ -2646,6 +2920,11 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       'silvia xdb401 rejected packets': ['errRejected', 'num0'],
       'silvia xdb401 consecutive errors': ['errConsecutive', 'num0'],
       'silvia xdb401 last error': ['errLast', 'text'],
+      'silvia xdb401 link errors': ['errLink', 'num0'],
+      'silvia xdb401 pressure rejected': ['errPressureRejected', 'num0'],
+      'silvia xdb401 temperature rejected': ['errTemperatureRejected', 'num0'],
+      'silvia xdb401 last rejection': ['errLastRejection', 'text'],
+      'silvia xdb401 health': ['xdbHealth', 'text'],
       'silvia free psram': ['freePsram', 'num'],
       'silvia largest psram block': ['largestPsram', 'num'],
       'silvia free internal heap': ['freeInternal', 'num']
@@ -2667,8 +2946,16 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     const machineNums = {
       brewTempOffset: 'Silvia Brew Temperature Offset',
       steamTarget: 'Silvia Steam Target',
-      autoOff: 'Silvia Auto Off Minutes',
       dose: 'Silvia Coffee Dose Grams'
+    };
+
+    /* Power schedule lives in its own settings panel, so it needs its own group:
+       the save button in that panel must not silently save fields belonging to
+       another one, and the machine panel must not save these. */
+    const powerNums = {
+      autoOff: 'Silvia Auto Off Minutes',
+      autoOnHour: 'Silvia Auto On Hour',
+      autoOnMinute: 'Silvia Auto On Minute'
     };
 
     const temperatureNums = {
@@ -2696,6 +2983,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     };
 
     const switchControls = {
+      autoOnEnabled: 'Silvia Auto On Enabled',
       scaleAutoTare: 'Silvia Scale Auto Tare',
       stopByWeight: 'Silvia Stop Brew By Weight',
       shotDiagnostics: 'Silvia Shot Diagnostics'
@@ -2709,6 +2997,10 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       ['sensor', 'Silvia Boiler Temperature PT100', 'pt100Temperature', 'num'],
       ['sensor', 'Silvia PT100 Data Age', 'pt100DataAge', 'num'],
       ['sensor', 'Silvia PT100 Fault Count', 'pt100FaultCount', 'num0'],
+      ['sensor', 'Silvia Overtemp Trip Count', 'overtempTripCount', 'num0'],
+      ['sensor', 'Silvia Loop Time', 'loopTime', 'num0'],
+      ['sensor', 'Silvia Pressure Interval Avg', 'pressureIntervalAvg', 'num0'],
+      ['sensor', 'Silvia Pressure Interval Max', 'pressureIntervalMax', 'num0'],
       ['text_sensor', 'Silvia PT100 Diagnostic Status', 'pt100Status', 'text'],
       ['sensor', 'Silvia Scale Data Age', 'scaleDataAge', 'num'],
       ['sensor', 'Silvia Scale Fault Count', 'scaleFaultCount', 'num0'],
@@ -2739,6 +3031,11 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       ['sensor', 'Silvia XDB401 Rejected Packets', 'errRejected', 'num0'],
       ['sensor', 'Silvia XDB401 Consecutive Errors', 'errConsecutive', 'num0'],
       ['text_sensor', 'Silvia XDB401 Last Error', 'errLast', 'text'],
+      ['sensor', 'Silvia XDB401 Link Errors', 'errLink', 'num0'],
+      ['sensor', 'Silvia XDB401 Pressure Rejected', 'errPressureRejected', 'num0'],
+      ['sensor', 'Silvia XDB401 Temperature Rejected', 'errTemperatureRejected', 'num0'],
+      ['text_sensor', 'Silvia XDB401 Last Rejection', 'errLastRejection', 'text'],
+      ['text_sensor', 'Silvia XDB401 Health', 'xdbHealth', 'text'],
       ['sensor', 'Silvia Free PSRAM', 'freePsram', 'num'],
       ['sensor', 'Silvia Largest PSRAM Block', 'largestPsram', 'num'],
       ['sensor', 'Silvia Free Internal Heap', 'freeInternal', 'num']
@@ -2748,7 +3045,7 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
     const clean = id => (id || '').toLowerCase().replace(/[\/_-]+/g, ' ').replace(/^(sensor|number|select|switch|binary sensor) /, '').trim();
     const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-    const EN_TRANSLATIONS = {"Локальная панель":"Local dashboard","Главная":"Home","Рецепты":"Recipes","История":"History","Настройки":"Settings","Обслуживание":"Maintenance","Диагностика":"Diagnostics","Управление кофемашиной":"Espresso machine control","Включить":"Turn on","Выключить":"Turn off","подключение…":"connecting…","онлайн":"online","нет связи":"offline","Давление":"Pressure","бар":"bar","Основная цель профиля":"Main profile target","Цель сейчас":"Current target","— бар":"— bar","Ожидание":"Idle","Начать пролив":"Start shot","Остановить":"Stop","Температура":"Temperature","Цель":"Target","Факт":"Actual","Секунды":"Seconds","Вес":"Weight","г":"g","Поток":"Flow","г/с":"g/s","Помпа":"Pump","Датчик":"Sensor","Давление, поток и мощность помпы":"Pressure, flow and pump power","Профиль":"Selected profile","Последний пролив":"Last shot","Температурная стабильность":"Temperature stability","Температура воды и выход нагревателя":"Water temperature and heater output","Цель воды":"Water target","Нагрев":"Heat","Сценарий шота":"Shot sequence","Загрузка параметров…":"Loading parameters…","Выбор профиля и параметры напитка.":"Profile selection and drink parameters.","Рецепт":"Recipe","Активный профиль":"Active profile","Температура кофе, °C":"Brew temperature, °C","Доза, г":"Dose, g","Целевой вес, г":"Target weight, g","Время основного пролива, с":"Main extraction time, s","Профиль давления":"Pressure profile","Предсмачивание, с":"Preinfusion, s","Пауза, с":"Pause, s","Давление предсмачивания, бар":"Preinfusion pressure, bar","Основное давление, бар":"Main pressure, bar","Конечное давление, бар":"End pressure, bar","Сохранить как Custom":"Save as Custom","Автоматика веса":"Weight automation","Остановка по весу":"Stop by weight","Остановить пролив по целевому весу и прогнозу потока.":"Stop the shot using target weight and flow prediction.","Целевой вес задаётся в рецепте выше. Время пролива остаётся максимальным защитным ограничением.":"Target weight is set in the recipe above. Shot time remains the maximum safety limit.","История проливов":"Shot history","Локальный архив ESP32 и сохранённая цель каждого пролива.":"Local ESP32 archive with the stored target for each shot.","Архив проливов ESP32":"ESP32 shot archive","Сохранённый пролив":"Saved shot","Архив пуст":"Archive is empty","Обновить":"Refresh","Показать на главной":"Show on Home","После первого пролива здесь появится его локальный паспорт.":"A local shot summary will appear here after the first extraction.","Настройки управления":"Control settings","Температурный PID, регулирование давления и запуск помпы.":"Temperature PID, pressure control and pump startup.","Интерфейс":"Interface","Язык локальной панели сохраняется в этом браузере.":"The dashboard language is saved in this browser.","Язык":"Language","Температурный PID":"Temperature PID","Коэффициенты нагревателя и поведение при прогреве.":"Heater coefficients and warm-up behavior.","Диапазон прогрева, °C":"Warm-up range, °C","Поправка температуры, °C":"Temperature offset, °C","Feed-forward нагрева, максимум %":"Heat feed-forward maximum, %","Сохранить PID":"Save PID","Прогрев без интеграла":"Warm-up without integral","Автонастройка":"Autotune","Регулирование давления":"Pressure control","Коэффициенты замкнутого регулятора и мягкое начало фазы.":"Closed-loop coefficients and soft phase start.","Kp давления":"Pressure Kp","Ki давления":"Pressure Ki","Мягкое наполнение, с":"Soft infusion, s","Начальная мощность, %":"Starting power, %","Сохранить давление":"Save pressure settings","Адаптивный выход":"Adaptive output","Скорость давления":"Pressure rate","бар/с":"bar/s","Режим машины":"Machine mode","Режим PID":"PID mode","Цель пара, °C":"Steam target, °C","Автовыключение, мин":"Auto-off, min","Сохранить":"Save","Сбросить таймер":"Reset timer","До автоотключения":"Until auto-off","мин":"min","Весы, обратная промывка, диагностическая запись и сервис устройства.":"Scale, backflush, diagnostic recording and device service.","Весы":"Scale","Калибровочный вес, г":"Calibration weight, g","Автоматическая тара":"Automatic tare","Тарировать стабильные весы перед следующим проливом.":"Tare stable scales before the next shot.","Тарировать":"Tare","Калибровать":"Calibrate","Калибровка: сначала пустые весы → «Тарировать», затем положить указанный вес → «Калибровать».":"Calibration: empty the scale → “Tare”, then place the specified weight → “Calibrate”.","Обратная промывка":"Backflush","Напоминание, проливов":"Reminder, shots","Пауза перед ополаскиванием, с":"Delay before rinse, s","Сохранить параметры":"Save parameters","Статус":"Status","После промывки":"Since backflush","Всего проливов":"Lifetime shots","Запустить":"Start","Сбросить счётчик":"Reset counter","Диагностика пролива":"Shot diagnostics","Записать следующий пролив":"Record next shot","Синхронный CSV внутренних данных регулятора.":"Synchronized CSV of internal controller data.","CSV готов":"CSV ready","Скачать CSV":"Download CSV","Очистить":"Clear","Устройство":"Device","Причина перезапуска":"Restart reason","Израсходовано кофе":"Coffee used","Перезапустить ESP32":"Restart ESP32","Живые показатели регуляторов, XDB401 и памяти ESP32.":"Live controller, XDB401 and ESP32 memory values.","Давление и помпа":"Pressure and pump","Давление и XDB401":"Pressure and XDB401","Диагностика регулятора давления и датчика XDB401.":"Pressure-controller and XDB401 diagnostics","Регулятор":"Controller","Температура, обмен, пакеты и состояние датчика давления.":"Temperature, communication, packets, and pressure-sensor status","Текущее состояние":"Current status","Рост давления":"Pressure rise","Температура XDB401":"XDB401 temperature","PID результат":"PID output","Прогрев":"Warm-up","XDB401, память и система":"XDB401, memory and system","Всего ошибок":"Total errors","Старт":"Start","Тайм-аут":"Timeout","Пакет":"Packet","Отбраковано":"Rejected","Подряд":"Consecutive","Последняя ошибка":"Last error","Свободно PSRAM":"Free PSRAM","Крупнейший блок PSRAM":"Largest PSRAM block","Внутренний heap":"Internal heap","Состояние датчика":"Sensor health","Скачать последний CSV":"Download latest CSV","Стандартная страница ESPHome":"Standard ESPHome page","Свернуть меню":"Collapse menu","Открыть меню":"Open menu","Разделы":"Sections","Текущий пролив · цель записывается вместе с данными":"Current shot · target is recorded with the data","Последний пролив · сохранённая цель этого пролива":"Last shot · this shot’s stored target","Архивный пролив · цель взята из CSV":"Archived shot · target loaded from CSV","помпа":"pump","нагрев":"heat","с":"s","Ошибка":"Error","Да":"Yes","Нет":"No","Активен":"Active","Пролив":"Brew","Предсмачивание":"Preinfusion","Пауза":"Pause","Готов":"Ready","Включено":"Enabled","Выключено":"Disabled","Команда не выполнена":"Command failed","Питание не изменено":"Power state was not changed","Профиль не применён":"Profile was not applied","Ручные настройки сохранены как Custom":"Manual settings saved as Custom","Ошибка сохранения":"Save failed","Настройки сохранены":"Settings saved","Переключатель не изменён":"Switch was not changed","Режим не изменён":"Mode was not changed","Команда отправлена":"Command sent","Калибровка запущена":"Calibration started","Калибровка не запущена":"Calibration did not start","Архив пока недоступен":"Archive is currently unavailable","профиль не указан":"profile not specified","цель из CSV":"target from CSV","пик":"peak","ошибки XDB401":"XDB401 errors","Не удалось открыть пролив":"Could not open shot","Пролив запущен":"Shot started","Пролив остановлен":"Shot stopped","Кофемашина включена":"Espresso machine turned on","Кофемашина выключена":"Espresso machine turned off","Температурный PID сохранён":"Temperature PID saved","Настройки давления сохранены":"Pressure settings saved","Настройки машины сохранены":"Machine settings saved","Параметры обслуживания сохранены":"Maintenance settings saved","Запустить автонастройку PID? Машина должна быть включена и находиться под наблюдением.":"Start PID autotune? The machine must be powered on and supervised.","Запустить автоматическую обратную промывку? Установи глухую корзину и не оставляй машину без присмотра.":"Start automatic backflush? Install the blind basket and do not leave the machine unattended.","Сбросить счётчик проливов после промывки?":"Reset the shot counter after backflush?","Удалить диагностический CSV из памяти?":"Delete the diagnostic CSV from memory?","Перезапустить ESP32? Управление машиной временно отключится.":"Restart ESP32? Machine control will be temporarily unavailable.","Язык изменён":"Language changed","Питание":"Power","Выключена":"Off","Готова":"Ready","Нагрев пара":"Heating steam","Пар готов":"Steam ready","Подача воды":"Hot water","Ошибка датчика":"Sensor error","Бак воды":"Water tank","Вода есть":"Water available","Мало воды":"Low water","Нет данных":"No data","Промывка":"Backflush","До промывки":"Until cleaning","Проливов всего":"Total shots","Быстрые действия":"Quick actions","Остановить пролив":"Stop shot","Вода":"Water","Пар":"Steam","Вода включена":"Hot water enabled","Вода выключена":"Hot water disabled","Пар включён":"Steam enabled","Пар выключен":"Steam disabled","Напоминание выключено":"Reminder disabled","Настройка профиля с мгновенным предпросмотром.":"Profile editing with instant preview.","Редактор профиля":"Profile editor","Профиль синхронизирован":"Profile synchronized","Параметры пролива":"Shot parameters","Температура кофе":"Brew temperature","Время пролива":"Shot time","Мягкий старт":"Soft start","Стартовая мощность":"Starting power","Точки давления":"Pressure points","Начало":"Start","Основная":"Main","Финиш":"Finish","Напиток и весы":"Drink and scale","Вес напитка":"Beverage weight","Стоп по весу":"Stop by weight","Доза кофе":"Coffee dose","Целевой вес":"Target weight","Время пролива остаётся защитным ограничением.":"Shot time remains a safety limit.","Сбросить изменения":"Reset changes","Сохранить Custom":"Save Custom","Предпросмотр профиля":"Profile preview","Изменения отображаются сразу":"Changes appear instantly","Общее время":"Total time","Исходный профиль":"Original profile","Изменённый профиль":"Edited profile","Текущий профиль":"Current profile","Изменения не сохранены":"Unsaved changes","База":"Base","Базовый профиль":"Base profile","Основной пролив":"Main extraction","Старт помпы":"Pump start","Нет изменений для сброса":"No changes to reset","Изменения сброшены":"Changes reset","сохранено":"saved","Профиль загружен":"Profile loaded","Применение профиля…":"Applying profile…","Перетащите цветные точки давления вверх или вниз. Время меняется кнопками слева.":"Drag the colored pressure points up or down. Change timing with the controls on the left.","График пролива":"Shot graph","Температура и нагрев":"Temperature and heat","ОК":"OK","Пора":"Due","шотов":"shots","Останавливать по весу":"Stop at target weight","Пролив остановится при достижении целевого веса. Время остаётся защитным ограничением.":"The shot stops when the target weight is reached. Time remains a safety limit.","Выбрать профиль":"Select profile","Кривая":"Curve","Редактирование кривой":"Curve editing","Перетаскивайте цветные точки давления вверх или вниз.":"Drag the colored pressure points up or down.","Отмена":"Cancel","Увеличить график":"Expand chart","Уменьшить график":"Collapse chart","Изменения кривой отменены":"Curve changes canceled","Кривая сохранена как Custom":"Curve saved as Custom","Редактировать кривую":"Edit curve","Завершить редактирование":"Finish editing","Нет воды":"No water","Последние 10 минут · в реальном времени":"Last 10 minutes · live","Последние 5 минут · в реальном времени":"Last 5 minutes · live","5 мин":"5 min","10 мин":"10 min","Профиль и этапы выбранного пролива":"Profile and stages of the selected shot","Последние 3 минуты":"Last 3 minutes","Последние 5 минут":"Last 5 minutes","Последние 10 минут":"Last 10 minutes","3 мин":"3 min","Автоотключение":"Auto-off","Автоотключение через":"Auto-off in","Автоотключение выключено":"Auto-off disabled","через":"in","выключено":"disabled","Настроить экран":"Customize screen","Готово":"Done","Сбросить":"Reset","Перетаскивайте крупные блоки за ручку ⠿":"Drag large blocks using the ⠿ handle","Перетащить блок":"Drag block","Расположение сохранено":"Layout saved","Расположение сброшено":"Layout reset","Редактирование профиля":"Profile editing","Архивный пролив · профиль из CSV":"Archived shot · profile from CSV","Редактировать профиль":"Edit profile","Редактирование недоступно во время пролива":"Editing is unavailable during a shot","Профиль сохранён как Custom":"Profile saved as Custom","Изменения профиля отменены":"Profile changes canceled","Параметры и кривая обновляются сразу. Сохранение создаёт Custom.":"Parameters and curve update instantly. Saving creates Custom.","Точки давления также можно перетаскивать прямо на графике.":"Pressure points can also be dragged directly on the chart.","Редактировать точки давления":"Edit pressure points","Перетаскивайте цветные точки прямо на графике.":"Drag the colored points directly on the chart.","Изменение отменено":"Change canceled","Параметр":"Parameter","Перетаскивайте блоки за ⠿ или скрывайте кнопкой справа":"Drag blocks using ⠿ or hide them with the right button","Скрытые блоки":"Hidden blocks","Скрыть блок":"Hide block","Состояние машины":"Machine status","Температурный график":"Temperature chart","Температура и PID":"Temperature and PID","Состояние бойлера за последнюю минуту":"Boiler status over the last minute","Нагрев PID":"PID heating","PID активен":"PID active","Удержание":"Holding","Температура на цели":"Temperature on target","До цели":"To target","Выше цели":"Above target","Ожидание данных":"Waiting for data","Состояние":"Status","График":"Chart","Текущее состояние бойлера":"Current boiler status","Период":"Period","Открыть рецепты":"Open recipes","Готов к проливу":"Ready to brew","Машина выключена":"Machine is off","Стоп":"Stop","Состояние бака воды":"Water tank status","Режим":"Mode","Завершить настройку экрана":"Finish dashboard setup","Состояние и пролив":"Status and brew","Основные показатели машины":"Main machine metrics","Вес пролива":"Brew weight","Счётчик проливов":"Shot counter","Требуется промывка":"Cleaning required","Встроенные профили":"Built-in profiles","Профили кофемашины":"Machine profiles","Мои профили":"My profiles","Сохраняются в этом браузере":"Stored in this browser","Название профиля":"Profile name","Сохранить текущий профиль":"Save current profile","Сохранённых профилей пока нет":"No saved profiles yet","Пользовательские настройки":"Custom settings","Введите название профиля":"Enter a profile name","Профиль сохранён":"Profile saved","Профиль обновлён":"Profile updated","Переименовать профиль":"Rename profile","Новое название профиля":"New profile name","Профиль с таким названием уже существует":"A profile with this name already exists","Профиль переименован":"Profile renamed","Удалить профиль":"Delete profile","Профиль удалён":"Profile deleted","Не удалось сохранить профиль в браузере":"Could not save profile in the browser","Профиль применён":"Profile applied","Вкл":"On","Выкл":"Off","Остановка по весу включена":"Stop by weight is on","Остановка по весу выключена":"Stop by weight is off","Изменения профиля":"Profile changes","Проверьте форму кривой и сохраните её как «Свой».":"Check the curve shape and save it as Custom.","Перетаскивайте точки и границы стадий":"Drag points and stage boundaries","Двойной клик по основному проливу переносит точку «Основная»":"Double-click the main extraction to move the Main point","Набор":"Ramp","Двойной клик доступен в стадии основного пролива":"Double-click is available in the main extraction stage","Есть изменения — введите название и нажмите +":"Changes are ready — enter a name and press +","Профиль сохранён и применён":"Profile saved and applied","Профиль обновлён и применён":"Profile updated and applied","Профиль сохранён, но не применён":"Profile saved but not applied","Сначала измените профиль":"Change the profile first","Перетащить карточку":"Drag card","Время изменяется маркером на графике":"Time is changed with the chart marker","Изменить целевой вес":"Edit target weight","Тяните маркеры этапов вправо или влево":"Drag stage markers left or right","Нажмите «＋ Предсмачивание» или «＋ Пауза», чтобы быстро добавить этап":"Tap + Preinfusion or + Pause to add the stage","Настроить шрифты":"Adjust fonts","Размеры шрифтов":"Font sizes","Изменения применяются сразу и сохраняются в этом браузере":"Changes apply immediately and are saved in this browser","Обычный текст":"Regular text","Заголовки":"Headings","Крупные значения":"Large values","Подписи графиков":"Chart labels","Текст":"Text","Значения":"Values","Размеры шрифтов сброшены":"Font sizes reset","Добавить":"Add","Вернуть размеры Home Assistant":"Restore Home Assistant sizes","Общие размеры":"Global sizes","Базовая типографика всей панели":"Base typography for the whole dashboard","Отдельные окна":"Individual panels","Дополнительный масштаб поверх общих настроек":"Additional scale on top of global settings","Левое меню":"Left menu","Управление машиной":"Machine controls","Показатели":"Metrics","Перенос настроек":"Transfer settings","Скопируйте эту строку и отправьте её мне или вставьте в другом браузере":"Copy this line and send it to me or paste it in another browser","Копировать настройки":"Copy settings","Применить из поля":"Apply from field","Настройки шрифтов":"Font settings","Настройки шрифтов скопированы":"Font settings copied","Скопируйте строку из поля":"Copy the line from the field","Неверный формат настроек":"Invalid settings format","Настройки шрифтов применены":"Font settings applied","Общие размеры и отдельный масштаб каждого окна сохраняются в этом браузере":"Global sizes and each panel scale are saved in this browser","Независимые размеры шрифтов":"Independent font sizes","Каждый блок меняется отдельно. Размеры указаны прямо в пикселях.":"Each panel changes independently. Sizes are shown directly in pixels.","Изменение одного окна больше не влияет на остальные окна.":"Changing one panel no longer affects the other panels.","Настраивается независимо":"Adjusted independently","Заголовок":"Heading","График / мелкие подписи":"Chart / small labels","Сбросить это окно":"Reset this panel","Сбросить всё":"Reset all","Независимые размеры в пикселях":"Independent sizes in pixels","Размеры окна сброшены":"Panel font sizes reset","Скопируйте строку и отправьте её мне — эти размеры можно сделать значениями по умолчанию":"Copy the line and send it to me — these sizes can become the defaults","Изменение одного окна больше не влияет на остальные окна. Текущий набор сохранён как стандартный.":"Changing one panel no longer affects the others. The current set is saved as the default.","Встроенные":"Built-in","Мои":"Mine","Тяните влево или вправо для изменения цели":"Drag left or right to change the target","Тяните влево или вправо для изменения предсмачивания":"Drag left or right to change preinfusion","Тяните влево или вправо для изменения паузы":"Drag left or right to change the pause","Тяните влево или вправо для изменения времени пролива":"Drag left or right to change brew time","Тяните влево или вправо для изменения целевого веса":"Drag left or right to change target weight","Предсмач.":"Preinf.","Поток, г/с":"Flow, g/s","Сохранённые проливы":"Saved shots","Обновить историю":"Refresh history","Проливы":"Shots","Загрузка истории…":"Loading history…","Выберите пролив":"Select a shot","График и показатели появятся здесь.":"The chart and metrics will appear here.","Время":"Duration","Пик давления":"Peak pressure","Цель веса":"Target weight","История пока пуста":"History is empty","После первого пролива здесь появится запись.":"A record will appear here after the first shot.","Профиль не указан":"Profile not specified","Загрузка…":"Loading…","Данные пролива":"Shot data","Загрузка пролива…":"Loading shot…","Читаем график и показатели.":"Reading chart and metrics.","Файл архива недоступен.":"The archive file is unavailable.","Доза":"Dose","Ошибки XDB401":"XDB401 errors","Архив недоступен":"Archive unavailable","Не удалось получить список проливов.":"Could not load the shot list.","Профили и проливы":"Profiles and shots","Выберите запись":"Select a record","Обновить проливы":"Refresh shots","Параметры управления машиной":"Machine control parameters","Категории":"Categories","PID и прогрев":"PID and warmup","Регулятор и наполнение":"Control and infusion","Машина":"Machine","Режим и автовыключение":"Mode and auto-off","Язык панели":"Dashboard language","Нагрев, прогрев и температурная компенсация.":"Heating, warmup and temperature compensation.","Feed-forward, максимум %":"Feed-forward, maximum %","Замкнутый регулятор и мягкое начало пролива.":"Closed-loop control and a gentle shot start.","Рабочий режим, температура пара и таймер питания.":"Operating mode, steam temperature and power timer.","Параметры локальной панели.":"Local dashboard settings.","Выбранный язык сохраняется только в этом браузере.":"The selected language is stored only in this browser.","Весы, промывка, запись пролива и устройство":"Scale, backflush, shot logging and device","4 раздела":"4 sections","Тара и калибровка":"Tare and calibration","Цикл и напоминание":"Cycle and reminder","Запись пролива":"Shot logging","Диагностический CSV":"Diagnostic CSV","Счётчики и перезапуск":"Counters and restart","Тара, автоматическая подготовка и калибровка.":"Tare, automatic preparation and calibration.","Сначала оставьте весы пустыми и нажмите «Тарировать», затем положите указанный вес и нажмите «Калибровать».":"First leave the scale empty and press Tare, then place the specified weight and press Calibrate.","Настройка напоминания и управление автоматическим циклом.":"Reminder settings and automatic cycle control.","Синхронная запись внутренних данных регулятора в CSV.":"Synchronous logging of internal controller data to CSV.","Запись активируется только для следующего запуска помпы.":"Logging is enabled only for the next pump start.","Состояние контроллера и сервисные действия.":"Controller status and service actions.","Регуляторы, датчик давления и память ESP32":"Controllers, pressure sensor and ESP32 memory","3 раздела":"3 sections","Помпа и XDB401":"Pump and XDB401","PID и нагрев":"PID and heating","Ошибки и память":"Errors and memory","Живые значения регулятора давления и датчика XDB401.":"Live pressure controller and XDB401 sensor values.","Текущая температура, составляющие PID и feed-forward.":"Current temperature, PID components and feed-forward.","Ошибки обмена, состояние датчика и память контроллера.":"Communication errors, sensor status and controller memory.","Язык интерфейса":"Interface language","Русский язык":"Russian language","Английский язык":"English language","Профиль пролива":"Shot profile","Профили":"Profiles","Расположение карточки":"Card position","Перетащить верхнюю карточку":"Drag upper card","Изменить ширину верхних карточек":"Resize upper cards","Двойной щелчок — стандартный размер":"Double-click for default size","Изменить ширину нижних карточек":"Resize lower cards","Иконки Пролив / Вода / Пар":"Brew / Water / Steam icons","Круглая кнопка питания":"Round power button","Размеры по умолчанию":"Default sizes","Добавить быстрый ярлык":"Add quick shortcut","Быстрый ярлык":"Quick shortcut","Выберите действие для четвёртой плитки":"Choose an action for the fourth tile","Действие":"Action","Удалить":"Remove","Закрыть":"Close","График температуры":"Temperature chart","Отступ между верхним и нижним блоками":"Gap between upper and lower blocks","из":"of","проливов":"shots","Счётчик":"Counter","Высота температурного графика":"Temperature chart height","Ширина левой / правой карточки":"Left / right card width","Ширина управление / давление / температура":"Controls / pressure / temperature width","Манометр давления от 0 до 12 бар":"Pressure gauge from 0 to 12 bar","Проверяем XDB401…":"Checking XDB401…","Получаем состояние датчика и счётчики обмена.":"Loading sensor state and communication counters.","Ошибок подряд:":"Consecutive errors:","Последняя:":"Latest:","Последний диагностический CSV":"Latest diagnostic CSV","Проверяем запись последнего пролива…":"Checking the latest recorded shot…","Обновить анализ":"Refresh analysis","После анализа здесь появится понятное объяснение остановки помпы и ошибок XDB401.":"A clear explanation of pump shutdown and XDB401 errors will appear here.","Срабатывание защиты":"Protection triggered","Возраст данных":"Data age","Восстановление связи":"Connection recovery","Причина":"Cause","Накопительная статистика XDB401":"Cumulative XDB401 statistics","Загружаем общие счётчики ошибок с момента запуска контроллера.":"Loading cumulative error counters since controller startup.","Технические счётчики":"Technical counters","Текущие значения":"Current values","XDB401 работает нормально":"XDB401 is working normally","Сейчас данные давления поступают. Накопленные ошибки были раньше и не образуют текущую серию.":"Pressure data is currently arriving. Accumulated errors happened earlier and do not form a current sequence.","Данные давления поступают, ошибок связи подряд нет.":"Pressure data is arriving and there are no consecutive communication errors.","XDB401 отвечает с ошибками":"XDB401 is responding with errors","Появилась короткая серия ошибок обмена. Контроллер пока продолжает работу, но связь с датчиком нестабильна.":"A short sequence of communication errors appeared. The controller is still operating, but the sensor link is unstable.","Связь с XDB401 потеряна":"Connection to XDB401 lost","Помпа остановлена защитой: контроллер не получает надёжные данные давления.":"The pump was stopped by protection because the controller is not receiving reliable pressure data.","Контроллер не получает надёжные данные давления. При проливе защита может остановить помпу.":"The controller is not receiving reliable pressure data. During a shot, protection may stop the pump.","Нет текущей ошибки":"No current error","запуск измерения":"measurement start","чтение статуса":"status read","тайм-аут измерения":"measurement timeout","чтение пакета":"packet read","отбракованные пакеты":"rejected packets","Сейчас идёт серия ошибок XDB401. Ниже показаны накопительные счётчики с момента запуска ESP32.":"An XDB401 error sequence is active. The counters below are cumulative since ESP32 startup.","Ошибки XDB401 уже фиксировались. Эти значения накопительные и относятся ко всему времени работы после запуска ESP32.":"XDB401 errors have been recorded. These values are cumulative for the entire uptime since ESP32 startup.","После запуска ESP32 ошибок обмена с XDB401 пока не зарегистрировано.":"No XDB401 communication errors have been recorded since ESP32 startup.","Чаще всего":"Most often","Ошибок нет":"No errors","ош. запуска":"start errors","ош. статуса":"status errors","тайм-аутов":"timeouts","ош. пакета":"packet errors","отбраковано":"rejected","свежие данные давления не поступали":"fresh pressure data was not received","CSV пуст или не распознан":"CSV is empty or unrecognized","В последнем файле нет строк, которые можно использовать для диагностики.":"The latest file contains no rows that can be used for diagnostics.","Защитное отключение не найдено":"No protective shutdown found","Во время последнего пролива XDB401 зарегистрировал ошибки, но данные восстановились до срабатывания защиты и помпа не была принудительно остановлена.":"XDB401 recorded errors during the latest shot, but data recovered before protection triggered and the pump was not forcibly stopped.","Последний записанный пролив прошёл без потери связи с XDB401 и без остановки помпы защитой.":"The latest recorded shot completed without losing XDB401 communication or a protective pump shutdown.","не зафиксировано":"not recorded","Обнаружено защитное отключение":"Protective shutdown detected","На":"At","контроллер потерял надёжные данные XDB401 и остановил помпу защитой SENSOR_FAIL. Максимальный возраст данных составил":"the controller lost reliable XDB401 data and stopped the pump with SENSOR_FAIL protection. Maximum data age was","Ошибок подряд":"Consecutive errors","В последнем CSV обнаружена потеря XDB401, но нулевой выход помпы в строках сбоя не найден.":"The latest CSV shows an XDB401 loss, but zero pump output was not found in the failure rows.","Последний CSV недоступен":"Latest CSV unavailable","Запишите диагностический пролив, после чего здесь появится автоматический разбор связи XDB401 и остановки помпы.":"Record a diagnostic shot and an automatic analysis of XDB401 communication and pump shutdown will appear here.","мс":"ms","Ошибки и состояние системы":"Errors and system status","Ошибки датчика отделены от памяти и состояния ESP32.":"Sensor errors are separated from ESP32 memory and status.","Ошибки датчика давления":"Pressure sensor errors","XDB401: обмен, пакеты и текущее состояние связи.":"XDB401 communication, packets, and current link status.","Состояние:":"Status:","Технические счётчики XDB401":"XDB401 technical counters","Старт измерения":"Measurement start","Чтение статуса":"Status read","Тайм-аут измерения":"Measurement timeout","Чтение пакета":"Packet read","Отбраковано пакетов":"Rejected packets","Последняя ошибка XDB401":"Latest XDB401 error","Система":"System","Память и сервисные данные ESP32.":"ESP32 memory and service data.","ESP32 и память":"ESP32 and memory","Ресурсы контроллера отдельно от ошибок датчика.":"Controller resources separated from sensor errors.","Свободный внутренний heap":"Free internal heap","Показатели памяти относятся к ESP32 и не являются ошибками XDB401.":"Memory values belong to the ESP32 and are not XDB401 errors.","Длительность пролива":"Shot duration","Линии графика":"Chart lines","Толщина и прозрачность":"Width and transparency","Толщина":"Width","Прозрачность":"Transparency","Линии по умолчанию":"Reset lines","Настройки линий графика сброшены":"Chart line settings reset","Настройки линий":"Line settings","Цвет":"Color","Цвет, толщина и прозрачность":"Color, width and transparency","По умолчанию":"Defaults","Настроить линии графика":"Configure chart lines","Границы этапов":"Stage boundaries","PI-регулятор управляет мощностью помпы по фактическому давлению и динамике его роста.":"The PI controller adjusts pump power from measured pressure and its rate of change.","PI-регулятор давления":"Pressure PI controller","Поддерживает давление профиля, изменяя мощность помпы по ошибке давления. Настройки действуют для всех профилей.":"Maintains profile pressure by adjusting pump power from pressure error. These settings apply to all profiles.","Определяет, насколько сильно помпа реагирует на текущую разницу между целью и фактическим давлением.":"Controls how strongly the pump reacts to the current difference between target and measured pressure.","Убирает устойчивое отклонение от цели и помогает регулятору подстроиться под сопротивление кофейной таблетки.":"Removes steady pressure error and helps the controller adapt to coffee-puck resistance.","Мягкое начало пролива":"Soft shot start","Общая плавная оболочка запуска помпы. Это не предсмачивание профиля, а ограничение резкого старта для любого профиля.":"A shared gentle pump-start envelope. This is not profile preinfusion; it limits abrupt startup for any profile.","Длительность плавного старта":"Soft-start duration","За это время допустимая мощность помпы увеличивается постепенно. Значение 0 с отключает мягкий старт.":"During this time the allowed pump power rises gradually. A value of 0 s disables soft start.","Начальная мощность помпы":"Initial pump power","Стартовая граница мощности, с которой начинается плавный разгон перед обычным регулированием давления.":"The starting power limit from which the smooth ramp begins before normal pressure control.","Состояние регулятора":"Controller status","Живые диагностические значения. Они рассчитываются автоматически и здесь не настраиваются.":"Live diagnostic values. They are calculated automatically and are not configured here.","Адаптивная коррекция помпы":"Adaptive pump correction","Текущая автоматическая добавка к управлению помпой с учётом поведения давления.":"Current automatic pump-control correction based on pressure behavior.","Насколько быстро прямо сейчас изменяется давление; регулятор использует динамику, чтобы заранее тормозить разгон.":"How quickly pressure is changing right now; the controller uses this trend to brake the rise early.","Сохранить настройки давления":"Save pressure settings"};
+    const EN_TRANSLATIONS = {"Состояние датчика":"Sensor status","Датчик и связь":"Sensor and link","Сбои связи — это неисправность":"Link faults — a real failure","Отбраковка — это не неисправность":"Rejections — not a failure","Всего событий":"Total events","Сбоев связи":"Link faults","Сбоев подряд":"Consecutive faults","Последний сбой связи":"Last link fault","Отбраковано всего":"Rejected total","По давлению":"By pressure","По температуре":"By temperature","Последняя отбраковка":"Last rejection","Сбои связи + отбраковка":"Link faults + rejections","Сбоев связи за пролив":"Link faults during shot","Событий за пролив":"Events during shot","сбой старта измерения":"measurement start fault","сбой чтения статуса":"status read fault","тайм-аут измерения":"measurement timeout","сбой чтения пакета":"packet read fault","отбраковка по давлению":"pressure rejection","отбраковка по температуре":"temperature rejection","отбраковка":"rejection","Датчик не ответил или пакет не дошёл. Только эти счётчики означают физическую проблему: шина, провода, питание или сам датчик. Два сбоя подряд снимают помпу.":"The sensor did not answer or the packet never arrived. Only these counters mean a physical problem: bus, wiring, power or the sensor itself. Two consecutive faults cut the pump.","Датчик ответил нормально, но значение не прошло проверку правдоподобности и было отброшено. Помпу не снимает. Растёт обычно на резких рампах давления.":"The sensor answered fine, but the value failed the plausibility check and was discarded. It does not cut the pump. Usually grows on steep pressure ramps.","Во время последнего пролива были сбои связи с XDB401. Связь восстановилась до срабатывания защиты и помпа не останавливалась, но это признак физической проблемы: проверь шину, разъёмы и питание датчика.":"The last shot had XDB401 link faults. The link recovered before the guard fired and the pump kept running, but this points at a physical problem: check the bus, connectors and sensor power.","Сбоев связи с XDB401 не было — датчик исправен. Отбракованы отдельные значения: они пришли нормально, но не прошли проверку правдоподобности. На управление это не повлияло.":"No XDB401 link faults — the sensor is healthy. Individual values were rejected: they arrived fine but failed the plausibility check. Control was not affected.","Последний записанный пролив прошёл без сбоев связи с XDB401 и без единой отбраковки.":"The last recorded shot ran with no XDB401 link faults and no rejections at all.","Локальная панель":"Local dashboard","Главная":"Home","Рецепты":"Recipes","История":"History","Настройки":"Settings","Обслуживание":"Maintenance","Диагностика":"Diagnostics","Управление кофемашиной":"Espresso machine control","Включить":"Turn on","Выключить":"Turn off","подключение…":"connecting…","онлайн":"online","нет связи":"offline","Давление":"Pressure","бар":"bar","Основная цель профиля":"Main profile target","Цель сейчас":"Current target","— бар":"— bar","Ожидание":"Idle","Начать пролив":"Start shot","Остановить":"Stop","Температура":"Temperature","Цель":"Target","Факт":"Actual","Секунды":"Seconds","Вес":"Weight","г":"g","Поток":"Flow","г/с":"g/s","Помпа":"Pump","Датчик":"Sensor","Давление, поток и мощность помпы":"Pressure, flow and pump power","Профиль":"Selected profile","Последний пролив":"Last shot","Температурная стабильность":"Temperature stability","Температура воды и выход нагревателя":"Water temperature and heater output","Цель воды":"Water target","Нагрев":"Heat","Сценарий шота":"Shot sequence","Загрузка параметров…":"Loading parameters…","Выбор профиля и параметры напитка.":"Profile selection and drink parameters.","Рецепт":"Recipe","Активный профиль":"Active profile","Температура кофе, °C":"Brew temperature, °C","Доза, г":"Dose, g","Целевой вес, г":"Target weight, g","Время основного пролива, с":"Main extraction time, s","Профиль давления":"Pressure profile","Предсмачивание, с":"Preinfusion, s","Пауза, с":"Pause, s","Давление предсмачивания, бар":"Preinfusion pressure, bar","Основное давление, бар":"Main pressure, bar","Конечное давление, бар":"End pressure, bar","Сохранить как Custom":"Save as Custom","Автоматика веса":"Weight automation","Остановка по весу":"Stop by weight","Остановить пролив по целевому весу и прогнозу потока.":"Stop the shot using target weight and flow prediction.","Целевой вес задаётся в рецепте выше. Время пролива остаётся максимальным защитным ограничением.":"Target weight is set in the recipe above. Shot time remains the maximum safety limit.","История проливов":"Shot history","Локальный архив ESP32 и сохранённая цель каждого пролива.":"Local ESP32 archive with the stored target for each shot.","Архив проливов ESP32":"ESP32 shot archive","Сохранённый пролив":"Saved shot","Архив пуст":"Archive is empty","Обновить":"Refresh","Показать на главной":"Show on Home","После первого пролива здесь появится его локальный паспорт.":"A local shot summary will appear here after the first extraction.","Настройки управления":"Control settings","Температурный PID, регулирование давления и запуск помпы.":"Temperature PID, pressure control and pump startup.","Интерфейс":"Interface","Язык локальной панели сохраняется в этом браузере.":"The dashboard language is saved in this browser.","Язык":"Language","Температурный PID":"Temperature PID","Коэффициенты нагревателя и поведение при прогреве.":"Heater coefficients and warm-up behavior.","Диапазон прогрева, °C":"Warm-up range, °C","Поправка температуры, °C":"Temperature offset, °C","Feed-forward нагрева, максимум %":"Heat feed-forward maximum, %","Сохранить PID":"Save PID","Прогрев без интеграла":"Warm-up without integral","Автонастройка":"Autotune","Регулирование давления":"Pressure control","Коэффициенты замкнутого регулятора и мягкое начало фазы.":"Closed-loop coefficients and soft phase start.","Kp давления":"Pressure Kp","Ki давления":"Pressure Ki","Мягкое наполнение, с":"Soft infusion, s","Начальная мощность, %":"Starting power, %","Сохранить давление":"Save pressure settings","Адаптивный выход":"Adaptive output","Скорость давления":"Pressure rate","бар/с":"bar/s","Режим машины":"Machine mode","Режим PID":"PID mode","Цель пара, °C":"Steam target, °C","Автовыключение, мин":"Auto-off, min","Сохранить":"Save","Сбросить таймер":"Reset timer","До автоотключения":"Until auto-off","мин":"min","Весы, обратная промывка, диагностическая запись и сервис устройства.":"Scale, backflush, diagnostic recording and device service.","Весы":"Scale","Калибровочный вес, г":"Calibration weight, g","Автоматическая тара":"Automatic tare","Тарировать стабильные весы перед следующим проливом.":"Tare stable scales before the next shot.","Тарировать":"Tare","Калибровать":"Calibrate","Калибровка: сначала пустые весы → «Тарировать», затем положить указанный вес → «Калибровать».":"Calibration: empty the scale → “Tare”, then place the specified weight → “Calibrate”.","Обратная промывка":"Backflush","Напоминание, проливов":"Reminder, shots","Пауза перед ополаскиванием, с":"Delay before rinse, s","Сохранить параметры":"Save parameters","Статус":"Status","После промывки":"Since backflush","Всего проливов":"Lifetime shots","Запустить":"Start","Сбросить счётчик":"Reset counter","Диагностика пролива":"Shot diagnostics","Записать следующий пролив":"Record next shot","Синхронный CSV внутренних данных регулятора.":"Synchronized CSV of internal controller data.","CSV готов":"CSV ready","Скачать CSV":"Download CSV","Очистить":"Clear","Устройство":"Device","Причина перезапуска":"Restart reason","Израсходовано кофе":"Coffee used","Перезапустить ESP32":"Restart ESP32","Живые показатели регуляторов, XDB401 и памяти ESP32.":"Live controller, XDB401 and ESP32 memory values.","Давление и помпа":"Pressure and pump","Давление и XDB401":"Pressure and XDB401","Диагностика регулятора давления и датчика XDB401.":"Pressure-controller and XDB401 diagnostics","Регулятор":"Controller","Температура, обмен, пакеты и состояние датчика давления.":"Temperature, communication, packets, and pressure-sensor status","Текущее состояние":"Current status","Рост давления":"Pressure rise","Температура XDB401":"XDB401 temperature","PID результат":"PID output","Прогрев":"Warm-up","XDB401, память и система":"XDB401, memory and system","Всего ошибок":"Total errors","Старт":"Start","Тайм-аут":"Timeout","Пакет":"Packet","Отбраковано":"Rejected","Подряд":"Consecutive","Последняя ошибка":"Last error","Свободно PSRAM":"Free PSRAM","Крупнейший блок PSRAM":"Largest PSRAM block","Внутренний heap":"Internal heap","Состояние датчика":"Sensor health","Скачать последний CSV":"Download latest CSV","Стандартная страница ESPHome":"Standard ESPHome page","Свернуть меню":"Collapse menu","Открыть меню":"Open menu","Разделы":"Sections","Текущий пролив · цель записывается вместе с данными":"Current shot · target is recorded with the data","Последний пролив · сохранённая цель этого пролива":"Last shot · this shot’s stored target","Архивный пролив · цель взята из CSV":"Archived shot · target loaded from CSV","помпа":"pump","нагрев":"heat","с":"s","Ошибка":"Error","Да":"Yes","Нет":"No","Активен":"Active","Пролив":"Brew","Предсмачивание":"Preinfusion","Пауза":"Pause","Готов":"Ready","Включено":"Enabled","Выключено":"Disabled","Команда не выполнена":"Command failed","Питание не изменено":"Power state was not changed","Профиль не применён":"Profile was not applied","Ручные настройки сохранены как Custom":"Manual settings saved as Custom","Ошибка сохранения":"Save failed","Настройки сохранены":"Settings saved","Переключатель не изменён":"Switch was not changed","Режим не изменён":"Mode was not changed","Команда отправлена":"Command sent","Калибровка запущена":"Calibration started","Калибровка не запущена":"Calibration did not start","Архив пока недоступен":"Archive is currently unavailable","профиль не указан":"profile not specified","цель из CSV":"target from CSV","пик":"peak","ошибки XDB401":"XDB401 errors","Не удалось открыть пролив":"Could not open shot","Пролив запущен":"Shot started","Пролив остановлен":"Shot stopped","Кофемашина включена":"Espresso machine turned on","Кофемашина выключена":"Espresso machine turned off","Температурный PID сохранён":"Temperature PID saved","Настройки давления сохранены":"Pressure settings saved","Настройки машины сохранены":"Machine settings saved","Параметры обслуживания сохранены":"Maintenance settings saved","Запустить автонастройку PID? Машина должна быть включена и находиться под наблюдением.":"Start PID autotune? The machine must be powered on and supervised.","Запустить автоматическую обратную промывку? Установи глухую корзину и не оставляй машину без присмотра.":"Start automatic backflush? Install the blind basket and do not leave the machine unattended.","Сбросить счётчик проливов после промывки?":"Reset the shot counter after backflush?","Удалить диагностический CSV из памяти?":"Delete the diagnostic CSV from memory?","Перезапустить ESP32? Управление машиной временно отключится.":"Restart ESP32? Machine control will be temporarily unavailable.","Язык изменён":"Language changed","Питание":"Power","Выключена":"Off","Готова":"Ready","Нагрев пара":"Heating steam","Пар готов":"Steam ready","Подача воды":"Hot water","Ошибка датчика":"Sensor error","Бак воды":"Water tank","Вода есть":"Water available","Мало воды":"Low water","Нет данных":"No data","Промывка":"Backflush","До промывки":"Until cleaning","Проливов всего":"Total shots","Быстрые действия":"Quick actions","Остановить пролив":"Stop shot","Вода":"Water","Пар":"Steam","Вода включена":"Hot water enabled","Вода выключена":"Hot water disabled","Пар включён":"Steam enabled","Пар выключен":"Steam disabled","Напоминание выключено":"Reminder disabled","Настройка профиля с мгновенным предпросмотром.":"Profile editing with instant preview.","Редактор профиля":"Profile editor","Профиль синхронизирован":"Profile synchronized","Параметры пролива":"Shot parameters","Температура кофе":"Brew temperature","Время пролива":"Shot time","Мягкий старт":"Soft start","Стартовая мощность":"Starting power","Точки давления":"Pressure points","Начало":"Start","Основная":"Main","Финиш":"Finish","Напиток и весы":"Drink and scale","Вес напитка":"Beverage weight","Стоп по весу":"Stop by weight","Доза кофе":"Coffee dose","Целевой вес":"Target weight","Время пролива остаётся защитным ограничением.":"Shot time remains a safety limit.","Сбросить изменения":"Reset changes","Сохранить Custom":"Save Custom","Предпросмотр профиля":"Profile preview","Изменения отображаются сразу":"Changes appear instantly","Общее время":"Total time","Исходный профиль":"Original profile","Изменённый профиль":"Edited profile","Текущий профиль":"Current profile","Изменения не сохранены":"Unsaved changes","База":"Base","Базовый профиль":"Base profile","Основной пролив":"Main extraction","Старт помпы":"Pump start","Нет изменений для сброса":"No changes to reset","Изменения сброшены":"Changes reset","сохранено":"saved","Профиль загружен":"Profile loaded","Применение профиля…":"Applying profile…","Перетащите цветные точки давления вверх или вниз. Время меняется кнопками слева.":"Drag the colored pressure points up or down. Change timing with the controls on the left.","График пролива":"Shot graph","Температура и нагрев":"Temperature and heat","ОК":"OK","Пора":"Due","шотов":"shots","Останавливать по весу":"Stop at target weight","Пролив остановится при достижении целевого веса. Время остаётся защитным ограничением.":"The shot stops when the target weight is reached. Time remains a safety limit.","Выбрать профиль":"Select profile","Кривая":"Curve","Редактирование кривой":"Curve editing","Перетаскивайте цветные точки давления вверх или вниз.":"Drag the colored pressure points up or down.","Отмена":"Cancel","Увеличить график":"Expand chart","Уменьшить график":"Collapse chart","Изменения кривой отменены":"Curve changes canceled","Кривая сохранена как Custom":"Curve saved as Custom","Редактировать кривую":"Edit curve","Завершить редактирование":"Finish editing","Нет воды":"No water","Последние 10 минут · в реальном времени":"Last 10 minutes · live","Последние 5 минут · в реальном времени":"Last 5 minutes · live","5 мин":"5 min","10 мин":"10 min","Профиль и этапы выбранного пролива":"Profile and stages of the selected shot","Последние 3 минуты":"Last 3 minutes","Последние 5 минут":"Last 5 minutes","Последние 10 минут":"Last 10 minutes","3 мин":"3 min","Автоотключение":"Auto-off","Автоотключение через":"Auto-off in","Автоотключение выключено":"Auto-off disabled","через":"in","выключено":"disabled","Настроить экран":"Customize screen","Готово":"Done","Сбросить":"Reset","Перетаскивайте крупные блоки за ручку ⠿":"Drag large blocks using the ⠿ handle","Перетащить блок":"Drag block","Расположение сохранено":"Layout saved","Расположение сброшено":"Layout reset","Редактирование профиля":"Profile editing","Архивный пролив · профиль из CSV":"Archived shot · profile from CSV","Редактировать профиль":"Edit profile","Редактирование недоступно во время пролива":"Editing is unavailable during a shot","Профиль сохранён как Custom":"Profile saved as Custom","Изменения профиля отменены":"Profile changes canceled","Параметры и кривая обновляются сразу. Сохранение создаёт Custom.":"Parameters and curve update instantly. Saving creates Custom.","Точки давления также можно перетаскивать прямо на графике.":"Pressure points can also be dragged directly on the chart.","Редактировать точки давления":"Edit pressure points","Перетаскивайте цветные точки прямо на графике.":"Drag the colored points directly on the chart.","Изменение отменено":"Change canceled","Параметр":"Parameter","Перетаскивайте блоки за ⠿ или скрывайте кнопкой справа":"Drag blocks using ⠿ or hide them with the right button","Скрытые блоки":"Hidden blocks","Скрыть блок":"Hide block","Состояние машины":"Machine status","Температурный график":"Temperature chart","Температура и PID":"Temperature and PID","Состояние бойлера за последнюю минуту":"Boiler status over the last minute","Нагрев PID":"PID heating","PID активен":"PID active","Удержание":"Holding","Температура на цели":"Temperature on target","До цели":"To target","Выше цели":"Above target","Ожидание данных":"Waiting for data","Состояние":"Status","График":"Chart","Текущее состояние бойлера":"Current boiler status","Период":"Period","Открыть рецепты":"Open recipes","Готов к проливу":"Ready to brew","Машина выключена":"Machine is off","Стоп":"Stop","Состояние бака воды":"Water tank status","Режим":"Mode","Завершить настройку экрана":"Finish dashboard setup","Состояние и пролив":"Status and brew","Основные показатели машины":"Main machine metrics","Вес пролива":"Brew weight","Счётчик проливов":"Shot counter","Требуется промывка":"Cleaning required","Встроенные профили":"Built-in profiles","Профили кофемашины":"Machine profiles","Мои профили":"My profiles","Сохраняются в этом браузере":"Stored in this browser","Название профиля":"Profile name","Сохранить текущий профиль":"Save current profile","Сохранённых профилей пока нет":"No saved profiles yet","Пользовательские настройки":"Custom settings","Введите название профиля":"Enter a profile name","Профиль сохранён":"Profile saved","Профиль обновлён":"Profile updated","Переименовать профиль":"Rename profile","Новое название профиля":"New profile name","Профиль с таким названием уже существует":"A profile with this name already exists","Профиль переименован":"Profile renamed","Удалить профиль":"Delete profile","Профиль удалён":"Profile deleted","Не удалось сохранить профиль в браузере":"Could not save profile in the browser","Профиль применён":"Profile applied","Вкл":"On","Выкл":"Off","Остановка по весу включена":"Stop by weight is on","Остановка по весу выключена":"Stop by weight is off","Изменения профиля":"Profile changes","Проверьте форму кривой и сохраните её как «Свой».":"Check the curve shape and save it as Custom.","Перетаскивайте точки и границы стадий":"Drag points and stage boundaries","Двойной клик по основному проливу переносит точку «Основная»":"Double-click the main extraction to move the Main point","Набор":"Ramp","Двойной клик доступен в стадии основного пролива":"Double-click is available in the main extraction stage","Есть изменения — введите название и нажмите +":"Changes are ready — enter a name and press +","Профиль сохранён и применён":"Profile saved and applied","Профиль обновлён и применён":"Profile updated and applied","Профиль сохранён, но не применён":"Profile saved but not applied","Сначала измените профиль":"Change the profile first","Перетащить карточку":"Drag card","Время изменяется маркером на графике":"Time is changed with the chart marker","Изменить целевой вес":"Edit target weight","Тяните маркеры этапов вправо или влево":"Drag stage markers left or right","Нажмите «＋ Предсмачивание» или «＋ Пауза», чтобы быстро добавить этап":"Tap + Preinfusion or + Pause to add the stage","Настроить шрифты":"Adjust fonts","Размеры шрифтов":"Font sizes","Изменения применяются сразу и сохраняются в этом браузере":"Changes apply immediately and are saved in this browser","Обычный текст":"Regular text","Заголовки":"Headings","Крупные значения":"Large values","Подписи графиков":"Chart labels","Текст":"Text","Значения":"Values","Размеры шрифтов сброшены":"Font sizes reset","Добавить":"Add","Вернуть размеры Home Assistant":"Restore Home Assistant sizes","Общие размеры":"Global sizes","Базовая типографика всей панели":"Base typography for the whole dashboard","Отдельные окна":"Individual panels","Дополнительный масштаб поверх общих настроек":"Additional scale on top of global settings","Левое меню":"Left menu","Управление машиной":"Machine controls","Показатели":"Metrics","Перенос настроек":"Transfer settings","Скопируйте эту строку и отправьте её мне или вставьте в другом браузере":"Copy this line and send it to me or paste it in another browser","Копировать настройки":"Copy settings","Применить из поля":"Apply from field","Настройки шрифтов":"Font settings","Настройки шрифтов скопированы":"Font settings copied","Скопируйте строку из поля":"Copy the line from the field","Неверный формат настроек":"Invalid settings format","Настройки шрифтов применены":"Font settings applied","Общие размеры и отдельный масштаб каждого окна сохраняются в этом браузере":"Global sizes and each panel scale are saved in this browser","Независимые размеры шрифтов":"Independent font sizes","Каждый блок меняется отдельно. Размеры указаны прямо в пикселях.":"Each panel changes independently. Sizes are shown directly in pixels.","Изменение одного окна больше не влияет на остальные окна.":"Changing one panel no longer affects the other panels.","Настраивается независимо":"Adjusted independently","Заголовок":"Heading","График / мелкие подписи":"Chart / small labels","Сбросить это окно":"Reset this panel","Сбросить всё":"Reset all","Независимые размеры в пикселях":"Independent sizes in pixels","Размеры окна сброшены":"Panel font sizes reset","Скопируйте строку и отправьте её мне — эти размеры можно сделать значениями по умолчанию":"Copy the line and send it to me — these sizes can become the defaults","Изменение одного окна больше не влияет на остальные окна. Текущий набор сохранён как стандартный.":"Changing one panel no longer affects the others. The current set is saved as the default.","Встроенные":"Built-in","Мои":"Mine","Тяните влево или вправо для изменения цели":"Drag left or right to change the target","Тяните влево или вправо для изменения предсмачивания":"Drag left or right to change preinfusion","Тяните влево или вправо для изменения паузы":"Drag left or right to change the pause","Тяните влево или вправо для изменения времени пролива":"Drag left or right to change brew time","Тяните влево или вправо для изменения целевого веса":"Drag left or right to change target weight","Предсмач.":"Preinf.","Поток, г/с":"Flow, g/s","Сохранённые проливы":"Saved shots","Обновить историю":"Refresh history","Проливы":"Shots","Загрузка истории…":"Loading history…","Выберите пролив":"Select a shot","График и показатели появятся здесь.":"The chart and metrics will appear here.","Время":"Duration","Пик давления":"Peak pressure","Цель веса":"Target weight","История пока пуста":"History is empty","После первого пролива здесь появится запись.":"A record will appear here after the first shot.","Профиль не указан":"Profile not specified","Загрузка…":"Loading…","Данные пролива":"Shot data","Загрузка пролива…":"Loading shot…","Читаем график и показатели.":"Reading chart and metrics.","Файл архива недоступен.":"The archive file is unavailable.","Доза":"Dose","Ошибки XDB401":"XDB401 errors","Архив недоступен":"Archive unavailable","Не удалось получить список проливов.":"Could not load the shot list.","Профили и проливы":"Profiles and shots","Выберите запись":"Select a record","Обновить проливы":"Refresh shots","Параметры управления машиной":"Machine control parameters","Категории":"Categories","PID и прогрев":"PID and warmup","Регулятор и наполнение":"Control and infusion","Машина":"Machine","Режим и автовыключение":"Mode and auto-off","Язык панели":"Dashboard language","Нагрев, прогрев и температурная компенсация.":"Heating, warmup and temperature compensation.","Feed-forward, максимум %":"Feed-forward, maximum %","Замкнутый регулятор и мягкое начало пролива.":"Closed-loop control and a gentle shot start.","Рабочий режим, температура пара и таймер питания.":"Operating mode, steam temperature and power timer.","Параметры локальной панели.":"Local dashboard settings.","Выбранный язык сохраняется только в этом браузере.":"The selected language is stored only in this browser.","Весы, промывка, запись пролива и устройство":"Scale, backflush, shot logging and device","4 раздела":"4 sections","Тара и калибровка":"Tare and calibration","Цикл и напоминание":"Cycle and reminder","Запись пролива":"Shot logging","Диагностический CSV":"Diagnostic CSV","Счётчики и перезапуск":"Counters and restart","Тара, автоматическая подготовка и калибровка.":"Tare, automatic preparation and calibration.","Сначала оставьте весы пустыми и нажмите «Тарировать», затем положите указанный вес и нажмите «Калибровать».":"First leave the scale empty and press Tare, then place the specified weight and press Calibrate.","Настройка напоминания и управление автоматическим циклом.":"Reminder settings and automatic cycle control.","Синхронная запись внутренних данных регулятора в CSV.":"Synchronous logging of internal controller data to CSV.","Запись активируется только для следующего запуска помпы.":"Logging is enabled only for the next pump start.","Состояние контроллера и сервисные действия.":"Controller status and service actions.","Регуляторы, датчик давления и память ESP32":"Controllers, pressure sensor and ESP32 memory","3 раздела":"3 sections","Помпа и XDB401":"Pump and XDB401","PID и нагрев":"PID and heating","Ошибки и память":"Errors and memory","Живые значения регулятора давления и датчика XDB401.":"Live pressure controller and XDB401 sensor values.","Текущая температура, составляющие PID и feed-forward.":"Current temperature, PID components and feed-forward.","Ошибки обмена, состояние датчика и память контроллера.":"Communication errors, sensor status and controller memory.","Язык интерфейса":"Interface language","Русский язык":"Russian language","Английский язык":"English language","Профиль пролива":"Shot profile","Профили":"Profiles","Расположение карточки":"Card position","Перетащить верхнюю карточку":"Drag upper card","Изменить ширину верхних карточек":"Resize upper cards","Двойной щелчок — стандартный размер":"Double-click for default size","Изменить ширину нижних карточек":"Resize lower cards","Иконки Пролив / Вода / Пар":"Brew / Water / Steam icons","Круглая кнопка питания":"Round power button","Размеры по умолчанию":"Default sizes","Добавить быстрый ярлык":"Add quick shortcut","Быстрый ярлык":"Quick shortcut","Выберите действие для четвёртой плитки":"Choose an action for the fourth tile","Действие":"Action","Удалить":"Remove","Закрыть":"Close","График температуры":"Temperature chart","Отступ между верхним и нижним блоками":"Gap between upper and lower blocks","из":"of","проливов":"shots","Счётчик":"Counter","Высота температурного графика":"Temperature chart height","Ширина левой / правой карточки":"Left / right card width","Ширина управление / давление / температура":"Controls / pressure / temperature width","Манометр давления от 0 до 12 бар":"Pressure gauge from 0 to 12 bar","Проверяем XDB401…":"Checking XDB401…","Получаем состояние датчика и счётчики обмена.":"Loading sensor state and communication counters.","Ошибок подряд:":"Consecutive errors:","Последняя:":"Latest:","Последний диагностический CSV":"Latest diagnostic CSV","Проверяем запись последнего пролива…":"Checking the latest recorded shot…","Обновить анализ":"Refresh analysis","После анализа здесь появится понятное объяснение остановки помпы и ошибок XDB401.":"A clear explanation of pump shutdown and XDB401 errors will appear here.","Срабатывание защиты":"Protection triggered","Возраст данных":"Data age","Восстановление связи":"Connection recovery","Причина":"Cause","Накопительная статистика XDB401":"Cumulative XDB401 statistics","Загружаем общие счётчики ошибок с момента запуска контроллера.":"Loading cumulative error counters since controller startup.","Технические счётчики":"Technical counters","Текущие значения":"Current values","XDB401 работает нормально":"XDB401 is working normally","Сейчас данные давления поступают. Накопленные ошибки были раньше и не образуют текущую серию.":"Pressure data is currently arriving. Accumulated errors happened earlier and do not form a current sequence.","Данные давления поступают, ошибок связи подряд нет.":"Pressure data is arriving and there are no consecutive communication errors.","XDB401 отвечает с ошибками":"XDB401 is responding with errors","Появилась короткая серия ошибок обмена. Контроллер пока продолжает работу, но связь с датчиком нестабильна.":"A short sequence of communication errors appeared. The controller is still operating, but the sensor link is unstable.","Связь с XDB401 потеряна":"Connection to XDB401 lost","Помпа остановлена защитой: контроллер не получает надёжные данные давления.":"The pump was stopped by protection because the controller is not receiving reliable pressure data.","Контроллер не получает надёжные данные давления. При проливе защита может остановить помпу.":"The controller is not receiving reliable pressure data. During a shot, protection may stop the pump.","Нет текущей ошибки":"No current error","запуск измерения":"measurement start","чтение статуса":"status read","тайм-аут измерения":"measurement timeout","чтение пакета":"packet read","отбракованные пакеты":"rejected packets","Сейчас идёт серия ошибок XDB401. Ниже показаны накопительные счётчики с момента запуска ESP32.":"An XDB401 error sequence is active. The counters below are cumulative since ESP32 startup.","Ошибки XDB401 уже фиксировались. Эти значения накопительные и относятся ко всему времени работы после запуска ESP32.":"XDB401 errors have been recorded. These values are cumulative for the entire uptime since ESP32 startup.","После запуска ESP32 ошибок обмена с XDB401 пока не зарегистрировано.":"No XDB401 communication errors have been recorded since ESP32 startup.","Чаще всего":"Most often","Ошибок нет":"No errors","ош. запуска":"start errors","ош. статуса":"status errors","тайм-аутов":"timeouts","ош. пакета":"packet errors","отбраковано":"rejected","свежие данные давления не поступали":"fresh pressure data was not received","CSV пуст или не распознан":"CSV is empty or unrecognized","В последнем файле нет строк, которые можно использовать для диагностики.":"The latest file contains no rows that can be used for diagnostics.","Защитное отключение не найдено":"No protective shutdown found","Во время последнего пролива XDB401 зарегистрировал ошибки, но данные восстановились до срабатывания защиты и помпа не была принудительно остановлена.":"XDB401 recorded errors during the latest shot, but data recovered before protection triggered and the pump was not forcibly stopped.","Последний записанный пролив прошёл без потери связи с XDB401 и без остановки помпы защитой.":"The latest recorded shot completed without losing XDB401 communication or a protective pump shutdown.","не зафиксировано":"not recorded","Обнаружено защитное отключение":"Protective shutdown detected","На":"At","контроллер потерял надёжные данные XDB401 и остановил помпу защитой SENSOR_FAIL. Максимальный возраст данных составил":"the controller lost reliable XDB401 data and stopped the pump with SENSOR_FAIL protection. Maximum data age was","Ошибок подряд":"Consecutive errors","В последнем CSV обнаружена потеря XDB401, но нулевой выход помпы в строках сбоя не найден.":"The latest CSV shows an XDB401 loss, but zero pump output was not found in the failure rows.","Последний CSV недоступен":"Latest CSV unavailable","Запишите диагностический пролив, после чего здесь появится автоматический разбор связи XDB401 и остановки помпы.":"Record a diagnostic shot and an automatic analysis of XDB401 communication and pump shutdown will appear here.","мс":"ms","Ошибки и состояние системы":"Errors and system status","Ошибки датчика отделены от памяти и состояния ESP32.":"Sensor errors are separated from ESP32 memory and status.","Ошибки датчика давления":"Pressure sensor errors","XDB401: обмен, пакеты и текущее состояние связи.":"XDB401 communication, packets, and current link status.","Состояние:":"Status:","Технические счётчики XDB401":"XDB401 technical counters","Старт измерения":"Measurement start","Чтение статуса":"Status read","Тайм-аут измерения":"Measurement timeout","Чтение пакета":"Packet read","Отбраковано пакетов":"Rejected packets","Последняя ошибка XDB401":"Latest XDB401 error","Система":"System","Память и сервисные данные ESP32.":"ESP32 memory and service data.","ESP32 и память":"ESP32 and memory","Ресурсы контроллера отдельно от ошибок датчика.":"Controller resources separated from sensor errors.","Свободный внутренний heap":"Free internal heap","Показатели памяти относятся к ESP32 и не являются ошибками XDB401.":"Memory values belong to the ESP32 and are not XDB401 errors.","Длительность пролива":"Shot duration","Линии графика":"Chart lines","Толщина и прозрачность":"Width and transparency","Толщина":"Width","Прозрачность":"Transparency","Линии по умолчанию":"Reset lines","Настройки линий графика сброшены":"Chart line settings reset","Настройки линий":"Line settings","Цвет":"Color","Цвет, толщина и прозрачность":"Color, width and transparency","По умолчанию":"Defaults","Настроить линии графика":"Configure chart lines","Границы этапов":"Stage boundaries","PI-регулятор управляет мощностью помпы по фактическому давлению и динамике его роста.":"The PI controller adjusts pump power from measured pressure and its rate of change.","PI-регулятор давления":"Pressure PI controller","Поддерживает давление профиля, изменяя мощность помпы по ошибке давления. Настройки действуют для всех профилей.":"Maintains profile pressure by adjusting pump power from pressure error. These settings apply to all profiles.","Определяет, насколько сильно помпа реагирует на текущую разницу между целью и фактическим давлением.":"Controls how strongly the pump reacts to the current difference between target and measured pressure.","Убирает устойчивое отклонение от цели и помогает регулятору подстроиться под сопротивление кофейной таблетки.":"Removes steady pressure error and helps the controller adapt to coffee-puck resistance.","Мягкое начало пролива":"Soft shot start","Общая плавная оболочка запуска помпы. Это не предсмачивание профиля, а ограничение резкого старта для любого профиля.":"A shared gentle pump-start envelope. This is not profile preinfusion; it limits abrupt startup for any profile.","Длительность плавного старта":"Soft-start duration","За это время допустимая мощность помпы увеличивается постепенно. Значение 0 с отключает мягкий старт.":"During this time the allowed pump power rises gradually. A value of 0 s disables soft start.","Начальная мощность помпы":"Initial pump power","Стартовая граница мощности, с которой начинается плавный разгон перед обычным регулированием давления.":"The starting power limit from which the smooth ramp begins before normal pressure control.","Состояние регулятора":"Controller status","Живые диагностические значения. Они рассчитываются автоматически и здесь не настраиваются.":"Live diagnostic values. They are calculated automatically and are not configured here.","Адаптивная коррекция помпы":"Adaptive pump correction","Текущая автоматическая добавка к управлению помпой с учётом поведения давления.":"Current automatic pump-control correction based on pressure behavior.","Насколько быстро прямо сейчас изменяется давление; регулятор использует динамику, чтобы заранее тормозить разгон.":"How quickly pressure is changing right now; the controller uses this trend to brake the rise early.","Сохранить настройки давления":"Save pressure settings"};
 
     Object.assign(EN_TRANSLATIONS, {
       "Хранятся на кофемашине":"Stored on the espresso machine",
@@ -8257,7 +8554,8 @@ static const char COFFEE_DASHBOARD_HTML[] = R"HTML(<!doctype html>
       const allowed = [
         'temperature',
         'pressure',
-        'machine'
+        'machine',
+        'power'
       ];
 
       settingsPanelCurrent = allowed.includes(panel)
@@ -10262,6 +10560,11 @@ if (card) {
       'errRejected',
       'errConsecutive',
       'errLast',
+      'errLink',
+      'errPressureRejected',
+      'errTemperatureRejected',
+      'errLastRejection',
+      'xdbHealth',
       'pressureDataAge'
     ];
 
@@ -10637,23 +10940,31 @@ if (card) {
       const parts = [
         [
           delta.start,
-          tr('ош. запуска')
+          tr('сбой старта измерения')
         ],
         [
           delta.status,
-          tr('ош. статуса')
+          tr('сбой чтения статуса')
         ],
         [
           delta.timeout,
-          tr('тайм-аутов')
+          tr('тайм-аут измерения')
         ],
         [
           delta.packet,
-          tr('ош. пакета')
+          tr('сбой чтения пакета')
         ],
         [
-          delta.rejected,
-          tr('отбраковано')
+          delta.pressureRejected,
+          tr('отбраковка по давлению')
+        ],
+        [
+          delta.temperatureRejected,
+          tr('отбраковка по температуре')
+        ],
+        [
+          delta.rejectedLegacy,
+          tr('отбраковка')
         ]
       ]
         .filter(
@@ -10864,32 +11175,86 @@ if (card) {
           first,
           last,
           'xdb_rejected_packets'
+        ),
+        pressureRejected:counterDelta(
+          first,
+          last,
+          'xdb_pressure_rejected'
+        ),
+        temperatureRejected:counterDelta(
+          first,
+          last,
+          'xdb_temperature_rejected'
+        ),
+        link:counterDelta(
+          first,
+          last,
+          'xdb_link_errors'
         )
       };
+
+      // CSVs recorded before the split carry only the combined counter.
+      // Fall back to it so old shot files still render a reason.
+      const haveRejectionSplit =
+        Number.isFinite(shotDelta.pressureRejected) ||
+        Number.isFinite(shotDelta.temperatureRejected);
+
+      shotDelta.rejectedLegacy =
+        haveRejectionSplit
+          ? NaN
+          : shotDelta.rejected;
+
+      // Link faults are the only ones that can mean broken hardware. When the
+      // CSV predates the split, derive them from the individual transport
+      // counters instead.
+      const linkDelta =
+        Number.isFinite(shotDelta.link)
+          ? shotDelta.link
+          : [
+              shotDelta.start,
+              shotDelta.status,
+              shotDelta.timeout,
+              shotDelta.packet
+            ].reduce(
+              (sum, value) =>
+                sum +
+                (Number.isFinite(value) ? value : 0),
+              0
+            );
 
       if (failIndex < 0) {
         card.classList.add('clear');
         state.textContent =
           tr('Защита SENSOR_FAIL не сработала');
 
-        if (
+        if (linkDelta > 0) {
+          summary.textContent =
+            tr('Во время последнего пролива были сбои связи с XDB401. Связь восстановилась до срабатывания защиты и помпа не останавливалась, но это признак физической проблемы: проверь шину, разъёмы и питание датчика.');
+        } else if (
           Number.isFinite(totalDelta) &&
           totalDelta > 0
         ) {
           summary.textContent =
-            tr('Во время последнего пролива XDB401 зарегистрировал ошибки, но данные восстановились до срабатывания защиты и помпа не была принудительно остановлена.');
+            tr('Сбоев связи с XDB401 не было — датчик исправен. Отбракованы отдельные значения: они пришли нормально, но не прошли проверку правдоподобности. На управление это не повлияло.');
         } else {
           summary.textContent =
-            tr('Последний записанный пролив прошёл без потери связи с XDB401 и без остановки помпы защитой.');
+            tr('Последний записанный пролив прошёл без сбоев связи с XDB401 и без единой отбраковки.');
         }
 
         setLatestShotFacts({
           protection:tr('Не сработала'),
-          eventLabel:tr('Ошибок за пролив'),
+          eventLabel:
+            linkDelta > 0
+              ? tr('Сбоев связи за пролив')
+              : tr('Событий за пролив'),
           eventValue:
-            Number.isFinite(totalDelta)
-              ? fmt(totalDelta, 0)
-              : '—',
+            linkDelta > 0
+              ? fmt(linkDelta, 0)
+              : (
+                  Number.isFinite(totalDelta)
+                    ? fmt(totalDelta, 0)
+                    : '—'
+                ),
           sensorAge:
             formatSensorAge(
               shotMaxAge
@@ -14618,6 +14983,27 @@ if (card) {
     const eventStreamStaleMs = 30000;
     const fallbackSyncIntervalMs = 10000;
 
+    /*
+     * Every request on this page goes to the ESP32 over the local network.
+     * fetch() has no default deadline, so a half-dead socket leaves its promise
+     * pending forever. The browser allows six connections per origin, so a
+     * handful of stuck requests is enough to freeze the entire page: buttons
+     * still click, nothing happens, and only reopening the tab helps.
+     * Patching fetch once covers all call sites, including future ones.
+     */
+    const NETWORK_TIMEOUT_MS = 10000;
+    const nativeFetch = window.fetch.bind(window);
+
+    window.fetch = function (input, init) {
+      const options = init ? Object.assign({}, init) : {};
+      // Never override an abort signal a caller supplied itself.
+      if (options.signal) return nativeFetch(input, options);
+      const controller = new AbortController();
+      options.signal = controller.signal;
+      const timer = setTimeout(() => controller.abort(), NETWORK_TIMEOUT_MS);
+      return nativeFetch(input, options).finally(() => clearTimeout(timer));
+    };
+
     function markEventStreamActivity() {
       eventStreamConnected = true;
       eventStreamLastActivityAt = Date.now();
@@ -14792,6 +15178,7 @@ if (card) {
     const ALL_NUMBER_GROUPS = [
       nums,
       machineNums,
+      powerNums,
       temperatureNums,
       pressureNums,
       scaleNums,
@@ -15168,6 +15555,7 @@ if (card) {
       await Promise.all([
         loadNumberControls([
           machineNums,
+          powerNums,
           temperatureNums,
           pressureNums
         ])
@@ -15479,9 +15867,22 @@ if (card) {
       const sensorRejected = records.filter(
         record => (Number(record.issues) & sensorIssueMask) !== 0
       ).length;
+      /*
+       * Median rather than mean: a single channeled shot produces a huge
+       * tracking error that has nothing to do with the controller, and a mean
+       * would let that one shot dominate the whole scoreboard.
+       */
+      const trackingErrors = clean
+        .map(record => Number(record.tracking_rmse_bar))
+        .filter(value => Number.isFinite(value) && value > 0)
+        .sort((left, right) => left - right);
+      const medianTrackingRmse = trackingErrors.length
+        ? trackingErrors[Math.floor((trackingErrors.length - 1) / 2)]
+        : null;
+
       const score = Math.min(100, Math.round(
         Math.min(clean.length / 50, 1) * 65 +
-        Math.min(usableWindows / 3000, 1) * 20 +
+        Math.min(usableWindows / 6000, 1) * 20 +
         Math.min(profiles.size / 3, 1) * 15
       ));
       let level = 'collecting';
@@ -15491,15 +15892,15 @@ if (card) {
       } else if (records.length >= 5 && rejected.length / records.length > .5) {
         level = 'problem';
         title = 'Проблемы с данными XDB401';
-      } else if (clean.length >= 50 && usableWindows >= 3000 && profiles.size >= 3) {
+      } else if (clean.length >= 50 && usableWindows >= 6000 && profiles.size >= 3) {
         level = 'high';
         title = 'Высокая готовность';
-      } else if (clean.length >= 20 && usableWindows >= 1000 && profiles.size >= 2) {
+      } else if (clean.length >= 20 && usableWindows >= 2000 && profiles.size >= 2) {
         level = 'prototype';
         title = 'Данных достаточно для пробной модели';
       }
       return {
-        records, clean, partial, rejected, usableWindows,
+        records, clean, partial, rejected, usableWindows, medianTrackingRmse,
         profiles:profiles.size, sensorRejected, score, level, title
       };
     }
@@ -15549,6 +15950,10 @@ if (card) {
       $('trainingRejectedCount').textContent = stats.rejected.length;
       $('trainingProfileCount').textContent = stats.profiles;
       $('trainingSensorRejectedCount').textContent = stats.sensorRejected;
+      $('trainingTrackingRmse').textContent =
+        stats.medianTrackingRmse === null
+          ? '—'
+          : stats.medianTrackingRmse.toFixed(2);
 
       const collectionToggle = $('trainingCollectionToggle');
       collectionToggle.checked = !!trainingDataset.collection_enabled;
@@ -15586,6 +15991,10 @@ if (card) {
           : 'rejected';
         const time = archiveTimeLabel(record, record, id);
         const windows = Number(record.usable_windows) || 0;
+        const rmse = Number(record.tracking_rmse_bar);
+        const rmseText = Number.isFinite(rmse) && Number(record.tracking_samples) > 0
+          ? ' · ' + tr('откл.') + ' ' + rmse.toFixed(2) + ' ' + tr('бар')
+          : '';
         return '<div class="lab-record ' + status + '">' +
           '<i class="lab-record-dot"></i>' +
           '<div class="lab-record-copy">' +
@@ -15593,6 +16002,7 @@ if (card) {
               archiveEscapeHtml(profileLabel(record.profile || '')) + '</b>' +
               '<span>' + archiveEscapeHtml(trainingStatusLabel(status)) + '</span></div>' +
             '<small>' + archiveEscapeHtml(time) + ' · ' + windows + ' ' + tr('окон') +
+              rmseText +
               ' · ' + archiveEscapeHtml(trainingIssueText(record)) + '</small>' +
           '</div>' +
           '<button type="button" class="lab-pin' + (record.pinned ? ' active' : '') +
@@ -16070,8 +16480,13 @@ if (card) {
     function archiveQualityBadge(summary) {
       const analysis = archiveAnalysis(summary);
       if (!analysis) return '';
-      const quality = String(analysis.quality || 'no_data');
-      const score = Number(analysis.quality_score);
+      // Same ruler as the detail card, so a list entry and the shot it opens
+      // can never disagree with each other.
+      const verdict = Number(analysis.version) < ANALYSIS_METRICS_VERSION
+        ? null
+        : evaluateShotVerdict(analysis, summary);
+      const quality = String(verdict?.quality || analysis.quality || 'no_data');
+      const score = Number(verdict ? verdict.score : analysis.quality_score);
       const label = quality === 'sensor_fault'
         ? '!'
         : Number.isFinite(score)
@@ -16083,6 +16498,119 @@ if (card) {
         archiveEscapeHtml(label) + '</span>';
     }
 
+    /*
+     * Verdict policy, evaluated here rather than baked into the stored file.
+     *
+     * The firmware measures a shot and stores the measurements; deciding what
+     * those measurements mean is policy, and policy changes. When the verdict
+     * was frozen at save time, every threshold change split the archive into
+     * shots judged by different rulers, and comparing an old shot with a new
+     * one became meaningless. Measurements are facts and stay frozen; the
+     * verdict is recomputed on every render, so retuning a threshold below
+     * instantly re-judges the entire archive under one ruler.
+     *
+     * ANALYSIS_METRICS_VERSION guards the other half of the problem: metrics
+     * themselves were once computed over a different window, so numbers from
+     * older firmware are not comparable no matter which thresholds we apply.
+     * Those shots keep the verdict their firmware recorded and are labelled.
+     */
+    const ANALYSIS_METRICS_VERSION = 2;
+
+    const SHOT_VERDICT_LIMITS = {
+      instability: 0.65,       // бар, СКО ошибки слежения
+      channelInstability: 0.85,
+      channelFlowVariation: 0.45,
+      dropFlowVariation: 0.35,
+      overshoot: 0.80,         // бар выше профиля
+      underpressure: -0.75,    // бар средней ошибки
+      restrictiveRatio: 0.85,
+      freeRatio: 0.95,
+      freeFlow: 2.30           // г/с
+    };
+
+    function evaluateShotVerdict(analysis, summary) {
+      const metrics = analysis?.metrics || {};
+      const num = value => {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : null;
+      };
+
+      const meanAbsError = num(metrics.mean_absolute_error_bar);
+      const meanError = num(metrics.mean_error_bar);
+      const instability = num(metrics.pressure_instability_bar);
+      const flowVariation = num(metrics.flow_variation);
+      const drinkRatio = num(metrics.drink_ratio);
+      const mainDuration = num(metrics.main_duration_s);
+      const averageFlow = num(metrics.average_flow_g_s);
+      const dropEvents = Number(metrics.pressure_drop_events) || 0;
+      const overshoot = num(summary?.pressure?.maximum_overshoot_bar);
+      const reliable = analysis?.reliable !== false;
+
+      // Not enough stored measurement to judge — defer to the firmware.
+      if (meanAbsError === null && instability === null) return null;
+
+      const L = SHOT_VERDICT_LIMITS;
+      const channeling = reliable && mainDuration !== null && mainDuration >= 5 &&
+        ((dropEvents >= 2 && flowVariation !== null &&
+          flowVariation > L.dropFlowVariation) ||
+         (instability !== null && instability > L.channelInstability &&
+          flowVariation !== null && flowVariation > L.channelFlowVariation));
+
+      let score = 100;
+      if (meanAbsError !== null) {
+        score -= Math.min(30, Math.round(Math.max(0, meanAbsError - 0.20) * 18));
+      }
+      if (overshoot !== null) {
+        score -= Math.min(22, Math.round(Math.max(0, overshoot - 0.30) * 12));
+      }
+      if (instability !== null) {
+        score -= Math.min(18, Math.round(Math.max(0, instability - 0.25) * 14));
+      }
+      if (channeling) score -= 12;
+      if (drinkRatio !== null) {
+        /*
+         * Weight deviation is penalised in proportion to how far off it is.
+         * The flat tiers this replaces capped the penalty at 14 points, so a
+         * 143 g drink against a 36 g target still scored 85 % and was labelled
+         * a good shot while the very same card explained the pour was far too
+         * free. A verdict that contradicts its own explanation is worse than
+         * no verdict. A 10 % band around the target costs nothing.
+         */
+        const deviation = Math.abs(drinkRatio - 1) - 0.10;
+        if (deviation > 0) score -= Math.min(55, Math.round(deviation * 90));
+      }
+      score = Math.max(0, Math.min(100, score));
+
+      const tooRestrictive = drinkRatio !== null && drinkRatio < L.restrictiveRatio;
+      const tooFree = drinkRatio !== null && drinkRatio >= L.freeRatio &&
+        averageFlow !== null && averageFlow > L.freeFlow;
+
+      let diagnosis;
+      let grind = 'none';
+      if (!reliable) {
+        return { quality:'sensor_fault', diagnosis:'sensor_fault',
+                 grind:'unknown', score, channeling };
+      } else if (tooRestrictive) {
+        diagnosis = 'too_restrictive'; grind = 'coarser';
+      } else if (tooFree) {
+        diagnosis = 'too_free'; grind = 'finer';
+      } else if (overshoot !== null && overshoot > L.overshoot) {
+        diagnosis = 'overpressure';
+      } else if (meanError !== null && meanError < L.underpressure) {
+        diagnosis = 'underpressure';
+      } else if (channeling) {
+        diagnosis = 'channeling_suspected'; grind = 'check_puck';
+      } else if ((instability !== null && instability > L.instability) ||
+                 dropEvents >= 2) {
+        diagnosis = 'unstable';
+      } else {
+        diagnosis = 'normal';
+      }
+
+      const quality = score >= 85 ? 'good' : (score >= 70 ? 'acceptable' : 'poor');
+      return { quality, diagnosis, grind, score, channeling };
+    }
+
     function renderShotQuality(summary) {
       const card = $('shotQualityCard');
       if (!card) return;
@@ -16092,10 +16620,14 @@ if (card) {
         return;
       }
 
-      const quality = String(analysis.quality || 'no_data');
-      const diagnosis = String(analysis.diagnosis || 'no_data');
-      const grind = String(analysis.suggested_grind || 'unknown');
-      const score = Number(analysis.quality_score);
+      const legacyMetrics =
+        Number(analysis.version) < ANALYSIS_METRICS_VERSION;
+      const verdict = legacyMetrics ? null : evaluateShotVerdict(analysis, summary);
+
+      const quality = String(verdict?.quality || analysis.quality || 'no_data');
+      const diagnosis = String(verdict?.diagnosis || analysis.diagnosis || 'no_data');
+      const grind = String(verdict?.grind || analysis.suggested_grind || 'unknown');
+      const score = Number(verdict ? verdict.score : analysis.quality_score);
       const confidence = Number(analysis.sensor_confidence);
       const metrics = analysis.metrics || {};
 
@@ -16105,7 +16637,11 @@ if (card) {
         ? Math.round(score) + '%'
         : '—';
       $('shotQualityTitle').textContent = shotQualityText('quality', quality);
-      $('shotQualityDiagnosis').textContent = shotQualityText('diagnosis', diagnosis);
+      $('shotQualityDiagnosis').textContent =
+        shotQualityText('diagnosis', diagnosis) +
+        (legacyMetrics
+          ? ' ' + tr('(оценка старой методики, пересчёту не подлежит)')
+          : '');
       $('shotQualityGrind').textContent = shotQualityText('grind', grind);
       $('shotQualityConfidence').textContent = Number.isFinite(confidence)
         ? Math.round(confidence) + '%'
@@ -17016,27 +17552,98 @@ if (card) {
     scheduleDashboardOffline();
 
     let events = null;
+    let eventReconnectTimer = 0;
+    const EVENT_RECONNECT_MIN_MS = 2000;
+    const EVENT_RECONNECT_MAX_MS = 30000;
+    let eventReconnectDelayMs = EVENT_RECONNECT_MIN_MS;
 
-    events = new EventSource('/events');
+    function scheduleEventStreamReconnect() {
+      if (eventReconnectTimer) return;
+      const delay = eventReconnectDelayMs;
+      eventReconnectDelayMs = Math.min(delay * 2, EVENT_RECONNECT_MAX_MS);
+      eventReconnectTimer = setTimeout(() => {
+        eventReconnectTimer = 0;
+        connectEventStream();
+      }, delay);
+    }
 
-    events.addEventListener('open', () => {
-      markEventStreamActivity();
-    });
+    /*
+     * The browser retries an EventSource only while it is CONNECTING. After a
+     * laptop sleeps, the network changes or the ESP32 reboots, the stream can
+     * settle into CLOSED and stay dead for the lifetime of the page. That is
+     * why a tab left open for hours went silent and only a fresh tab helped.
+     * Rebuilding the stream ourselves removes that dead end.
+     */
+    function connectEventStream() {
+      if (events) {
+        try { events.close(); } catch (_) {}
+        events = null;
+      }
 
-    events.addEventListener('error', () => {
-      markEventStreamError();
-    });
-
-    events.addEventListener('ping', () => {
-      markEventStreamActivity();
-    });
-
-    events.addEventListener('state', event => {
-      markEventStreamActivity();
+      let stream;
       try {
-        apply(JSON.parse(event.data));
-      } catch (_) {}
-    });
+        stream = new EventSource('/events');
+      } catch (_) {
+        scheduleEventStreamReconnect();
+        return;
+      }
+      events = stream;
+
+      stream.addEventListener('open', () => {
+        eventReconnectDelayMs = EVENT_RECONNECT_MIN_MS;
+        markEventStreamActivity();
+      });
+
+      stream.addEventListener('error', () => {
+        markEventStreamError();
+        if (stream.readyState === EventSource.CLOSED) {
+          scheduleEventStreamReconnect();
+        }
+      });
+
+      stream.addEventListener('ping', () => {
+        eventReconnectDelayMs = EVENT_RECONNECT_MIN_MS;
+        markEventStreamActivity();
+      });
+
+      stream.addEventListener('state', event => {
+        eventReconnectDelayMs = EVENT_RECONNECT_MIN_MS;
+        markEventStreamActivity();
+        try {
+          apply(JSON.parse(event.data));
+        } catch (_) {}
+      });
+    }
+
+    /*
+     * A socket can also go quiet without ever firing 'error' — the connection
+     * looks alive to the browser but nothing arrives. Only silence detects it.
+     */
+    setInterval(() => {
+      if (document.hidden || !eventStreamLastActivityAt) return;
+      if (Date.now() - eventStreamLastActivityAt > eventStreamStaleMs) {
+        markEventStreamError();
+        scheduleEventStreamReconnect();
+      }
+    }, 5000);
+
+    function reviveConnection() {
+      if (document.hidden || eventStreamHealthy()) return;
+      eventReconnectDelayMs = EVENT_RECONNECT_MIN_MS;
+      if (eventReconnectTimer) {
+        clearTimeout(eventReconnectTimer);
+        eventReconnectTimer = 0;
+      }
+      connectEventStream();
+    }
+
+    // Returning to the tab, waking the machine or regaining the network are the
+    // moments a user expects the page to be live again.
+    document.addEventListener('visibilitychange', reviveConnection);
+    window.addEventListener('online', reviveConnection);
+    window.addEventListener('pageshow', reviveConnection);
+
+    connectEventStream();
 
     /*
      * Native ESPHome startup model: EventSource('/events') supplies the

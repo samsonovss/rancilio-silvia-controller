@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <string>
 
+#include "shot_profiles.h"
+
 namespace silvia_analysis {
 
 struct ShotMetadata {
@@ -51,12 +53,27 @@ enum TrainingIssue : uint32_t {
 };
 
 struct TrainingAssessment {
-  // A 2 s input history and a 1 s prediction horizon at the current 5 Hz
-  // capture rate.  The computer-side trainer may later choose shorter
-  // horizons, but every exported window is guaranteed to cover the longest
-  // planned prediction.
-  static constexpr size_t HISTORY_SAMPLES = 10;
-  static constexpr size_t HORIZON_SAMPLES = 5;
+  // A 2 s input history and a 1 s prediction horizon at the 10 Hz capture
+  // rate.  The computer-side trainer may later choose shorter horizons, but
+  // every exported window is guaranteed to cover the longest planned
+  // prediction.  These counts were doubled together with the capture rate so
+  // the covered duration stayed the same.
+  static constexpr size_t HISTORY_SAMPLES = 20;
+  static constexpr size_t HORIZON_SAMPLES = 10;
+
+  // Nominal capture period. Every threshold below that talks about time or
+  // about a per-sample change is derived from it, so that changing the capture
+  // rate again cannot silently loosen the acceptance criteria.
+  static constexpr uint32_t NOMINAL_PERIOD_MS = 100;
+  // At most one skipped tick, plus jitter. A training window assumes a uniform
+  // time step; a larger hole would make a fixed-length window cover an
+  // unpredictable amount of real time.
+  static constexpr uint32_t MAX_GAP_MS = 250;
+  // Five seconds of usable pressure phase.
+  static constexpr size_t MIN_VALID_SAMPLES = 50;
+  // 12.5 bar/s, expressed per sample. The driver already rejects anything
+  // faster than 15 bar/s upward, so this catches what slipped past it.
+  static constexpr float MAX_STEP_BAR_PER_S = 12.5f;
 
   std::string status = "rejected";
   bool eligible = false;
@@ -73,6 +90,24 @@ struct TrainingAssessment {
   uint32_t timeline_gap_events = 0;
   uint32_t pressure_jump_events = 0;
   uint32_t phase_mask = 0;
+
+  // How closely the measured pressure followed the profile. This is the
+  // scoreboard for controller work: it is the quantity a learned feed-forward
+  // is supposed to reduce, so it must be comparable across shots.
+  //
+  // Only samples where the PI loop was actually in command are counted. The
+  // soft-start ramp and the startup search are excluded because there the
+  // controller is deliberately not tracking the curve, and including them
+  // would reward a controller for slamming the pump early.
+  //
+  // Caveat worth remembering when reading these numbers: during channeling the
+  // puck itself changes and the pressure genuinely cannot follow. Such a shot
+  // shows a large error through no fault of the controller, which is why
+  // flow_variation and pressure_drop_events must be read alongside it.
+  size_t tracking_samples = 0;
+  float tracking_rmse_bar = 0.0f;
+  float tracking_max_abs_error_bar = 0.0f;
+  float tracking_mean_error_bar = 0.0f;  // signed: negative means undershoot
 };
 
 inline int clamp_percent(int value) {
@@ -100,6 +135,9 @@ TrainingAssessment assess_for_training(const Samples &samples) {
   uint32_t previous_elapsed_ms = 0;
   float previous_pressure_bar = 0.0f;
   size_t contiguous_valid_samples = 0;
+  double tracking_error_sum = 0.0;
+  double tracking_square_sum = 0.0;
+  bool tracking_started = false;
 
   const auto finish_valid_run = [&]() {
     const size_t required = TrainingAssessment::HISTORY_SAMPLES +
@@ -141,7 +179,7 @@ TrainingAssessment assess_for_training(const Samples &samples) {
                    : UINT32_MAX;
       result.maximum_sample_gap_ms =
           std::max(result.maximum_sample_gap_ms, gap_ms);
-      if (gap_ms > 350U)
+      if (gap_ms > TrainingAssessment::MAX_GAP_MS)
         result.timeline_gap_events++;
     }
     have_previous_sample = true;
@@ -154,7 +192,8 @@ TrainingAssessment assess_for_training(const Samples &samples) {
                        sample.sensor_age_ms <= 300U &&
                        sample.xdb_consecutive_errors == 0U &&
                        gap_ms != UINT32_MAX &&
-                       (!have_previous_pressure || gap_ms <= 350U);
+                       (!have_previous_pressure ||
+                        gap_ms <= TrainingAssessment::MAX_GAP_MS);
 
     if (!valid) {
       result.invalid_working_samples++;
@@ -166,20 +205,60 @@ TrainingAssessment assess_for_training(const Samples &samples) {
     result.valid_working_samples++;
     contiguous_valid_samples++;
 
-    if (have_previous_pressure && gap_ms >= 100U && gap_ms <= 350U &&
-        std::fabs(sample.pressure_bar - previous_pressure_bar) > 2.5f) {
+    // The lower bound must stay well below the nominal period: ticks routinely
+    // land a millisecond or two early, and a bound set at the period itself
+    // would let those samples skip the check entirely.
+    const float allowed_step_bar =
+        TrainingAssessment::MAX_STEP_BAR_PER_S * (gap_ms / 1000.0f);
+    if (have_previous_pressure &&
+        gap_ms >= TrainingAssessment::NOMINAL_PERIOD_MS / 2U &&
+        gap_ms <= TrainingAssessment::MAX_GAP_MS &&
+        std::fabs(sample.pressure_bar - previous_pressure_bar) >
+            allowed_step_bar) {
       result.pressure_jump_events++;
       finish_valid_run();
       contiguous_valid_samples = 1;
     }
     previous_pressure_bar = sample.pressure_bar;
     have_previous_pressure = true;
+
+    // Same scoping as the shot verdict: only the brew phase, and only after
+    // the pressure first caught up with the profile. Preinfusion holds a
+    // deliberate offset of a couple of bar, and counting it here would make
+    // the scoreboard measure the profile shape rather than control quality.
+    if (sample.phase_kind ==
+            static_cast<uint8_t>(silvia::ShotPhaseKind::BREW) &&
+        !tracking_started && sample.target_bar > 0.5f &&
+        sample.pressure_bar >= 0.9f * sample.target_bar)
+      tracking_started = true;
+
+    if (tracking_started && sample.pi_enabled && sample.sensor_ok &&
+        sample.phase_kind ==
+            static_cast<uint8_t>(silvia::ShotPhaseKind::BREW) &&
+        std::isfinite(sample.pressure_bar) &&
+        std::isfinite(sample.target_bar)) {
+      const float error = sample.pressure_bar - sample.target_bar;
+      tracking_error_sum += error;
+      tracking_square_sum += static_cast<double>(error) * error;
+      result.tracking_samples++;
+      const float magnitude = std::fabs(error);
+      if (magnitude > result.tracking_max_abs_error_bar)
+        result.tracking_max_abs_error_bar = magnitude;
+    }
   }
   finish_valid_run();
 
+  if (result.tracking_samples > 0) {
+    const double count = static_cast<double>(result.tracking_samples);
+    result.tracking_rmse_bar =
+        static_cast<float>(std::sqrt(tracking_square_sum / count));
+    result.tracking_mean_error_bar =
+        static_cast<float>(tracking_error_sum / count);
+  }
+
   if (result.working_samples == 0)
     result.issues |= TRAINING_ISSUE_NO_PRESSURE_PHASE;
-  if (result.valid_working_samples < 25)
+  if (result.valid_working_samples < TrainingAssessment::MIN_VALID_SAMPLES)
     result.issues |= TRAINING_ISSUE_TOO_SHORT;
   if (result.sensor_errors > 0)
     result.issues |= TRAINING_ISSUE_SENSOR_ERROR;
@@ -238,6 +317,8 @@ ShotAnalysis analyze(const Samples &samples, const ShotMetadata &metadata) {
 
   size_t candidate_samples = 0;
   size_t valid_samples = 0;
+  size_t scored_samples = 0;
+  bool tracking_started = false;
   double absolute_error_sum = 0.0;
   double error_sum = 0.0;
   double error_square_sum = 0.0;
@@ -276,11 +357,38 @@ ShotAnalysis analyze(const Samples &samples, const ShotMetadata &metadata) {
     valid_samples++;
 
     const float error = sample.pressure_bar - sample.target_bar;
-    absolute_error_sum += std::fabs(error);
-    error_sum += error;
-    error_square_sum += static_cast<double>(error) * error;
     result.maximum_overshoot_bar =
         std::max(result.maximum_overshoot_bar, error);
+
+    /*
+     * Tracking statistics are scored only where the controller is actually
+     * supposed to be following the curve.
+     *
+     * Two regions are deliberately excluded. Preinfusion holds the pump well
+     * below the nominal target on purpose, so it contributes a sustained error
+     * of a couple of bar that has nothing to do with control quality. And the
+     * initial climb towards the profile is a transient: the error there shrinks
+     * from "everything" to "nothing" by definition.
+     *
+     * Averaging over both regions turns a monotonic trend into what looks like
+     * a large spread, and the shot then gets reported as oscillating when
+     * nothing oscillated at all. Scoring begins once the pressure has caught up
+     * to within 10 % of the target for the first time, which adapts itself to
+     * the profile instead of relying on a fixed number of seconds.
+     */
+    const bool brew_phase =
+        sample.phase_kind ==
+        static_cast<uint8_t>(silvia::ShotPhaseKind::BREW);
+    if (brew_phase && !tracking_started && sample.target_bar > 0.5f &&
+        sample.pressure_bar >= 0.9f * sample.target_bar)
+      tracking_started = true;
+
+    if (brew_phase && tracking_started) {
+      absolute_error_sum += std::fabs(error);
+      error_sum += error;
+      error_square_sum += static_cast<double>(error) * error;
+      scored_samples++;
+    }
 
     if (std::isfinite(sample.flow_g_s) && sample.flow_g_s > 0.05f &&
         sample.flow_g_s < 12.0f) {
@@ -306,13 +414,17 @@ ShotAnalysis analyze(const Samples &samples, const ShotMetadata &metadata) {
 
   result.main_duration_s =
       (last_working_ms - first_working_ms) / 1000.0f;
-  result.mean_absolute_error_bar =
-      static_cast<float>(absolute_error_sum / valid_samples);
-  result.mean_error_bar = static_cast<float>(error_sum / valid_samples);
-  const double error_variance =
-      std::max(0.0, error_square_sum / valid_samples -
-                        (error_sum / valid_samples) * (error_sum / valid_samples));
-  result.pressure_instability_bar = static_cast<float>(std::sqrt(error_variance));
+  if (scored_samples >= 3) {
+    const double count = static_cast<double>(scored_samples);
+    result.mean_absolute_error_bar =
+        static_cast<float>(absolute_error_sum / count);
+    result.mean_error_bar = static_cast<float>(error_sum / count);
+    const double mean = error_sum / count;
+    const double error_variance =
+        std::max(0.0, error_square_sum / count - mean * mean);
+    result.pressure_instability_bar =
+        static_cast<float>(std::sqrt(error_variance));
+  }
 
   if (flow_samples >= 3) {
     result.average_flow_g_s = static_cast<float>(flow_sum / flow_samples);
@@ -352,19 +464,24 @@ ShotAnalysis analyze(const Samples &samples, const ShotMetadata &metadata) {
       result.reliable && result.main_duration_s >= 5.0f &&
       ((result.pressure_drop_events >= 2U &&
         std::isfinite(result.flow_variation) && result.flow_variation > 0.35f) ||
-       (result.pressure_instability_bar > 0.85f &&
+       (std::isfinite(result.pressure_instability_bar) &&
+        result.pressure_instability_bar > 0.85f &&
         std::isfinite(result.flow_variation) && result.flow_variation > 0.45f));
 
   int score = 100;
-  score -= std::min(30, static_cast<int>(std::lround(
-                           std::max(0.0f, result.mean_absolute_error_bar - 0.20f) *
-                           18.0f)));
+  // The tracking statistics stay NAN when a shot never reached its profile, so
+  // every term that consumes them has to tolerate that.
+  if (std::isfinite(result.mean_absolute_error_bar))
+    score -= std::min(30, static_cast<int>(std::lround(
+                             std::max(0.0f, result.mean_absolute_error_bar - 0.20f) *
+                             18.0f)));
   score -= std::min(22, static_cast<int>(std::lround(
                            std::max(0.0f, result.maximum_overshoot_bar - 0.30f) *
                            12.0f)));
-  score -= std::min(18, static_cast<int>(std::lround(
-                           std::max(0.0f, result.pressure_instability_bar - 0.25f) *
-                           14.0f)));
+  if (std::isfinite(result.pressure_instability_bar))
+    score -= std::min(18, static_cast<int>(std::lround(
+                             std::max(0.0f, result.pressure_instability_bar - 0.25f) *
+                             14.0f)));
   if (result.channeling_suspected)
     score -= 12;
   if (std::isfinite(result.drink_ratio)) {

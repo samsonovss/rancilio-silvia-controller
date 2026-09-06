@@ -200,7 +200,7 @@ inline std::string make_training_json(
                                          ? std::to_string(pending_timestamp)
                                          : "null";
   std::string json;
-  json.reserve(760);
+  json.reserve(900);
   json += "{\"version\":1";
   json += ",\"id\":" + std::to_string(id);
   json += ",\"timestamp\":" + timestamp_json;
@@ -233,6 +233,15 @@ inline std::string make_training_json(
   json += ",\"pressure_jumps\":" +
           std::to_string(training.pressure_jump_events);
   json += ",\"phase_mask\":" + std::to_string(training.phase_mask);
+  // Profile tracking accuracy — the figure controller work is judged by.
+  json += ",\"tracking_samples\":" +
+          std::to_string(training.tracking_samples);
+  json += ",\"tracking_rmse_bar\":" +
+          json_number(training.tracking_rmse_bar);
+  json += ",\"tracking_max_abs_error_bar\":" +
+          json_number(training.tracking_max_abs_error_bar);
+  json += ",\"tracking_mean_error_bar\":" +
+          json_number(training.tracking_mean_error_bar);
   json += ",\"csv_bytes\":" + std::to_string(csv_bytes);
   json += "}";
   return json;
@@ -316,7 +325,11 @@ inline std::string make_summary_json(
           ", \"invalid_samples\": " +
           std::to_string(training.invalid_working_samples) + "},\n";
   json += "  \"analysis\": {\n";
-  json += "    \"version\": 1,\n";
+  // Version 2: tracking metrics are scored over the brew phase only, starting
+  // once the pressure first reached the profile. Numbers from version 1 were
+  // averaged over preinfusion and the initial climb too, so the dashboard must
+  // not judge them with the current thresholds.
+  json += "    \"version\": 2,\n";
   json += "    \"quality_score\": " + std::to_string(analysis.score) + ",\n";
   json += "    \"sensor_confidence\": " + std::to_string(analysis.sensor_confidence) + ",\n";
   json += std::string("    \"reliable\": ") + (analysis.reliable ? "true" : "false") + ",\n";
@@ -342,14 +355,21 @@ inline std::string make_summary_json(
 }
 
 inline bool save_current_shot() {
-  if (!mounted) {
-    last_save_status = "filesystem_not_mounted";
-    return false;
-  }
+  // "Is there anything to save?" is checked before "can we save?". This
+  // function is polled once per second and is also called from power-off and
+  // shot-end paths, some of which can run before the filesystem is mounted.
+  // Checking mount state first made those idle calls latch a
+  // "filesystem_not_mounted" status that then stayed visible on the
+  // diagnostics page for the rest of the session, long after the mount
+  // succeeded and shots were being stored normally.
   if (!silvia_diag::csv_ready || silvia_diag::last_shot.empty())
     return false;
   if (silvia_diag::shot_started_ms == last_saved_started_ms)
     return false;
+  if (!mounted) {
+    last_save_status = "filesystem_not_mounted";
+    return false;
+  }
   auto ids = list_ids();
   const uint32_t id = ids.empty() ? 1 : ids.back() + 1;
   const auto training =

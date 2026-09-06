@@ -104,6 +104,9 @@ struct ShotSample {
   uint32_t xdb_rejected_packets;
   uint32_t xdb_total_errors;
   uint32_t xdb_consecutive_errors;
+  uint32_t xdb_link_errors;
+  uint32_t xdb_pressure_rejected;
+  uint32_t xdb_temperature_rejected;
   uint8_t phase_index;
   uint8_t phase_kind;
   bool phase_pump_enabled;
@@ -127,6 +130,10 @@ struct ShotSample {
   float startup_initial_pressure_bar;
   uint32_t startup_wait_ms;
 };
+
+// Hard ceiling on a single captured shot. Raised together with the move of the
+// capture loop from 200 ms to 100 ms so the covered duration stayed the same.
+inline constexpr size_t MAX_SAMPLES = 1200;
 
 inline std::vector<ShotSample, PsramAllocator<ShotSample>> last_shot;
 inline bool capture_active = false;
@@ -179,14 +186,17 @@ inline void begin_shot(bool enabled, uint32_t now) {
   if (!enabled)
     return;
   last_shot.clear();
-  last_shot.reserve(600);
+  // The capture loop runs at 100 ms, so 1200 samples cover two minutes of
+  // brewing. The buffer lives in PSRAM (~250 B per sample, ~300 kB total),
+  // which is nothing against the 8 MB available.
+  last_shot.reserve(MAX_SAMPLES);
   csv_ready = false;
   shot_started_ms = now;
   last_transition_reason = TransitionReason::NONE;
 }
 
 inline void record(const ShotSample &sample) {
-  if (!capture_active || last_shot.size() >= 600)
+  if (!capture_active || last_shot.size() >= MAX_SAMPLES)
     return;
   last_shot.push_back(sample);
 }
@@ -209,7 +219,7 @@ using PsramString = std::basic_string<char, std::char_traits<char>, PsramAllocat
 
 inline PsramString make_csv() {
   PsramString csv;
-  csv.reserve(768 + last_shot.size() * 380);
+  csv.reserve(768 + last_shot.size() * 420);
   csv += "elapsed_ms,phase,target_bar,pressure_bar,pressure_slope_bar_s,predicted_pressure_bar,";
   csv += "time_to_target_s,soft_start_limit_percent,";
   csv += "desired_pressure_slope_bar_s,rise_rate_brake,pressure_recovery_boost,";
@@ -219,6 +229,7 @@ inline PsramString make_csv() {
   csv += "temperature_feed_forward_percent,pressure_sensor_temperature_c,boiler_temperature_c,";
   csv += "weight_g,flow_g_s,xdb_start_errors,xdb_status_errors,xdb_measurement_timeouts,";
   csv += "xdb_packet_errors,xdb_rejected_packets,xdb_total_errors,xdb_consecutive_errors,";
+  csv += "xdb_link_errors,xdb_pressure_rejected,xdb_temperature_rejected,";
   csv += "phase_index,phase_kind,phase_pump_enabled,phase_progress,phase_elapsed_s,phase_remaining_s,";
   csv += "phase_start_target_bar,phase_end_target_bar,target_plus_025s_bar,target_plus_05s_bar,";
   csv += "target_plus_1s_bar,target_slope_bar_s,predicted_target_bar,previous_output_percent,scale_data_valid,";
@@ -230,6 +241,7 @@ inline PsramString make_csv() {
         line, sizeof(line),
         "%lu,%u,%.4f,%.4f,%.4f,%.4f,%.4f,%.2f,%.4f,%.5f,%.5f,%.4f,%u,%lu,%u,%s,%s,%d,%d,%u,"
         "%.5f,%.5f,%.5f,%.5f,%.2f,%.2f,%.2f,%.2f,%.3f,%.3f,%lu,%lu,%lu,%lu,%lu,%lu,%lu,"
+        "%lu,%lu,%lu,"
         "%u,%u,%u,%.5f,%.3f,%.3f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.2f,%u,"
         "%u,%.2f,%.2f,%.2f,%u,%.4f,%lu\n",
         static_cast<unsigned long>(sample.elapsed_ms), sample.phase,
@@ -255,6 +267,9 @@ inline PsramString make_csv() {
         static_cast<unsigned long>(sample.xdb_rejected_packets),
         static_cast<unsigned long>(sample.xdb_total_errors),
         static_cast<unsigned long>(sample.xdb_consecutive_errors),
+        static_cast<unsigned long>(sample.xdb_link_errors),
+        static_cast<unsigned long>(sample.xdb_pressure_rejected),
+        static_cast<unsigned long>(sample.xdb_temperature_rejected),
         sample.phase_index, sample.phase_kind,
         sample.phase_pump_enabled ? 1 : 0, sample.phase_progress,
         sample.phase_elapsed_s, sample.phase_remaining_s,

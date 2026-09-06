@@ -124,7 +124,7 @@ i2c:
   sda: ${xdb401_sda_pin}
   scl: ${xdb401_scl_pin}
   scan: true
-  frequency: 400kHz
+  #frequency: 400kHz
   # timeout: 5ms
 
 # -------------------------
@@ -150,6 +150,9 @@ substitutions:
   xdb401_scl_pin: GPIO11
   use_pump_dimmer: "true"
   overtemp_limit: "155.0"
+  # PT100 publishes once per second. Three missed samples mean the reading can
+  # no longer be trusted for heater control, so the heater is forced off.
+  pt100_stale_ms: "3000"
   # Future Nextion display placeholder. Keep commented until wired and tested.
   # nextion_tx_pin: GPIO1
   # nextion_rx_pin: GPIO2
@@ -394,6 +397,40 @@ globals:
     restore_value: no
     initial_value: '0'
 
+  # Diagnostics: measure the real on-device publish cadence of the pressure
+  # sensor. Home Assistant timestamps are receive times and include WiFi and
+  # recorder jitter, so they cannot answer whether the ESP itself holds the
+  # configured 100 ms interval. These are measured inside the publish callback.
+  - id: pressure_interval_avg_ms
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+
+  - id: pressure_interval_max_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: pressure_sensor_fault_latched
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+  - id: pressure_sensor_recovery_samples
+    type: uint8_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: pressure_sensor_recovery_last_update_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: pressure_sensor_control_valid
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
   - id: pt100_last_update_ms
     type: uint32_t
     restore_value: no
@@ -408,6 +445,29 @@ globals:
     type: bool
     restore_value: no
     initial_value: 'false'
+
+  # Day-of-year the scheduled start last fired, so a one-minute match cannot
+  # trigger repeatedly within that minute. 0 means "not yet today".
+  - id: auto_on_last_fired_day
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+  # Counts overtemperature trips since boot. The trip itself already shuts the
+  # machine down; this exists so the event leaves a visible trace instead of a
+  # single log line nobody reads.
+  - id: overtemp_trip_count
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  # 0 = none, 1 = invalid reading (NAN), 2 = sudden drop to zero, 3 = stale.
+  # Written only by the two fault owners: the PT100 on_value handler (sample
+  # faults) and the 1 s interval (staleness). Display lambdas only read it.
+  - id: pt100_fault_reason
+    type: uint8_t
+    restore_value: no
+    initial_value: '0'
 
   - id: pt100_last_valid_temperature
     type: float
@@ -625,12 +685,74 @@ globals:
 interval:
   - interval: 1s
     then:
-      # Retry local persistence after the real-time shot path has completely
-      # stopped. This also recovers from a transient filesystem write failure.
+      # Scheduled start.
+      #
+      # Checked once a second rather than driven by time.on_time, because the
+      # target is a pair of Numbers the user can change at any moment and a
+      # cron trigger is fixed at compile time.
+      #
+      # The day-of-year guard is what makes this fire exactly once: a match on
+      # hours and minutes stays true for a whole minute, so without it the
+      # machine would be switched on sixty times in a row. Switching on an
+      # already-running machine would also restart the auto-off countdown,
+      # which is why an explicit power check comes first.
+      - lambda: |-
+          if (!id(silvia_auto_on_enabled).state || id(silvia_power_state)) {
+            return;
+          }
+          const auto now = id(silvia_time).now();
+          if (!now.is_valid()) {
+            return;
+          }
+          if (now.hour != (int) id(silvia_auto_on_hour).state ||
+              now.minute != (int) id(silvia_auto_on_minute).state) {
+            return;
+          }
+          if (id(auto_on_last_fired_day) == now.day_of_year) {
+            return;
+          }
+          id(auto_on_last_fired_day) = now.day_of_year;
+          ESP_LOGI("silvia.autoon", "Scheduled start at %02d:%02d",
+                   now.hour, now.minute);
+          id(silvia_power_relay).turn_on();
+
+      # Sole owner of local persistence. Every shot-end path calls finish_shot()
+      # and leaves the writing to this tick, so the flash operation always
+      # happens after the shot has stopped counting as running. Also recovers
+      # from a transient filesystem write failure, since a failed attempt leaves
+      # csv_ready set and the next tick tries again.
       - lambda: |-
           if (silvia_diag::csv_ready && !silvia_diag::capture_active) {
             silvia_archive::save_current_shot();
           }
+
+      # Sole owner of PT100 staleness detection. A frozen sensor keeps
+      # publishing plausible finite values, so isfinite() and the overtemp
+      # limit never catch it; only the age of the last accepted sample does.
+      # The heater is cut here as well, independently of whether the PID
+      # happens to call the heater output's write_action.
+      - lambda: |-
+          if (id(pt100_last_update_ms) == 0U) {
+            return;
+          }
+          const uint32_t age = millis() - id(pt100_last_update_ms);
+          if (age <= ${pt100_stale_ms}U) {
+            return;
+          }
+          if (!id(pt100_fault_active)) {
+            id(pt100_fault_count)++;
+          }
+          id(pt100_fault_active) = true;
+          id(pt100_fault_reason) = 3;
+          if (id(pid_heat_output_value) != 0.0f ||
+              id(brew_temperature_feed_forward_value) != 0.0f) {
+            ESP_LOGE("silvia.pt100",
+                     "PT100 stale for %lu ms: heater forced off",
+                     static_cast<unsigned long>(age));
+          }
+          id(pid_heat_output_value) = 0.0f;
+          id(brew_temperature_feed_forward_value) = 0.0f;
+          id(silvia_heater_ssr_pwm).set_level(0.0f);
 
       - lambda: |-
           if (!id(pid_autotune_running)) {
@@ -767,6 +889,30 @@ number:
     max_value: 300
     step: 0.5
     unit_of_measurement: "g"
+    mode: box
+
+  - platform: template
+    name: "Silvia Auto On Hour"
+    id: silvia_auto_on_hour
+    optimistic: true
+    restore_value: true
+    initial_value: 7
+    min_value: 0
+    max_value: 23
+    step: 1
+    unit_of_measurement: "h"
+    mode: box
+
+  - platform: template
+    name: "Silvia Auto On Minute"
+    id: silvia_auto_on_minute
+    optimistic: true
+    restore_value: true
+    initial_value: 0
+    min_value: 0
+    max_value: 59
+    step: 1
+    unit_of_measurement: "min"
     mode: box
 
   - platform: template
@@ -1227,6 +1373,13 @@ switch:
             - script.execute: status_led_update
 
   - platform: template
+    name: "Silvia Auto On Enabled"
+    id: silvia_auto_on_enabled
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+    icon: "mdi:clock-check-outline"
+
+  - platform: template
     name: "Silvia Scale Auto Tare"
     id: silvia_scale_auto_tare
     optimistic: true
@@ -1273,7 +1426,13 @@ switch:
       - switch.turn_off: silvia_brew_valve_relay
       - lambda: |-
           silvia_diag::finish_shot();
-          silvia_archive::save_current_shot();
+          // Persistence is deliberately NOT done here. Writing the archive is a
+          // multi-hundred-millisecond flash operation, and doing it before the
+          // shot flag drops keeps the machine "brewing" for that whole time:
+          // the dashboard timer, which measures how long the shot switch was
+          // on, showed 31.2 s for a 29.1 s shot because of it. The once-a-second
+          // interval picks the capture up as soon as capture_active is false,
+          // which is now strictly after the shot has ended.
           id(brew_shot_running) = false;
           id(brew_shot_phase) = 0;
           id(brew_shot_phase_end_ms) = 0;
@@ -1562,9 +1721,15 @@ script:
           const uint32_t now = millis();
           const float pressure = id(silvia_brew_pressure).state;
           const uint32_t sensor_age = now - id(pressure_sensor_last_update_ms);
+          const uint32_t consecutive_errors =
+              id(silvia_xdb401_consecutive_errors).has_state()
+                  ? static_cast<uint32_t>(
+                        id(silvia_xdb401_consecutive_errors).state)
+                  : 0U;
           const bool sensor_ok = id(silvia_brew_pressure).has_state() &&
               std::isfinite(pressure) && pressure >= -0.5f &&
-              pressure <= 13.0f && sensor_age <= 1000U;
+              pressure <= 12.36f && sensor_age <= 350U &&
+              consecutive_errors < 2U;
           id(pressure_start_initial_bar) = sensor_ok ? pressure : NAN;
           id(pressure_start_previous_bar) = sensor_ok ? pressure : 0.0f;
           id(pressure_start_wait_started_ms) = now;
@@ -1588,10 +1753,16 @@ script:
                 const float pressure = id(silvia_brew_pressure).state;
                 const uint32_t now = millis();
                 const uint32_t sensor_age = now - id(pressure_sensor_last_update_ms);
+                const uint32_t consecutive_errors =
+                    id(silvia_xdb401_consecutive_errors).has_state()
+                        ? static_cast<uint32_t>(
+                              id(silvia_xdb401_consecutive_errors).state)
+                        : 0U;
                 id(pressure_start_wait_ms) = now - id(pressure_start_wait_started_ms);
                 if (!id(silvia_brew_pressure).has_state() ||
                     !std::isfinite(pressure) || pressure < -0.5f ||
-                    pressure > 13.0f || sensor_age > 1000U) {
+                    pressure > 12.36f || sensor_age > 350U ||
+                    consecutive_errors >= 2U) {
                   id(pressure_start_wait_active) = false;
                   silvia_diag::last_transition_reason =
                       silvia_diag::TransitionReason::START_SENSOR_INVALID;
@@ -1736,9 +1907,38 @@ script:
                                     float diag_predicted_target = 0.0f;
                                     const float diag_previous_output =
                                         id(pump_dimmer_output_value) * 100.0f;
-                                    bool diag_sensor_ok = id(silvia_brew_pressure).has_state() &&
+                                    const uint32_t consecutive_errors =
+                                        id(silvia_xdb401_consecutive_errors).has_state()
+                                            ? static_cast<uint32_t>(
+                                                  id(silvia_xdb401_consecutive_errors).state)
+                                            : 0U;
+                                    const bool pressure_packet_fresh =
+                                        id(silvia_brew_pressure).has_state() &&
                                         std::isfinite(pressure) && pressure >= -0.5f &&
-                                        pressure <= 13.0f && sensor_age <= 1000U;
+                                        pressure <= 12.36f && sensor_age <= 350U &&
+                                        consecutive_errors < 2U;
+                                    if (!pressure_packet_fresh) {
+                                      id(pressure_sensor_fault_latched) = true;
+                                      id(pressure_sensor_recovery_samples) = 0;
+                                      id(pressure_sensor_recovery_last_update_ms) =
+                                          id(pressure_sensor_last_update_ms);
+                                    } else if (id(pressure_sensor_fault_latched) &&
+                                               id(pressure_sensor_last_update_ms) !=
+                                                   id(pressure_sensor_recovery_last_update_ms)) {
+                                      id(pressure_sensor_recovery_last_update_ms) =
+                                          id(pressure_sensor_last_update_ms);
+                                      if (id(pressure_sensor_recovery_samples) < 3U) {
+                                        id(pressure_sensor_recovery_samples)++;
+                                      }
+                                      if (id(pressure_sensor_recovery_samples) >= 3U) {
+                                        id(pressure_sensor_fault_latched) = false;
+                                        id(pressure_sensor_recovery_samples) = 0;
+                                      }
+                                    }
+                                    bool diag_sensor_ok =
+                                        pressure_packet_fresh &&
+                                        !id(pressure_sensor_fault_latched);
+                                    id(pressure_sensor_control_valid) = diag_sensor_ok;
                                     bool diag_pi_enabled = false;
                                     silvia_diag::StartupState diag_startup_state =
                                         silvia_diag::StartupState::POWER;
@@ -1932,6 +2132,19 @@ script:
                                                   0.0f,
                                                   diag_predicted_pressure -
                                                       diag_predicted_target);
+                                          // Per-tick authority of the brake and
+                                          // the boost has to scale with the loop
+                                          // period, otherwise halving the period
+                                          // silently doubles their effect per
+                                          // second. Hoisted out of the brake
+                                          // branch so the boost below uses the
+                                          // very same factor.
+                                          const float update_scale =
+                                              std::max(
+                                                  0.5f,
+                                                  std::min(
+                                                      2.5f,
+                                                      pressure_dt / 0.2f));
                                           float rise_rate_brake = 0.0f;
                                           // Keep braking while hydraulic inertia is
                                           // still raising pressure, even after the
@@ -1942,12 +2155,6 @@ script:
                                                   desired_pressure_slope &&
                                               (diag_error > 0.0f ||
                                                predicted_excess > 0.10f)) {
-                                            const float update_scale =
-                                                std::max(
-                                                    0.5f,
-                                                    std::min(
-                                                        2.5f,
-                                                        pressure_dt / 0.2f));
                                             rise_rate_brake = std::min(
                                                 0.12f * update_scale,
                                                 (diag_pressure_slope -
@@ -1962,7 +2169,7 @@ script:
                                               diag_pressure_slope <=
                                                   desired_pressure_slope) {
                                             pressure_recovery_boost = std::min(
-                                                0.020f,
+                                                0.020f * update_scale,
                                                 0.04f * (predicted_error - 0.15f) *
                                                     pressure_dt);
                                           }
@@ -2053,6 +2260,26 @@ script:
                                         id(pressure_control_incremental_initialized) = false;
                                       }
                                     }
+                                    // Pressure validity is a machine-level safety gate, not
+                                    // merely a PI input check. A stale or repeatedly failing
+                                    // XDB401 therefore removes pump drive in every brew phase.
+                                    if (!diag_sensor_ok) {
+                                      drive = 0.0f;
+                                      diag_feed_forward = 0.0f;
+                                      diag_p_term = 0.0f;
+                                      diag_i_term = 0.0f;
+                                      diag_pi_output = 0.0f;
+                                      diag_pi_enabled = false;
+                                      diag_startup_state =
+                                          silvia_diag::StartupState::SENSOR_FAIL;
+                                      id(pressure_control_integral) = 0.0f;
+                                      id(pressure_control_adaptive_feed_forward) = 0.0f;
+                                      id(pressure_control_incremental_drive) = 0.0f;
+                                      id(pressure_control_previous_predicted_error) = 0.0f;
+                                      id(pressure_control_incremental_initialized) = false;
+                                      id(pressure_control_last_update_ms) = 0U;
+                                      id(pressure_control_filtered_slope) = 0.0f;
+                                    }
                                     const float diag_weight = id(silvia_weight).state;
                                     const float diag_flow = id(silvia_scale_flow).state;
                                     const bool diag_scale_data_valid =
@@ -2110,6 +2337,9 @@ script:
                                         static_cast<uint32_t>(id(silvia_xdb401_rejected_packets).state),
                                         static_cast<uint32_t>(id(silvia_xdb401_total_errors).state),
                                         static_cast<uint32_t>(id(silvia_xdb401_consecutive_errors).state),
+                                        static_cast<uint32_t>(id(silvia_xdb401_link_errors).state),
+                                        static_cast<uint32_t>(id(silvia_xdb401_pressure_rejected).state),
+                                        static_cast<uint32_t>(id(silvia_xdb401_temperature_rejected).state),
                                         static_cast<uint8_t>(phase_index),
                                         static_cast<uint8_t>(phase.kind),
                                         phase.pump_enabled,
@@ -2139,7 +2369,7 @@ script:
                             else:
                               - script.execute: pump_output_off
                               - script.stop: run_active_shot_phase
-                        - delay: 200ms
+                        - delay: 100ms
                 else:
                   - if:
                       condition:
@@ -2186,9 +2416,7 @@ script:
                           : 1.0f;
                       const float pressure = id(silvia_brew_pressure).state;
                       const uint32_t sensor_age = now - id(pressure_sensor_last_update_ms);
-                      const bool sensor_ok = id(silvia_brew_pressure).has_state() &&
-                          std::isfinite(pressure) && pressure >= -0.5f &&
-                          pressure <= 13.0f && sensor_age <= 1000U;
+                      const bool sensor_ok = id(pressure_sensor_control_valid);
                       const float weight = id(silvia_weight).state;
                       const float flow = id(silvia_scale_flow).state;
                       const bool scale_data_valid =
@@ -2230,6 +2458,9 @@ script:
                           static_cast<uint32_t>(id(silvia_xdb401_rejected_packets).state),
                           static_cast<uint32_t>(id(silvia_xdb401_total_errors).state),
                           static_cast<uint32_t>(id(silvia_xdb401_consecutive_errors).state),
+                          static_cast<uint32_t>(id(silvia_xdb401_link_errors).state),
+                          static_cast<uint32_t>(id(silvia_xdb401_pressure_rejected).state),
+                          static_cast<uint32_t>(id(silvia_xdb401_temperature_rejected).state),
                           static_cast<uint8_t>(phase_index),
                           static_cast<uint8_t>(phase.kind),
                           phase.pump_enabled,
@@ -2260,7 +2491,7 @@ script:
                           id(silvia_stop_brew_by_weight).state,
                           id(pressure_start_initial_bar),
                           id(pressure_start_wait_ms)});
-                  - delay: 200ms
+                  - delay: 100ms
 
   - id: brew_shot_timer
     mode: restart
@@ -2359,7 +2590,9 @@ script:
             - switch.turn_off: silvia_brew_valve_relay
             - lambda: |-
                 silvia_diag::finish_shot();
-                silvia_archive::save_current_shot();
+                // See the note on the other shot-end path: the archive write is
+                // left to the once-a-second interval so that a flash stall
+                // never happens while the shot still counts as running.
                 id(brew_shot_running) = false;
                 id(brew_temperature_feed_forward_value) = 0.0f;
                 id(pressure_control_incremental_drive) = 0.0f;
@@ -2424,7 +2657,13 @@ script:
       - switch.turn_off: silvia_brew_valve_relay
       - lambda: |-
           silvia_diag::finish_shot();
-          silvia_archive::save_current_shot();
+          // Persistence is deliberately NOT done here. Writing the archive is a
+          // multi-hundred-millisecond flash operation, and doing it before the
+          // shot flag drops keeps the machine "brewing" for that whole time:
+          // the dashboard timer, which measures how long the shot switch was
+          // on, showed 31.2 s for a 29.1 s shot because of it. The once-a-second
+          // interval picks the capture up as soon as capture_active is false,
+          // which is now strictly after the shot has ended.
           id(brew_shot_running) = false;
           id(brew_temperature_feed_forward_value) = 0.0f;
           id(pressure_control_incremental_drive) = 0.0f;
@@ -3098,12 +3337,47 @@ sensor:
       if (id(pressure_sensor_last_update_ms) == 0U) return NAN;
       return (millis() - id(pressure_sensor_last_update_ms)) / 1000.0f;
 
+  # Real loop time measured on the ESP. Reports the worst loop iteration seen
+  # within each update_interval, which is what actually delays the driver's
+  # conversion callback and costs pressure samples.
+  - platform: debug
+    loop_time:
+      name: "Silvia Loop Time"
+      entity_category: diagnostic
+
+  - platform: template
+    name: "Silvia Pressure Interval Avg"
+    unit_of_measurement: "ms"
+    entity_category: diagnostic
+    accuracy_decimals: 0
+    update_interval: 5s
+    lambda: |-
+      if (id(pressure_interval_avg_ms) <= 0.0f) return NAN;
+      return id(pressure_interval_avg_ms);
+
+  - platform: template
+    name: "Silvia Pressure Interval Max"
+    unit_of_measurement: "ms"
+    entity_category: diagnostic
+    accuracy_decimals: 0
+    update_interval: 5s
+    lambda: |-
+      // Worst gap since the previous publish of this sensor, then reset,
+      // so the value always describes the last 5 s window.
+      const uint32_t worst = id(pressure_interval_max_ms);
+      id(pressure_interval_max_ms) = 0U;
+      if (worst == 0U) return NAN;
+      return worst;
+
   - platform: xdb401
     address: 0x7F
     pressure_range_bar: 12
     # Local driver waits 50 ms for a coherent conversion, then starts the
-    # next conversion on a 200 ms cadence (5 pressure samples per second).
-    update_interval: 200ms
+    # next conversion on a 100 ms cadence (10 pressure samples per second).
+    # 100 ms halves the per-sample pressure step seen by the driver's slew
+    # check and keeps a single dropped packet well inside the 350 ms
+    # sensor_age fail-safe below, which a 200 ms cadence could not do.
+    update_interval: 100ms
     pressure:
       name: "Silvia Brew Pressure"
       id: silvia_brew_pressure
@@ -3117,7 +3391,25 @@ sensor:
             send_every: 1
       on_value:
         then:
-          - lambda: 'id(pressure_sensor_last_update_ms) = millis();'
+          - lambda: |-
+              const uint32_t now = millis();
+              if (id(pressure_sensor_last_update_ms) != 0U) {
+                const uint32_t delta = now - id(pressure_sensor_last_update_ms);
+                // Ignore absurd gaps (reboot, clock oddities) so one outlier
+                // cannot poison the running average.
+                if (delta > 0U && delta < 5000U) {
+                  if (id(pressure_interval_avg_ms) <= 0.0f) {
+                    id(pressure_interval_avg_ms) = delta;
+                  } else {
+                    id(pressure_interval_avg_ms) =
+                        id(pressure_interval_avg_ms) * 0.9f + delta * 0.1f;
+                  }
+                  if (delta > id(pressure_interval_max_ms)) {
+                    id(pressure_interval_max_ms) = delta;
+                  }
+                }
+              }
+              id(pressure_sensor_last_update_ms) = now;
     temperature:
       name: "Silvia Pressure Sensor Temperature"
       id: silvia_pressure_sensor_temperature
@@ -3145,6 +3437,24 @@ sensor:
       id: silvia_xdb401_consecutive_errors
     last_error:
       name: "Silvia XDB401 Last Error"
+    # Link errors are the only counter that can mean broken hardware.
+    # Rejections below mean the transfer was fine and our filter refused
+    # the value, so they are kept strictly separate.
+    link_errors:
+      name: "Silvia XDB401 Link Errors"
+      id: silvia_xdb401_link_errors
+    pressure_rejected:
+      name: "Silvia XDB401 Pressure Rejected"
+      id: silvia_xdb401_pressure_rejected
+    temperature_rejected:
+      name: "Silvia XDB401 Temperature Rejected"
+      id: silvia_xdb401_temperature_rejected
+    last_rejection:
+      name: "Silvia XDB401 Last Rejection"
+      id: silvia_xdb401_last_rejection
+    health:
+      name: "Silvia XDB401 Health"
+      id: silvia_xdb401_health
 
   - platform: template
     name: "Silvia Free PSRAM"
@@ -3431,6 +3741,7 @@ sensor:
                 id(pt100_fault_count)++;
               }
               id(pt100_fault_active) = true;
+              id(pt100_fault_reason) = 1;
               return;
             }
 
@@ -3445,11 +3756,13 @@ sensor:
             }
 
             id(pt100_fault_active) = sudden_zero_drop;
+            id(pt100_fault_reason) = sudden_zero_drop ? 2 : 0;
             id(pt100_last_update_ms) = now;
             id(pt100_last_valid_temperature) = x;
     on_value_range:
       - above: ${overtemp_limit}
         then:
+          - lambda: 'id(overtemp_trip_count)++;'
           - logger.log:
               level: ERROR
               format: "Silvia overtemperature: heater and machine power disabled"
@@ -3479,6 +3792,13 @@ sensor:
     accuracy_decimals: 0
     update_interval: 2s
     lambda: 'return id(pt100_fault_count);'
+
+  - platform: template
+    name: "Silvia Overtemp Trip Count"
+    entity_category: diagnostic
+    accuracy_decimals: 0
+    update_interval: 5s
+    lambda: 'return id(overtemp_trip_count);'
 
       
 text_sensor:
@@ -3663,15 +3983,19 @@ text_sensor:
     name: "Silvia PT100 Diagnostic Status"
     entity_category: diagnostic
     update_interval: 1s
+    # Pure read. Fault detection is owned by the PT100 on_value handler and the
+    # 1 s staleness interval; this lambda must not mutate their state, so that
+    # disabling or hiding this entity cannot disable part of the detection.
     lambda: |-
       if (id(pt100_last_update_ms) == 0U) return {"NO_DATA"};
-      const uint32_t age = millis() - id(pt100_last_update_ms);
-      if (age > 3000U) {
-        if (!id(pt100_fault_active)) id(pt100_fault_count)++;
-        id(pt100_fault_active) = true;
-        return {"STALE"};
+      if (id(pt100_fault_active)) {
+        switch (id(pt100_fault_reason)) {
+          case 1: return {"INVALID"};
+          case 2: return {"SUDDEN_DROP"};
+          case 3: return {"STALE"};
+          default: return {"FAULT"};
+        }
       }
-      if (id(pt100_fault_active)) return {"SUDDEN_DROP"};
       if (!id(silvia_boiler_temp_pt100).has_state() ||
           !std::isfinite(id(silvia_boiler_temp_pt100).state)) return {"INVALID"};
       return {"OK"};
@@ -3784,10 +4108,17 @@ output:
           }
 
           // Never energize the heater while logical power is off, with an invalid
-          // reading, or above the safety limit.
+          // reading, with a stale reading, or above the safety limit.
+          // The age check mirrors the sensor_age fail-safe already used on the
+          // pressure path: a frozen sensor stays finite and below the overtemp
+          // limit forever, so age is the only thing that catches it.
+          const bool pt100_stale =
+              id(pt100_last_update_ms) == 0U ||
+              (millis() - id(pt100_last_update_ms)) > ${pt100_stale_ms}U;
           if (!id(silvia_power_state) ||
               !id(silvia_boiler_temp_pt100).has_state() ||
               !std::isfinite(temperature) ||
+              pt100_stale ||
               temperature >= ${overtemp_limit}f) {
             level = 0.0f;
             temperature_feed_forward = 0.0f;

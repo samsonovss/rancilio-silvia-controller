@@ -667,8 +667,18 @@ inline ShotProfile build_shot_profile(const std::string &profile,
 // Shot runner interpolation helpers
 // -----------------------------------------------------------------------------
 
+// Period of one shot-runner iteration, in milliseconds.
+//
+// This MUST match the `delay:` at the end of the run_active_shot_phase loop in
+// eso32-s3.yaml. A phase is executed as a fixed number of iterations, so the
+// two together decide how long a phase actually lasts in wall-clock time. When
+// the loop period was halved to 100 ms and this constant still said 200, every
+// phase finished in half its configured time: a 4 s preinfusion ran 2 s and a
+// 29 s shot ended after 14.5 s.
+inline constexpr uint32_t SHOT_STEP_MS = 100U;
+
 inline uint32_t phase_steps(const ShotPhase &phase,
-                            uint32_t update_ms = 200) {
+                            uint32_t update_ms = SHOT_STEP_MS) {
   if (phase.duration_ms == 0)
     return 0;
 

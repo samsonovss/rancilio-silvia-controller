@@ -24,6 +24,11 @@ CONF_REJECTED_PACKETS = "rejected_packets"
 CONF_TOTAL_ERRORS = "total_errors"
 CONF_CONSECUTIVE_ERRORS = "consecutive_errors"
 CONF_LAST_ERROR = "last_error"
+CONF_LINK_ERRORS = "link_errors"
+CONF_PRESSURE_REJECTED = "pressure_rejected"
+CONF_TEMPERATURE_REJECTED = "temperature_rejected"
+CONF_LAST_REJECTION = "last_rejection"
+CONF_HEALTH = "health"
 
 ERROR_COUNTER_SCHEMA = sensor.sensor_schema(
     accuracy_decimals=0,
@@ -51,8 +56,8 @@ CONFIG_SCHEMA = (
                 device_class=DEVICE_CLASS_PRESSURE,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
-            cv.Optional(CONF_PRESSURE_RANGE_BAR, default=10): cv.one_of(
-                1, 2, 5, 10, 20, 50, 100, int=True
+            cv.Optional(CONF_PRESSURE_RANGE_BAR, default=12): cv.one_of(
+                1, 2, 5, 10, 12, 20, 50, 100, int=True
             ),
             cv.Optional(CONF_START_ERRORS): ERROR_COUNTER_SCHEMA,
             cv.Optional(CONF_STATUS_ERRORS): ERROR_COUNTER_SCHEMA,
@@ -62,6 +67,15 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_TOTAL_ERRORS): ERROR_COUNTER_SCHEMA,
             cv.Optional(CONF_CONSECUTIVE_ERRORS): ERROR_COUNTER_SCHEMA,
             cv.Optional(CONF_LAST_ERROR): text_sensor.text_sensor_schema(
+                entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+            ),
+            cv.Optional(CONF_LINK_ERRORS): ERROR_COUNTER_SCHEMA,
+            cv.Optional(CONF_PRESSURE_REJECTED): ERROR_COUNTER_SCHEMA,
+            cv.Optional(CONF_TEMPERATURE_REJECTED): ERROR_COUNTER_SCHEMA,
+            cv.Optional(CONF_LAST_REJECTION): text_sensor.text_sensor_schema(
+                entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+            ),
+            cv.Optional(CONF_HEALTH): text_sensor.text_sensor_schema(
                 entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
             ),
         }
@@ -93,12 +107,21 @@ async def to_code(config):
         CONF_REJECTED_PACKETS: var.set_rejected_packet_sensor,
         CONF_TOTAL_ERRORS: var.set_total_error_sensor,
         CONF_CONSECUTIVE_ERRORS: var.set_consecutive_error_sensor,
+        CONF_LINK_ERRORS: var.set_link_error_sensor,
+        CONF_PRESSURE_REJECTED: var.set_pressure_rejected_sensor,
+        CONF_TEMPERATURE_REJECTED: var.set_temperature_rejected_sensor,
     }
     for key, setter in diagnostic_sensors.items():
         if sensor_config := config.get(key):
             sens = await sensor.new_sensor(sensor_config)
             cg.add(setter(sens))
 
-    if last_error_config := config.get(CONF_LAST_ERROR):
-        sens = await text_sensor.new_text_sensor(last_error_config)
-        cg.add(var.set_last_error_sensor(sens))
+    text_sensors = {
+        CONF_LAST_ERROR: var.set_last_error_sensor,
+        CONF_LAST_REJECTION: var.set_last_rejection_sensor,
+        CONF_HEALTH: var.set_health_sensor,
+    }
+    for key, setter in text_sensors.items():
+        if text_config := config.get(key):
+            sens = await text_sensor.new_text_sensor(text_config)
+            cg.add(setter(sens))
